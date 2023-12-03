@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import {  CssBaseline } from '@material-ui/core';
 import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
 import Link from '@material-ui/core/Link';
+import Container from '@material-ui/core/Container';
 import Divider from '@material-ui/core/Divider';
 import Avatar from '@material-ui/core/Avatar';
 import lodashCloneDeep from 'lodash/cloneDeep';
@@ -334,12 +335,13 @@ export default function MemberSpouse(props) {
 	<DisplaySpouseButtons />
 	<DisplaySpouseInformation />
 	{(isDrawerOpened !== "") &&
-	<Drawer key="RIGHT" anchor="right" variant="temporary" open={isDrawerOpened != ""}>
-	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
+	<Drawer key="TOP" anchor="top" variant="temporary" open={isDrawerOpened != ""}>
+	<Container component="main" maxWidth="xs">	
+	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
 	<VsCancel align="right" onClick={() => { setIsDrawerOpened("")}} />
 	{((isDrawerOpened === "EDITSPOUSE") || (isDrawerOpened === "APPLYSPOUSE")) &&
 		<div style={{paddingLeft: "10px", paddingRight: "10px" }}  >
-		<Typography className={gClasses.title}>{((isDrawerOpened === "EDITSPOUSE") ? "Edit" : "Application") + " for Spouse relationship"}</Typography>
+		<Typography align="center" className={gClasses.title}>{((isDrawerOpened === "EDITSPOUSE") ? "Edit" : "Application") + " for Spouse relationship"}</Typography>
 		<br />
 		{emurCoupleArray.map( (c, index) => {
 			//console.log(c);
@@ -352,7 +354,7 @@ export default function MemberSpouse(props) {
 					<Typography className={gClasses.patientInfo2Brown}>{c.gName}</Typography>
 				}
 				{(c.gName === '') &&
-					<VsButton align="left" name="Select Groom" onClick={() => selectBrideGroom(index, 'Groom')} />
+					<VsButton align="center"  name="Select Groom" onClick={() => selectBrideGroom(index, 'Groom')} />
 				}
 			</Grid>
 			<Grid item xs={1} sm={1} md={1} lg={1} >
@@ -410,9 +412,10 @@ export default function MemberSpouse(props) {
 		</div>
 	}	
 	</Box>
+	</Container>
 	</Drawer>
 	}
-	<Drawer ley="LEFT" anchor="left" variant="temporary" open={isLeftDrawerOpened != ""}>
+	<Drawer key="LEFT" anchor="left" variant="temporary" open={isLeftDrawerOpened != ""}>
 	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
 	<VsCancel align="right" onClick={() => { setIsLeftDrawerOpened("")}} />	
 	{(isLeftDrawerOpened === "ADDNEW") &&

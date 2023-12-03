@@ -60,6 +60,7 @@ import {
   PADSTYLE,
 	MEMBERTITLE, RELATION, SELFRELATION, GENDER, BLOODGROUP, MARITALSTATUS,
 	Options_Gender, Options_Marital_Status, Options_Blood_Group,
+	READMEMBERINITIAL,
 } from "views/globals.js";
 
 
@@ -145,27 +146,52 @@ export default function Prws() {
 			setDispType(displayType(myDim.width));
 		}
 		
-		//const getDetails = async () => {	
-			// first get all members		
-		//}
-		
 		async function getAllMembers() {
+			if (!tmpMemData) {
+				try {
+					let tmpMemData = sessionStorage.getItem("MemberData");				
+					console.log("reading data from site");
+					let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/list/initial/${READMEMBERINITIAL}`;
+					let resp = await axios.get(myUrl);
+					var myData = resp.data;
+					setMemberMasterArray(myData);
+					setMemberArray(myData);
+					
+					// Now read balance
+					myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/list/next/${READMEMBERINITIAL}`;
+					resp = await axios.get(myUrl);
+					myData = myData.concat(resp.data);
+					setMemberMasterArray(myData);
+					setMemberArray(myData);
+					setPage(0);
+					// save it in storage
+					sessionStorage.setItem("MemberData", JSON.stringify(myData) );
+					//Not here. It will be done in remaining function.   sessionStorage.setItem("directory", JSON.stringify(resp.data));
+				} catch (e) {
+					console.log("Error fetching member data");
+					//setMemberArray([]);
+				}	
+			}
+			else {
+				var tmpMemData = JSON.parse(tmpMemData);
+				setMemberMasterArray(tmpMemData);
+				setMemberArray(tmpMemData);				
+				setPage(0);
+			}
+		}
+		
+		async function getRemainingMembers() {
 			try {
 				let tmpMemData = sessionStorage.getItem("MemberData");
-				//console.log(tmpMemData);
 				if (!tmpMemData) {
 					console.log("reading data from site");
-					let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/list/all`;
+					let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/list/next/${READMEMBERINITIAL}`;
 					let resp = await axios.get(myUrl);
 					//console.log("Success. Length: " + resp.data.length);
-					tmpMemData = JSON.stringify(resp.data);
+					tmpMemData = JSON.stringify(memberArray.concat(resp.data));
 					sessionStorage.setItem("MemberData", tmpMemData);
 					console.log("Length is :", tmpMemData.length);
 				}
-				tmpMemData = JSON.parse(tmpMemData);
-				setMemberMasterArray(tmpMemData);
-				setMemberArray(tmpMemData);
-				setPage(0);
 				//sessionStorage.setItem("directory", JSON.stringify(resp.data));
 			} catch (e) {
 				console.log("Error fetching member data");
@@ -222,7 +248,8 @@ export default function Prws() {
 			}
 		}
 		getAllMembers();
-		getAllCities()
+		getAllCities();
+		//getRemainingMembers();
 		handleResize();
 		window.addEventListener('resize', handleResize);
 		return () => window.removeEventListener('resize', handleResize);
@@ -439,6 +466,7 @@ export default function Prws() {
 		//console.log(contextParams);
 		var myStyle={top: `${contextParams.y}px` , left: `${contextParams.x}px` };
 		//console.log(myStyle);
+		//console.log(grpAnchorEl);
 		//anchorEl={grpAnchorEl}
 	return(
 	<div ref={menuRef} className='absolute z-20' style={myStyle}>
@@ -526,7 +554,7 @@ export default function Prws() {
 						<Typography style={{paddingLeft: "5px"}}>
 						{filterList.map( (m, index) => {
 							return (
-								<span style={{marginLeft: "5px", paddingLeft: "5px"}} className={gClasses.filterItem} >
+								<span key={"FILTER"+index} style={{marginLeft: "5px", paddingLeft: "5px"}} className={gClasses.filterItem} >
 									{m.item}: {m.value}
 									<CancelIcon size="small" style={{paddingTop: "8px"}} color="secondary" onClick={() => removeFilter(m.item) } />
 								</span>
@@ -565,13 +593,6 @@ export default function Prws() {
 				</Grid>
 			</Grid>			
 		</Box>
-		{/*<div align= "left">
-			<VsButton name="Family"  onClick={jumpFamily} />
-			<VsButton name="Pjym" onClick={jumpPjym} />
-			<VsButton name="Humad" onClick={jumpHumad} />
-			<VsButton name="Gotra" onClick={jumpGotra} />
-			<VsButton name="Export" onClick={downloadPrwsData} />
-		</div>*/}
 		<PersonalHeader dispType={dispType} />
 		{/* display members here */}
 		{memberArray.slice(page*ROWSPERPAGE, (page+1)*ROWSPERPAGE).map( (m, index) => {

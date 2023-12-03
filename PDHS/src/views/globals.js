@@ -14,6 +14,8 @@ export const PADSTYLE = {paddingLeft: "10px", paddingRight: "10px" };
 export const VISITTYPE = {pending: "pending", expired: "expired", cancelled: "cancelled", visit: ""};
 export const WALLETTYPE = {all: "all", wallet: "wallet", bonus: "bonus"};
 
+export const READMEMBERINITIAL = 10;
+
 export const ALPHABETSTR = [
 "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
 "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",

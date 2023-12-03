@@ -21,13 +21,7 @@ router.get('/list/all', async function (req, res) {
   setHeader(res);
   var {fName, mName, lName } = req.params;
 
-	console.log("getting list");
-	let filterQuery;
-	filterQuery = {};
-	filterQuery["ceased"] = false;
-	//console.log(filterQuery);
-
-	let myData = await M_Member.find(filterQuery).sort({lastName: 1, firstName: 1, middleName: 1});
+	let myData = await M_Member.find({ceased: false}).sort({lastName: 1, firstName: 1, middleName: 1});
 	for (var i=0; i< myData.length; ++i) {
 		myData[i].email = dbToSvrText(myData[i].email);
 		myData[i].email1 = dbToSvrText(myData[i].email1);
@@ -35,6 +29,33 @@ router.get('/list/all', async function (req, res) {
 	console.log(myData.length);
 	sendok(res, myData);
 });		
+
+router.get('/list/initial/:count', async function (req, res) {
+  setHeader(res);
+  var { count } = req.params;
+
+	let myData = await M_Member.find({ceased: false}).sort({lastName: 1, firstName: 1, middleName: 1}).limit(Number(count));
+	for (var i=0; i< myData.length; ++i) {
+		myData[i].email = dbToSvrText(myData[i].email);
+		myData[i].email1 = dbToSvrText(myData[i].email1);
+	}
+	console.log(myData.length);
+	sendok(res, myData);
+});	
+
+router.get('/list/next/:count', async function (req, res) {
+  setHeader(res);
+  var { count } = req.params;
+
+	let myData = await M_Member.find({ceased: false}).sort({lastName: 1, firstName: 1, middleName: 1}).skip(Number(count));
+	for (var i=0; i< myData.length; ++i) {
+		myData[i].email = dbToSvrText(myData[i].email);
+		myData[i].email1 = dbToSvrText(myData[i].email1);
+	}
+	console.log(myData.length);
+	sendok(res, myData);
+});	
+
 
 router.get('/city/all', async function (req, res) {
   setHeader(res);

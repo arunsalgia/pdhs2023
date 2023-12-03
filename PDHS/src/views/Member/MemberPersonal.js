@@ -196,7 +196,7 @@ export default function MemberPersonal(props) {
 
 	// move up / down member 
 	function handleMoveUpMember() {
-		handlePrwsContextMenuClose();
+		handleMemPerContextMenuClose();
 		//console.log(radioMid);
 		let index = memberArray.findIndex(x => x.mid === radioMid);
 		let tmpArray = [].concat(memberArray);
@@ -215,7 +215,7 @@ export default function MemberPersonal(props) {
 	}
 
 	function handleMoveDownMember() {
-		handlePrwsContextMenuClose();
+		handleMemPerContextMenuClose();
 		//let index = radioRecord;
 		let index = memberArray.findIndex(x => x.mid === radioMid);
 		let tmpArray = [].concat(memberArray);
@@ -235,9 +235,10 @@ export default function MemberPersonal(props) {
 
 	// edit member details
 	
-		function handlePersonalEdit() {
-		handlePrwsContextMenuClose();			
-		let m = memberArray[radioRecord];
+	function handlePersonalEdit() {
+		handleMemPerContextMenuClose();		
+		//console.log(radioMid);
+		let m = memberArray.find(x => x.mid === radioMid);			//	memberArray[radioRecord];
 		setEmurAddr1(m.title);
 		setEmurAddr2(m.lastName);
 		setEmurAddr3(m.firstName);
@@ -293,6 +294,8 @@ export default function MemberPersonal(props) {
 			<div align="right">
 				<VsButton name="Pjym" onClick={() => samitiMembership("PJYM") } />
 				<VsButton name="Humad" onClick={() => samitiMembership("HUMAD") } />
+				{ (false) &&
+				<div>
         {(radioRecord == 0) &&
 				<VsButton name="Merge Family" onClick={() => splitFamily("APPLYSPLIT", radioRecord) } />
         }
@@ -304,6 +307,8 @@ export default function MemberPersonal(props) {
 				<VsButton name="Move Up" disabled={!showUp} onClick={handleMoveUpMember} />
 				<VsButton name="Move Down" disabled={!showDown} onClick={handleMoveDownMember} />
 				<VsButton name="Edit Details" onClick={handlePersonalEdit} />
+				</div>
+				}
 			</div>
 		}
 		{(false) &&
@@ -335,27 +340,30 @@ export default function MemberPersonal(props) {
 	{memberArray.map( (m, index) => {
 		if (m.ceased) return null;
 		//var cityRec = cityArray.find( x => x.hid === m.hid ); // get City record
-			return (
-	<PersonalMember key={"MEMBER"+index} m={m} dispType={dispType}  index={index} 
-			onClick={(event) => { radioMid = m.mid; handlePrwsContextMenu(event); }}
-			datatip={getMemberTip(m, dispType, "")} />
-		)})}
+		return (
+			<PersonalMember key={"MEMBER"+index} m={m} dispType={dispType}  index={index} 
+					onClick={(event) => { radioMid = m.mid; handleMemberPersonalContextMenu(event); }}
+					datatip={getMemberTip(m, dispType, "")} />
+		)}
+	)}
 	{contextParams.show && <MemberPersonalContextMenu /> }		
 	</div>	
 	)}
 
-	const handlePrwsContextMenu = (e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) => {
+	const junkhandlePrwsContextMenu = (e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) => {
 		e.preventDefault();
 		setGrpAnchorEl(e.currentTarget);
 		//console.log(e.currentTarget);
 		//console.log(radioMid);
 		const {pageX, pageY } = e;
+		console.log(pageX, pageY);
 		setContextParams({show: true, x: pageX, y: pageY});
 	}
 	
 	 
  
 	function MemberPersonalContextMenu() {
+		//console.log("in MemberPersonalContextMenu");
 		let family = (memberArray[0].hid === loginHid);
 		let admin = ((adminInfo & (ADMIN.superAdmin | ADMIN.prwsAdmin)) !== 0);
 		//console.log(myIndex, family, admin);
@@ -364,12 +372,13 @@ export default function MemberPersonal(props) {
 		var tmp = memberArray.find(x => x.mid === radioMid);
 		if (!tmp) return;
 		var myIndex = memberArray.findIndex(x => x.mid === radioMid);
-		console.log(memberArray[0].hid, loginHid);
+		//console.log(memberArray[0].hid, loginHid);
 		
     let myName = tmp.firstName + " " + tmp.lastName;
 		//console.log(contextParams);
 		var myStyle={top: `${contextParams.y}px` , left: `${contextParams.x}px` };
 		//console.log(myStyle);
+		//console.log(grpAnchorEl);
 		//anchorEl={grpAnchorEl}	
 		//console.log(myIndex);
 	return(
@@ -387,7 +396,7 @@ export default function MemberPersonal(props) {
 			horizontal: 'center',
 		}}
 		open={contextParams.show}
-		onClose={handlePrwsContextMenuClose}
+		onClose={handleMemPerContextMenuClose}
 	>
 		<Typography className={gClasses.patientInfo2Blue} style={{paddingLeft: "5px", paddingRight: "5px"}}>{tmp.firstName + " " + tmp.lastName}</Typography>
 		<Divider />
@@ -406,14 +415,28 @@ export default function MemberPersonal(props) {
 		<MenuItem disabled={(myIndex == 0) || !admin } onClick={() => ceasedMember("APPLYCEASED")} >
 			<Typography>Ceased</Typography>
 		</MenuItem>
-
+		<MenuItem disabled={(myIndex == 0) || !admin } onClick={() => splitFamily("APPLYSPLIT", radioRecord) } >
+			<Typography>Split family</Typography>
+		</MenuItem>
 	</Menu>	
 	</div>
 	)}
 	
- function handlePrwsContextMenuClose() { setContextParams({show: false, x: 0, y: 0}); }
+	const handleMemberPersonalContextMenu = (e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) => {
+		//console.log("In handleMemberPersonalContextMenu");
+		e.preventDefault();
+		setGrpAnchorEl(e.currentTarget);
+		//console.log(e.currentTarget);
+		//console.log(radioMid);
+		const {pageX, pageY } = e;
+		//console.log(pageX, pageY);
+		setContextParams({show: true, x: pageX, y: pageY});
+	}
+	
+	 
+ function handleMemPerContextMenuClose() { setContextParams({show: false, x: 0, y: 0}); }
  
- function jumpFamily() { handlePrwsContextMenuClose(); console.log("Hello"); }
+ function jumpFamily() { handleMemPerContextMenuClose(); console.log("Hello"); }
 	
 	function DisplayAllToolTips() {
 	return(
@@ -520,7 +543,7 @@ export default function MemberPersonal(props) {
 	
 	function ceasedMember(cmd) {
 		console.log("Cssed", cmd);
-		handlePrwsContextMenuClose();
+		handleMemPerContextMenuClose();
 		let m = memberArray.find(x => x.mid === radioMid);   // memberArray[radioRecord];
 		vsDialog("Ceased", `Are you sure you want to set ${getMemberName(m)} as ceased?`,
 		{label: "Yes", onClick: () => ceasedMemberConfirm(cmd) },
@@ -592,7 +615,7 @@ export default function MemberPersonal(props) {
 	
 	//var hodcmd;
 	function newHOD(cmd) {
-		handlePrwsContextMenuClose();
+		handleMemPerContextMenuClose();
 		var hodcmd = cmd;
 		let m = memberArray.find(x => x.mid === radioMid);   // memberArray[radioRecord];
 		vsDialog("New HOD", `Are you sure you want to set ${getMemberName(m)} as Hod?`,
@@ -674,23 +697,39 @@ export default function MemberPersonal(props) {
 		<Container component="main" maxWidth="xs">	
 		<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
 		<VsCancel align="right" onClick={() => { setIsDrawerOpened("")}} />
-		<ValidatorForm align="center" className={gClasses.form} onSubmit={handleCeasedMemberSubmit}>
-		<Typography className={gClasses.title}>{((isDrawerOpened === "EDITCEASED") ? "Update" : "Apply") + " as ceased "+getMemberName(memberArray[radioRecord])}</Typography>
+		<ValidatorForm align="left"  className={gClasses.form} onSubmit={handleCeasedMemberSubmit}>
+		<Typography align="center" className={gClasses.title}>{((isDrawerOpened === "EDITCEASED") ? "Update" : "Apply") + " as ceased"}</Typography>
 		<br />
-		<Typography className={gClasses.title}>{"Ceased date"}</Typography>
+		<br />
+		<Grid key="ADEDITAPPLYCEASEDMEMBERPERSONAL" className={gClasses.noPadding} container  alignItems="flex-start" >
+			<Grid item xs={5} sm={5} md={5} lg={5} >
+				<Typography className={gClasses.patientInfo2Blue} >Name</Typography>
+			</Grid>		
+			<Grid item xs={7} sm={7} md={7} lg={7} >
+				<Typography className={gClasses.patientInfo2} >{getMemberName(memberArray[radioRecord])}</Typography>
+			</Grid>		
+			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+			<Grid item xs={5} sm={5} md={5} lg={5} >
+				<Typography className={gClasses.patientInfo2Blue} >Ceased date</Typography>
+			</Grid>
+			<Grid item xs={7} sm={7} md={7} lg={7} >
+				<Datetime 
+					className={gClasses.dateTimeBlock}
+					inputProps={{className: gClasses.dateTimeNormal}}
+					timeFormat={false} 
+					initialValue={emurDate1}
+					dateFormat="DD/MM/yyyy"
+					isValidDate={disableFutureDt}
+					onClose={setEmurDate1}
+					closeOnSelect={true}
+				/>
+			</Grid>
+			<Grid style={{margin: "20px"}} item xs={12} sm={12} md={12} lg={12} />
+		</Grid>
 		<BlankArea />
-		<Datetime 
-			className={gClasses.dateTimeBlock}
-			inputProps={{className: gClasses.dateTimeNormal}}
-			timeFormat={false} 
-			initialValue={emurDate1}
-			dateFormat="DD/MM/yyyy"
-			isValidDate={disableFutureDt}
-			onClose={setEmurDate1}
-			closeOnSelect={true}
-			/>
-			<BlankArea />
-			<VsButton name={(isDrawerOpened === "APPLYCEASED") ? "Apply" : "Update"} type="submit" />
+		<BlankArea />
+		<BlankArea />
+		<VsButton align="center" name={(isDrawerOpened === "APPLYCEASED") ? "Apply" : "Update"} type="submit" />
 		</ValidatorForm>
 		</Box>
 		</Container>
@@ -976,29 +1015,35 @@ export default function MemberPersonal(props) {
 	}	
 	{((isDrawerOpened === "EDITSPLIT") ||  (isDrawerOpened === "APPLYSPLIT")) &&
 	<div>
-		<Typography align="center" style={PADSTYLE} className={gClasses.title}>{((isDrawerOpened === "EDITSPLIT") ? "Create" : "Apply") + " new family (Select members and Hod for new family)"}</Typography>
+		<Container component="main" maxWidth="xs">	
+		<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
+		<VsCancel align="right" onClick={() => { setIsDrawerOpened("")}} />
+		<Typography align="center" style={PADSTYLE} className={gClasses.title}>{((isDrawerOpened === "EDITSPLIT") ? "Create" : "Apply") + " new family"}</Typography>
+		<Typography align="center" style={PADSTYLE} className={gClasses.title}>(Select members and Hod for new family)</Typography>
 		<br />
-		<Grid className={gClasses.noPadding} key={"NEWFAMHDR"} container alignItems="center" align="center">
-		<Grid item xs={12} sm={12} md={8} lg={8} >
-			<Typography className={gClasses.titleOrange}>{"Member Name"}</Typography>
-		</Grid>	
-		<Grid item xs={4} sm={4} md={2} lg={2} >
-		<Typography className={gClasses.titleOrange}>{"Transfer"}</Typography>
-		</Grid>
-		<Grid item xs={4} sm={4} md={2} lg={2} >
-		<Typography className={gClasses.titleOrange}>{"HOD"}</Typography>
-		</Grid>
+		<Grid key="ADEDITSPLITMEMBERPERSONALHDR" className={gClasses.noPadding} container  alignItems="flex-start" >
+			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+			<Grid item xs={8} sm={8} md={8} lg={8} >
+				<Typography className={gClasses.titleOrange}>{"Member Name"}</Typography>
+			</Grid>	
+			<Grid item xs={2} sm={2} md={2} lg={2} >
+				<Typography className={gClasses.titleOrange}>{"Transfer"}</Typography>
+			</Grid>
+			<Grid item xs={2} sm={2} md={2} lg={2} >
+				<Typography className={gClasses.titleOrange}>{"HOD"}</Typography>
+			</Grid>
+			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 		</Grid>	
 		{emurList.map( (m, index) => {
 			return (
-				<Grid className={gClasses.noPadding} key={"NEWFAM"+index} container alignItems="center" align="center">
-				<Grid align="left" item xs={12} sm={12} md={8} lg={8} >
+				<Grid key={"ADEDITSPLITMEMBERPERSONALDATA"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
+				<Grid style={{marginTop: "10px"}}  item xs={8} sm={8} md={8} lg={8} >
 					<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{m.name}</Typography>
 				</Grid>	
-				<Grid item xs={4} sm={4} md={2} lg={2} >
+				<Grid item xs={2} sm={2} md={2} lg={2} >
 					<VsCheckBox checked={emurList[index].transfer} onClick={() => updateSPtransfer(index, !emurList[index].transfer) }  />
 				</Grid>
-				<Grid item xs={4} sm={4} md={2} lg={2} >
+				<Grid item xs={2} sm={2} md={2} lg={2} >
 					<VsRadio checked={emurList[index].hod} onClick={() => updateSPhod(index, !emurList[index].hod)}  />
 				</Grid>
 				</Grid>	
@@ -1007,6 +1052,8 @@ export default function MemberPersonal(props) {
 		<DisplayRegisterStatus />
 		<BlankArea />
 		<VsButton align="center" name="Create New Family" onClick={handleNewFamilySubmit} />
+		</Box>
+		</Container>
 	</div>
 	}
 	</Drawer>

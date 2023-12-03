@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import {  CssBaseline } from '@material-ui/core';
 import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
 import Divider from '@material-ui/core/Divider';
+import Container from '@material-ui/core/Container';
 import Avatar from '@material-ui/core/Avatar';
 import Tooltip from "react-tooltip";
 
@@ -224,7 +225,7 @@ export default function MemberOffice(props) {
 	return(
 		<div>
 		{memberArray.map( t =>
-			<DisplaySingleTip id={"MEMBER"+t.mid} />
+			<DisplaySingleTip key={"MEMBER"+t.mid} id={"MEMBER"+t.mid} />
 		)}
 		</div>
 	)}
@@ -247,7 +248,7 @@ export default function MemberOffice(props) {
       } 
     //myInfo +=  "Email Id : " +  dispEmail(m.email);
 			return (
-				<PersonalOffice m={m} dispType={dispType}  index={index} 
+				<PersonalOffice key={"Office"+m.mid} m={m} dispType={dispType}  index={index} 
 					checked={radioRecord == m.order} onClick={() => setRadioRecord(m.order)}
 					datatip={myInfo} 
 				/>
@@ -290,36 +291,61 @@ export default function MemberOffice(props) {
 	<DisplayOfficeInformation />
 	<DisplayAllToolTips />
 	<Drawer 
-		anchor="right"
+		anchor="top"
 		variant="temporary"
 		open={isDrawerOpened != ""}
 	>
-	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
-	<VsCancel align="right" onClick={() => { setIsDrawerOpened("")}} />
 	{(isDrawerOpened === "EDITOFFICE") &&
+		<Container component="main" maxWidth="xs">	
+		<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
+		<VsCancel align="right" onClick={() => { setIsDrawerOpened("")}} />
 		<ValidatorForm align="left" className={gClasses.form} onSubmit={handleEditOfficeSubmit}>
 		<Typography style={PADSTYLE} className={gClasses.title}>{"Edit office details of "+emurAddr4}</Typography>
 		<BlankArea />
-		<TextValidator fullWidth className={gClasses.vgSpacing}
-			label="Qualification" type="text"
-			value={emurAddr1}
-			onChange={(event) => { setEmurAddr1(event.target.value) }}			
-		/>
-		<TextValidator  fullWidth className={gClasses.vgSpacing}
-			label="Office Details" type="text"
-			value={emurAddr2}
-			onChange={(event) => { setEmurAddr2(event.target.value) }}			
-		/>
-		<TextValidator className={gClasses.vgSpacing}
-			label="Office Phone" type="text"
-			value={emurAddr3}
-			onChange={(event) => { setEmurAddr3(event.target.value) }}			
-		/>
+			<Grid key="ADEDITMEMBERGENERAL" className={gClasses.noPadding} container  alignItems="flex-start" >
+			<Grid style={{margin: "20px"}} item xs={12} sm={12} md={12} lg={12} />
+			<Grid item xs={4} sm={4} md={4} lg={4} >
+				<Typography style={{marginTop: "20px"}} className={gClasses.patientInfo2Blue} >Qualification</Typography>
+			</Grid>
+			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
+				<TextValidator fullWidth className={gClasses.vgSpacing}
+					label="Qualification" type="text"
+					value={emurAddr1}
+					onChange={(event) => { setEmurAddr1(event.target.value) }}			
+				/>
+			</Grid>
+			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+
+			<Grid item xs={4} sm={4} md={4} lg={4} >
+				<Typography style={{marginTop: "20px"}} className={gClasses.patientInfo2Blue} >Office Details</Typography>
+			</Grid>
+			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
+				<TextValidator  fullWidth className={gClasses.vgSpacing}
+					label="Office Details" type="text"
+					value={emurAddr2}
+					onChange={(event) => { setEmurAddr2(event.target.value) }}			
+				/>
+			</Grid>
+			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+
+			<Grid item xs={4} sm={4} md={4} lg={4} >
+				<Typography style={{marginTop: "20px"}}  className={gClasses.patientInfo2Blue} >Office Phone</Typography>
+			</Grid>
+			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
+				<TextValidator className={gClasses.vgSpacing}
+					label="Office Phone" type="text"
+					value={emurAddr3}
+					onChange={(event) => { setEmurAddr3(event.target.value) }}			
+				/>
+			</Grid>
+			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+		</Grid>
 		<BlankArea />
 		<VsButton align="center" name="Update" type="submit" />
 		</ValidatorForm>
+		</Box>
+		</Container>
 	}	
-	</Box>
 	</Drawer>
   </div>
   );    

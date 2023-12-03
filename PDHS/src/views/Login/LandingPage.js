@@ -78,7 +78,10 @@ async function handleSubmitMobile(e) {
   <br />
   <br />
   <Grid  key="LandingPage" container align="center">
-		<Grid item xs={6} sm={6} md={6} lg={6} align="center" >	
+		<Grid item xs={12} sm={12} md={6} lg={6} >	
+      <img src={`${process.env.PUBLIC_URL}/image/LANDINGPAGE.JPG`} />
+    </Grid>
+		<Grid item xs={12} sm={12} md={6} lg={6} align="center" >	
       <br />
       <br />
       <br />
@@ -86,9 +89,11 @@ async function handleSubmitMobile(e) {
       <br />
       <br />
       <VsButton name="Get Started" onClick={handleGetStarted} />
-    </Grid>
-		<Grid item xs={6} sm={6} md={6} lg={6} >	
-      <img src={`${process.env.PUBLIC_URL}/image/LANDINGPAGE.JPG`} />
+			<br />
+      <br />
+			<br />
+      <br />
+			
     </Grid>
   </Grid>
 	</div>
