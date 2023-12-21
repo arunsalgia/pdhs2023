@@ -21,12 +21,19 @@ router.get('/list/all', async function (req, res) {
   setHeader(res);
   var {fName, mName, lName } = req.params;
 
-	let myData = await M_Member.find({ceased: false}).sort({lastName: 1, firstName: 1, middleName: 1});
+	//let myData = await M_Member.find({ceased: false}).sort({lastName: 1, firstName: 1, middleName: 1});
+	var clonedArray = _.cloneDeep(allMemberlist);
+	let myData = clonedArray.filter(x => !x.ceased);
 	for (var i=0; i< myData.length; ++i) {
-		myData[i].email = dbToSvrText(myData[i].email);
-		myData[i].email1 = dbToSvrText(myData[i].email1);
+		var tmp = dbdecrypt(myData[i].email);
+		//console.log(tmp);
+		tmp = encrypt(tmp);
+		//console.log(tmp);
+		myData[i].email = tmp;		//dbToSvrText(myData[i].email);
+		tmp = dbdecrypt(myData[i].email1);
+		tmp = encrypt(tmp);
+		myData[i].email1 = tmp;		//dbToSvrText(myData[i].email1);
 	}
-	console.log(myData.length);
 	sendok(res, myData);
 });		
 
@@ -131,7 +138,9 @@ router.post('/sethod/:mid', async function (req, res) {
 	hodRec.mid = mid;
 	hodRec.save();
 	
-	let myData = await M_Member.find({hid: hid, ceased: false}).sort({order: 1});
+	//let myData = await M_Member.find({hid: hid, ceased: false}).sort({order: 1});
+	let myData = _.cloneDeep(allMemberlist);
+	myData = myData.filter(x => !x.ceased && x.hid == hid);
 	myData[0].relation = "Relative";
 	for(let i=0, startOrder=1; i<myData.length; ++i) {
 		if (myData[i].mid === mid) {
@@ -140,7 +149,8 @@ router.post('/sethod/:mid', async function (req, res) {
 		} else	{
 			myData[i].order = startOrder++;
 		}
-		myData[i].save();
+		//myData[i].save();
+		await updateMember(myData[i]);
 	}
 	sendok(res, "Done");
 });	
@@ -250,14 +260,20 @@ router.post('/scrollup/:mid', async function (req, res) {
 	mid = Number(mid);
 	let hid = Math.trunc(mid / FAMILYMF);
 
-	let myData = await M_Member.find({hid: hid, ceased: false}).sort({order: 1});
+	//let myData = await M_Member.find({hid: hid, ceased: false}).sort({order: 1});
+	let myData = _.cloneDeep(allMemberlist);
+	myData = myData.filter(x => !x.ceased && x.hid === hid);
+	
 	myData[0].relation = "Relative";
 	for(let i=0, startOrder=1; i<myData.length; ++i) {
 		if (myData[i].mid !== mid) continue;
 		--myData[i].order;
 		++myData[i-1].order;		
-		myData[i-1].save();
-		myData[i].save();
+		//myData[i-1].save();
+		//myData[i].save();
+		updateMember(myData[i-1]);
+		updateMember(myData[i]);
+		
 	}
 	sendok(res, "Done");
 });	

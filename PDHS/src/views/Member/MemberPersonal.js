@@ -41,6 +41,7 @@ import globalStyles from "assets/globalStyles";
 import MoveUp    from '@material-ui/icons/ArrowUpwardRounded';
 import MoveDown  from '@material-ui/icons/ArrowDownwardRounded';
 import InfoIcon  from 	'@material-ui/icons/Info';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 import {
 	BlankArea,
@@ -688,7 +689,7 @@ export default function MemberPersonal(props) {
 	
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
-	<DisplayPersonalButtons />
+		{/*<DisplayPersonalButtons />*/}
 	<DisplayPersonalInformation />
 	<DisplayAllToolTips />
 

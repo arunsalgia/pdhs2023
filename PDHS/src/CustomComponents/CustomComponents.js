@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 //import ReactTooltip from "react-tooltip";
+import TextField from '@material-ui/core/TextField'; 
 import Tooltip from "react-tooltip";
 import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
@@ -15,6 +16,10 @@ import lodashSumBy from 'lodash/sumBy';
 //import VsCancel from "CustomComponents/VsCancel";
 
 import VsRadioSa from "CustomComponents/VsRadioSa";
+import VsButton from "CustomComponents/VsButton";
+import VsPdhsFilter from "CustomComponents/VsPdhsFilter";
+import VsSelect from "CustomComponents/VsSelect";
+
 
 import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
 import {red, blue, green, deepOrange, yellow} from '@material-ui/core/colors';
@@ -34,6 +39,7 @@ import {
 	HOURSTR, MINUTESTR, DATESTR, MONTHNUMBERSTR, MONTHSTR, INR,
 	APPLICATIONSTATUS, APPLICATIONTYPES,
 	AppHeaderStyle, AppDataStyle,
+  SELECTSTYLE, NORMALSELECTSTYLE,
 } from "views/globals.js";
 
 
@@ -44,6 +50,9 @@ import CancelIcon from '@material-ui/icons/Cancel';
 import EditIcon from 			'@material-ui/icons/Edit';
 //import PreviewIcon from '@material-ui/icons/Preview';
 import VisibilityIcon from '@material-ui/icons/Visibility';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
+
+
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -843,7 +852,8 @@ export function DisplayMemberHeader(props) {
 if (props.member === null) return null;
 const gClasses = globalStyles();	
 let patRec = props.member;
-//console.log(patRec);
+//console.log(props);
+//console.log("It is null",(patRec === null) ? true : false);
 return (
 <Box  style={{marginLeft: "5px", marginRight: "5px", marginBottom: "5px" }} className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1}>
 <Grid className={gClasses.noPadding} key="AllPatients" container align="left">
@@ -1083,7 +1093,7 @@ return (
 	</Grid>
 	<Grid  item xa={1} sm={1} md={1} lg={1} >
 		<Typography>
-		 <span><VisibilityIcon color="primary" size="small" onClick={props.onClick}	 /></span>
+		 <span><MoreVertIcon color="primary" size="small" onClick={props.onClick}	 /></span>
 		</Typography>
 	</Grid>
 </Grid>
@@ -1091,7 +1101,7 @@ return (
 
 );}
 
-export function PersonalOffice(props) {
+export function OrgPersonalOffice(props) {
 const gClasses = globalStyles();
 var dispType = props.dispType;
 var m = props.m;
@@ -1100,11 +1110,12 @@ return (
 <Grid key={"MEMGRID"+props.index} className={gClasses.noPadding} container justifyContent="center" alignItems="center" >
 	<Grid align="left" item xs={8} sm={8} md={5} lg={4} >
 		<Typography>
-			<span><VsRadioSa checked={props.checked}  onClick={props.onClick}  /></span>
+			{/*<span><VsRadioSa checked={props.checked}  onClick={props.onClick}  /></span>*/}
+			<span><MoreVertIcon color="primary" size="small" onClick={props.onClick}	 /></span>
 			<span style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2Blue } >{getMemberName(m)+" ("+dispAge(m.dob, m.gender)+")"}</span>
-				<span align="left" data-for={"MEMBER"+m.mid} data-tip={props.datatip} data-iscapture="true" >
+			<span align="left" data-for={"MEMBER"+m.mid} data-tip={props.datatip} data-iscapture="true" >
 				<InfoIcon color="primary" size="small"/>
-				</span>
+			</span>
 		</Typography>		
 	</Grid>
 	{((dispType != "xs") && (dispType != "sm"))  &&
@@ -1124,8 +1135,102 @@ return (
 </Box>
 );}
 
+export function PersonalOffice(props) {
+const gClasses = globalStyles();
+var dispType = props.dispType;
+var m = props.m;
+return (
+<Box  key={"MEMBOX"+props.index} className={((props.index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} borderColor="black" borderRadius={30} border={1} >
+<Grid key={"MEMGRID"+props.index} className={gClasses.noPadding} container justifyContent="center" alignItems="center" >
+	<Grid align="left" item xs={8} sm={8} md={4} lg={4} >
+		<Typography>
+			{/*<span><VsRadioSa checked={props.checked}  onClick={props.onClick}  /></span>*/}
+			<span style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2Blue } >{getMemberName(m)+" ("+dispAge(m.dob, m.gender)+")"}</span>
+			<span align="left" data-for={"MEMBER"+m.mid} data-tip={props.datatip} data-iscapture="true" >
+				<InfoIcon color="primary" size="small"/>
+			</span>
+		</Typography>		
+	</Grid>
+	{((dispType != "xs") && (dispType != "sm"))  &&
+		<Grid align="left" item md={3} lg={3} >
+			<Typography className={gClasses.patientInfo2}>{m.education}</Typography>
+		</Grid>
+	}
+	{((dispType !== "xs") && (dispType !== "sm"))  &&
+		<Grid align="left" item md={3} lg={3} >
+			<Typography className={gClasses.patientInfo2}>{m.officeName}</Typography>
+		</Grid>
+	}
+	<Grid align="left" item xs={3} sm={3} md={1} lg={1} >
+		<Typography className={gClasses.patientInfo2}>{m.officePhone}</Typography>
+	</Grid>
+	<Grid align="left" item xs={1} sm={1} md={1} lg={1} >
+		<span><MoreVertIcon color="primary" size="small" onClick={props.onClick}	 /></span>
+	</Grid>
+</Grid>
+</Box>
+);}
+
+
+
 export function DisplaySingleTip(props) {
 //console.log(props.id);
 const gClasses = globalStyles();
 return <Tooltip id={props.id} className={gClasses.tooltip} backgroundColor='#42EEF9' borderColor='black' arrowColor='blue' textColor='black' key={props.id} type="info" effect="float" id={props.id} multiline={true}/>
 }
+
+var inputFilterMode = false;
+
+export 	function DisplayPrwsFilter(props) {
+	const gClasses = globalStyles();
+	return(
+		<Box key="BOXPRWSFILTER" className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
+			<Grid key="GRIDPRWSFILTER" className={gClasses.noPadding} container>
+				<Grid align="left" item xs={10} sm={10} md={11} lg={11} >
+					<div>
+					{(!props.inputFilterMode) &&
+						<Typography style={{paddingLeft: "5px"}}>
+						{props.filterList.map( (m, index) => {
+							return (
+								<span key={"FILTER"+index} style={{marginLeft: "5px", paddingLeft: "5px"}} className={gClasses.filterItem} >
+									{m.item}: {m.value}
+									<CancelIcon size="small" style={{paddingTop: "8px"}} color="secondary" onClick={() => props.removeFilter(m.item)} />
+								</span>
+							)
+						})}
+						</Typography>
+					}
+					{(props.inputFilterMode) &&
+						<div>
+							{ (props.inputInfo.options) &&
+								<VsSelect 
+									inputProps={{className: gClasses.dateTimeNormal}} style={NORMALSELECTSTYLE} 
+									label={props.inputName} options={props.inputInfo.options} value={props.inputValue} 
+									onChange={props.selectClick} 
+								/>				
+							}
+							{ (!props.inputInfo.options) &&
+								<div>
+									<TextField id="outlined-required" label={props.inputName}
+										value={props.inputValue} type={props.inputInfo.type} autoFocus
+										onChange={(event) => { props.setInputValue(event.target.value); }}
+									/>
+									<VsButton  name="Apply"  onClick={props.applyClick} />
+									<VsButton name="Cancel" onClick={props.cancelClick } />
+								</div>
+							}
+						</div>
+					}
+					</div>
+				</Grid>
+				<Grid align="left" item xs={2} sm={2} md={1} lg={1} >
+					<div style={{paddingLeft: "5px", paddingRight: "5px"}} >
+					<VsPdhsFilter style={SELECTSTYLE} options={props.balanceFilterList} field="item"
+					value={props.lastFilter} onChange={props.pdhsFilter} />			
+					</div>
+				</Grid>
+			</Grid>			
+		</Box>
+	)
+};
+	

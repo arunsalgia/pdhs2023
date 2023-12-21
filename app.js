@@ -485,3 +485,21 @@ ALLDOCTORS = 0xFFFFFFFF;
 MAGICNUMBER = 99999;
 
 FAMILYMF = 1000;
+
+allMemberlist = [];
+
+updateMember = async function (m)  {
+	var tmpArray = allMemberlist.filter(x => x.mid !== m.mid);
+	allMemberlist = _.sortBy(tmpArray.concat([m]), [ 'lastName', 'middleName', 'firstName' ] );	
+	await m.save();
+}
+
+getAllMembers = async function () {
+	allMemberlist = await M_Member.find({}).sort({lastName: 1, middleName: 1, firstName: 1});
+// data = _.sortBy(data, ["a", "b"]);
+}
+
+getAllMembers();
+
+
+

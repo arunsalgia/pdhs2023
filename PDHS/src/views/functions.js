@@ -918,6 +918,7 @@ export function handleLogout() {
 	window.sessionStorage.setItem("uid", "")
 	window.sessionStorage.setItem("cid", "");
 	window.sessionStorage.setItem("userName", "");
+	window.sessionStorage.setItem("firstName", "");
 	window.sessionStorage.setItem("userType", "");
 	window.sessionStorage.setItem("currentLogin", "");
   window.sessionStorage.setItem("prwsLogin", "");
@@ -1018,32 +1019,23 @@ export function getMemberTip(m, dispType, city) {
 	// Tip Info
 	var tmp;
 	let myInfo = getMemberName(m) + "<br />";
-	myInfo +=  "Mem.Id.: " + m.mid + "<br />";
-	tmp = getAge(m.dob);
-	if (tmp != "-") myInfo +=  "Age: " + tmp  + "<br />";
-	
-	myInfo +=  "Gender: " +  m.gender + "<br />";
+	//console.log(m);
+	//return myInfo;
+
 	if ((dispType === "xs") || (dispType === "sm")) {
 		myInfo +=  "Relation : " +  getRelation(m.relation) + "<br />";
 		myInfo +=  "Mar. Sts : " +  m.emsStatus + "<br />";
 		myInfo +=  "Blood Grp: " +  m.bloodGroup + "<br />";
 	} 
-	if (city != "")
-		myInfo +=  "City: " +  city + "<br />";	
-	// alternate Mobile
-	tmp = m.mobile;
-	if (m.mobile1 != "") {
-		tmp += ((tmp != "") ? " / " : "") + m.mobile1;
-	}
+	if (city != "") myInfo +=  "City: " +  city + "<br />";	
+	
+	tmp = m.mobile + ((m.mobile1 != "") ? (" / " + m.mobile1) : "");
 	if (tmp != "") myInfo +=  "Mobile: " +  tmp + "<br />";
-
-	//console.log("Call Email");
+	
 	tmp = dispEmail(m.email);
-	//console.log("EM: "+tmp);
 	if (tmp != "")  myInfo +=  "Email : " +  tmp + "<br />";
 	tmp = dispEmail(m.email1);
 	if (tmp !== "") myInfo +=  "<br />" + "Email1: " + tmp + "<br />";
-
 
 	return myInfo;
 }
@@ -1057,3 +1049,4 @@ export function downloadTextFile(fileName, textData) {
 	document.body.appendChild(element);
 	element.click();
 }
+

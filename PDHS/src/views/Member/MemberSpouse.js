@@ -337,7 +337,7 @@ export default function MemberSpouse(props) {
 	{(isDrawerOpened !== "") &&
 	<Drawer key="TOP" anchor="top" variant="temporary" open={isDrawerOpened != ""}>
 	<Container component="main" maxWidth="xs">	
-	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
+	<Box key="spousebox" className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
 	<VsCancel align="right" onClick={() => { setIsDrawerOpened("")}} />
 	{((isDrawerOpened === "EDITSPOUSE") || (isDrawerOpened === "APPLYSPOUSE")) &&
 		<div style={{paddingLeft: "10px", paddingRight: "10px" }}  >
@@ -347,7 +347,7 @@ export default function MemberSpouse(props) {
 			//console.log(c);
 			return (
 			<div>
-			<Box style={{paddingLeft: "10px", paddingRight: "10px" }}   className={gClasses.boxStyle} borderColor="black" borderRadius={15} border={1} >
+			<Box key={"SPOUSE"+index}style={{paddingLeft: "10px", paddingRight: "10px" }}   className={gClasses.boxStyle} borderColor="black" borderRadius={15} border={1} >
 			<Grid key={"MEMGRID1"+index} className={gClasses.noPadding} container align="center" alignItems="center" >
 			<Grid align="left" item xs={11} sm={11} md={11} lg={11} >
 				{(c.gName !== '') &&

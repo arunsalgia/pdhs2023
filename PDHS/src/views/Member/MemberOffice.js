@@ -1,10 +1,13 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import {  CssBaseline } from '@material-ui/core';
 import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
 import Divider from '@material-ui/core/Divider';
 import Container from '@material-ui/core/Container';
 import Avatar from '@material-ui/core/Avatar';
 import Tooltip from "react-tooltip";
+
+import MenuItem from '@material-ui/core/MenuItem'; 
+import Menu from '@material-ui/core/Menu'; 
 
 import lodashCloneDeep from 'lodash/cloneDeep';
 import lodashSortBy from "lodash/sortBy";
@@ -76,6 +79,8 @@ import {  } from 'views/functions';
 //import { update } from 'lodash';
 //import { updateCbItem } from 'typescript';
 
+const InitialContextParams = {show: false, x: 0, y: 0};
+
 
 export default function MemberOffice(props) {
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
@@ -138,7 +143,10 @@ export default function MemberOffice(props) {
 
 	const [registerStatus, setRegisterStatus] = useState(0);
 
-	
+	const [contextParams, setContextParams] = useState(InitialContextParams);
+	const [grpAnchorEl, setGrpAnchorEl] = React.useState(null);
+	const grpOpen = Boolean(grpAnchorEl);
+	let menuRef = useRef();
 
 	
   useEffect(() => {	
@@ -203,8 +211,9 @@ export default function MemberOffice(props) {
 	)}
 
 	function handleOfficeEdit() {
+		handleOfficeContextMenuClose()
 		let m = memberArray.find(x => x.order === radioRecord);
-		console.log(m);
+		//console.log(m);
 		setEmurAddr1(m.education);
 		setEmurAddr2(m.officeName)
 		setEmurAddr3(m.officePhone)
@@ -230,6 +239,65 @@ export default function MemberOffice(props) {
 		</div>
 	)}
   
+	const handleMemberOfficeContextMenu = (e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) => {
+		e.preventDefault();
+		setGrpAnchorEl(e.currentTarget);
+		const {pageX, pageY } = e;
+		//console.log(pageX, pageY);
+		setContextParams({show: true, x: pageX, y: pageY});
+	}
+		
+	function handleOfficeContextMenuClose() { setContextParams({show: false, x: 0, y: 0}); }
+ 
+  
+	function MemberOfficeContextMenu() {
+		/*let family = (memberArray[0].hid === loginHid);
+		let admin = ((adminInfo & (ADMIN.superAdmin | ADMIN.prwsAdmin)) !== 0);
+		//console.log(myIndex, family, admin);
+		if (!family && !admin) return;
+		
+		
+		if (!tmp) return;
+		var myIndex = memberArray.findIndex(x => x.mid === radioMid);
+		//console.log(memberArray[0].hid, loginHid);
+		
+    let myName = tmp.firstName + " " + tmp.lastName;
+		//console.log(contextParams);
+		var myStyle={top: `${contextParams.y}px` , left: `${contextParams.x}px` };
+		//console.log(myStyle);
+		//console.log(grpAnchorEl);
+		//anchorEl={grpAnchorEl}	
+		//console.log(myIndex);*/
+		//console.log(memberArray, radioRecord);
+		var tmp = memberArray.find(x => x.order === radioRecord);
+		var myIndex = 2;
+		var myStyle={top: `${contextParams.y}px` , left: `${contextParams.x}px` };
+	return(
+	<div ref={menuRef} className='absolute z-20' style={myStyle}>
+	<Menu
+		id="memberpersonal-menu"
+		anchorEl={grpAnchorEl}
+		anchorOrigin={{
+			vertical: 'top',
+			horizontal: 'center',
+		}}
+		// keepMounted
+		transformOrigin={{
+			vertical: 'top',
+			horizontal: 'center',
+		}}
+		open={contextParams.show}
+		onClose={handleOfficeContextMenuClose}
+	>
+		<Typography className={gClasses.patientInfo2Blue} style={{paddingLeft: "5px", paddingRight: "5px"}}>{tmp.firstName + " " + tmp.lastName}</Typography>
+		<Divider />
+		<MenuItem onClick={handleOfficeEdit}>
+			<Typography>Edit</Typography>
+		</MenuItem>
+	</Menu>	
+	</div>
+	)}
+	
 	function DisplayOfficeInformation() {
 		let lastItemIndex =  memberArray.length-1;
     //console.log(dispType);
@@ -249,11 +317,12 @@ export default function MemberOffice(props) {
     //myInfo +=  "Email Id : " +  dispEmail(m.email);
 			return (
 				<PersonalOffice key={"Office"+m.mid} m={m} dispType={dispType}  index={index} 
-					checked={radioRecord == m.order} onClick={() => setRadioRecord(m.order)}
+					checked={radioRecord == m.order} onClick={(event) => { setRadioRecord(m.order); handleMemberOfficeContextMenu(event); } }
 					datatip={myInfo} 
 				/>
 			)}
 		)}	
+		{contextParams.show && <MemberOfficeContextMenu /> }	
 		</div>	
 	)}
 	
@@ -283,11 +352,10 @@ export default function MemberOffice(props) {
 			setHodRadio(index);
 	}
 	
-
 	
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
-	<DisplayOfficeButtons />
+		{/*<DisplayOfficeButtons />*/}
 	<DisplayOfficeInformation />
 	<DisplayAllToolTips />
 	<Drawer 
@@ -300,7 +368,7 @@ export default function MemberOffice(props) {
 		<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
 		<VsCancel align="right" onClick={() => { setIsDrawerOpened("")}} />
 		<ValidatorForm align="left" className={gClasses.form} onSubmit={handleEditOfficeSubmit}>
-		<Typography style={PADSTYLE} className={gClasses.title}>{"Edit office details of "+emurAddr4}</Typography>
+		<Typography align="center" style={PADSTYLE} className={gClasses.title}>{"Edit office details of "+emurAddr4}</Typography>
 		<BlankArea />
 			<Grid key="ADEDITMEMBERGENERAL" className={gClasses.noPadding} container  alignItems="flex-start" >
 			<Grid style={{margin: "20px"}} item xs={12} sm={12} md={12} lg={12} />
@@ -340,8 +408,9 @@ export default function MemberOffice(props) {
 			</Grid>
 			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 		</Grid>
-		<BlankArea />
+		<br />
 		<VsButton align="center" name="Update" type="submit" />
+		<br />
 		</ValidatorForm>
 		</Box>
 		</Container>

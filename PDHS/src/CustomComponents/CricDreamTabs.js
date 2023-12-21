@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 //import { createBrowserHistory } from "history";
 import { useHistory } from "react-router-dom";
 import { useParams } from 'react-router-dom'
@@ -180,6 +180,30 @@ export function setTab(num) {
   cdRefresh();
 }
 
+var hid = 0;
+var mid = 0;
+var currentSelection = "PRWS";
+
+function setMenuHid(xxx) {
+	sessionStorage.setItem("menuHid", xxx);	
+}
+
+function setMenuMid(xxx) {
+	sessionStorage.setItem("menuMid", xxx);	
+}
+
+function setMenuCurrent(xxx) {
+	sessionStorage.setItem("menuCurrentSelection", xxx);	
+	cdRefresh();
+}
+
+export function setDisplayPage(item, hid, mid) {
+	setMenuHid(hid);
+	setMenuMid(mid);
+	setMenuCurrent(item);
+}
+
+
 export function CricDreamTabs() {
   const gClasses = globalStyles();
 
@@ -211,6 +235,7 @@ export function CricDreamTabs() {
 
   //console.log(location.pathname);
 
+	//const [currentSelection, setMenuCurrent] = useState("PRWS");
   useEffect(() => {       
     function handleResize() {
 			let myDim = getWindowDimensions();
@@ -325,7 +350,7 @@ export function CricDreamTabs() {
       case 1002: return <PDHSAdmin />;
 			case 1003: return <Application userType="admin" />;
 
-      default: return <Prws />;
+      default: return <Home />;
     }
   }
 
@@ -404,6 +429,20 @@ export function CricDreamTabs() {
 		</MenuItem>
 	</div>
 	)}
+
+	function DisplayFunctionItem(props) {
+	let itemName = props.item;
+	return (
+	<Grid key={"BUT"+itemName} item xs={4} sm={4} md={2} lg={2} >
+	<Typography onClick={() => { setMenuHid(0);  setMenuMid(mid); setMenuCurrent(itemName)} }>
+		<span 
+			className={(itemName === currentSelection) ? gClasses.functionSelected : gClasses.functionUnselected}>
+		{itemName}
+		</span>
+	</Typography>
+	</Grid>
+	)}
+	
     
   let mylogo = `${process.env.PUBLIC_URL}/favicon.ico`;
   let groupCharacter="G";
@@ -413,6 +452,11 @@ export function CricDreamTabs() {
 	//console.log("menuValue", localStorage.getItem("menuValue"));
 	//console.log("value", value);
 	//console.log("Is it Mobile", isMobile());
+	
+	hid = Number(sessionStorage.getItem("menuHid"));
+	mid = Number(sessionStorage.getItem("menuMid"));
+	currentSelection = sessionStorage.getItem("menuCurrentSelection");
+	
   return (
     <div className={classes.root}>
       <AppBar position="static">
@@ -420,22 +464,20 @@ export function CricDreamTabs() {
         <Grid key="SUBMITMOBILE" container>
         <Grid align="left" item xs={6} sm={6} md={6} lg={6} >	
 					<Typography>
-						<span className={classes.ankit}>{((dispType == "lg") || (dispType == "md")) ? "Pratapgarh Rajashthan Welfare Samiti" : "PRWS"}</span>
+						<span className={classes.ankit}>{((dispType == "lg") || (dispType == "md")) ? "PRWS" : "PRWS"}</span>
 						<span style={{margin: "5px"}}  ><HomeIcon className={classes.icon} onClick={handleHome} /></span>
 					</Typography>
         </Grid>
         <Grid align="right" item xs={6} sm={6} md={6} lg={6} >	
           <Typography>
-            {((dispType == "lg") || (dispType == "md")) &&
-              <span className={gClasses.message18} style={{paddingRight: "5px"}} >{"Welcome "+sessionStorage.getItem("userName")}</span>
-            }
+              <span className={gClasses.message16} style={{paddingRight: "5px"}} >{"Welcome "+  sessionStorage.getItem("firstName")}</span>
             <span style={{paddingTop: "10px"}} ><PowerSettingsNewIcon value={{size: 70 }}  onClick={ask_Logout_Confirm} /></span>
           </Typography>
         </Grid>
         </Grid>
 		{(false) &&
 					<div align="right">
-					<Typography className={classes.ankit} style={{paddingRight: "5px"}} >{"Welcome "+sessionStorage.getItem("userName")}</Typography>
+					<Typography className={classes.ankit} style={{paddingRight: "5px"}} >{"Welcome "+sessionStorage.getItem("firstName")}</Typography>
 					<Menu
             id="group-appbar"
             anchorEl={grpAnchorEl}
@@ -460,13 +502,35 @@ export function CricDreamTabs() {
 					</Typography>*/}
 			 </Toolbar>
       </AppBar>
-      {((dispType !== "lg") && (dispType !== "md")) &&
+			
+			<Grid className={gClasses.noPadding} key="AllPatients" container align="center">
+				<DisplayFunctionItem item="PRWS"  />
+				<DisplayFunctionItem item="PJYM"  match={currentSelection}  onClick={() => setMenuCurrent("PJYM")} />
+				<DisplayFunctionItem item="HUMAD"  match={currentSelection}  onClick={() => setMenuCurrent("HUMAD")} />
+				<DisplayFunctionItem item="FAMILY"  match={currentSelection}  onClick={() => setMenuCurrent("FAMILY")} />
+				<DisplayFunctionItem item="APPLICATION"  match={currentSelection}  onClick={() => setMenuCurrent("APPLICATION")} />
+				<DisplayFunctionItem item="ADMIN"  match={currentSelection}  onClick={() => setMenuCurrent("ADMIN")} />
+			</Grid>
+      {((false) && (dispType !== "lg") && (dispType !== "md")) &&
         <Typography align="center" >
-            <span className={gClasses.message16Blue}>{"Welcome "+localStorage.getItem("userName")}</span>
+            <span className={gClasses.message16Blue}>{"Welcome "+sessionStorage.getItem("firstName")}</span>
         </Typography>
       }
-      <DisplayCdItems/>
+      {/*<DisplayCdItems/>*}
       {/* <DisplayUpgrade/> */}
+			{ (currentSelection === "PRWS") && 
+				<Prws />
+			}
+			{ (currentSelection === "PJYM") && 
+				<Pjym />
+			}
+			{ (currentSelection === "HUMAD") && 
+				<Humad />
+			}
+			{ (currentSelection === "FAMILY") && 
+				<Member hid={hid} mid={mid} />
+			}
+			
     </div>
   );
 }

@@ -5,7 +5,8 @@ import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from "@material-ui/core/Select";
 import MenuItem from '@material-ui/core/MenuItem';
-
+import InfoIcon  from 	'@material-ui/icons/Info';
+import SearchIcon from '@material-ui/icons/Search';
 
 export default function VsPdhsFilter(props) {
 const gClasses = globalStyles();
@@ -39,10 +40,12 @@ return (
 				style={{ fontSize: '10px', marginBottom: "0px" }}
 			>
 			{props.options.map(x => 
-			<MenuItem style={{ paddingBottom: '0px', paddingBottom: "0px" }} key={x} value={x}>{x}</MenuItem>
+			<MenuItem style={{ paddingBottom: '0px' }} key={x} value={x}>{x}</MenuItem>
 			)}
 			</Select>
-		}	</FormControl>
+		}	
+		</FormControl>
+		<SearchIcon  color="primary" size="large" />
 	</div>
 	)
 }

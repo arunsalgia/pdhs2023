@@ -106,10 +106,11 @@ export default function Member(props) {
 
   useEffect(() => {	
 		const getDetails = async () => {	
-      var memberHid = Number(sessionStorage.getItem("memberHid"));
-      var memberMid = Number(sessionStorage.getItem("memberMid"));
+      var memberHid = props.hid;  //Number(sessionStorage.getItem("memberHid"));
+			if (memberHid === 0) memberHid = 470;
+      var memberMid = props.mid;  //Number(sessionStorage.getItem("memberMid"));
 			//console.log(memberHid, memberMid);
-			isMember = (loginHid === props.hid);
+			isMember = (loginHid === memberHid);
 			await getHod(memberHid);
 			await getHodMembers(memberHid, memberMid);
 			setSelection("Personal");
@@ -135,13 +136,11 @@ export default function Member(props) {
 	async function getHodMembers(hid, mid) {
 		//console.log("Hi");
 		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/hod/${hid}`
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/hod/${hid}`;
 			let resp = await axios.get(myUrl);
-			let tmp = resp.data.find(x => x.mid === mid);
-			//console.log(mid);
-			//console.log(tmp);
-			setCurrentMemberData(tmp);
-			//console.log(tmp);
+			let tmp = (mid > 0) ? resp.data.find(x => x.mid === mid) : resp.data[0];
+			sessionStorage.setItem("MemberData", JSON.stringify(resp.data));
+			setCurrentMemberData((tmp) ? tmp : null);
 			setMemberArray(resp.data);
 		} catch (e) {
 			console.log(e);
@@ -182,7 +181,9 @@ export default function Member(props) {
 			<DisplayFunctionItem item="Spouse" />
 		</Grid>	
 	)}
-
+	
+	if (memberArray.length === 0) return false;
+	console.log(currentMemberData);
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
 	<CssBaseline />

@@ -42,9 +42,11 @@ router.get('/listbyalphabet/:chrStr', async function (req, res) {
   setHeader(res);
 	var { chrStr } = req.params;
 	
-	let allMembers = await M_Member.find({ lastName: { $regex: "^"+chrStr, $options: "i" }, humadMember: true }, 
-		{_id: 0, mid: 1, title: 1, firstName: 1, middleName: 1, lastName: 1, alias: 1, mobile: 1,
-		dateOfMarriage: 1, dob: 1, gender: 1}).sort({lastName: 1, firstName: 1, middleName: 1 });
+	let allMembers = await M_Member.find(
+		{ lastName: { $regex: "^"+chrStr, $options: "i" }, humadMember: true }, 
+		//{_id: 0, mid: 1, title: 1, firstName: 1, middleName: 1, lastName: 1, alias: 1, mobile: 1,
+		//dateOfMarriage: 1, dob: 1, gender: 1})
+		).sort({lastName: 1, firstName: 1, middleName: 1 });
 		
 	let allMids = _.map(allMembers, 'mid');
 	let allHumads = await M_Humad.find({ mid: {$in: allMids}, active: true}).sort({mid: 1, upgradeIndex: -1});
@@ -52,6 +54,29 @@ router.get('/listbyalphabet/:chrStr', async function (req, res) {
 	let myData = {humad: allHumads, member: allMembers };
 	sendok(res, myData);
 });	
+
+router.get('/listwithnames', async function (req, res) {
+  setHeader(res);
+
+	//console.log(new Date());
+	let allHumads = await M_Humad.find({active: true}, {_id: 0, __v: 0});
+	console.log(new Date());
+	/*let allNames = await M_Member.find(
+		{humadMember: true, ceased: false}, 
+		//{_id: 0, mid: 1, alias: 1, mobile: 1, title: 1, firstName: 1, middleName: 1, lastName: 1, bloodGroup: 1, dob: 1, gender: 1}
+	).sort({lastName: 1, firstName: 1, middleName: 1 });
+	//console.log(new Date());
+	*/
+	
+	var allNames = allMemberlist.filter(x => !x.ceased && x.humadMember);
+	for (var i=0; i< allNames.length; ++i) {
+		allNames[i].email = dbToSvrText(allNames[i].email);
+		allNames[i].email1 = dbToSvrText(allNames[i].email1);
+	}
+	//console.log(allPjym.length, allNames.length);
+	
+	sendok(res, {humad: allHumads, member: allNames});
+});
 
 router.get('/namelist/:fName/:mName/:lName', async function (req, res) {
   setHeader(res);

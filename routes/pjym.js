@@ -1,5 +1,6 @@
 const {  akshuGetUser, GroupMemberCount,  
-	numberDate, 
+	numberDate,
+	dbToSvrText, svrToDbText, 
 	getMemberName
 } = require('./functions'); 
 var router = express.Router();
@@ -54,13 +55,16 @@ router.get('/listwithnames', async function (req, res) {
 
 	//console.log(new Date());
 	let allPjym = await M_Pjym.find({active: true}, {_id: 0, __v: 0});
-	console.log(new Date());
-	let allNames = await M_Member.find(
+	let allNames = allMemberlist.filter(x => !x.ceased && x.pjymMember);
+	for (var i=0; i< allNames.length; ++i) {
+		allNames[i].email = dbToSvrText(allNames[i].email);
+		allNames[i].email1 = dbToSvrText(allNames[i].email1);
+	}
+	
+	/*let allNames = await M_Member.find(
 		{pjymMember: true, ceased: false}, 
-		{_id: 0, mid: 1, alias: 1, mobile: 1, title: 1, firstName: 1, middleName: 1, lastName: 1, dob: 1, gender: 1}
-	).sort({lastName: 1, firstName: 1, middleName: 1 });
-	//console.log(new Date());
-	//console.log(allPjym.length, allNames.length);
+		//{_id: 0, mid: 1, alias: 1, mobile: 1, title: 1, firstName: 1, middleName: 1, lastName: 1, bloodGroup: 1, dob: 1, gender: 1}
+	).sort({lastName: 1, firstName: 1, middleName: 1 });*/
 	
 	sendok(res, {pjym: allPjym, member: allNames});
 });

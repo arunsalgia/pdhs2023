@@ -212,18 +212,27 @@ export	const AppDataStyle={
 			paddingLeft: 5,
 	};
 	
-	export const  SELECTSTYLE = {
-		marginBottom: 20, 
-		marginLeft: 15,
-    paddingLeft: 10,
-    width: "100%"
-	} ;
+export const  SELECTSTYLE = {
+	marginBottom: 20, 
+	marginLeft: 15,
+	paddingLeft: 10,
+	width: "100%"
+} ;
+
+export const  NORMALSELECTSTYLE = {
+	marginBottom: 20, 
+	marginLeft: 15,
+	paddingLeft: 10,
+} ;
 	
-	export const  NORMALSELECTSTYLE = {
-		marginBottom: 20, 
-		marginLeft: 15,
-    paddingLeft: 10,
-	} ;
-	
-	
-	
+export const MOBROWSPERPAGE = 5;
+export const NONMOBROWSPERPAGE = 8;
+
+export const PAGELIST = {
+PRWS: "PRWS",
+PJYM: "PJYM",
+HUMDAD: "HUMAD",
+FAMILY: "FAMILY",
+APPLICATION: "APPLICATION",
+ADMIN: "ADMIN"
+};

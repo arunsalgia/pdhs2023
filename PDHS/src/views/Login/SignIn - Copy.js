@@ -14,20 +14,11 @@ import Container from '@material-ui/core/Container';
 //import { UserContext } from "../../UserContext";
 import axios from "axios";
 //import { DesktopWindows } from '@material-ui/icons';
-import { isMobile, encrypt, getMemberName, capitalizeFirstLetter } from "views/functions.js"
-import {setTab, setDisplayPage } from "CustomComponents/CricDreamTabs.js"
+import { isMobile, encrypt, getMemberName} from "views/functions.js"
+import {setTab} from "CustomComponents/CricDreamTabs.js"
 import { VsLogo, ValidComp } from 'CustomComponents/CustomComponents.js'; 
 
 import VsButton from "CustomComponents/VsButton";
-
-import {
-	PAGELIST,
-} from "views/globals.js";
-
-import lodashCloneDeep from 'lodash/cloneDeep';
-import lodashUniqBy from "lodash/uniqBy";
-import lodashMap from "lodash/map";
-
 
 
 //let deviceIsMobile=isMobile();
@@ -35,8 +26,8 @@ import lodashMap from "lodash/map";
 export default function SignIn() {
   const gClasses = globalStyles();
 
-  const [userName, setUserName] = useState("");
-  const [password, setPassword] = useState("");
+  const [userName, setUserName] = useState();
+  const [password, setPassword] = useState();
   const [stage, setStage] = useState("MOBILE");
   const [ errorMessage, setErrorMessage ] = useState({msg: "", isError: false });
 
@@ -57,25 +48,6 @@ export default function SignIn() {
     setErrorMessage({msg: msg, isError: isError});
   }
 
-	async function getAllCities() {
-		var cityArray = [];
-		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/city/all`;
-			let resp = await axios.get(myUrl);
-			cityArray = lodashCloneDeep(resp.data);
-			for(var i=0; i<cityArray.length; ++i) {
-				cityArray[i].city = capitalizeFirstLetter( cityArray[i].city);
-			};
-			sessionStorage.setItem("hodCityData", JSON.stringify(cityArray));
-			var cityList = lodashMap(cityArray, 'city');
-			cityList = lodashUniqBy(cityList);
-			sessionStorage.setItem("cityData", JSON.stringify(cityList));			
-		} catch (e) {
-			console.log("Error fetching city data");
-		}			
-	}
-	// use effects start here
-
 
 	async function handleSubmit(e) {
   e.preventDefault();
@@ -93,12 +65,11 @@ export default function SignIn() {
     window.sessionStorage.setItem("userName", getMemberName(userData));
 		window.sessionStorage.setItem("firstName", userData.firstName );
     window.sessionStorage.setItem("prwsLogin", userName);
-		await getAllCities();
-		//sessionStorage.setItem("menuHid", 0);	
-		//sessionStorage.setItem("menuMid", 0);	
-		//sessionStorage.setItem("menuCurrentSelection", "PRWS");	
-		//setTab(process.env.REACT_APP_HOME);
-		setDisplayPage(PAGELIST.PRWS, 0, 0);
+		sessionStorage.setItem("menuHid", 0);	
+		sessionStorage.setItem("menuMid", 0);	
+		sessionStorage.setItem("menuCurrentSelection", "PRWS");	
+
+		setTab(process.env.REACT_APP_HOME);
 	} catch (err) {
 		setError("Invalid Captcha", true);
 	}

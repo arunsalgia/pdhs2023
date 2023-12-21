@@ -13,6 +13,8 @@ import TablePagination from '@material-ui/core/TablePagination';
 import lodashCloneDeep from 'lodash/cloneDeep';
 import lodashSortBy from "lodash/sortBy";
 import lodashMap from "lodash/map";
+import loadahUniqBy from "lodash/uniqBy";
+
 //import IconButton from '@material-ui/core/IconButton';
 
 import VsButton from "CustomComponents/VsButton";
@@ -37,7 +39,7 @@ import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
 import moment from "moment";
 
-import {setTab} from "CustomComponents/CricDreamTabs.js"
+import {setTab, setDisplayPage } from "CustomComponents/CricDreamTabs.js"
 
 // styles
 import globalStyles from "assets/globalStyles";
@@ -47,12 +49,14 @@ import MoveUp    from '@material-ui/icons/ArrowUpwardRounded';
 import MoveDown  from '@material-ui/icons/ArrowDownwardRounded';
 import InfoIcon  from 	'@material-ui/icons/Info';
 import CancelIcon from '@material-ui/icons/Cancel';
+import SearchIcon from '@material-ui/icons/Search';
 
 import {
-	BlankArea,
+	BlankArea, DisplayPageHeader,
 	DisplayMemberHeader,
 	PersonalHeader, PersonalMember,
 	DisplaySingleTip,
+	DisplayPrwsFilter,
 } from "CustomComponents/CustomComponents.js"
 
 import {
@@ -61,6 +65,8 @@ import {
 	MEMBERTITLE, RELATION, SELFRELATION, GENDER, BLOODGROUP, MARITALSTATUS,
 	Options_Gender, Options_Marital_Status, Options_Blood_Group,
 	READMEMBERINITIAL,
+	MOBROWSPERPAGE, NONMOBROWSPERPAGE,	
+	PAGELIST,
 } from "views/globals.js";
 
 
@@ -78,35 +84,35 @@ import {
 	applicationSuccess,
 } from "views/functions.js";
 
-const ROWSPERPAGE = 8;
+
+var cityList = ["Mumbai"];
+var cityArray = [];
 
 
-
-
-const MasterFilterItems = [
-		{item: "FirstName", 					value: "",  	type: "text"},
-		{item: "MiddleName", 					value: "", 		type: "text"},
-		{item: "LastName", 						value: "",   	type: "text"},
-		{item: "Gender",    					value: "", 		type: "text", options: Options_Gender },
-		{item: "Marital Status",    	value: "", 		type: "text", options: Options_Marital_Status },
-		{item: "Blood Group",    			value: "", 		type: "text", options: Options_Blood_Group },
+var MasterFilterItems = [
+		{item: "FirstName", 					value: "",  		type: "text"},
+		{item: "MiddleName", 					value: "", 			type: "text"},
+		{item: "LastName", 						value: "",   		type: "text"},
+		{item: "Gender",    					value: "", 			type: "text", options: Options_Gender },
+		{item: "Marital Status",    	value: "", 			type: "text", options: Options_Marital_Status },
+		{item: "Blood Group",    			value: "", 			type: "text", options: Options_Blood_Group },
+		{item: "City",    						value: "Mumbai", 		type: "text", options: cityList },
 		{item: "Age greater than",    value: 24, 		type: "number", Min: 0, Max: 1000},
 		{item: "Age less than",    		value: 24, 		type: "number", Min: 1, Max: 1000},
 	];
+var inputName="";
 
 const InitialContextParams = {show: false, x: 0, y: 0};
 
 
-var inputName="";
 
-var cityArray = [];
-var cityList = [];
 var memberMasterArray = [];  function setMemberMasterArray(data) { memberMasterArray = data; }
 var radioMid = -1;
   
 export default function Prws() {
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
   const [dispType, setDispType] = useState("lg");
+  const [ROWSPERPAGE, setROWSPERPAGE] = useState(NONMOBROWSPERPAGE);
   
 	const loginHid = parseInt(sessionStorage.getItem("hid"), 10);
 	const loginMid = parseInt(sessionStorage.getItem("mid"), 10);
@@ -122,14 +128,18 @@ export default function Prws() {
 	//const [memberMasterArray, setMemberMasterArray] = useState([]);
 	const [memberArray, setMemberArray] = useState([]);
 	//const [cityArray, setCityArray] = useState([]);
-	const [filterList, setFilterList] = useState([]);
-	const [modMasterFilterItems, setModMasterFilterItems] = useState(MasterFilterItems);
 	// pagination
 	const [page, setPage] = useState(0);
+	
+	// --- start of filter variables
 	const	[lastFilter, setLastFilter] = useState("None");
 	const [inputFilterMode, setInputFilterMode] = useState(false);
 	const [inputValue, setInputValue] = useState("");
 	const [inputInfo, setInputInfo] = useState({});
+	const [filterList, setFilterList] = useState([]);
+	const [modMasterFilterItems, setModMasterFilterItems] = useState(MasterFilterItems);
+	//---  end of filter variables
+	
 	
 	const [contextParams, setContextParams] = useState(InitialContextParams);
 
@@ -147,94 +157,24 @@ export default function Prws() {
 		}
 		
 		async function getAllMembers() {
-			if (!tmpMemData) {
-				try {
-					let tmpMemData = sessionStorage.getItem("MemberData");				
-					console.log("reading data from site");
-					let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/list/initial/${READMEMBERINITIAL}`;
-					let resp = await axios.get(myUrl);
-					var myData = resp.data;
-					setMemberMasterArray(myData);
-					setMemberArray(myData);
-					
-					// Now read balance
-					myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/list/next/${READMEMBERINITIAL}`;
-					resp = await axios.get(myUrl);
-					myData = myData.concat(resp.data);
-					setMemberMasterArray(myData);
-					setMemberArray(myData);
-					setPage(0);
-					// save it in storage
-					sessionStorage.setItem("MemberData", JSON.stringify(myData) );
-					//Not here. It will be done in remaining function.   sessionStorage.setItem("directory", JSON.stringify(resp.data));
-				} catch (e) {
-					console.log("Error fetching member data");
-					//setMemberArray([]);
-				}	
-			}
-			else {
-				var tmpMemData = JSON.parse(tmpMemData);
-				setMemberMasterArray(tmpMemData);
-				setMemberArray(tmpMemData);				
-				setPage(0);
-			}
-		}
-		
-		async function getRemainingMembers() {
 			try {
-				let tmpMemData = sessionStorage.getItem("MemberData");
-				if (!tmpMemData) {
-					console.log("reading data from site");
-					let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/list/next/${READMEMBERINITIAL}`;
-					let resp = await axios.get(myUrl);
-					//console.log("Success. Length: " + resp.data.length);
-					tmpMemData = JSON.stringify(memberArray.concat(resp.data));
-					sessionStorage.setItem("MemberData", tmpMemData);
-					console.log("Length is :", tmpMemData.length);
-				}
-				//sessionStorage.setItem("directory", JSON.stringify(resp.data));
+				let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/list/all`;
+				let resp = await axios.get(myUrl);
+				var myData = resp.data;
+				setMemberMasterArray(myData);
+				setMemberArray(myData);
 			} catch (e) {
 				console.log("Error fetching member data");
-				//setMemberArray([]);
+				//setMemberArray([]);		
 			}
-			
 		}
 		
-		async function getAllCities() {
-		try {
-				let tmpCityData = sessionStorage.getItem("CityData");
-				//console.log(tmpCityData);
-				if (!tmpCityData) {
-					console.log("reading data from site");
-					let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/city/all`;
-					let resp = await axios.get(myUrl);
-					//console.log("Success. Length: " + resp.data.length);
-					tmpCityData = JSON.stringify(resp.data);
-					sessionStorage.setItem("CityData", tmpCityData);
-					console.log("Length is :", tmpCityData.length);
-				}
-				cityArray = JSON.parse(tmpCityData);
-				// get kist of cities
-				var tmpCityList = cityArray.map(a=> a.city);
-				cityList = tmpCityList.filter(function(elem, pos) {
-						return tmpCityList.indexOf(elem) == pos;
-				});
-				// Now correct case and remove diplicates
-				for(var i=0; i<cityList.length; ++i) {
-					cityList[i] = capitalizeFirstLetter( cityList[i]);
-				};
-				cityList = cityList.filter(function(elem, pos) {
-						return cityList.indexOf(elem) == pos;
-				});
-				//console.log(cityList);
-				//setCityArray(tmpCityData);
-				//setMemberArray(tmpCityData);
-				//setPage(0);
-				//sessionStorage.setItem("directory", JSON.stringify(resp.data));
-			} catch (e) {
-				console.log("Error fetching member data");
-				//setMemberArray([]);
-			}			
+		function getAllCities() {
+			cityArray = JSON.parse(sessionStorage.getItem("hodCityData"));
+			cityList = JSON.parse(sessionStorage.getItem("cityData"));	
+			// Update in Menu
+			var tmp = MasterFilterItems.find(x => x.item == 'City');
+			tmp.options = cityList;
 		}
 		// use effects start here
 		//getDetails();
@@ -247,15 +187,14 @@ export default function Prws() {
 				console.log(menuRef);		
 			}
 		}
+		
+		setPage(0);
 		getAllMembers();
 		getAllCities();
-		//getRemainingMembers();
 		handleResize();
 		window.addEventListener('resize', handleResize);
-		return () => window.removeEventListener('resize', handleResize);
-    
+		//return () => window.removeEventListener('resize', handleResize); 
   }, []);
-
 
 	function DisplayAllToolTips() {
 	return(
@@ -267,10 +206,11 @@ export default function Prws() {
 	)}
 	
 
-
+	function numberToDate(xxx) {
+		return new Date(xxx);
+	}
 
 	function addFilter(newItem) {
-		//console.log(newItem);
 		setLastFilter(newItem);
 		var tmp = MasterFilterItems.find(x => x.item === newItem);
 		inputName = tmp.item;
@@ -336,10 +276,7 @@ export default function Prws() {
 		setLastFilter("");
 	}
 	
-	function numberToDate(xxx) {
-		return new Date(xxx);
-	}
-	
+
 	function updateMemberArray(fList) {
 		let tmp = lodashCloneDeep(memberMasterArray);
 		for(var i=0; i<fList.length; ++i) {
@@ -365,9 +302,16 @@ export default function Prws() {
 				case "Blood Group":
 					tmp = tmp.filter(x => x.bloodGroup.toUpperCase().includes(fList[i].value.toUpperCase()) );
 					break;	
+				case "City":
+					console.log(fList[i].value);
+					var xxx = cityArray.filter( x => x.city === fList[i].value);
+					xxx = lodashMap(xxx, 'hid');
+					console.log(xxx);
+					tmp = tmp.filter(x => xxx.includes(x.hid)  );
+					break;	
 				case "Age greater than":
 				case "Age less than":
-					// calculate dot based on age criterial
+					// calculate dot based on age criteria
 					var d = new Date();
 					d.setFullYear(d.getFullYear() - fList[i].value);
 					// exclude all mebers whose dob is not available
@@ -389,9 +333,10 @@ export default function Prws() {
 		if (radioMid <= 0) return;
 		var tmp = memberMasterArray.find( x => x.mid === radioMid);
 		console.log("Mem info", tmp.hid, tmp.mid);
-		sessionStorage.setItem("memberHid", tmp.hid);
-		sessionStorage.setItem("memberMid", tmp.mid);
-		setTab(process.env.REACT_APP_MEMBER);
+		//sessionStorage.setItem("memberHid", tmp.hid);
+		//sessionStorage.setItem("memberMid", tmp.mid);
+		//setTab(process.env.REACT_APP_MEMBER);
+		setDisplayPage(PAGELIST.FAMILY, tmp.hid, tmp.mid);
 	}
 	function jumpPjym() {
 		handlePrwsContextMenuClose();
@@ -465,7 +410,7 @@ export default function Prws() {
     var myName = tmp.firstName + " " + tmp.lastName;
 		//console.log(contextParams);
 		var myStyle={top: `${contextParams.y}px` , left: `${contextParams.x}px` };
-		//console.log(myStyle);
+		console.log(myStyle);
 		//console.log(grpAnchorEl);
 		//anchorEl={grpAnchorEl}
 	return(
@@ -492,12 +437,12 @@ export default function Prws() {
 		<MenuItem onClick={jumpFamily}>
 			<Typography>{"Family"}</Typography>
 		</MenuItem>
-		<MenuItem onClick={jumpPjym}>
+		{/*<MenuItem onClick={jumpPjym}>
 			<Typography>Pjym</Typography>
 		</MenuItem>
 		<MenuItem onClick={jumpHumad}>
 			<Typography>Humad</Typography>
-		</MenuItem>
+		</MenuItem>*/}
 		<Divider />
 		<MenuItem onClick={jumpGotra}>
 			<Typography>Gotra</Typography>
@@ -525,12 +470,12 @@ export default function Prws() {
 		<MenuItem onClick={jumpFamily}>
 			<Typography>Family</Typography>
 		</MenuItem>
-		<MenuItem onClick={jumpPjym}>
+		{/*<MenuItem onClick={jumpPjym}>
 			<Typography>Pjym</Typography>
 		</MenuItem>
 		<MenuItem onClick={jumpHumad}>
 			<Typography>Humad</Typography>
-		</MenuItem>
+		</MenuItem>*/}
 		<MenuItem onClick={jumpGotra}>
 			<Typography>Gotra</Typography>
 		</MenuItem>
@@ -546,7 +491,24 @@ export default function Prws() {
 	return (
 	<div key="PRWS" className={gClasses.webPage} align="center" key="main">
 		{/*<DisplayPersonalButtons />*/}
-		<Box key="BOXPRWSFILTER"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
+		{/*<DisplayPageHeader headerName="Prws Members" groupName="" tournament=""/>*/}
+		<DisplayPrwsFilter 
+			inputFilterMode={inputFilterMode} 
+			inputName={inputName}
+			inputInfo={inputInfo}
+			inputValue={inputValue}
+			selectClick={(event) => { setInputValue(event.target.value); addFilterConfirm(event.target.value); }}
+			setInputValue={setInputValue}
+			filterList={filterList}
+			balanceFilterList={modMasterFilterItems}
+			lastFilter={lastFilter}
+			removeFilter={removeFilter}
+			pdhsFilter={(event) => { addFilter(event.target.value); }}
+			applyClick={() => { addFilterConfirm(""); } }
+			cancelClick={() => { setInputFilterMode(false); setLastFilter(""); } }
+		/>
+
+		{/*<Box key="BOXPRWSFILTER"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
 			<Grid key="PRWSFILTER" className={gClasses.noPadding} container>
 				<Grid align="left" item xs={10} sm={10} md={11} lg={11} >
 					<div>
@@ -592,7 +554,7 @@ export default function Prws() {
 					</div>
 				</Grid>
 			</Grid>			
-		</Box>
+</Box>*/}
 		<PersonalHeader dispType={dispType} />
 		{/* display members here */}
 		{memberArray.slice(page*ROWSPERPAGE, (page+1)*ROWSPERPAGE).map( (m, index) => {

@@ -1,19 +1,11 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { Container, CssBaseline } from '@material-ui/core';
 import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
 import Divider from '@material-ui/core/Divider';
 import TablePagination from '@material-ui/core/TablePagination';
 import ReactTooltip from "react-tooltip";
-
-//import lodashCloneDeep from 'lodash/cloneDeep';
-//import lodashSortBy from "lodash/sortBy"
-//import lodashMap from "lodash/map";
-
-import VsButton from "CustomComponents/VsButton";
-import VsCancel from "CustomComponents/VsCancel";
-import VsTextSearch from "CustomComponents/VsTextSearch";
-import VsRadioGroup from "CustomComponents/VsRadioGroup";
-import VsRolodex from 'CustomComponents/VsRolodex';
+import MenuItem from '@material-ui/core/MenuItem'; 
+import Menu from '@material-ui/core/Menu'; 
 
 import axios from "axios";
 import Drawer from '@material-ui/core/Drawer';
@@ -27,25 +19,45 @@ import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
 import moment from "moment";
 
+import {setTab, setDisplayPage} from "CustomComponents/CricDreamTabs.js"
+
+import lodashCloneDeep from 'lodash/cloneDeep';
+import lodashSortBy from "lodash/sortBy";
+import lodashMap from "lodash/map";
+
+import VsButton from "CustomComponents/VsButton";
+import VsCancel from "CustomComponents/VsCancel";
+import VsTextSearch from "CustomComponents/VsTextSearch";
+import VsRadioGroup from "CustomComponents/VsRadioGroup";
+import VsRolodex from 'CustomComponents/VsRolodex';
+
+
 // styles
 import globalStyles from "assets/globalStyles";
 //import modalStyles from "assets/modalStyles";
 
+
 import InfoIcon   from 	'@material-ui/icons/Info';
-import Upgrade from 	'@material-ui/icons/ArrowUpwardOutlined';
+import Upgrade from 	'@material-ui/icons/ArrowUpwardOutlined'
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 const BlankMemberData = {firstName: "", middleName: "", lastName: ""};
 
 import {
 	BlankArea, DisplayPageHeader,
+	DisplayPrwsFilter,
 } from "CustomComponents/CustomComponents.js"
 
 import {
 	ADMIN, HUMADCATEGORY,
+	Options_Gender, Options_Marital_Status, Options_Blood_Group,
+	MOBROWSPERPAGE, NONMOBROWSPERPAGE,	
+	PAGELIST,
 } from "views/globals.js";
 
 import { 
+	displayType, getWindowDimensions,
 	isMobile,
 	dateString,
 	vsDialog,
@@ -53,111 +65,32 @@ import {
 	dispAge,
 	getAdminInfo,
 	disableFutureDt,
-} from "views/functions.js";
+} 
+from "views/functions.js";
+
+var cityList = ["Mumbai"];
+var cityArray = [];
 
 
-/*
-const useStyles = makeStyles((theme) => ({
-	slotTitle: {
-		color: 'green',
-		fontSize: theme.typography.pxToRem(28),
-		fontWeight: theme.typography.fontWeightBold,
-		padding: "10px 10px", 
-		margin: "10px 10px", 
-	},
-	patientName: {
-		fontSize: theme.typography.pxToRem(16),
-		fontWeight: theme.typography.fontWeightBold,	
-		color: 'blue',
-	},
-	patientInfo: {
-		fontSize: theme.typography.pxToRem(14),
-	},
-	murItem: {
-		fontSize: theme.typography.pxToRem(15),
-		fontWeight: theme.typography.fontWeightBold,
-		paddingRight: '10px',
-	},
-    root: {
-      width: '100%',
-    }, 
-    info: {
-        color: blue[700],
-    },     
-    header: {
-			color: '#D84315',
-    }, 
-    error:  {
-      // right: 0,
-      fontSize: '12px',
-      color: red[700],
-      // position: 'absolute',
-      alignItems: 'center',
-      marginTop: '0px',
-		},
-		editdelete: {
-			marginLeft:  '50px',
-			marginRight: '50px',
-		},
-		NoMedicines: {
-			fontSize: theme.typography.pxToRem(20),
-			fontWeight: theme.typography.fontWeightBold,
-			color: blue[700]
-		},  
-		radio: {
-			fontSize: theme.typography.pxToRem(20),
-			fontWeight: theme.typography.fontWeightBold,
-			color: "blue",
-		},
-		medicine: {
-			fontSize: theme.typography.pxToRem(15),
-			fontWeight: theme.typography.fontWeightBold,
-			color: blue[700]
-		},  
-		modalHeader: {
-			fontSize: theme.typography.pxToRem(20),
-			fontWeight: theme.typography.fontWeightBold,
-			color: blue[700]
-		},
-		messageText: {
-			color: '#4CC417',
-			fontSize: 12,
-			// backgroundColor: green[700],
-    },
-    symbolText: {
-        color: '#4CC417',
-        // backgroundColor: green[700],
-    },
-    button: {
-			margin: theme.spacing(0, 1, 0),
-    },
-		title: {
-			fontSize: theme.typography.pxToRem(15),
-			fontWeight: theme.typography.fontWeightBold,
-			color: blue[700],
-		},
-    heading: {
-			fontSize: theme.typography.pxToRem(15),
-			fontWeight: theme.typography.fontWeightBold,
-		},
-		selectedAccordian: {
-			//backgroundColor: '#B2EBF2',
-		},
-		normalAccordian: {
-			backgroundColor: '#FFE0B2',
-		},
-    secondaryHeading: {
-      fontSize: theme.typography.pxToRem(15),
-      color: theme.palette.text.secondary,
-    },
-		noPadding: {
-			padding: '1px', 
-		}
-  }));
-*/
+const MasterFilterItems = [
+		{item: "FirstName", 					value: "",  	type: "text"},
+		{item: "MiddleName", 					value: "", 		type: "text"},
+		{item: "LastName", 						value: "",   	type: "text"},
+		{item: "Gender",    					value: "", 		type: "text", options: Options_Gender },
+		{item: "Marital Status",    	value: "", 		type: "text", options: Options_Marital_Status },
+		{item: "Blood Group",    			value: "", 		type: "text", options: Options_Blood_Group },
+		{item: "City",    						value: "Mumbai", 		type: "text", options: cityList },
+		{item: "Age greater than",    value: 24, 		type: "number", Min: 0, Max: 1000},
+		{item: "Age less than",    		value: 24, 		type: "number", Min: 1, Max: 1000},
+	];
+var inputName="";
 
+var menuMember = {};
+function setMenuMember(p) { menuMember = p; }
 
-const ROWSPERPAGE = isMobile() ? 7 : 12;
+//const ROWSPERPAGE = isMobile() ? 7 : 12;
+
+const InitialContextParams = {show: false, x: 0, y: 0};
 
 export default function Humad() {
 	const adminInfo = getAdminInfo();
@@ -168,9 +101,15 @@ export default function Humad() {
 	const gClasses = globalStyles();
 	const alert = useAlert();
 
+  const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
+  const [dispType, setDispType] = useState("lg");
+  const [ROWSPERPAGE, setROWSPERPAGE] = useState(NONMOBROWSPERPAGE);
+
 	const [humadArray, setHumadArray] = useState([]);
 	const [humadMasterArray, setHumadMasterArray] = useState([]);
 	const [memberArray, setMemberArray] = useState([])
+	const [memberMasterArray, setMemberMasterArray] = useState([]);
+
 	const [currentHumad, setCurrentHumad] = useState(null);
 	
 	const [upgradeCount, setUpgradeCount] = useState(-1);
@@ -188,9 +127,66 @@ export default function Humad() {
 	// pagination
 	const [page, setPage] = useState(0);	
 	const [currentChar, setCurrentChar] = useState('A');
+
+	// --- start of filter variables
+	const	[lastFilter, setLastFilter] = useState("None");
+	const [inputFilterMode, setInputFilterMode] = useState(false);
+	const [inputValue, setInputValue] = useState("");
+	const [inputInfo, setInputInfo] = useState({});
+	const [filterList, setFilterList] = useState([]);
+	const [modMasterFilterItems, setModMasterFilterItems] = useState(MasterFilterItems);
+	//---  end of filter variables
+
+	const [contextParams, setContextParams] = useState(InitialContextParams);
+	const [grpAnchorEl, setGrpAnchorEl] = React.useState(null);
+	const grpOpen = Boolean(grpAnchorEl);
 	
-  useEffect(() => {	
-		getHumad('A');
+	let menuRef = useRef();
+	
+  useEffect(() => {
+    function handleResize() {
+			let myDim = getWindowDimensions();
+      setWindowDimensions(myDim);
+      var myDispType = displayType(myDim.width);
+      //console.log(myDispType);
+      setROWSPERPAGE( (myDispType == "xm") ? MOBROWSPERPAGE : NONMOBROWSPERPAGE);
+      setDispType(displayType(myDim.width));
+		}
+			
+		async function getAllHumad() {
+			try {
+				//console.log('in humad fetch', chrStr )
+				let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/humad/listwithnames`;
+				let resp = await axios.get(myUrl);
+				
+				setHumadArray(resp.data.humad);
+				setMemberArray(resp.data.member);
+				setMemberMasterArray(resp.data.member);
+				
+				//setCurrentChar(chrStr);
+			} catch (e) {
+				console.log(e);
+				alert.error(`Error fetching Humad details`);
+				setMemberArray([]);
+				setHumadArray([]);
+			}	
+		}
+
+		function getAllCities() {
+			cityArray = JSON.parse(sessionStorage.getItem("hodCityData"));
+			cityList = JSON.parse(sessionStorage.getItem("cityData"));	
+			// Update in Menu
+			var tmp = MasterFilterItems.find(x => x.item == 'City');
+			tmp.options = cityList;
+		}
+
+		//getHumad('A');
+		getAllHumad();
+		getAllCities();
+		
+		handleResize();
+		window.addEventListener('resize', handleResize);
+
   }, []);
 	
 	async function getHumad(chrStr) {
@@ -253,8 +249,20 @@ export default function Humad() {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+
+  function displayMember() {
+		handleHumadMenuClose();
+		//console.log(menuMember);
+    //sessionStorage.setItem("memberHid", menuMember.hid);
+    //sessionStorage.setItem("memberMid", menuMember.mid);
+    //setTab(100);
+		setDisplayPage(PAGELIST.FAMILY, menuMember.hid, menuMember.mid);
+  }
 	
-	function upgradeHumad(humadRec) {
+	 	
+	function upgradeHumad() {
+		handleHumadMenuClose();
+		let humadRec = humadArray.find(x => x.mid === menuMember.mid);
 		let  myIndex = -1;  
 		for(var i = 0; i < HUMADCATEGORY.length; i++) {
 			if (HUMADCATEGORY[i].short === humadRec.membershipNumber.substr(0, 1)) {
@@ -282,7 +290,7 @@ export default function Humad() {
 	}
 	
 	
-	function DisplayAllHumad() {
+	function OrgDisplayAllHumad() {
 		if (memberArray.length === 0) return null;
 		return (
 		<div>
@@ -399,6 +407,241 @@ export default function Humad() {
 		)}	
 		</div>	
 	)}
+
+	function HumadContextMenu() {
+		//console.log("in MemberPersonalContextMenu");
+		console.log(menuMember);
+		//let family = (menuMember.hid === loginHid);
+		let admin = ((adminInfo & (ADMIN.superAdmin | ADMIN.prwsAdmin)) !== 0);
+	
+		var tmp = menuMember;		//memberArray.find(x => x.mid === menuMember.mid);
+		if (!tmp) return;		
+    let myName = tmp.firstName + " " + tmp.lastName;
+		//console.log(contextParams);
+		var myStyle={top: `${contextParams.y}px` , left: `${contextParams.x}px` };
+	return(
+	<div ref={menuRef} className='absolute z-20' style={myStyle}>
+	<Menu id="pjym-menu" anchorEl={grpAnchorEl}
+		anchorOrigin={{ vertical: 'top', horizontal: 'center', }}
+		// keepMounted
+		transformOrigin={{ vertical: 'top', horizontal: 'center', }}
+		open={contextParams.show} onClose={handleHumadMenuClose}
+	>
+		<Typography className={gClasses.patientInfo2Blue} style={{paddingLeft: "5px", paddingRight: "5px"}}>{tmp.firstName + " " + tmp.lastName}</Typography>
+		<MenuItem onClick={upgradeHumad}>
+			<Typography>Upgrade</Typography>
+		</MenuItem>
+		<Divider />
+		<MenuItem onClick={displayMember}>
+			<Typography>Family</Typography>
+		</MenuItem>
+	</Menu>	
+	</div>
+	)}
+	
+	const handleHumadContextMenu = (e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) => {
+		//console.log("In handleMemberPersonalContextMenu");
+		e.preventDefault();
+		setGrpAnchorEl(e.currentTarget);
+		//console.log(e.currentTarget);
+		//console.log(radioMid);
+		const {pageX, pageY } = e;
+		//console.log(pageX, pageY);
+		setContextParams({show: true, x: pageX, y: pageY});
+	}
+	 
+	function handleHumadMenuClose() { setContextParams({show: false, x: 0, y: 0}); }
+ 
+	
+	function DisplayAllHumad() {
+		if (memberArray.length === 0) return null;
+		return (
+		<div>
+		<Box  key={"MEMBOXHDR"} className={gClasses.boxStyleOdd} borderColor="black" borderRadius={30} border={1} >
+		<Grid key={"MEMGRIDHDR"} className={gClasses.noPadding} key={"SYMHDR"} container align="center" alignItems="center" >
+		<Grid align="left" item md={5} lg={5} >
+			<Typography className={gClasses.patientInfo2Brown}>Name</Typography>
+		</Grid>
+		
+		<Grid align="center" item md={1} lg={1} >
+			<Typography className={gClasses.patientInfo2Brown}>Mem. No.</Typography>
+		</Grid>
+		<Grid align="center" item md={1} lg={1} >
+			<Typography className={gClasses.patientInfo2Brown}>Mobile</Typography>
+		</Grid>
+		<Grid align="center" item md={1} lg={1} >
+			<Typography className={gClasses.patientInfo2Brown}>Mem. Id</Typography>
+		</Grid>
+		<Grid align="center" item md={1} lg={1} >
+			<Typography className={gClasses.patientInfo2Brown}>Mem. Date</Typography>
+		</Grid>
+		<Grid align="center" item md={2} lg={2} >
+			<Typography className={gClasses.patientInfo2Brown}>Remarks</Typography>
+		</Grid>
+		<Grid align="center" item md={1} lg={1} >
+		</Grid>
+		</Grid>
+		</Box>
+		{memberArray.slice(page*ROWSPERPAGE, (page+1)*ROWSPERPAGE).map( (m, index) => {
+			let h = humadArray.find(x => x.mid === m.mid);
+			if (!h) return null;
+			let memDateStr = dateString(h.membershipDate);
+			return (
+			<Box  key={"MEMBOX"+index} className={((index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd } borderColor="black" borderRadius={30} border={1} >
+			<Grid key={"MEMGRID"+index} className={gClasses.noPadding} key={"SYM"+index} container align="center" alignItems="center" >
+				<Grid align="left" item md={5} lg={5} >
+					<Typography className={gClasses.patientInfo2}>{getMemberName(m)+"(" + dispAge(m.dob, m.gender) + ")"}</Typography>
+				</Grid>
+				<Grid align="center" item md={1} lg={1} >
+					<Typography className={gClasses.patientInfo2}>{h.membershipNumber}</Typography>
+				</Grid>
+				<Grid align="center" item md={1} lg={1} >
+					<Typography className={gClasses.patientInfo2}>{m.mobile}</Typography>
+				</Grid>
+				<Grid align="center" item md={1} lg={1} >
+					<Typography className={gClasses.patientInfo2}>{m.mid}</Typography>
+				</Grid>
+				<Grid align="center" item md={1} lg={1} >
+					<Typography className={gClasses.patientInfo2}>{memDateStr}</Typography>
+				</Grid>
+				<Grid align="center" item md={2} lg={2} >
+					<Typography className={gClasses.patientInfo2}>{h.remarks}</Typography>
+				</Grid>
+				<Grid align="center" item md={1} lg={1} >
+				{((false) &&(humadAdmin) && (h.membershipNumber.substr(0, 1) !== HUMADCATEGORY[0].short)) &&
+          <div>
+					<EditRoundedIcon color='primary'  onClick={() => upgradeHumad(h) } />
+					<Upgrade color='primary'  onClick={() => upgradeHumad(h) } />
+          </div>
+				}
+				<MoreVertIcon className={gClasses.blue} size="small" onClick={() => { setMenuMember(m); handleHumadContextMenu(event); } } />
+				</Grid>
+			</Grid>
+			</Box>
+			)}
+		)}	
+		{contextParams.show && <HumadContextMenu /> }
+		</div>	
+		)}
+
+// Functions required for Filter 
+
+	function addFilter(newItem) {
+		setLastFilter(newItem);
+		var tmp = MasterFilterItems.find(x => x.item === newItem);
+		inputName = tmp.item;
+		setInputInfo(tmp);
+		let tmp1 = "";
+		if (tmp.options) 
+			tmp1 = "";   //tmp.options[0];
+		else {
+			tmp = filterList.find(x => x.item == newItem);
+			tmp1 = (tmp) ? tmp.value : "";
+		}
+		setInputValue(tmp1);
+		setInputFilterMode(true);
+	}
+
+	function addFilterConfirm(tmpValue) {
+		//console.log("addFilterConfirm", tmpValue);
+		let finalFilter;
+		let userSelection = ""
+		if (tmpValue.length > 0) 
+			userSelection = tmpValue
+    else {			
+			if (inputValue.length === 0) return;
+			userSelection = inputValue;
+		}
+		//console.log(inputValue);
+		let tmp = filterList.find(x => x.item === inputName);
+		//console.log(tmp);
+		if (tmp) {
+			tmp.value = userSelection;
+			finalFilter = lodashCloneDe1ep(filterList);
+			console.log(finalFilter);
+		} 
+		else {
+			//console.log(inputName, userSelection);
+			//console.log(MasterFilterItems[0]);
+			tmp = lodashCloneDeep(MasterFilterItems.find(x => x.item === inputName));
+			//console.log(MasterFilterItems);
+			//console.log(tmp);
+			tmp.value = userSelection;
+			finalFilter = filterList.concat(tmp);
+			//console.log(finalFilter);
+			setFilterList(finalFilter);
+		}
+		setInputFilterMode(false);
+		updateFilterItems(finalFilter);
+		updateMemberArray(finalFilter);
+		setPage(0);
+	}
+	
+	function removeFilter(item) {
+		let tmp = filterList.filter(x => x.item !== item);
+		setFilterList(tmp);	
+		updateFilterItems(tmp);
+		updateMemberArray(tmp);
+		setPage(0);
+	}
+	
+	function updateFilterItems(fList) {
+		let tmp = lodashCloneDeep(MasterFilterItems);
+		for(var i=0; i<fList.length; ++i) {
+			tmp = tmp.filter(x => x.item !== fList[i].item);
+		}
+		setModMasterFilterItems(tmp);
+		setLastFilter("");
+	}
+	
+	function updateMemberArray(fList) {
+		let tmp = lodashCloneDeep(memberMasterArray);
+		for(var i=0; i<fList.length; ++i) {
+			switch (fList[i].item) {
+				case "FirstName": 
+					tmp = tmp.filter(x => x.firstName.toUpperCase().includes(fList[i].value.toUpperCase()) );
+					break;
+				case "MiddleName":
+					tmp = tmp.filter(x => x.middleName.toUpperCase().includes(fList[i].value.toUpperCase()) );
+					break;
+				case "LastName":
+					tmp = tmp.filter(x => x.lastName.toUpperCase().includes(fList[i].value.toUpperCase()) );
+					break;
+				case "Marital Status":
+					if (fList[i].value.toUpperCase() === "MARRIED")
+						tmp = tmp.filter(x => !x.emsStatus.toUpperCase().includes("UNMARRIED"));
+					else
+						tmp = tmp.filter(x => x.emsStatus.toUpperCase().includes("UNMARRIED"));
+					break;
+				case "Gender":
+					tmp = tmp.filter(x => x.gender.toUpperCase().startsWith(fList[i].value.toUpperCase()) );
+					break;
+				case "Blood Group":
+					tmp = tmp.filter(x => x.bloodGroup.toUpperCase().includes(fList[i].value.toUpperCase()) );
+					break;	
+				case "City":
+					var xxx = cityArray.filter( x => x.city === fList[i].value);
+					xxx = lodashMap(xxx, 'hid');
+					tmp = tmp.filter(x => xxx.includes(x.hid)  );
+					break;	
+				case "Age greater than":
+				case "Age less than":
+					// calculate dot based on age criteria
+					var d = new Date();
+					d.setFullYear(d.getFullYear() - fList[i].value);
+					// exclude all mebers whose dob is not available
+					tmp = tmp.filter(x => numberToDate(x.dob).getFullYear() != 1900 );
+					// now do the comparision
+					if (fList[i].item === "Age greater than")
+						tmp = tmp.filter( x => numberToDate(x.dob).getTime() <= d.getTime() );
+					else
+						tmp = tmp.filter( x => numberToDate(x.dob).getTime() >= d.getTime() );
+					break;
+			}
+		}
+		setMemberArray(tmp);
+	}
+	
 	
 	function DisplayAllToolTips() {
 	return(
@@ -412,17 +655,23 @@ export default function Humad() {
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
 	<CssBaseline />
-	<DisplayPageHeader headerName="Humad Members" groupName="" tournament=""/>
-	<br />
-	<Box  key={"CHARS"} className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
-		<VsRolodex label="Last name with: " current={currentChar} onClick={newPage} />
-	</Box>
-	{ (mobileVersion) &&
-		<DisplayMobileHumad />
-	}
-	{ (!mobileVersion) &&
-		<DisplayAllHumad />
-	}
+	{/*<DisplayPageHeader headerName="Humad Members" groupName="" tournament=""/>*/}
+	<DisplayPrwsFilter 
+		inputFilterMode={inputFilterMode} 
+		inputName={inputName}
+		inputInfo={inputInfo}
+		inputValue={inputValue}
+		selectClick={(event) => { setInputValue(event.target.value); addFilterConfirm(event.target.value); }}
+		setInputValue={setInputValue}
+		filterList={filterList}
+		balanceFilterList={modMasterFilterItems}
+		lastFilter={lastFilter}
+		removeFilter={removeFilter}
+		pdhsFilter={(event) => { addFilter(event.target.value); }}
+		applyClick={() => { addFilterConfirm(""); } }
+		cancelClick={() => { setInputFilterMode(false); setLastFilter(""); } }
+	/>
+	<DisplayAllHumad />
 	{(memberArray.length > ROWSPERPAGE) &&
 		<TablePagination
 			align="right"
