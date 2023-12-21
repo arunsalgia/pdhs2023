@@ -55,7 +55,9 @@ router.get('/listwithnames', async function (req, res) {
 
 	//console.log(new Date());
 	let allPjym = await M_Pjym.find({active: true}, {_id: 0, __v: 0});
-	let allNames = allMemberlist.filter(x => !x.ceased && x.pjymMember);
+	
+	var clonedArray = _.cloneDeep(allMemberlist);
+	var allNames = clonedArray.filter(x => !x.ceased && x.pjymMember);
 	for (var i=0; i< allNames.length; ++i) {
 		allNames[i].email = dbToSvrText(allNames[i].email);
 		allNames[i].email1 = dbToSvrText(allNames[i].email1);

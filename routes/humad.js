@@ -68,7 +68,8 @@ router.get('/listwithnames', async function (req, res) {
 	//console.log(new Date());
 	*/
 	
-	var allNames = allMemberlist.filter(x => !x.ceased && x.humadMember);
+	var clonedArray = _.cloneDeep(allMemberlist);
+	var allNames = clonedArray.filter(x => !x.ceased && x.humadMember);
 	for (var i=0; i< allNames.length; ++i) {
 		allNames[i].email = dbToSvrText(allNames[i].email);
 		allNames[i].email1 = dbToSvrText(allNames[i].email1);

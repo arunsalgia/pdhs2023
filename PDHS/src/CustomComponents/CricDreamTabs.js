@@ -465,7 +465,7 @@ export function CricDreamTabs() {
         <Grid align="left" item xs={6} sm={6} md={6} lg={6} >	
 					<Typography>
 						<span className={classes.ankit}>{((dispType == "lg") || (dispType == "md")) ? "PRWS" : "PRWS"}</span>
-						<span style={{margin: "5px"}}  ><HomeIcon className={classes.icon} onClick={handleHome} /></span>
+							{/*<span style={{margin: "5px"}}  ><HomeIcon className={classes.icon} onClick={handleHome} /></span>*/}
 					</Typography>
         </Grid>
         <Grid align="right" item xs={6} sm={6} md={6} lg={6} >	

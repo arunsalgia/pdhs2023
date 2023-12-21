@@ -250,7 +250,6 @@ export default function Pjym() {
 	<div ref={menuRef} className='absolute z-20' style={myStyle}>
 	<Menu id="pjym-menu" anchorEl={grpAnchorEl}
 		anchorOrigin={{ vertical: 'top', horizontal: 'center', }}
-		// keepMounted
 		transformOrigin={{ vertical: 'top', horizontal: 'center', }}
 		open={contextParams.show} onClose={handlePjymMenuClose}
 	>
@@ -284,27 +283,30 @@ export default function Pjym() {
 			//console.log(m);
 			//console.log(pjymArray);
 			let p = pjymArray.find(x => x.mid === m.mid);
-			//console.log(p);
-			let ageGender = dispAge(m.dob, m.gender);			
-			let domStr = dateString(m.dateOfMarriage);		
-			let memDateStr = dateString(p.membershipDate);	
+			var cityRec = cityArray.find( x => x.hid === m.hid );
 			let myClass = gClasses.patientInfo2;
+			
+			//console.log(p);
+			//let ageGender = dispAge(m.dob, m.gender);			
+			//let domStr = dateString(m.dateOfMarriage);		
+			//let memDateStr = dateString(p.membershipDate);	
 
-			let myInfo = getMemberName(m);
+			/*let myInfo = getMemberName(m);
       myInfo += "<br />" +  "Age: " + ageGender;
       myInfo += "<br />" +  "Mem.Id. : " + m.mid;
 			myInfo += "<br />" +  "Mem.No. : " +  p.membershipNumber;
 			let ttt = dateString(p.membershipDate);
 			if (ttt !== "") myInfo += "<br />" + "Mem.Date: " + ttt;
       //myInfo += "<br />" + "Mem.Id: " + m.mid;
-     // myInfo += "<br />" + "Mem.No.: " + p.membershipNumber; 
+     // myInfo += "<br />" + "Mem.No.: " + p.membershipNumber; */
+		 
 			return (
 			<Box  key={"MEMBOX"+index} className={((index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd } borderColor="black" borderRadius={30} border={1} >
 			<Grid key={"MEMGRID"+index} className={gClasses.noPadding} key={"SYM"+index} container align="center" alignItems="center" >
 				<Grid align="left" item xs={8} sm={8} md={6} lg={5} >
 					<Typography >
 						<span className={gClasses.patientInfo2}>{getMemberName(m) + ((dispType != "xs") ? " ("+dispAge(m.dob, m.gender)+")" : "") }</span>
-						<span align="left" data-for={"PJYM"+m.mid} data-tip={getMemberTip(m, dispType, "")} data-iscapture="true" >
+						<span align="left" data-for={"PJYM"+m.mid} data-tip={getMemberTip(m, dispType, (cityRec) ? cityRec.city : "")} data-iscapture="true" >
 							<InfoIcon color="primary" size="small"/>
 						</span>
 					</Typography>

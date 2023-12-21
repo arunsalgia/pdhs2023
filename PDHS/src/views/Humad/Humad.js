@@ -65,6 +65,7 @@ import {
 	dispAge,
 	getAdminInfo,
 	disableFutureDt,
+	getMemberTip,
 } 
 from "views/functions.js";
 
@@ -483,6 +484,7 @@ export default function Humad() {
 		</Grid>
 		</Box>
 		{memberArray.slice(page*ROWSPERPAGE, (page+1)*ROWSPERPAGE).map( (m, index) => {
+			var cityRec = cityArray.find( x => x.hid === m.hid ); // get City record
 			let h = humadArray.find(x => x.mid === m.mid);
 			if (!h) return null;
 			let memDateStr = dateString(h.membershipDate);
@@ -490,7 +492,12 @@ export default function Humad() {
 			<Box  key={"MEMBOX"+index} className={((index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd } borderColor="black" borderRadius={30} border={1} >
 			<Grid key={"MEMGRID"+index} className={gClasses.noPadding} key={"SYM"+index} container align="center" alignItems="center" >
 				<Grid align="left" item md={5} lg={5} >
-					<Typography className={gClasses.patientInfo2}>{getMemberName(m)+"(" + dispAge(m.dob, m.gender) + ")"}</Typography>
+					<Typography>
+						<span style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2Blue } >{getMemberName(m)+" ("+dispAge(m.dob, m.gender)+")"}</span>
+							<span align="left" data-for={"HUMAD"+m.mid} data-tip={getMemberTip(m, dispType, (cityRec) ? cityRec.city : "")} data-iscapture="true" >
+							<InfoIcon color="primary" size="small"/>
+							</span>
+					</Typography>		
 				</Grid>
 				<Grid align="center" item md={1} lg={1} >
 					<Typography className={gClasses.patientInfo2}>{h.membershipNumber}</Typography>

@@ -26,9 +26,9 @@ router.get('/list/all', async function (req, res) {
 	let myData = clonedArray.filter(x => !x.ceased);
 	for (var i=0; i< myData.length; ++i) {
 		var tmp = dbdecrypt(myData[i].email);
-		//console.log(tmp);
+		if (myData[i].mid === 2001) console.log(tmp);
 		tmp = encrypt(tmp);
-		//console.log(tmp);
+		if (myData[i].mid === 2001) console.log(tmp);
 		myData[i].email = tmp;		//dbToSvrText(myData[i].email);
 		tmp = dbdecrypt(myData[i].email1);
 		tmp = encrypt(tmp);
