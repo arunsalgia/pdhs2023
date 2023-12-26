@@ -4,11 +4,59 @@ import {
   grayColor,
   hexToRgb
 } from "assets/jss/material-dashboard-react.js";
+
 import { red, blue, green, grey, deepOrange, deepPurple, yellow, lightGreen } from '@material-ui/core/colors';
 import { makeStyles } from '@material-ui/core/styles';
 
 
 const globalStyles = makeStyles((theme) => ({
+	thbold_tbl: { 
+    border: 5,
+    align: "center",
+    paddingBottom: "1px",
+    paddingTop: "1px",
+		fontSize: theme.typography.pxToRem(16),
+		fontWeight: theme.typography.fontWeightBold,
+		backgroundColor: deepOrange[200],
+		borderWidth: 1,
+		borderColor: 'black',
+		borderStyle: 'solid', 
+  },
+	th_tbl: { 
+    border: 5,
+    align: "center",
+    paddingBottom: "1px",
+    paddingTop: "1px",
+		fontSize: theme.typography.pxToRem(16),
+		backgroundColor: deepOrange[200],
+		borderWidth: 1,
+		borderColor: 'black',
+		borderStyle: 'solid',
+  },
+  td_tbl : {
+    border: 5,
+    align: "center",
+    paddingBottom: "1px",
+    paddingTop: "1px",
+		fontSize: theme.typography.pxToRem(16),
+		//fontWeight: theme.typography.fontWeightBold,
+    backgroundColor: blue[100],
+    borderWidth: 1,
+    borderColor: 'black',
+    borderStyle: 'solid',    
+  },
+	tdbold_tbl : {
+    border: 5,
+    align: "center",
+    paddingBottom: "1px",
+    paddingTop: "1px",
+		fontSize: theme.typography.pxToRem(16),
+		fontWeight: theme.typography.fontWeightBold,
+    backgroundColor: blue[100],
+    borderWidth: 1,
+    borderColor: 'black',
+    borderStyle: 'solid',    
+  },
 	fullWidth: {
 		display: "flex-root",
     width: "100%"
@@ -20,7 +68,7 @@ const globalStyles = makeStyles((theme) => ({
 		//backgroundColor: pink[100],
 	}, 
   dateTimeNormal: {
-		color: 'blue',
+		color: 'blue', 
 		fontSize: theme.typography.pxToRem(14),
 		fontWeight: theme.typography.fontWeightBold,
 		//backgroundColor: pink[100],
@@ -388,7 +436,7 @@ const globalStyles = makeStyles((theme) => ({
     color: deepOrange[700],
     fontWeight: theme.typography.fontWeightBold,
   },
-  td : {
+  txd : {
     spacing: 0,
     // border: 5,
     align: "center",

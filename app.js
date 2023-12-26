@@ -1,4 +1,5 @@
-require('dotenv').config()
+dotenv = require('dotenv');
+dotenv.config();
 express = require('express');
 path = require('path');
 cookieParser = require('cookie-parser');
@@ -29,6 +30,7 @@ readXlsxFile = require('read-excel-file');
 
 app = express();
 
+console.log(process.env.PRODUCTION);
 PRODUCTION=(process.env.PRODUCTION.toUpperCase() === "TRUE");   
 WEB=(process.env.WEB.toUpperCase() === "TRUE");   
 console.log("Prod", PRODUCTION);
@@ -156,7 +158,7 @@ adminSchema = mongoose.Schema({
 
 GotraSchema = mongoose.Schema({
 	id: String,
-	name: String,
+	gotra: String,
 	enabled: Boolean,
 });
 
@@ -359,6 +361,8 @@ mongoose.connection.on('connected', function () {
 	console.log('Database connection success');
   db_connection = true;
   connectRequest = true;
+	getAllMembers();
+
 });
 
 // If the connection throws an error
@@ -499,7 +503,6 @@ getAllMembers = async function () {
 // data = _.sortBy(data, ["a", "b"]);
 }
 
-getAllMembers();
 
 
 

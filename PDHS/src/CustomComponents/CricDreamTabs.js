@@ -31,6 +31,7 @@ import Member from 'views/Member/Member'
 import Humad from 'views/Humad/Humad'
 import Pjym from 'views/Pjym/Pjym'
 import Prws from 'views/Prws/Prws'
+import Admin from 'views/Admin/Admin'
 
 import Profile from "views/Profile/UserProfile" 
 //import Home from "views/MED/Home.js";
@@ -39,7 +40,7 @@ import Application from "views/Application/Application";
 
 
 // only for admin
-import Gotra from "views/SuperUser/Gotra";
+//import Gotra from "views/SuperUser/Gotra";
 import PDHSAdmin from "views/SuperUser/PDHSAdmin";
 import AdminApplication from "views/Application/AdminApplication";
 
@@ -529,6 +530,9 @@ export function CricDreamTabs() {
 			}
 			{ (currentSelection === "FAMILY") && 
 				<Member hid={hid} mid={mid} />
+			}
+			{ (currentSelection === "ADMIN") && 
+				<Admin />
 			}
 			
     </div>
