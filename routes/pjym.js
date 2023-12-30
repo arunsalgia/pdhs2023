@@ -3,6 +3,12 @@ const {  akshuGetUser, GroupMemberCount,
 	dbToSvrText, svrToDbText, 
 	getMemberName
 } = require('./functions'); 
+const {
+	memberGetAll,
+	memberAddOne, memberAddMany,
+	memberUpdateOne, memberUpdateMany,
+} = require('./dbfunctions');
+
 var router = express.Router();
 
 
@@ -56,7 +62,8 @@ router.get('/listwithnames', async function (req, res) {
 	//console.log(new Date());
 	let allPjym = await M_Pjym.find({active: true}, {_id: 0, __v: 0});
 	
-	var clonedArray = _.cloneDeep(allMemberlist);
+	var tmp = await memberGetAll();
+	var clonedArray = _.cloneDeep(tmp);
 	var allNames = clonedArray.filter(x => !x.ceased && x.pjymMember);
 	for (var i=0; i< allNames.length; ++i) {
 		allNames[i].email = dbToSvrText(allNames[i].email);

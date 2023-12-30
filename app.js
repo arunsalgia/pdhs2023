@@ -17,6 +17,9 @@ fs = require('fs');
 axios = require('axios');
 pin = require('pincode');
 
+const { 
+	memberGetAll,
+} = require('./routes/dbfunctions'); 
 
 // mongoose settings
 mongoose.set('useNewUrlParser', true);
@@ -80,6 +83,7 @@ importRouter = require('./routes/import');
 humadRouter = require('./routes/humad');
 pjymRouter = require('./routes/pjym');
 gotraRouter = require('./routes/gotra');
+cityRouter = require('./routes/city');
 adminRouter = require('./routes/admin');
 applicationRouter = require('./routes/application');
 
@@ -116,6 +120,7 @@ app.use('/import', importRouter);
 app.use('/humad', humadRouter);
 app.use('/pjym', pjymRouter);
 app.use('/gotra', gotraRouter);
+app.use('/city', cityRouter);
 app.use('/pdhsadm', adminRouter);
 app.use('/application', applicationRouter);
 
@@ -159,8 +164,14 @@ adminSchema = mongoose.Schema({
 GotraSchema = mongoose.Schema({
 	id: String,
 	gotra: String,
-	enabled: Boolean,
+	enabled: Boolean
 });
+
+/*CitySchema = mongoose.Schema({
+	id: String,
+	city: String,
+	enabled: Boolean
+});*/
 
 HodSchema = mongoose.Schema({
 	hid: Number,
@@ -316,6 +327,7 @@ M_Member = mongoose.model('member', MemberSchema);
 M_Humad = mongoose.model('humad', HumadSchema);
 M_Pjym = mongoose.model('pjym', PjymSchema);
 M_Gotra = mongoose.model('gotra', GotraSchema);
+//M_City  = mongoose.model('city', CitySchema);
 M_Password = mongoose.model('password', PasswordSchema);
 M_PinCode = mongoose.model('pincode', PinCodeSchema);
 M_Application = mongoose.model('application', ApplicationSchema);
@@ -361,14 +373,14 @@ mongoose.connection.on('connected', function () {
 	console.log('Database connection success');
   db_connection = true;
   connectRequest = true;
-	getAllMembers();
+	memberGetAll();
 
 });
 
 // If the connection throws an error
 mongoose.connection.on('error', function (err) {
   console.log('Database default connection error');
-  console.log(err);
+  //console.log(error);
   db_connection = false;
   connectRequest = false;   // connect request refused
 });
@@ -489,19 +501,6 @@ ALLDOCTORS = 0xFFFFFFFF;
 MAGICNUMBER = 99999;
 
 FAMILYMF = 1000;
-
-allMemberlist = [];
-
-updateMember = async function (m)  {
-	var tmpArray = allMemberlist.filter(x => x.mid !== m.mid);
-	allMemberlist = _.sortBy(tmpArray.concat([m]), [ 'lastName', 'middleName', 'firstName' ] );	
-	await m.save();
-}
-
-getAllMembers = async function () {
-	allMemberlist = await M_Member.find({}).sort({lastName: 1, middleName: 1, firstName: 1});
-// data = _.sortBy(data, ["a", "b"]);
-}
 
 
 

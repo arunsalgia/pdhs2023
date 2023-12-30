@@ -67,7 +67,7 @@ import {
 	getAdminInfo,
 	getImageName,
 	vsDialog,
-	getMemberName,
+	getMemberName, getMemberTip, getOfficeTip,
 	dispAge,
 } from "views/functions.js";
 
@@ -307,14 +307,7 @@ export default function MemberOffice(props) {
 		return (
 		<div>
 		{memberArray.map( (m, index) => {
-      let myInfo = getMemberName(m) + "<br />";;
-      myInfo +=  "Mem.Id.: " + m.mid + "<br />";
-      if ((dispType !== "lg")) {
-        myInfo +=  "Education: " +  m.education + "<br />";
-        if (m.officeName != "") myInfo +=  "Company : " +  m.officeName + "<br />";
-        if (m.officePhone != "") myInfo +=  "Phone : " +  m.officePhone + "<br />";
-      } 
-    //myInfo +=  "Email Id : " +  dispEmail(m.email);
+			let myInfo = getMemberTip(m, dispType, props.city);		// + "<br />" + getOfficeTip(m, dispType);
 			return (
 				<PersonalOffice key={"Office"+m.mid} m={m} dispType={dispType}  index={index} 
 					checked={radioRecord == m.order} onClick={(event) => { setRadioRecord(m.order); handleMemberOfficeContextMenu(event); } }

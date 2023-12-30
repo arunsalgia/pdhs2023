@@ -91,6 +91,8 @@ export default function Member(props) {
 	//const [currentMember, setCurrentMember] = useState("");
 	const [currentMemberData, setCurrentMemberData] = useState(null);
 	const [currentHod, setCurrentHod] = useState({});
+	const [currentCity, setCurrentCity] = useState("");
+	
 	const [gotraArray, setGotraArray] = useState([]);
 	const [gotraFilterArray, setGotraFilterArray] = useState([]);
 	//const [ceasedArray, setCeasedArray] = useState([]);
@@ -105,11 +107,9 @@ export default function Member(props) {
 
 
   useEffect(() => {	
-		const getDetails = async () => {	
-      var memberHid = props.hid;  //Number(sessionStorage.getItem("memberHid"));
-			if (memberHid === 0) memberHid = 470;
-      var memberMid = props.mid;  //Number(sessionStorage.getItem("memberMid"));
-			//console.log(memberHid, memberMid);
+		const getDetails = async () => {
+			var memberHid = (props.hid !== 0) ? props.hid : loginHid;
+			var memberMid = (props.hid !== 0) ? props.mid : loginMid;			
 			isMember = (loginHid === memberHid);
 			await getHod(memberHid);
 			await getHodMembers(memberHid, memberMid);
@@ -125,7 +125,8 @@ export default function Member(props) {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/hod/get/${hid}`
 			let resp = await axios.get(myUrl);
 			setCurrentHod(resp.data);
-			sessionStorage.setItem("hod", JSON.stringify(resp.data));
+			setCurrentCity(resp.data.city);
+			//sessionStorage.setItem("hod", JSON.stringify(resp.data));
 		} catch (e) {
 			console.log(e);
 			alert.error(`Error fetching HOD details of ${hid}`);
@@ -134,14 +135,14 @@ export default function Member(props) {
 	}
 
 	async function getHodMembers(hid, mid) {
-		//console.log("Hi");
+		console.log("Hi");
 		try {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/hod/${hid}`;
 			let resp = await axios.get(myUrl);
-			let tmp = (mid > 0) ? resp.data.find(x => x.mid === mid) : resp.data[0];
-			sessionStorage.setItem("MemberData", JSON.stringify(resp.data));
+			var tmpList = lodashSortBy(resp.data, 'order');
+			setMemberArray(tmpList);
+			let tmp = (mid > 0) ? tmpList.find(x => x.mid === mid) : tmpList[0];
 			setCurrentMemberData((tmp) ? tmp : null);
-			setMemberArray(resp.data);
 		} catch (e) {
 			console.log(e);
 			alert.error(`Error fetching Member details of HOD ${hid}`);
@@ -183,7 +184,7 @@ export default function Member(props) {
 	)}
 	
 	if (memberArray.length === 0) return false;
-	console.log(currentMemberData);
+	//console.log(currentMemberData);
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
 	<CssBaseline />
@@ -196,13 +197,13 @@ export default function Member(props) {
 		{/*<Divider className={gClasses.divider} />*/}
 		<DisplayFunctionHeader />
 		{(currentSelection === "General") &&
-			<MemberGeneral hod={currentHod} isMember={isMember} />
+			<MemberGeneral hodRec={currentHod} isMember={isMember}  />
 		}
 		{(currentSelection === "Personal") &&
-			<MemberPersonal list={memberArray} isMember={isMember} />
+			<MemberPersonal hodRec={currentHod} memberList={memberArray} isMember={isMember} city={currentCity} />
 		}
 		{(currentSelection === "Office") &&
-			<MemberOffice list={memberArray} isMember={isMember} />
+			<MemberOffice list={memberArray} isMember={isMember} city={currentCity} />
 		}
 		{(currentSelection === "Spouse") &&
 			<MemberSpouse list={memberArray} isMember={isMember} />

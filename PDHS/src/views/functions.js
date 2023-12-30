@@ -9,8 +9,9 @@ import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 import 'assets/react-confirm-alert_mod.css'; // Import css
 import {cloneDeep} from "lodash";
 import { func } from "prop-types";
-import {dialogOptions } from "views/globals";
-
+import {dialogOptions, TOAST_TIMEOUT } from "views/globals";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 var crypto = require("crypto");
 var ifscsystem = require('ifsc-finder');
@@ -998,9 +999,9 @@ export function checkIfBirthday(dob) {
 	return ((today.getDate() === ddd.getDate()) && (today.getMonth() === ddd.getMonth())) ? true : false;
 }
 
-export function getMemberName(rec, alias=true) {
+export function getMemberName(rec, title=true, alias=true) {
   //console.log("Alias is "+rec.alias)
-  let sss = rec.title + " " + rec.lastName + " " + rec.firstName + " " + rec.middleName;
+  let sss = ((title) ? (rec.title + " ") : "") + rec.lastName + " " + rec.firstName + " " + rec.middleName;
   if  (alias && (rec.alias !== "")) {
     sss += " (" + rec.alias + ")";
   }
@@ -1037,9 +1038,21 @@ export function getMemberTip(m, dispType, city) {
 	tmp = dispEmail(m.email1);
 	if (tmp !== "") myInfo +=  "<br />" + "Email1: " + tmp + "<br />";
 
+	// Office information
+	if (m.education != "") myInfo +=  "Education: " +  m.education + "<br />";
+	if (m.officeName != "") myInfo +=  "Company : " +  m.officeName + "<br />";
+	if (m.officePhone != "") myInfo +=  "OfficePhone : " +  m.officePhone + "<br />";
+	
 	return myInfo;
 }
 
+export function getOfficeTip(m, dispType) {
+	var myInfo =  "";
+	if (m.education != "") myInfo +=  "Education: " +  m.education + "<br />";
+	if (m.officeName != "") myInfo +=  "Company : " +  m.officeName + "<br />";
+	if (m.officePhone != "") myInfo +=  "OfficePhone : " +  m.officePhone + "<br />";
+	return myInfo;
+}
 
 export function downloadTextFile(fileName, textData) {
 	const element = document.createElement("a");
@@ -1050,3 +1063,14 @@ export function downloadTextFile(fileName, textData) {
 	element.click();
 }
 
+export function showError(msg) {
+	toast.error(msg, { autoClose: TOAST_TIMEOUT });
+}
+
+export function showSuccess(msg) {
+	toast.success(msg, { autoClose: TOAST_TIMEOUT });
+}
+
+export function showInfo(msg) {
+	toast.info(msg, { autoClose: TOAST_TIMEOUT });
+}

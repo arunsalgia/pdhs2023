@@ -444,9 +444,9 @@ export default function Prws() {
 			<Typography>Humad</Typography>
 		</MenuItem>*/}
 		<Divider />
-		<MenuItem onClick={jumpGotra}>
+		{/*<MenuItem onClick={jumpGotra}>
 			<Typography>Gotra</Typography>
-		</MenuItem>
+		</MenuItem>*/}
 		<MenuItem onClick={downloadPrwsData}>
 			<Typography>Export</Typography>
 		</MenuItem>

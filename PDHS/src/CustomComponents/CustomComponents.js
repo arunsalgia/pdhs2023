@@ -11,7 +11,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Dialog from '@material-ui/core/Dialog';
 import Box from '@material-ui/core/Box';
 import Link from '@material-ui/core/Link';
-import PDFViewer from 'pdf-viewer-reactjs';
+//import PDFViewer from 'pdf-viewer-reactjs';
 import lodashSumBy from 'lodash/sumBy';
 //import VsCancel from "CustomComponents/VsCancel";
 
@@ -670,7 +670,7 @@ return(
 </Box>
 )}
 	
-export function DisplayPDF(props) {
+/*export function DisplayPDF(props) {
 	const classes = useStyles();
 	return(	
 	<Box align="center" width="100%">
@@ -680,7 +680,7 @@ export function DisplayPDF(props) {
 			document={{base64: props.file }}
 		/>
 	</Box>
-	)}
+	)}*/
 
 export function LoadingMessage() {
 return(

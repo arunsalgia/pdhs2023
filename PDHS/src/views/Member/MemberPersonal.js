@@ -8,6 +8,7 @@ import Tooltip from "react-tooltip";
 import Select from "@material-ui/core/Select";
 import MenuItem from '@material-ui/core/MenuItem'; 
 import Menu from '@material-ui/core/Menu'; 
+//import SubMenu from '@material-ui/core/SubMenu'; 
 //import Avatar from '@material-ui/core/Avatar';
 import lodashCloneDeep from 'lodash/cloneDeep';
 import lodashSortBy from "lodash/sortBy";
@@ -33,6 +34,9 @@ import 'react-step-progress/dist/index.css';
 import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
 import moment from "moment";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 // styles
 import globalStyles from "assets/globalStyles";
@@ -52,6 +56,7 @@ import {
 	ADMIN, APPLICATIONTYPES, SELECTSTYLE,
   PADSTYLE,
 	MEMBERTITLE, RELATION, SELFRELATION, GENDER, BLOODGROUP, MARITALSTATUS,
+	STATUS_INFO,
 } from "views/globals.js";
 
 
@@ -67,11 +72,17 @@ import {
 	getMemberTip,
 	getAdminInfo,
 	applicationSuccess,
+	showSuccess, showError,
 } from "views/functions.js";
+
+import SplitFamily from "views/Member/SplitFamily";
+import CeasedMember from "views/Member/CeasedMember";
+import NewHod from "views/Member/NewHod";
+
 
 const InitialContextParams = {show: false, x: 0, y: 0};
 var radioMid = -1;
-
+var familyCity = "";
 
 export default function MemberPersonal(props) {
 	//console.log(props);
@@ -86,8 +97,8 @@ export default function MemberPersonal(props) {
 	const gClasses = globalStyles();
 	const alert = useAlert();
 
-	const [memberArray, setMemberArray] = useState(props.list)
-
+	const [memberArray, setMemberArray] = useState(props.memberList)
+	const [selMember, setSelMember] = useState({mid: 0});
 
 	const [hodNamesArray, setHodNamesArray] = useState([])
 	const [groomArray, setGroomArray] = useState([])
@@ -147,7 +158,9 @@ export default function MemberPersonal(props) {
 		}
 		const getDetails = async () => {	
 		}
+
 		getDetails();
+		
 		handleResize();
 		window.addEventListener('resize', handleResize);
 		let handler = (e) => {
@@ -277,64 +290,8 @@ export default function MemberPersonal(props) {
 		setIsDrawerOpened("MERGEFAMILY");
 	}
 
-	// display member personal details (buttons also if user belongs to current family or is admin)
-	function DisplayPersonalButtons() {
-		if (memberArray.length === 0) return null;
-		
-		let family = (memberArray[0].hid === loginHid);
-		let admin = (adminInfo & (ADMIN.superAdmin | ADMIN.prwsAdmin) !== 0);
-		let lastItemIndex =  memberArray.length-1;
-		let showUp = true;
-		let showDown = true;
-		//console.log(radioRecord, lastItemIndex);
-		if (radioRecord <= 1) showUp = false;
-		if ((radioRecord === 0) || (radioRecord === lastItemIndex)) showDown = false;
-	return(
-	<div>
-		{(family || admin) &&
-			<div align="right">
-				<VsButton name="Pjym" onClick={() => samitiMembership("PJYM") } />
-				<VsButton name="Humad" onClick={() => samitiMembership("HUMAD") } />
-				{ (false) &&
-				<div>
-        {(radioRecord == 0) &&
-				<VsButton name="Merge Family" onClick={() => splitFamily("APPLYSPLIT", radioRecord) } />
-        }
-        {(radioRecord != 0) &&
-				<VsButton name="Split Family" onClick={() => splitFamily("APPLYSPLIT", radioRecord) } />
-        }
-				<VsButton name="Ceased" disabled={radioRecord === 0} onClick={() => ceasedMember("APPLYCEASED")} />
-				<VsButton name="New Hod" disabled={radioRecord === 0} onClick={() => newHOD("APPLYHOD") } />
-				<VsButton name="Move Up" disabled={!showUp} onClick={handleMoveUpMember} />
-				<VsButton name="Move Down" disabled={!showDown} onClick={handleMoveDownMember} />
-				<VsButton name="Edit Details" onClick={handlePersonalEdit} />
-				</div>
-				}
-			</div>
-		}
-		{(false) &&
-			<div align="right">
-			<VsButton name="Transfer Member" disabled={radioRecord === 0}  onClick={handlePersonalTransfer} />
-			<VsButton name="Merge Family" onClick={handlePersonalMergeFamily} />
-			<VsButton name="Split Family" onClick={() => splitFamily("EDITSPLIT") }  />
-			<VsButton name="Add new Member" onClick={handlePersonalAdd} />
-			<VsButton name="Ceased" disabled={radioRecord === 0} onClick={() => ceasedMember("EDITCEASED")} />
-			<VsButton name="New Hod" disabled={radioRecord === 0} onClick={() => newHOD("EDITHOD")} />
-			<VsButton name="Move Up" disabled={!showUp} onClick={handleMoveUpMember} />
-			<VsButton name="Move Down" disabled={!showDown} onClick={handleMoveDownMember} />
-			<VsButton name="Edit Details" onClick={handlePersonalEdit} />
-			</div>
-		}
-	</div>
-)}
-
-	function DisplayPersonalInformation() {
+function DisplayPersonalInformation() {
 	if (memberArray.length === 0) return null;
-	//console.log(memberArray);
-	
-	let edit = (memberArray[0].hid === loginHid) || (adminInfo & (ADMIN.superAdmin | ADMIN.prwsAdmin));
-	
-	//let lastItemIndex =  memberArray.length-1;
 	return (
 	<div key="MEMBERLIST">
 	<PersonalHeader dispType={dispType} />
@@ -344,44 +301,24 @@ export default function MemberPersonal(props) {
 		return (
 			<PersonalMember key={"MEMBER"+index} m={m} dispType={dispType}  index={index} 
 					onClick={(event) => { radioMid = m.mid; handleMemberPersonalContextMenu(event); }}
-					datatip={getMemberTip(m, dispType, "")} />
+					datatip={getMemberTip(m, dispType, props.city)} />
 		)}
 	)}
 	{contextParams.show && <MemberPersonalContextMenu /> }		
 	</div>	
 	)}
 
-	const junkhandlePrwsContextMenu = (e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) => {
-		e.preventDefault();
-		setGrpAnchorEl(e.currentTarget);
-		//console.log(e.currentTarget);
-		//console.log(radioMid);
-		const {pageX, pageY } = e;
-		console.log(pageX, pageY);
-		setContextParams({show: true, x: pageX, y: pageY});
-	}
-	
-	 
+
  
 	function MemberPersonalContextMenu() {
-		//console.log("in MemberPersonalContextMenu");
-		let family = (memberArray[0].hid === loginHid);
-		let admin = ((adminInfo & (ADMIN.superAdmin | ADMIN.prwsAdmin)) !== 0);
-		//console.log(myIndex, family, admin);
-		if (!family && !admin) return;
-		
-		var tmp = memberArray.find(x => x.mid === radioMid);
-		if (!tmp) return;
-		var myIndex = memberArray.findIndex(x => x.mid === radioMid);
-		//console.log(memberArray[0].hid, loginHid);
-		
-    let myName = tmp.firstName + " " + tmp.lastName;
 		//console.log(contextParams);
 		var myStyle={top: `${contextParams.y}px` , left: `${contextParams.x}px` };
-		//console.log(myStyle);
-		//console.log(grpAnchorEl);
-		//anchorEl={grpAnchorEl}	
-		//console.log(myIndex);
+		var memberRecord = memberArray.find(x => x.mid === radioMid);
+		if (!memberRecord) return;
+		var myIndex = memberArray.findIndex(x => x.mid === radioMid);
+		console.log(myIndex);
+		let isFamilyMember = (memberArray[0].hid === loginHid);
+		let admin = ((adminInfo & (ADMIN.superAdmin | ADMIN.prwsAdmin)) !== 0); 
 	return(
 	<div ref={menuRef} className='absolute z-20' style={myStyle}>
 	<Menu
@@ -399,24 +336,24 @@ export default function MemberPersonal(props) {
 		open={contextParams.show}
 		onClose={handleMemPerContextMenuClose}
 	>
-		<Typography className={gClasses.patientInfo2Blue} style={{paddingLeft: "5px", paddingRight: "5px"}}>{tmp.firstName + " " + tmp.lastName}</Typography>
+		<Typography className={gClasses.patientInfo2Blue} style={{paddingLeft: "5px", paddingRight: "5px"}}>{memberRecord.firstName + " " + memberRecord.lastName}</Typography>
 		<Divider />
-		<MenuItem onClick={handlePersonalEdit}>
+		<MenuItem disabled={!isFamilyMember && !admin} onClick={handlePersonalEdit}>
 			<Typography>Edit</Typography>
 		</MenuItem>
-		<MenuItem disabled={(myIndex <= 1)} onClick={handleMoveUpMember}>
+		<MenuItem disabled={(myIndex == 0) || (!isFamilyMember && !admin)} onClick={handleMoveUpMember}>
 			<Typography>Move Up</Typography>
 		</MenuItem>	
-		<MenuItem disabled={(myIndex == 0) || (myIndex == (memberArray.length -1))} onClick={handleMoveDownMember}>
+		<MenuItem disabled={(myIndex == 0) || (myIndex == (memberArray.length -1)) || (!isFamilyMember && !admin) } onClick={handleMoveDownMember}>
 			<Typography>Move Down</Typography>
 		</MenuItem>	
-		<MenuItem disabled={(myIndex == 0) || !admin } onClick={() => newHOD("EDITHOD") }>
+		<MenuItem disabled={(myIndex == 0) || (!isFamilyMember && !admin)} onClick={() => { handleMemPerContextMenuClose(); newHOD(memberRecord) } }>
 			<Typography>New Hod</Typography>
 		</MenuItem>
-		<MenuItem disabled={(myIndex == 0) || !admin } onClick={() => ceasedMember("APPLYCEASED")} >
+		<MenuItem disabled={!isFamilyMember && !admin} onClick={() => {handleMemPerContextMenuClose(); ceasedMember(radioMid); } } >
 			<Typography>Ceased</Typography>
 		</MenuItem>
-		<MenuItem disabled={(myIndex == 0) || !admin } onClick={() => splitFamily("APPLYSPLIT", radioRecord) } >
+		<MenuItem disabled={(myIndex == 0) || (!isFamilyMember && !admin) } onClick={() => {handleMemPerContextMenuClose(); handleSplitFamily("APPLYSPLIT", memberRecord) } } >
 			<Typography>Split family</Typography>
 		</MenuItem>
 	</Menu>	
@@ -448,11 +385,21 @@ export default function MemberPersonal(props) {
 		</div>
 	)}
 	
+if (false) {
+	//============= Junked  Start
 
-	//------------------- Split Family
+	const junkhandlePrwsContextMenu = (e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) => {
+		e.preventDefault();
+		setGrpAnchorEl(e.currentTarget);
+		//console.log(e.currentTarget);
+		//console.log(radioMid);
+		const {pageX, pageY } = e;
+		console.log(pageX, pageY);
+		setContextParams({show: true, x: pageX, y: pageY});
+	}
 	
-	
-	function splitFamily(cmd, selRecord) {
+	 
+	function junkedsplitFamily(cmd, selRecord) {
 		let tmp = [];
 		for(let i=1; i<memberArray.length; ++i) 
 		tmp.push({
@@ -498,6 +445,7 @@ export default function MemberPersonal(props) {
 	async function handleUpdateSplitFamily() {
 		
 	}
+
 	
 	function updateSPtransfer(index, isSet) {	
 		if (!isSet) {
@@ -532,6 +480,7 @@ export default function MemberPersonal(props) {
 		setEmurList(tmp);
 	}
 	
+	
 	function handleNewFamilySubmit() {
 		if (isDrawerOpened === "APPLYSPLIT")
 			handleApplySplitFamily();
@@ -540,24 +489,57 @@ export default function MemberPersonal(props) {
 	}
 
 
-	//----- ceased member
-	
-	function ceasedMember(cmd) {
-		console.log("Cssed", cmd);
-		handleMemPerContextMenuClose();
-		let m = memberArray.find(x => x.mid === radioMid);   // memberArray[radioRecord];
-		vsDialog("Ceased", `Are you sure you want to set ${getMemberName(m)} as ceased?`,
-		{label: "Yes", onClick: () => ceasedMemberConfirm(cmd) },
-		{label: "No" }
-		);
-	} 
-	
-	
-	function ceasedMemberConfirm(cmd) {
-		setEmurDate1(moment());
-		setIsDrawerOpened(cmd);
-		console.log("in confirm");
-	}
+	// display member personal details (buttons also if user belongs to current family or is admin)
+	function JunkedDisplayPersonalButtons() {
+		if (memberArray.length === 0) return null;
+		
+		let family = (memberArray[0].hid === loginHid);
+		let admin = (adminInfo & (ADMIN.superAdmin | ADMIN.prwsAdmin) !== 0);
+		let lastItemIndex =  memberArray.length-1;
+		let showUp = true;
+		let showDown = true;
+		//console.log(radioRecord, lastItemIndex);
+		if (radioRecord <= 1) showUp = false;
+		if ((radioRecord === 0) || (radioRecord === lastItemIndex)) showDown = false;
+	return(
+	<div>
+		{(family || admin) &&
+			<div align="right">
+				<VsButton name="Pjym" onClick={() => samitiMembership("PJYM") } />
+				<VsButton name="Humad" onClick={() => samitiMembership("HUMAD") } />
+				{ (false) &&
+				<div>
+        {(radioRecord == 0) &&
+				<VsButton name="Merge Family" onClick={() => splitFamily("APPLYSPLIT", radioRecord) } />
+        }
+        {(radioRecord != 0) &&
+				<VsButton name="Split Family" onClick={() => splitFamily("APPLYSPLIT", radioRecord) } />
+        }
+				<VsButton name="Ceased" disabled={radioRecord === 0} onClick={ceasedMember} />
+				<VsButton name="New Hod" disabled={radioRecord === 0} onClick={() => newHOD("APPLYHOD") } />
+				<VsButton name="Move Up" disabled={!showUp} onClick={handleMoveUpMember} />
+				<VsButton name="Move Down" disabled={!showDown} onClick={handleMoveDownMember} />
+				<VsButton name="Edit Details" onClick={handlePersonalEdit} />
+				</div>
+				}
+			</div>
+		}
+		{(false) &&
+			<div align="right">
+			<VsButton name="Transfer Member" disabled={radioRecord === 0}  onClick={handlePersonalTransfer} />
+			<VsButton name="Merge Family" onClick={handlePersonalMergeFamily} />
+			<VsButton name="Split Family" onClick={() => splitFamily("EDITSPLIT") }  />
+			<VsButton name="Add new Member" onClick={handlePersonalAdd} />
+			<VsButton name="Ceased" disabled={radioRecord === 0} onClick={() => ceasedMember("EDITCEASED")} />
+			<VsButton name="New Hod" disabled={radioRecord === 0} onClick={() => newHOD("EDITHOD")} />
+			<VsButton name="Move Up" disabled={!showUp} onClick={handleMoveUpMember} />
+			<VsButton name="Move Down" disabled={!showDown} onClick={handleMoveDownMember} />
+			<VsButton name="Edit Details" onClick={handlePersonalEdit} />
+			</div>
+		}
+	</div>
+)}
+
 
 	function handleCeasedMemberSubmit() {
 		if (isDrawerOpened === "APPLYCEASED")
@@ -611,32 +593,7 @@ export default function MemberPersonal(props) {
 		}	
 	}
 	
-		
-	// --- New Hod
 	
-	//var hodcmd;
-	function newHOD(cmd) {
-		handleMemPerContextMenuClose();
-		var hodcmd = cmd;
-		let m = memberArray.find(x => x.mid === radioMid);   // memberArray[radioRecord];
-		vsDialog("New HOD", `Are you sure you want to set ${getMemberName(m)} as Hod?`,
-		{label: "Yes", onClick: () => newHODConfirm(cmd) },
-		{label: "No" }
-		);
-	} 
-
-	function newHODConfirm(cmd) {	
-		ApplyNewHOD();
-		return;
-		
-		// no update for HOD here.
-		console.log(cmd);
-		if (hodcmd === "APPLYHOD")
-			ApplyNewHOD();
-		else
-			UpdateNewHOD();
-	}
-
 	async function ApplyNewHOD() {
 		let m = memberArray.find(x => x.mid === radioMid);
 		let newHODData = {hid: m.hid, mid: m.mid, name: getMemberName(m)};
@@ -687,13 +644,95 @@ export default function MemberPersonal(props) {
 	}
 
 	
+	//============= Junked End
+}
+
+	// Split family
+	
+	function handleSplitFamily(cmd, selRecord) {
+		setSelMember(selRecord);
+		setIsDrawerOpened("SPLIT");
+	}
+	
+	function handleSplitFamilyBack(sts) {
+		console.log(sts);
+		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
+		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
+		
+		if (sts.status == STATUS_INFO.SUCCESS) {
+		}
+		else {
+			console.log("Yaha kaise aaya");
+		}
+		setIsDrawerOpened("");
+	}
+		
+	// Ceased Member
+	function ceasedMember(selMid) {
+		let m = memberArray.find(x => x.mid === selMid);
+		vsDialog("Ceased", `Are you sure you want to set ${getMemberName(m)} as ceased?`,
+		{label: "Yes", onClick: () => ceasedMemberConfirm(m) },
+		{label: "No" }
+		);
+	}
+	
+	function ceasedMemberConfirm(m) {
+		setSelMember(m);
+		setIsDrawerOpened("CEASED");
+	}
+
+	function handleCeasedMemberBack(sts) {
+		console.log(sts);
+		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
+		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
+		
+		if (sts.status == STATUS_INFO.SUCCESS) {
+		}
+		else {
+			console.log("Yaha kaise aaya");
+		}
+		setIsDrawerOpened("");
+	}
+				
+
+	
+	// --- New Hod
+	
+	function newHOD(rec) {
+		vsDialog("New HOD", `Are you sure you want to set ${getMemberName(rec)} as Hod?`,
+		{label: "Yes", onClick: () => newHODConfirm(rec) },
+		{label: "No" }
+		);
+	} 
+
+	function newHODConfirm(rec) {	
+		setSelMember(rec);
+		setIsDrawerOpened("NEWHOD");
+	}
+
+	function handleNewHodBack(sts) {
+		console.log(sts);
+		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
+		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
+		
+		if (sts.status == STATUS_INFO.SUCCESS) {
+		}
+		else {
+			console.log("Yaha kaise aaya");
+		}
+		setIsDrawerOpened("");
+	}
+				
+
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
-		{/*<DisplayPersonalButtons />*/}
 	<DisplayPersonalInformation />
 	<DisplayAllToolTips />
 
 	<Drawer style={{ width: "100%"}} anchor="top" variant="temporary" open={isDrawerOpened != ""} >
+	<Container component="main" maxWidth="xs">	
+	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
+	<VsCancel align="right" onClick={() => { setIsDrawerOpened("")}} />
 	{((isDrawerOpened === "APPLYCEASED") || (isDrawerOpened === "EDITCEASED")) &&
 		<Container component="main" maxWidth="xs">	
 		<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
@@ -1016,9 +1055,6 @@ export default function MemberPersonal(props) {
 	}	
 	{((isDrawerOpened === "EDITSPLIT") ||  (isDrawerOpened === "APPLYSPLIT")) &&
 	<div>
-		<Container component="main" maxWidth="xs">	
-		<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
-		<VsCancel align="right" onClick={() => { setIsDrawerOpened("")}} />
 		<Typography align="center" style={PADSTYLE} className={gClasses.title}>{((isDrawerOpened === "EDITSPLIT") ? "Create" : "Apply") + " new family"}</Typography>
 		<Typography align="center" style={PADSTYLE} className={gClasses.title}>(Select members and Hod for new family)</Typography>
 		<br />
@@ -1053,11 +1089,21 @@ export default function MemberPersonal(props) {
 		<DisplayRegisterStatus />
 		<BlankArea />
 		<VsButton align="center" name="Create New Family" onClick={handleNewFamilySubmit} />
-		</Box>
-		</Container>
 	</div>
 	}
+	{(isDrawerOpened === "SPLIT") &&
+		<SplitFamily memberList={memberArray} hodMid={props.hodRec.mid} selectedMid={selMember.mid} onReturn={handleSplitFamilyBack} />
+	}
+	{(isDrawerOpened === "CEASED") &&
+		<CeasedMember memberList={memberArray} hodMid={props.hodRec.mid} selectedMid={selMember.mid} onReturn={handleSplitFamilyBack} />
+	}
+	{(isDrawerOpened === "NEWHOD") &&
+		<NewHod memberList={memberArray} hodMid={props.hodRec.mid} selectedMid={selMember.mid} onReturn={handleNewHodBack} />
+	}
+	</Box>
+	</Container>
 	</Drawer>
+	<ToastContainer />
   </div>
   );    
 }

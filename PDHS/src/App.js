@@ -17,7 +17,7 @@ import IdleTimer from 'react-idle-timer'
 import { PinDropSharp } from "@material-ui/icons";
 
 
-import firebase from 'firebase';
+//import firebase from 'firebase';
 //import arunfb from 'firebase';
 
 //const arunfb = require('firebase/app').default

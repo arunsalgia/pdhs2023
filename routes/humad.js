@@ -6,6 +6,13 @@ const {  akshuGetUser, GroupMemberCount,
 	generateOrder, generateOrderByDate,
 	setOldPendingAppointment,
 } = require('./functions'); 
+
+const {
+	memberGetAll,
+	memberAddOne, memberAddMany,
+	memberUpdateOne, memberUpdateMany,
+} = require('./dbfunctions');
+
 var router = express.Router();
 
 
@@ -60,15 +67,8 @@ router.get('/listwithnames', async function (req, res) {
 
 	//console.log(new Date());
 	let allHumads = await M_Humad.find({active: true}, {_id: 0, __v: 0});
-	console.log(new Date());
-	/*let allNames = await M_Member.find(
-		{humadMember: true, ceased: false}, 
-		//{_id: 0, mid: 1, alias: 1, mobile: 1, title: 1, firstName: 1, middleName: 1, lastName: 1, bloodGroup: 1, dob: 1, gender: 1}
-	).sort({lastName: 1, firstName: 1, middleName: 1 });
-	//console.log(new Date());
-	*/
-	
-	var clonedArray = _.cloneDeep(allMemberlist);
+	var tmp = await memberGetAll();
+	var clonedArray = _.cloneDeep(tmp);
 	var allNames = clonedArray.filter(x => !x.ceased && x.humadMember);
 	for (var i=0; i< allNames.length; ++i) {
 		allNames[i].email = dbToSvrText(allNames[i].email);

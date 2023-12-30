@@ -1,6 +1,16 @@
 const {   
   encrypt, decrypt, dbencrypt, dbToSvrText, svrToDbText, dbdecrypt,
 } = require('./functions'); 
+const {
+	memberGetAll,
+	memberAddOne, memberAddMany,
+	memberUpdateOne, memberUpdateMany,
+	memberGetByMidOne, memberGetByMidMany,
+	memberGetByHidMany,
+	memberGetAlive,
+} = require('./dbfunctions');
+
+
 var router = express.Router();
 
 
@@ -21,9 +31,9 @@ router.get('/list/all', async function (req, res) {
   setHeader(res);
   var {fName, mName, lName } = req.params;
 
-	//let myData = await M_Member.find({ceased: false}).sort({lastName: 1, firstName: 1, middleName: 1});
-	var clonedArray = _.cloneDeep(allMemberlist);
-	let myData = clonedArray.filter(x => !x.ceased);
+	let myData = await memberGetAll();
+	var clonedArray = _.cloneDeep(myData);
+	myData = clonedArray.filter(x => !x.ceased);
 	for (var i=0; i< myData.length; ++i) {
 		var tmp = dbdecrypt(myData[i].email);
 		if (myData[i].mid === 2001) console.log(tmp);
@@ -37,33 +47,6 @@ router.get('/list/all', async function (req, res) {
 	sendok(res, myData);
 });		
 
-router.get('/list/initial/:count', async function (req, res) {
-  setHeader(res);
-  var { count } = req.params;
-
-	let myData = await M_Member.find({ceased: false}).sort({lastName: 1, firstName: 1, middleName: 1}).limit(Number(count));
-	for (var i=0; i< myData.length; ++i) {
-		myData[i].email = dbToSvrText(myData[i].email);
-		myData[i].email1 = dbToSvrText(myData[i].email1);
-	}
-	console.log(myData.length);
-	sendok(res, myData);
-});	
-
-router.get('/list/next/:count', async function (req, res) {
-  setHeader(res);
-  var { count } = req.params;
-
-	let myData = await M_Member.find({ceased: false}).sort({lastName: 1, firstName: 1, middleName: 1}).skip(Number(count));
-	for (var i=0; i< myData.length; ++i) {
-		myData[i].email = dbToSvrText(myData[i].email);
-		myData[i].email1 = dbToSvrText(myData[i].email1);
-	}
-	console.log(myData.length);
-	sendok(res, myData);
-});	
-
-
 router.get('/city/all', async function (req, res) {
   setHeader(res);
   var {fName, mName, lName } = req.params;
@@ -75,7 +58,7 @@ router.get('/city/all', async function (req, res) {
 	//console.log(filterQuery);
 
 	let myData = await M_Hod.find({city: {"$ne": ""} },{hid: 1, city:1,_id:0}).sort({city: 1,});
-	console.log(myData.length);
+	//console.log(myData.length);
 	sendok(res, myData);
 });
 
@@ -83,27 +66,16 @@ router.get('/namelist/:fName/:mName/:lName', async function (req, res) {
   setHeader(res);
   var {fName, mName, lName } = req.params;
 
-	let filterQuery;
-	if ((fName === "-") && (mName === "-") && (lName === "-"))
-		filterQuery = {};
-  else if ((fName === "-") && (mName === "-"))
-		filterQuery = {lastName: partFind(lName)};
-	else if	((fName === "-") && (lName === "-"))
-		filterQuery = {middleName: partFind(mName)};
-	else if	((mName === "-") && (lName === "-"))
-		filterQuery = {firstName:partFind(fName)};
-	else if	(fName === "-")
-		filterQuery = {middleName: partFind(mName),  lastName: partFind(lName) };
-	else if	(mName === "-")
-		filterQuery = {firstName: partFind(fName),  lastName: partFind(lName)};
-	else 
-		filterQuery = {firstName: partFind(fName),  middleName: partFind(mName), lastName: partFind(lName)};
-
-	filterQuery["ceased"] = false;
-	//console.log(filterQuery);
-
-	let myData = await M_Member.find(filterQuery).limit(54).sort({lastName: 1, firstName: 1, middleName: 1});
-	//console.log(myData);
+	var myData = await memberGetAll();
+	if (fName !== "-") {
+		myData = myData.filter(x => x.firstName.toLowerCase().includes(fName.toLowerCase()) );
+	}
+	if (mName !== "-") {
+		myData = myData.filter(x => x.middleName.toLowerCase().includes(mName.toLowerCase()) );		
+	}
+	if (lName !== "-") {
+		myData = myData.filter(x => x.lastName.toLowerCase().includes(lName.toLowerCase()) );				
+	}
 	sendok(res, myData);
 });		
 
@@ -111,16 +83,18 @@ router.get('/namelist/:fName/:mName/:lName', async function (req, res) {
 router.get('/namelist/all', async function (req, res) {
   setHeader(res);
 
-	let myData = await M_Member.find({ceased: false}, {hid: 1, mid: 1, title: 1, firstName: 1, middleName: 1, lastName: 1, alias: 1, dateOfMarriage: 1, _id: 0}).sort({lastName: 1, firstName: 1, middleName: 1});
+	let myData = await memberGetAlive();
+	//M_Member.find({ceased: false}, {hid: 1, mid: 1, title: 1, firstName: 1, middleName: 1, lastName: 1, alias: 1, dateOfMarriage: 1, _id: 0}).sort({lastName: 1, firstName: 1, middleName: 1});
 	sendok(res, myData);
 	
 });		
 
 router.get('/hod/:hid', async function (req, res) {
   setHeader(res);
-  var {hid } = req.params;
-	let myData = await M_Member.find({hid: hid, ceased: false}).sort({order: 1});
-	//console.log(myData);
+  var { hid } = req.params;
+	
+	
+	let myData = await memberGetByHidMany(Number(hid));
 	for(let i=0; i<myData.length; ++i) {
 		myData[i].email = dbToSvrText(myData[i].email);
 		myData[i].email1 = dbToSvrText(myData[i].email1);
@@ -167,8 +141,11 @@ router.post('/ceased/:mid/:datestr', async function (req, res) {
 		0, 0, 0
 	);
 	
+	
 	// get all members of the family sorted by 'order'
-	let myData = await M_Member.find({hid: hid}).sort({order: 1});
+	//let myData = await M_Member.find({hid: hid}).sort({order: 1});
+	let myData = await memberGetByHidMany(hid);
+	myData = _.sortBy(myData, 'order');
 	
 	// update ceased information in member
 	let tmp = myData.find(x => x.mid === mid);
@@ -186,10 +163,9 @@ router.post('/ceased/:mid/:datestr', async function (req, res) {
 		if (myData[i].mid !== mid) {
 			myData[i].order = startOrder++;
 		}
-		await myData[i].save();
+		//await myData[i].save();
 	}
-
-	// also update in Humad, PJYM and PRWS
+	await memberUpdateMany(myData);
 
 	sendok(res, "Done");
 });

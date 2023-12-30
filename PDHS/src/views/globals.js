@@ -9,6 +9,8 @@ export const str1by2 = String.fromCharCode(189)
 export const str3by4 = String.fromCharCode(190)
 export const INR = String.fromCharCode(8377)
 
+export const TOAST_TIMEOUT = 2000;		// Messages to be displayed for 2 second
+
 export const PADSTYLE = {paddingLeft: "10px", paddingRight: "10px" };
 
 export const VISITTYPE = {pending: "pending", expired: "expired", cancelled: "cancelled", visit: ""};
@@ -151,6 +153,42 @@ export const RELATION = [
 	"Spouse"
 ];
 
+export const COMPACTRELATION = [
+	"Brother",
+	"Brother in Law",
+	"Daughter",
+	"Daughter in Law",
+	"Family",
+	"Father",
+	"Father in Law",
+	"Grand Daughter",
+	"Grand DIL",
+	"Grand Father",
+	"Grand FIL",
+	"Grand Mother",
+	"Grand MIL",
+	"Grand Son",
+	"Grand SIL",
+	"Gr. Grand Daughter",
+	"Gr. Grand DIL",
+	"Gr. Grand Father",
+	"Gr. Grand FIL",
+	"Gr. Grand Mother",
+	"Gr. Grand MIL",
+	"Gr. Grand Son",
+	"Gr. Grand SIL",
+	"Mother",
+	"Mother in Law",
+	"Nephew",
+	"Neice",
+	"Relative",
+	"Sister",
+	"Sister in Law",
+	"Son",
+	"Son in Law",
+	"Spouse"
+];
+
 
 export const APPLICATIONTYPES = {
 	editGotra:  "Edit Gotra",
@@ -235,4 +273,13 @@ HUMDAD: "HUMAD",
 FAMILY: "FAMILY",
 APPLICATION: "APPLICATION",
 ADMIN: "ADMIN"
+};
+
+export const STATUS_INFO = 
+{
+ERROR: -2,
+FAILURE: -2,
+CANCEL: -1,
+OKAY: 1,
+SUCCESS: 1,
 };
