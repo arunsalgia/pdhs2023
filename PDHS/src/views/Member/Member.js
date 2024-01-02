@@ -2,18 +2,21 @@ import React, { useState, useContext, useEffect } from 'react';
 import {  CssBaseline } from '@material-ui/core';
 import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
 import Divider from '@material-ui/core/Divider';
-import Avatar from '@material-ui/core/Avatar';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+//import Avatar from '@material-ui/core/Avatar';
 
 
-import lodashCloneDeep from 'lodash/cloneDeep';
+//import lodashCloneDeep from 'lodash/cloneDeep';
 import lodashSortBy from "lodash/sortBy";
-import lodashMap from "lodash/map";
+//import lodashMap from "lodash/map";
 
-import VsButton from "CustomComponents/VsButton";
-import VsCancel from "CustomComponents/VsCancel";
-import VsRadio from "CustomComponents/VsRadio";
-import VsRadioGroup from "CustomComponents/VsRadioGroup";
-import VsCheckBox from "CustomComponents/VsCheckBox";
+//import VsButton from "CustomComponents/VsButton";
+//import VsCancel from "CustomComponents/VsCancel";
+//import VsRadio from "CustomComponents/VsRadio";
+//import VsRadioGroup from "CustomComponents/VsRadioGroup";
+//import VsCheckBox from "CustomComponents/VsCheckBox";
 //import VsSelect from "CustomComponents/VsSelect";
 //import VsTextFilter from "CustomComponents/VsTextFilter";
 //import VsList from "CustomComponents/VsList";
@@ -29,11 +32,11 @@ import { useAlert } from 'react-alert'
 
 import Grid from "@material-ui/core/Grid";
 import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
-import 'react-step-progress/dist/index.css';
-import Datetime from "react-datetime";
-import "react-datetime/css/react-datetime.css";
-import moment from "moment";
+//import Box from '@material-ui/core/Box';
+//import 'react-step-progress/dist/index.css';
+//import Datetime from "react-datetime";
+//import "react-datetime/css/react-datetime.css";
+//import moment from "moment";
 
 // styles
 import globalStyles from "assets/globalStyles";
@@ -48,7 +51,7 @@ import {
 	DisplayMemberHeader,
 } from "CustomComponents/CustomComponents.js"
 
-import {
+/*import {
 //SupportedMimeTypes, SupportedExtensions,
 //str1by4, str1by2, str3by4,
 //HOURSTR, MINUTESTR, 
@@ -56,19 +59,18 @@ MEMBERTITLE, RELATION, SELFRELATION, GENDER, BLOODGROUP, MARITALSTATUS,
 DATESTR, MONTHNUMBERSTR,
 CASTE, HUMADSUBCASTRE,
 } from "views/globals.js";
-
+*/
 
 import { 
-	getImageName,
-	vsDialog,
-	getMemberName,
-	dispAge,
+	showSuccess, showError,
 } from "views/functions.js";
 
+/*
 import { 
 	decrypt, dispMobile, dispEmail, disableFutureDt,
 } from 'views/functions';
 import {  } from 'views/functions';
+*/
 
 //import { update } from 'lodash';
 //import { updateCbItem } from 'typescript';
@@ -84,7 +86,7 @@ export default function Member(props) {
 	
 	
 	const gClasses = globalStyles();
-	const alert = useAlert();
+	//const alert = useAlert();
 
 	const [currentSelection, setCurrentSelection] = useState("");
 	const [memberArray, setMemberArray] = useState([])
@@ -93,7 +95,7 @@ export default function Member(props) {
 	const [currentHod, setCurrentHod] = useState({});
 	const [currentCity, setCurrentCity] = useState("");
 	
-	const [gotraArray, setGotraArray] = useState([]);
+	/*const [gotraArray, setGotraArray] = useState([]);
 	const [gotraFilterArray, setGotraFilterArray] = useState([]);
 	//const [ceasedArray, setCeasedArray] = useState([]);
 	const [hodNamesArray, setHodNamesArray] = useState([])
@@ -103,52 +105,61 @@ export default function Member(props) {
 	const [domMomemtArray, setDomMomemtArray] = useState([])
 	const [unLinkedLadies, setUnLinkedLadies] = useState([]);
 	const [radioRecord, setRadioRecord] = useState(0);
-	const [emurDate1, setEmurDate1] = useState(moment());
+	const [emurDate1, setEmurDate1] = useState(moment());*/
 
 
   useEffect(() => {	
+		//console.log("In Member");
+		
+		async function getHod(hid) {
+			try {
+				let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/hod/get/${hid}`
+				let resp = await axios.get(myUrl);
+				setCurrentHod(resp.data);
+				setCurrentCity(resp.data.city);
+				sessionStorage.setItem("member_hod", JSON.stringify(resp.data));
+			} catch (e) {
+				console.log(e);
+				showError(`Error fetching HOD details of ${hid}`);
+				setCurrentHod({});
+			}	
+		}
+
+		async function getHodMembers(hid, mid) {
+			try {
+				let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/hod/${hid}`;
+				let resp = await axios.get(myUrl);
+				var tmpList = lodashSortBy(resp.data, 'order');
+				setMemberArray(tmpList);
+				//console.log(tmpList);
+				sessionStorage.setItem("member_members", "");
+				sessionStorage.setItem("member_members", JSON.stringify(tmpList));
+				let tmp = (mid > 0) ? tmpList.find(x => x.mid === mid) : tmpList[0];
+				setCurrentMemberData((tmp) ? tmp : null);
+			} catch (e) {
+				console.log(e);
+				showError(`Error fetching Member details of HOD ${hid}`);
+				setMemberArray([]);
+			}	
+		}
+
 		const getDetails = async () => {
 			var memberHid = (props.hid !== 0) ? props.hid : loginHid;
 			var memberMid = (props.hid !== 0) ? props.mid : loginMid;			
-			isMember = (loginHid === memberHid);
+			isMember = (sessionStorage.getItem("isMember") === "true");
 			await getHod(memberHid);
 			await getHodMembers(memberHid, memberMid);
 			setSelection("Personal");
+			//console.log("setting personal");
 		}
-		getDetails();
+		
+		if (sessionStorage.getItem("isMember") === "true") {
+			getDetails();
+		}
 		
   }, []);
 
 
-	async function getHod(hid) {
-		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/hod/get/${hid}`
-			let resp = await axios.get(myUrl);
-			setCurrentHod(resp.data);
-			setCurrentCity(resp.data.city);
-			//sessionStorage.setItem("hod", JSON.stringify(resp.data));
-		} catch (e) {
-			console.log(e);
-			alert.error(`Error fetching HOD details of ${hid}`);
-			setCurrentHod({});
-		}	
-	}
-
-	async function getHodMembers(hid, mid) {
-		console.log("Hi");
-		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/hod/${hid}`;
-			let resp = await axios.get(myUrl);
-			var tmpList = lodashSortBy(resp.data, 'order');
-			setMemberArray(tmpList);
-			let tmp = (mid > 0) ? tmpList.find(x => x.mid === mid) : tmpList[0];
-			setCurrentMemberData((tmp) ? tmp : null);
-		} catch (e) {
-			console.log(e);
-			alert.error(`Error fetching Member details of HOD ${hid}`);
-			setMemberArray([]);
-		}	
-	}
 
 	function DisplayFunctionItem(props) {
 		let itemName = props.item;
@@ -161,7 +172,7 @@ export default function Member(props) {
 			</span>
 		</Typography>
 		</Grid>
-		)}
+	)}
 	
 	async function setSelection(item) {
 		//setRadioRecord(0);
@@ -183,33 +194,38 @@ export default function Member(props) {
 		</Grid>	
 	)}
 	
+	if (sessionStorage.getItem("isMember") === "false") 
+	return (
+	<div key="PRWS" className={gClasses.webPage} align="center" key="main">
+		<br />
+		<br />
+		<Typography className={gClasses.message18Blue}>No permission to Guest to view Member information</Typography>
+		<br />
+		<br />
+	</div>
+	);
+		
+	
 	if (memberArray.length === 0) return false;
-	//console.log(currentMemberData);
+
+	//console.log(currentSelection);
+	
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
-	<CssBaseline />
-	{(currentSelection === "") &&
-		<DisplayMemberHeader member={currentMemberData} />
+	<DisplayFunctionHeader />
+	{(currentSelection === "General") &&
+		<MemberGeneral  isMember={isMember}  />
 	}
-	{(currentSelection !== "") &&
-		<div>
-		{/*<DisplayMemberHeader member={currentMemberData} />*/}
-		{/*<Divider className={gClasses.divider} />*/}
-		<DisplayFunctionHeader />
-		{(currentSelection === "General") &&
-			<MemberGeneral hodRec={currentHod} isMember={isMember}  />
-		}
-		{(currentSelection === "Personal") &&
-			<MemberPersonal hodRec={currentHod} memberList={memberArray} isMember={isMember} city={currentCity} />
-		}
-		{(currentSelection === "Office") &&
-			<MemberOffice list={memberArray} isMember={isMember} city={currentCity} />
-		}
-		{(currentSelection === "Spouse") &&
-			<MemberSpouse list={memberArray} isMember={isMember} />
-		}
-		</div>
+	{(currentSelection === "Personal") &&
+		<MemberPersonal isMember={isMember} city={currentCity} />
 	}
+	{(currentSelection === "Office") &&
+		<MemberOffice  isMember={isMember} city={currentCity} />
+	}
+	{(currentSelection === "Spouse") &&
+		<MemberSpouse isMember={isMember} />
+	}
+	<ToastContainer />
   </div>
   );    
 }

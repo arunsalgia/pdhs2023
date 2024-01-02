@@ -8,6 +8,9 @@ import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 import 'assets/react-confirm-alert_mod.css'; // Import css
 import {cloneDeep} from "lodash";
+//import lodashCloneDeep from 'lodash/cloneDeep';
+import lodashSortBy from "lodash/sortBy";
+import lodashMap from "lodash/map";
 import { func } from "prop-types";
 import {dialogOptions, TOAST_TIMEOUT } from "views/globals";
 import { ToastContainer, toast } from 'react-toastify';
@@ -17,6 +20,7 @@ var crypto = require("crypto");
 var ifscsystem = require('ifsc-finder');
 
 var aadhar = require('aadhaar-validator')
+
 
 import {
 	ADMIN, DATESTR, MONTHNUMBERSTR,
@@ -1074,3 +1078,53 @@ export function showSuccess(msg) {
 export function showInfo(msg) {
 	toast.info(msg, { autoClose: TOAST_TIMEOUT });
 }
+
+
+export function setCityArray(myArray) {
+	cityArray = myArray;
+}
+
+export async function getHodCityList() {
+	var cityArray = [];
+	try {
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/city/all`;
+		let resp = await axios.get(myUrl);
+		return resp.data;		
+	} catch (e) {
+			console.log("Error fetching city data");
+			return [];
+		}			
+}
+
+export async function getCityList() {
+	var tmpArray =  await fetchCityList();  //JSON.parse(sessionStorage.getItem("cityArray"));	
+	return lodashMap(tmpArray, 'city');
+}
+
+export function hasSuperpermission() {
+	var tmp = JSON.parse(sessionStorage.getItem("adminRec"));
+	return (tmp.superAdmin);
+}
+
+export function hasPRWSpermission() {
+	var tmp = JSON.parse(sessionStorage.getItem("adminRec"));
+	return (tmp.superAdmin || tmp.prwsAdmin);
+}
+
+export function hasPJYMpermission() {
+	var tmp = JSON.parse(sessionStorage.getItem("adminRec"));
+	return (tmp.superAdmin || tmp.pjymAdmin);
+}
+
+
+export function hasHumadpermission() {
+	var tmp = JSON.parse(sessionStorage.getItem("adminRec"));
+	return (tmp.superAdmin || tmp.humadAdmin);
+}
+
+export function hasAnyAdminPermission() {
+	var tmp = JSON.parse(sessionStorage.getItem("adminRec"));
+	//console.log(tmp);
+	return (tmp.superAdmin || tmp.prwsAdmin || tmp.pjymAdmin || tmp.humadAdmin || tmp.pmmAdmin);
+};
+

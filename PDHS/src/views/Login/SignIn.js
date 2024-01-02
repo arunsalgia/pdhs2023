@@ -14,11 +14,16 @@ import Container from '@material-ui/core/Container';
 //import { UserContext } from "../../UserContext";
 import axios from "axios";
 //import { DesktopWindows } from '@material-ui/icons';
-import { isMobile, encrypt, getMemberName, capitalizeFirstLetter } from "views/functions.js"
+
 import {setTab, setDisplayPage } from "CustomComponents/CricDreamTabs.js"
 import { VsLogo, ValidComp } from 'CustomComponents/CustomComponents.js'; 
 
 import VsButton from "CustomComponents/VsButton";
+
+import {
+	isMobile, encrypt, getMemberName, capitalizeFirstLetter,
+} from "views/functions";
+
 
 import {
 	PAGELIST,
@@ -57,43 +62,34 @@ export default function SignIn() {
     setErrorMessage({msg: msg, isError: isError});
   }
 
-	async function getAllCities() {
-		var cityArray = [];
-		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/city/all`;
-			let resp = await axios.get(myUrl);
-			cityArray = lodashCloneDeep(resp.data);
-			for(var i=0; i<cityArray.length; ++i) {
-				cityArray[i].city = capitalizeFirstLetter( cityArray[i].city);
-			};
-			sessionStorage.setItem("hodCityData", JSON.stringify(cityArray));
-			var cityList = lodashMap(cityArray, 'city');
-			cityList = lodashUniqBy(cityList);
-			sessionStorage.setItem("cityData", JSON.stringify(cityList));			
-		} catch (e) {
-			console.log("Error fetching city data");
-		}			
-	}
-	// use effects start here
 
-
-	async function handleSubmit(e) {
+	async function handleSubmitCapta(e) {
   e.preventDefault();
 
 	try { 
 		let enPassword = password;			//encrypt(password);
 		let response = await axios.get(`${process.env.REACT_APP_AXIOS_BASEPATH}/user/padmavatimata/${userName}/${enPassword}`); 
 		setError("", false);
+    console.log(response.data);
 		let userData = response.data.user;
-    console.log(userData);
-		window.sessionStorage.setItem("hid", userData.hid)
-		window.sessionStorage.setItem("mid", userData.mid)
-		window.sessionStorage.setItem("memberRec", JSON.stringify(userData));
+		if (userData) {
+			window.sessionStorage.setItem("hid", userData.hid)
+			window.sessionStorage.setItem("mid", userData.mid)
+			window.sessionStorage.setItem("memberRec", JSON.stringify(userData));
+			window.sessionStorage.setItem("userName", getMemberName(userData));
+			window.sessionStorage.setItem("firstName", userData.firstName );	
+		}
+		else {
+			window.sessionStorage.setItem("hid", "0")
+			window.sessionStorage.setItem("mid", "0")
+			window.sessionStorage.setItem("memberRec", "{}");
+			window.sessionStorage.setItem("userName", "Guest");
+			window.sessionStorage.setItem("firstName","Guest");				
+		}
+		window.sessionStorage.setItem("prwsLogin", userName);
+		window.sessionStorage.setItem("isMember", response.data.isMember);
 		window.sessionStorage.setItem("adminRec", JSON.stringify(response.data.admin));
-    window.sessionStorage.setItem("userName", getMemberName(userData));
-		window.sessionStorage.setItem("firstName", userData.firstName );
-    window.sessionStorage.setItem("prwsLogin", userName);
-		await getAllCities();
+		
 		//sessionStorage.setItem("menuHid", 0);	
 		//sessionStorage.setItem("menuMid", 0);	
 		//sessionStorage.setItem("menuCurrentSelection", "PRWS");	
@@ -149,7 +145,7 @@ async function handleSubmitMobile(e) {
     </ValidatorForm>	
   }
   {(stage === "CAPTCHA") &&
-    <ValidatorForm align="center" className={gClasses.form} onSubmit={handleSubmit}>
+    <ValidatorForm align="center" className={gClasses.form} onSubmit={handleSubmitCapta}>
     <Typography className={gClasses.title}>Enter OPT sent on {userName}</Typography>
     <TextValidator fullWidth  variant="outlined" required className={gClasses.vgSpacing}
       label="OTP" type="text"

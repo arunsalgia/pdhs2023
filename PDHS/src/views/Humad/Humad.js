@@ -66,6 +66,7 @@ import {
 	getAdminInfo,
 	disableFutureDt,
 	getMemberTip,
+	getHodCityList,
 } 
 from "views/functions.js";
 
@@ -173,17 +174,18 @@ export default function Humad() {
 			}	
 		}
 
-		function getAllCities() {
-			cityArray = JSON.parse(sessionStorage.getItem("hodCityData"));
-			cityList = JSON.parse(sessionStorage.getItem("cityData"));	
-			// Update in Menu
+		async function getAllCities() {
+			// Update in Menu			
+			cityArray = await getHodCityList();
 			var tmp = MasterFilterItems.find(x => x.item == 'City');
+			cityList = lodashMap(cityArray, 'city');
 			tmp.options = cityList;
 		}
 
-		//getHumad('A');
-		getAllHumad();
-		getAllCities();
+		if (sessionStorage.getItem("isMember") === "true") {
+			getAllHumad();
+			getAllCities();
+		}
 		
 		handleResize();
 		window.addEventListener('resize', handleResize);
@@ -453,6 +455,17 @@ export default function Humad() {
 	 
 	function handleHumadMenuClose() { setContextParams({show: false, x: 0, y: 0}); }
  
+	function getMyCity(hid) {
+		var myCity = "";
+		for(var i=0; i<cityArray.length; ++i) {
+			//console.log(cityArray[i]);
+			if (cityArray[i].hidList.includes(hid)) {
+				myCity = cityArray[i].city;
+				break;
+			}
+		}
+		return myCity;
+	}
 	
 	function DisplayAllHumad() {
 		if (memberArray.length === 0) return null;
@@ -484,7 +497,7 @@ export default function Humad() {
 		</Grid>
 		</Box>
 		{memberArray.slice(page*ROWSPERPAGE, (page+1)*ROWSPERPAGE).map( (m, index) => {
-			var cityRec = cityArray.find( x => x.hid === m.hid ); // get City record
+			var memberCity = getMyCity(m.hid);
 			let h = humadArray.find(x => x.mid === m.mid);
 			if (!h) return null;
 			let memDateStr = dateString(h.membershipDate);
@@ -494,7 +507,7 @@ export default function Humad() {
 				<Grid align="left" item md={5} lg={5} >
 					<Typography>
 						<span style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2Blue } >{getMemberName(m)+" ("+dispAge(m.dob, m.gender)+")"}</span>
-							<span align="left" data-for={"HUMAD"+m.mid} data-tip={getMemberTip(m, dispType, (cityRec) ? cityRec.city : "")} data-iscapture="true" >
+							<span align="left" data-for={"HUMAD"+m.mid} data-tip={getMemberTip(m, dispType, memberCity) } data-iscapture="true" >
 							<InfoIcon color="primary" size="small"/>
 							</span>
 					</Typography>		
@@ -659,6 +672,17 @@ export default function Humad() {
 		</div>
 	)}	
 
+	if (sessionStorage.getItem("isMember") === "false") 
+	return (
+	<div key="PRWS" className={gClasses.webPage} align="center" key="main">
+		<br />
+		<br />
+		<Typography className={gClasses.message18Blue}>No permission to Guest to view Member information</Typography>
+		<br />
+		<br />
+	</div>
+	);
+	
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
 	<CssBaseline />

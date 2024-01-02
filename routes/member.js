@@ -2,12 +2,14 @@ const {
   encrypt, decrypt, dbencrypt, dbToSvrText, svrToDbText, dbdecrypt,
 } = require('./functions'); 
 const {
-	memberGetAll,
+	memberGetAll, memberGetHodMembers,
 	memberAddOne, memberAddMany,
 	memberUpdateOne, memberUpdateMany,
 	memberGetByMidOne, memberGetByMidMany,
 	memberGetByHidMany,
 	memberGetAlive,
+	getHodCityList,
+	
 } = require('./dbfunctions');
 
 
@@ -47,18 +49,37 @@ router.get('/list/all', async function (req, res) {
 	sendok(res, myData);
 });		
 
+router.get('/hod/all', async function (req, res) {
+  setHeader(res);
+  var {fName, mName, lName } = req.params;
+
+	let myData = await memberGetHodMembers();
+	var clonedArray = _.cloneDeep(myData);
+	myData = clonedArray.filter(x => !x.ceased);
+	for (var i=0; i< myData.length; ++i) {
+		var tmp = dbdecrypt(myData[i].email);
+		if (myData[i].mid === 2001) console.log(tmp);
+		tmp = encrypt(tmp);
+		if (myData[i].mid === 2001) console.log(tmp);
+		myData[i].email = tmp;		//dbToSvrText(myData[i].email);
+		tmp = dbdecrypt(myData[i].email1);
+		tmp = encrypt(tmp);
+		myData[i].email1 = tmp;		//dbToSvrText(myData[i].email1);
+	}
+	sendok(res, myData);
+});		
+
 router.get('/city/all', async function (req, res) {
   setHeader(res);
   var {fName, mName, lName } = req.params;
 
-	console.log("getting list");
+	/*console.log("getting list");
 	let filterQuery;
 	filterQuery = {};
 	filterQuery["ceased"] = false;
-	//console.log(filterQuery);
-
-	let myData = await M_Hod.find({city: {"$ne": ""} },{hid: 1, city:1,_id:0}).sort({city: 1,});
-	//console.log(myData.length);
+	//console.log(filterQuery);*/
+	
+	let myData = await getHodCityList();
 	sendok(res, myData);
 });
 

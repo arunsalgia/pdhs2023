@@ -73,6 +73,7 @@ import {
 	getMemberName,
 	dispAge,
 	getMemberTip,
+	getHodCityList,
 } 
 from "views/functions.js";
 
@@ -159,11 +160,11 @@ export default function Pjym() {
 			}	
 		}
 
-		function getAllCities() {
-			cityArray = JSON.parse(sessionStorage.getItem("hodCityData"));
-			cityList = JSON.parse(sessionStorage.getItem("cityData"));	
-			// Update in Menu
+		async function getAllCities() {
+			// Update in Menu			
+			cityArray = await getHodCityList();
 			var tmp = MasterFilterItems.find(x => x.item == 'City');
+			cityList = lodashMap(cityArray, 'city');
 			tmp.options = cityList;
 		}
 
@@ -185,9 +186,10 @@ export default function Pjym() {
 			}
 		}
 		
-
-		getPjymList();
-		getAllCities();
+		if (sessionStorage.getItem("isMember") === "true") {
+			getPjymList();
+			getAllCities();
+		}
 		
     handleResize();
 		window.addEventListener('resize', handleResize);
@@ -276,6 +278,20 @@ export default function Pjym() {
 	 
  function handlePjymMenuClose() { setContextParams({show: false, x: 0, y: 0}); }
  
+ 	
+	function getMyCity(hid) {
+		var myCity = "";
+		for(var i=0; i<cityArray.length; ++i) {
+			//console.log(cityArray[i]);
+			if (cityArray[i].hidList.includes(hid)) {
+				myCity = cityArray[i].city;
+				break;
+			}
+		}
+		return myCity;
+	}
+	
+	
 	function DisplayAllPjym() {
 		return (
 		<div>
@@ -283,7 +299,7 @@ export default function Pjym() {
 			//console.log(m);
 			//console.log(pjymArray);
 			let p = pjymArray.find(x => x.mid === m.mid);
-			var cityRec = cityArray.find( x => x.hid === m.hid );
+			var memberCity = getMyCity(m.hid);
 			let myClass = gClasses.patientInfo2;
 			
 			//console.log(p);
@@ -306,7 +322,7 @@ export default function Pjym() {
 				<Grid align="left" item xs={8} sm={8} md={6} lg={5} >
 					<Typography >
 						<span className={gClasses.patientInfo2}>{getMemberName(m) + ((dispType != "xs") ? " ("+dispAge(m.dob, m.gender)+")" : "") }</span>
-						<span align="left" data-for={"PJYM"+m.mid} data-tip={getMemberTip(m, dispType, (cityRec) ? cityRec.city : "")} data-iscapture="true" >
+						<span align="left" data-for={"PJYM"+m.mid} data-tip={getMemberTip(m, dispType, memberCity)} data-iscapture="true" >
 							<InfoIcon color="primary" size="small"/>
 						</span>
 					</Typography>
@@ -620,6 +636,17 @@ export default function Pjym() {
 		</Box>
 		
 	)}
+
+	if (sessionStorage.getItem("isMember") === "false") 
+	return (
+	<div key="PRWS" className={gClasses.webPage} align="center" key="main">
+		<br />
+		<br />
+		<Typography className={gClasses.message18Blue}>No permission to Guest to view Member information</Typography>
+		<br />
+		<br />
+	</div>
+	);
 	
 	return (
 	<div className={gClasses.webPage} align="center" key="main">

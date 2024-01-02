@@ -7,9 +7,6 @@ import VsCheckBox from "CustomComponents/VsCheckBox";
 import VsSelect from "CustomComponents/VsSelect";
 import VsRadioGroup from "CustomComponents/VsRadioGroup";
 import ReactTooltip from "react-tooltip";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
 
 //import TextField from '@material-ui/core/TextField';
 import Grid from "@material-ui/core/Grid";
@@ -45,8 +42,7 @@ import {
 import { 
 	isMobile,
 	vsDialog,
-	hasAnyAdminPermission,
-	showError, showSuccess,
+	hasAnyAdminpermission,
 } from "views/functions.js";
 
 import { getMemberName, dateString } from 'views/functions';
@@ -102,12 +98,10 @@ export default function Application(props) {
 	}
 	async  function getAllApplication() {
 		try {
-			let myUrl = (hasAnyAdminPermission())
-				? `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/list`
-				: `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/list/${loginMid}`;
-			//console.log(hasAnyAdminPermission(), myUrl);
+			let myUrl = (hasAnyAdminpermission())
+				? `${process.env.REACT_APP_AXIOS_BASEPATH}/application/list`
+				: `${process.env.REACT_APP_AXIOS_BASEPATH}/application/list/${loginHid}`;
 			let resp = await axios.get(myUrl);
-			//console.log(resp.data);
 			setApplicationMasterArray(resp.data);
 			setApplicationArray(resp.data);	
 		} catch (e) {
@@ -151,36 +145,34 @@ export default function Application(props) {
 	
 	function DisplayFunctionHeader() {
 	return (
+	<Box  className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
 	<Grid className={gClasses.noPadding} key="AllOptions" container align="center">
 		{/*<DisplayFunctionItem item="All" />*/}
 		<DisplayFunctionItem item="PRWS" />
 		<DisplayFunctionItem item="PJYM" />
 		<DisplayFunctionItem item="HUMAD" />
 	</Grid>	
+	</Box>
 	)}
 	
 	function DisplayAllApplication() {
 	return (
 	<div>
-		<Box  key={"MEMBOXHDR"} className={gClasses.boxStyleOdd} borderColor="black" borderRadius={30} border={1} >
-		<Grid key={"MEMGRIDHDR"} className={gClasses.noPadding} container justifyContent="center" alignItems="center" >
-		<Grid align="center" item xs={4} sm={4} md={2} lg={2} >
+		<Box  key={"MEMBOXHDR"} className={gClasses.boxStyle} borderColor="black" borderRadius={30} border={1} >
+		<Grid key={"MEMGRIDHDR"} className={gClasses.noPadding} container align="center" alignItems="center" >
+		<Grid align="left" item xs={3} sm={3} md={1} lg={1} >
 			<Typography className={gClasses.patientInfo2Brown} >Date</Typography>
 		</Grid>
-		<Grid align="center" item xs={4} sm={4} md={2} lg={2} >
-			<Typography className={gClasses.patientInfo2Brown} >Appl. Id</Typography>
-		</Grid>
-		<Grid align="center" item xs={4} sm={4} md={2} lg={2} >
+		<Grid align="center" item xs={7} sm={7} md={6} lg={6} >
 			<Typography className={gClasses.patientInfo2Brown} >Description</Typography>
 		</Grid>
-		<Grid align="center" item xs={12} sm={12} md={3} lg={3} >
-			<Typography className={gClasses.patientInfo2Brown} >Applicant</Typography>
-		</Grid>
-		<Grid align="center" item xs={6} sm={6} md={2} lg={2} >
+		{(!isMobile()) &&
+		<Grid align="center" item xs={2} sm={2} md={1} lg={1} >
 			<Typography className={gClasses.patientInfo2Brown} >Status</Typography>
-		</Grid>
-		<Grid align="center" item xs={6} sm={6} md={1} lg={1} >
 		</Grid>		
+		}
+		<Grid align="center" item xs={2} sm={2} md={1} lg={1} >
+		</Grid>
 		</Grid>
 		</Box>
 		{applicationArray.map( (a, index) => {
@@ -191,36 +183,31 @@ export default function Application(props) {
 			myInfo += "Status:" + a.status + "<br />";
 			//myInfo += "Admin:" + a.adminName + "<br />";
 			return (
-			<Box  key={"MEMBOX"+index} 
-				className={((index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} 
-				borderColor="black" borderRadius={30} border={1} 
-			>
-			<Grid key={"MEMGRID"+props.index} className={gClasses.noPadding} container justifyContent="center" alignItems="center" >
-			<Grid align="center"  item xs={4} sm={4} md={2} lg={2} >
+			<Box  key={"DOC0Box"+index} className={gClasses.boxStyle} borderColor="black" borderRadius={30} border={1} >
+			<Grid key={"DOC0GRD"+index} className={gClasses.noPadding} container align="center" alignItems="center" >
+			<Grid align="left"  item xs={3} sm={3} md={1} lg={1} >
 				<Typography className={gClasses.patientInfo2}>
 					<span>{dateString(a.date)}</span>
-						{/*<span align="left"
-						data-for={"APP"+a.id}
-						data-tip={myInfo}
-						data-iscapture="true"
-					>
-						<InfoIcon color="primary" size="small"/>
-						</span>*/}
+						<span align="left"
+							data-for={"APP"+a.id}
+							data-tip={myInfo}
+							data-iscapture="true"
+						>
+							<InfoIcon color="primary" size="small"/>
+						</span>
 				</Typography>
 			</Grid>
-			<Grid align="center" item xs={4} sm={4} md={2} lg={2} >
-				<Typography className={gClasses.patientInfo2}>{a.id}</Typography>
+			<Grid align="center" item xs={7} sm={7} md={6} lg={6} >
+				<Typography>
+					<span className={gClasses.patientInfo2}>{a.desc}</span>
+				</Typography>
 			</Grid>
-			<Grid align="center" item xs={4} sm={4} md={2} lg={2} >
-				<Typography className={gClasses.patientInfo2}>{a.desc}</Typography>
-			</Grid>
-			<Grid align="center" item xs={12} sm={12} md={3} lg={3} >
-				<Typography className={gClasses.patientInfo2}>{a.name}</Typography>
-			</Grid>
-			<Grid align="center" item xs={6} sm={6} md={2} lg={2} >
+			{(!isMobile()) &&
+			<Grid align="center" item xs={2} sm={2} md={1} lg={1} >
 				<Typography className={gClasses.patientInfo2}>{a.status}</Typography>
 			</Grid>
-			<Grid align="center" item xs={6} sm={6} md={1} lg={1} >
+			}
+			<Grid align="center" item xs={2} sm={2} md={1} lg={1} >
 				<EditIcon size="small" color="primary" onClick={() => editApplication(a)} />
 				<CancelIcon size="small" color="secondary" onClick={() => deleteApplication(a)} />
 			</Grid>
@@ -248,14 +235,6 @@ export default function Application(props) {
 	
 	async function deleteApplicationConfirm(appRec) {
 		console.log(appRec);
-		try {
-			let myUrl =  `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/delete/${appRec.id}`;
-			let resp = await axios.get(myUrl);
-			showSuccess(`Successfully deleted application with id ${appRec.id}`);
-		} catch (e) {
-			console.log(e);
-			showError(`Error deleting application with id ${appRec.id}`);
-		}	
 	}
 	
 	
@@ -391,10 +370,11 @@ export default function Application(props) {
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
 	<CssBaseline />
-	<DisplayFunctionHeader />
 	<DisplayPageHeader headerName={"Application Status" } groupName="" tournament=""/>
-	<DisplayAllApplication />
 	<DisplayAllToolTips />
+	<br />
+	<DisplayAllApplication />
+	<DisplayFunctionHeader />
 	<Drawer anchor="right" classes={{ paper: gClasses.drawerPaper }} variant="temporary" open={isDrawerOpened != ""} >
 	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
 	<VsCancel align="right" onClick={() => { setIsDrawerOpened("")}} />
@@ -466,7 +446,6 @@ export default function Application(props) {
 	}
 	</Box>
 	</Drawer>
-	<ToastContainer />
 	</div>
 	);
 }

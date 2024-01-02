@@ -122,7 +122,7 @@ app.use('/pjym', pjymRouter);
 app.use('/gotra', gotraRouter);
 app.use('/city', cityRouter);
 app.use('/pdhsadm', adminRouter);
-app.use('/application', applicationRouter);
+app.use('/apply', applicationRouter);
 
 //Schema
 
@@ -167,11 +167,11 @@ GotraSchema = mongoose.Schema({
 	enabled: Boolean
 });
 
-/*CitySchema = mongoose.Schema({
+CitySchema = mongoose.Schema({
 	id: String,
 	city: String,
 	enabled: Boolean
-});*/
+});
 
 HodSchema = mongoose.Schema({
 	hid: Number,
@@ -327,7 +327,7 @@ M_Member = mongoose.model('member', MemberSchema);
 M_Humad = mongoose.model('humad', HumadSchema);
 M_Pjym = mongoose.model('pjym', PjymSchema);
 M_Gotra = mongoose.model('gotra', GotraSchema);
-//M_City  = mongoose.model('city', CitySchema);
+M_City  = mongoose.model('city', CitySchema);
 M_Password = mongoose.model('password', PasswordSchema);
 M_PinCode = mongoose.model('pincode', PinCodeSchema);
 M_Application = mongoose.model('application', ApplicationSchema);

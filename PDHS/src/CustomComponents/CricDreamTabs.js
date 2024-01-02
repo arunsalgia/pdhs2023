@@ -35,7 +35,7 @@ import Admin from 'views/Admin/Admin'
 
 import Profile from "views/Profile/UserProfile" 
 //import Home from "views/MED/Home.js";
-import UserApplication from "views/Application/UserApplication";
+//import UserApplication from "views/Application/UserApplication";
 import Application from "views/Application/Application";
 
 
@@ -530,6 +530,9 @@ export function CricDreamTabs() {
 			}
 			{ (currentSelection === "FAMILY") && 
 				<Member hid={hid} mid={mid} />
+			}
+			{ (currentSelection === "APPLICATION") && 
+				<Application />
 			}
 			{ (currentSelection === "ADMIN") && 
 				<Admin />

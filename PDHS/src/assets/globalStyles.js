@@ -380,6 +380,11 @@ const globalStyles = makeStyles((theme) => ({
     fontWeight: theme.typography.fontWeightBold,
     // color: yellow[900]
   },
+	message18Blue: {
+    fontSize: theme.typography.pxToRem(18),
+    fontWeight: theme.typography.fontWeightBold,
+    color: 'blue'
+  },
   message16: {
     fontSize: theme.typography.pxToRem(16),
     fontWeight: theme.typography.fontWeightBold,

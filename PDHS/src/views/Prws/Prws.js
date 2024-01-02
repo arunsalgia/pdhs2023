@@ -82,6 +82,7 @@ import {
 	downloadTextFile,
 	getAdminInfo,
 	applicationSuccess,
+	getHodCityList,
 } from "views/functions.js";
 
 
@@ -157,6 +158,9 @@ export default function Prws() {
 		}
 		
 		async function getAllMembers() {
+			// first get all cities
+			//await getAllCities();
+			// now fetch all members
 			try {
 				let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/list/all`;
 				let resp = await axios.get(myUrl);
@@ -169,11 +173,11 @@ export default function Prws() {
 			}
 		}
 		
-		function getAllCities() {
-			cityArray = JSON.parse(sessionStorage.getItem("hodCityData"));
-			cityList = JSON.parse(sessionStorage.getItem("cityData"));	
-			// Update in Menu
+		async function getAllCities() {
+			// Update in Menu			
+			cityArray = await getHodCityList();
 			var tmp = MasterFilterItems.find(x => x.item == 'City');
+			cityList = lodashMap(cityArray, 'city');
 			tmp.options = cityList;
 		}
 		// use effects start here
@@ -189,8 +193,10 @@ export default function Prws() {
 		}
 		
 		setPage(0);
-		getAllMembers();
 		getAllCities();
+		if (sessionStorage.getItem("isMember") === "true") {
+			getAllMembers();
+		}
 		handleResize();
 		window.addEventListener('resize', handleResize);
 		//return () => window.removeEventListener('resize', handleResize); 
@@ -486,6 +492,29 @@ export default function Prws() {
 	</div>
 	)}
 	
+	function getMyCity(hid) {
+		var myCity = "";
+		for(var i=0; i<cityArray.length; ++i) {
+			//console.log(cityArray[i]);
+			if (cityArray[i].hidList.includes(hid)) {
+				myCity = cityArray[i].city;
+				break;
+			}
+		}
+		return myCity;
+	}
+	
+	if (sessionStorage.getItem("isMember") === "false") 
+	return (
+	<div key="PRWS" className={gClasses.webPage} align="center" key="main">
+		<br />
+		<br />
+		<Typography className={gClasses.message18Blue}>No permission to Guest to view Member information</Typography>
+		<br />
+		<br />
+	</div>
+	);
+	
 	
 	// return work here ***********************
 	return (
@@ -559,11 +588,13 @@ export default function Prws() {
 		{/* display members here */}
 		{memberArray.slice(page*ROWSPERPAGE, (page+1)*ROWSPERPAGE).map( (m, index) => {
 			if (m.ceased) return null;		
-			var cityRec = cityArray.find( x => x.hid === m.hid ); // get City record
+			//var cityRec = cityArray.find( x => x.hid === m.hid ); // get City record
+			var memberCity = getMyCity(m.hid);
+			//console.log(memberCity);
 			return (
 			<PersonalMember key= {"PERSONALMEMBER"+index} m={m} dispType={dispType}  index={index} 
 				checked={radioRecord == m.mid}
-				datatip={getMemberTip(m, dispType, (cityRec) ? cityRec.city : "")} 
+				datatip={getMemberTip(m, dispType, memberCity) } 
 				onClick={(event) => { radioMid = m.mid; handlePrwsContextMenu(event); }}
 			/>
 			)})}	

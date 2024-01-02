@@ -56,7 +56,7 @@ import {
 import { 
 	hasPRWSpermission,
 	getImageName,
-	vsDialog, vsInfo,
+	vsDialog,
 	getMemberName,
 	dispAge,
 	applicationSuccess,
@@ -74,13 +74,16 @@ export default function MemberGeneral (props) {
 	const loginMid = parseInt(sessionStorage.getItem("mid"), 10);
 	const isMember = props.isMember;
 	const isAdmin = hasPRWSpermission();
-
+	
+	//console.log(loginHid, isMember);
+	
+	//const adminInfo = getAdminInfo();
 	const gClasses = globalStyles();
+	//const alert = useAlert();
 
 	const [currentHod, setCurrentHod] = useState(JSON.parse(sessionStorage.getItem("member_hod")));
 	const [existingGotra, setExistingGotra] = useState(true);
 	const [header, setHeader] = useState("");
-	const [isFamily, setIsFamily] = useState(false);
 	
 	const [memberArray, setMemberArray] = useState([]);
 	
@@ -133,7 +136,7 @@ export default function MemberGeneral (props) {
   useEffect(() => {	
 		const getDetails = async () => {		
 		}
-		setIsFamily(currentHod.hid === loginHid);
+		
 		getGotraList();
 		getCityList(); 
   }, []);
@@ -232,6 +235,29 @@ export default function MemberGeneral (props) {
 	}
 
 
+	async function handleApplyGotra() {
+		//console.log("Apply");
+		let tmp = encodeURIComponent(JSON.stringify({
+			owner: 'PRWS',
+			desc: APPLICATIONTYPES.editGotra,
+			name: sessionStorage.getItem("userName"),
+			hid: currentHod.hid,
+			mid: 0,
+			isMember: isMember,
+			data: {gotra: emurAddr1, caste: emurAddr2, subCaste: emurAddr3}
+		}));
+		try {
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/application/add/${tmp}`;
+			let resp = await axios.get(myUrl);
+			applicationSuccess(resp.data);
+		} catch (e) {
+			console.log(e);
+			showError(`Error applying for Gotra/Caste change`);
+		}
+		setIsDrawerOpened("");
+	}
+	
+	
 	async function handleEditGotra() {
 		
 
@@ -263,9 +289,6 @@ export default function MemberGeneral (props) {
 		setEmurAddr6(currentHod.suburb);
 		setEmurAddr7(currentHod.city);
 
-		setEmurAddr10(currentHod.district);
-		setEmurAddr11(currentHod.state);
-		
 		setEmurPincCode(currentHod.pinCode);
 
 		setEmurResPhone1(currentHod.resPhone1);
@@ -275,10 +298,14 @@ export default function MemberGeneral (props) {
 	}
 
 	async function handleEditGeneral() {
-		//if (isDrawerOpened === "EDITGENERAL") return handleVerifyPincode();
+		if (isDrawerOpened === "EDITGENERAL") return handleVerifyPincode();
+
+		// pin has been verified. Now it is confirm
 		setRegisterStatus(0);
+		//console.log(emurGotra);
 		let tmp = encodeURIComponent(JSON.stringify({
-			hid:   currentHod.hid,
+			gotra: emurGotra,
+			village: currentHod.village,
 			addr1: emurAddr1,
 			addr2: emurAddr2,
 			addr3: emurAddr3,
@@ -286,18 +313,13 @@ export default function MemberGeneral (props) {
 			addr5: emurAddr5,
 			suburb: emurAddr6,
 			city: emurAddr7,
-			district: emurAddr10,
-			state: emurAddr11,
 			pinCode: emurPinCode,
-			village: emurVillage,
 			resPhone1: emurResPhone1,
 			resPhone2: emurResPhone2
 		}));
 		let err = 1002;
 		try {
-			let myUrl = (isAdmin) 
-				? `${process.env.REACT_APP_AXIOS_BASEPATH}/hod/updatedetails/${tmp}`
-				: `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/editfamilydetails/${loginMid}/${tmp}`
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/hod/updatedetails/${props.member.hid}/${tmp}`;
 			//console.log(myUrl)
 			let resp = await axios.get(myUrl);
 			setCurrentHod(resp.data);
@@ -324,35 +346,6 @@ export default function MemberGeneral (props) {
 		setIsDrawerOpened("GOTRA");
 	}
 
-
-	async function handleEditGotra() {
-		let tmp = encodeURIComponent(JSON.stringify({
-			hid: currentHod.hid,
-			gotra: emurAddr1, 
-			caste: emurAddr2, 
-			subCaste: emurAddr3
-		}));
-
-		try {
-			let myUrl = (isAdmin) 
-				? `${process.env.REACT_APP_AXIOS_BASEPATH}/hod/updategotra/${tmp}`
-				: `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/updategotra/${loginMid}/${tmp}`;
-
-			let resp = await axios.get(myUrl);
-			if (isAdmin) 
-				showSuccess("Successfully updated Gotra, Caste");
-			else
-				vsInfo("Application Success", `Successfully applied for Gotra, Caste change. Application reference ${resp.data.id}.`,
-					{label: "Okay" }
-				);
-		} catch (e) {
-			console.log(e);
-			showError(`Error applying for Gotra/Caste change`);
-		}
-		setIsDrawerOpened("");
-	}
-	
-	
 	function DisplayGeneralInformation() {
 	return (
 	<Box style={{marginLeft: "5px", marginRight: "5px", paddingLeft: "5px" }} className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
@@ -392,8 +385,8 @@ export default function MemberGeneral (props) {
 	function DisplayButtons() {
 	return (
 	<div align = "right">
-		<VsButton disabled={!isFamily && !isAdmin} name="Edit Gotra and Caste" onClick={editGotraDetails} />
-		<VsButton disabled={!isFamily && !isAdmin} name="Edit General Details" onClick={editGeneralDetials} />
+		<VsButton disabled={(currentHod.hid !== loginHid) && !hasPRWSpermission()}  name="Edit Gotra, Caste" onClick={editGotraDetails} />
+		<VsButton disabled={(currentHod.hid !== loginHid) && !hasPRWSpermission()}  name="Edit General Details" onClick={editGeneralDetials} />
 	</div>
 	)}
 	
@@ -412,7 +405,7 @@ export default function MemberGeneral (props) {
 	<Typography align="center" className={gClasses.patientInfo2Blue}>{header}</Typography>
 	<br />
 	{(isDrawerOpened === "GOTRA") &&
-		<ValidatorForm align="left" className={gClasses.form} onSubmit={handleEditGotra}>
+		<ValidatorForm align="left" className={gClasses.form} onSubmit={handleEditApplyGotra}>
 			<Grid key="ADEDITMEMBERPERSONAL" className={gClasses.noPadding} container  alignItems="flex-start" >
 			<Grid item xs={12} sm={12} md={12} lg={12} >
 				<VsCheckBox align="left" label="Existing Gotra" checked={existingGotra} onClick={() => setExistingGotra(!existingGotra) }  />
@@ -469,56 +462,39 @@ export default function MemberGeneral (props) {
 	}	
 	{(isDrawerOpened === "GENERAL") &&
 		<ValidatorForm align="left" className={gClasses.form} onSubmit={handleEditGeneral}>
-			<div>
 			<Grid key="ADEDITMEMBERGENERAL" className={gClasses.noPadding} container  alignItems="flex-start" >
-			<Grid item xs={4} sm={4} md={4} lg={4} >
-				<Typography className={gClasses.patientInfo2Blue} >Phone 1</Typography>
-			</Grid>
-			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
-				<TextValidator  fullWidth className={gClasses.vgSpacing} type="number"
-					value={emurResPhone1} onChange={(event) => { setEmurResPhone1(event.target.value) }}			
-				/>
-			</Grid>
-			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-			<Grid item xs={4} sm={4} md={4} lg={4} >
-				<Typography className={gClasses.patientInfo2Blue} >Phone 2</Typography>
-			</Grid>
-			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
-				<TextValidator  fullWidth className={gClasses.vgSpacing} type="number"
-					value={emurResPhone2} onChange={(event) => { setEmurResPhone2(event.target.value) }}			
-				/>
-			</Grid>
-			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-			<Grid item xs={4} sm={4} md={4} lg={4} >
-				<Typography className={gClasses.patientInfo2Blue} >Home Town</Typography>
-			</Grid>
-			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
-				<TextValidator required fullWidth className={gClasses.vgSpacing}
-					value={emurVillage} onChange={(event) => { setEmurVillage(event.target.value) }}			
-				/>
-			</Grid>
-			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 			<Grid item xs={4} sm={4} md={4} lg={4} >
 				<Typography className={gClasses.patientInfo2Blue} >Address</Typography>
 			</Grid>
 			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
 				<TextValidator fullWidth required className={gClasses.vgSpacing}
-					value={emurAddr1} onChange={(event) => { setEmurAddr1(event.target.value) }}			
+					value={emurAddr1}
+					disabled={(isDrawerOpened === "CONFIRMGENERAL")}
+					onChange={(event) => { setEmurAddr1(event.target.value) }}			
 				/>
 				<TextValidator fullWidth required className={gClasses.vgSpacing}
-					value={emurAddr2} onChange={(event) => { setEmurAddr2(event.target.value) }}			
+					value={emurAddr2}
+					disabled={(isDrawerOpened === "CONFIRMGENERAL")}
+					onChange={(event) => { setEmurAddr2(event.target.value) }}			
 				/>
 				<TextValidator fullWidth className={gClasses.vgSpacing}
-					value={emurAddr3} onChange={(event) => { setEmurAddr3(event.target.value) }}			
+					value={emurAddr3}
+					disabled={(isDrawerOpened === "CONFIRMGENERAL")}
+					onChange={(event) => { setEmurAddr3(event.target.value) }}			
 				/>
 				<TextValidator  fullWidth className={gClasses.vgSpacing}
-					value={emurAddr4} onChange={(event) => { setEmurAddr4(event.target.value) }}			
+					value={emurAddr4}
+					disabled={(isDrawerOpened === "CONFIRMGENERAL")}
+					onChange={(event) => { setEmurAddr4(event.target.value) }}			
 				/>
 				<TextValidator  fullWidth className={gClasses.vgSpacing}
-					value={emurAddr5} onChange={(event) => { setEmurAddr5(event.target.value) }}			
+					value={emurAddr5}
+					disabled={(isDrawerOpened === "CONFIRMGENERAL")}
+					onChange={(event) => { setEmurAddr5(event.target.value) }}			
 				/>
 			</Grid>
 			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+
 			<Grid item xs={4} sm={4} md={4} lg={4} >
 				<Typography className={gClasses.patientInfo2Blue} >Suburb</Typography>
 			</Grid>
@@ -530,8 +506,9 @@ export default function MemberGeneral (props) {
 				/>
 			</Grid>
 			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+
 			<Grid item xs={4} sm={4} md={4} lg={4} >
-				<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >City</Typography>
+				<Typography className={gClasses.patientInfo2Blue} >City</Typography>
 			</Grid>
 			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
         <VsSelect size="small" align="left"  style={{paddingLeft: "10px", paddingRight: "10px" }}
@@ -541,38 +518,67 @@ export default function MemberGeneral (props) {
 			</Grid>
 			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 			<Grid item xs={4} sm={4} md={4} lg={4} >
-				<Typography className={gClasses.patientInfo2Blue} >District</Typography>
-			</Grid>
-			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
-				<TextValidator fullWidth className={gClasses.vgSpacing}
-					value={emurAddr10} onChange={(event) => { setEmurAddr10(event.target.value) }}			
-				/>
-			</Grid>
-			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-			<Grid item xs={4} sm={4} md={4} lg={4} >
-				<Typography className={gClasses.patientInfo2Blue} >State</Typography>
-			</Grid>
-			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
-				<TextValidator fullWidth className={gClasses.vgSpacing}
-					value={emurAddr11} onChange={(event) => { setEmurAddr11(event.target.value) }}			
-				/>
-			</Grid>
-			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-			<Grid item xs={4} sm={4} md={4} lg={4} >
 				<Typography className={gClasses.patientInfo2Blue} >Pin Code</Typography>
 			</Grid>
 			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
 				<TextValidator  required fullWidth className={gClasses.vgSpacing} type="number"
-					value={emurPinCode} onChange={(event) => { setEmurPincCode(event.target.value) }}	
+					value={emurPinCode}
+					disabled={(isDrawerOpened === "CONFIRMGENERAL")}
+					onChange={(event) => { setEmurPincCode(event.target.value) }}	
 					validators={['minNumber:350000', 'maxNumber:449999']}
 					errorMessages={['Invalid Pin code', 'Invalid Pin code']}			
 				/>
 			</Grid>
-			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />	
+			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+			
+			<Grid item xs={4} sm={4} md={4} lg={4} >
+				<Typography className={gClasses.patientInfo2Blue} >Phone 1</Typography>
 			</Grid>
-			<br />
-			<VsButton align="center" name="Update" type="submit" />
+			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
+				<TextValidator  fullWidth className={gClasses.vgSpacing} type="number"
+					value={emurResPhone1}
+					disabled={(isDrawerOpened === "CONFIRMGENERAL")}
+					onChange={(event) => { setEmurResPhone1(event.target.value) }}			
+				/>
+			</Grid>
+			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+
+			<Grid item xs={4} sm={4} md={4} lg={4} >
+				<Typography className={gClasses.patientInfo2Blue} >Phone 2</Typography>
+			</Grid>
+			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
+				<TextValidator  fullWidth className={gClasses.vgSpacing} type="number"
+					value={emurResPhone2}
+					disabled={(isDrawerOpened === "CONFIRMGENERAL")}
+					onChange={(event) => { setEmurResPhone2(event.target.value) }}			
+				/>
+			</Grid>
+			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+
+			<Grid item xs={4} sm={4} md={4} lg={4} >
+				<Typography className={gClasses.patientInfo2Blue} >Home Town</Typography>
+			</Grid>
+			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
+				<TextValidator required fullWidth className={gClasses.vgSpacing}
+					value={emurVillage}
+					disabled={(isDrawerOpened === "CONFIRMGENERAL")}
+					onChange={(event) => { setEmurVillage(event.target.value) }}			
+				/>
+			</Grid>
+			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+			</Grid>
+			<Typography className={gClasses.patientInfo2Blue} >
+			{"As per Pincode "+ emurPinCode + ", Division/District/State details are "+emurPinResp.division+"/"+emurPinResp.district+"/"+emurPinResp.state}
+			</Typography>
+			<Typography className={gClasses.patientInfo2Blue} >			
+			Click Confirm if Pincode is correct.
+			</Typography>
+			<div align="center">
+			<VsButton name="Confirm" type="submit" />
+			<VsButton name="Cancel" onClick={() => setIsDrawerOpened("EDITGENERAL")} />
 			</div>
+			</div>
+		}
 		</ValidatorForm>
 	}	
 	</Box>

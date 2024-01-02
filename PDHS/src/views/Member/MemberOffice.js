@@ -94,7 +94,7 @@ export default function MemberOffice(props) {
 	const gClasses = globalStyles();
 	const alert = useAlert();
 
-	const [memberArray, setMemberArray] = useState(props.list)
+	const [memberArray, setMemberArray] = useState([])
 
 	const [currentMemberData, setCurrentMemberData] = useState({});
 	const [currentHod, setCurrentHod] = useState({});
@@ -157,6 +157,7 @@ export default function MemberOffice(props) {
       setDispType(displayType(myDim.width));
 		}
 		const getDetails = async () => {	
+			setMemberArray(JSON.parse(sessionStorage.getItem("member_members")));
 		}
 		getDetails();
 		handleResize();

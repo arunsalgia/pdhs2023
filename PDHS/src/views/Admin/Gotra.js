@@ -210,7 +210,7 @@ export default function Gotra() {
 		//setIsDrawerOpened("");
 	}
 
-	function DisplayTempAllGotras() {
+	function DisplayAllGotras() {
 	return (
 	<Grid key="AllDOCS" container>
 	{gotraArray.map( (d, index) => 
@@ -234,7 +234,7 @@ export default function Gotra() {
     setPage(newPage);
   };
 
-	function DisplayAllGotras() {
+	function JunkedDisplayAllGotras() {
 	console.log("In all");
 	console.log(gClasses.thbold_tbl);
 	return (
@@ -310,7 +310,6 @@ export default function Gotra() {
 	return (
 		<div className={gClasses.webPage} align="center" key="main">
 		<CssBaseline />
-		<Container component="main" maxWidth="xs">	
 		{/*<DisplayFilter />*/}
 		<DisplayPageHeader headerName="Gotra Database" groupName="" tournament=""/>
 		<VsButton align="right" name="Add new Gotra" onClick={addGotra} />	
@@ -368,7 +367,6 @@ export default function Gotra() {
 			}
 		</Box>
 		</Drawer>
-		</Container>
 		</div>
 	);
 }

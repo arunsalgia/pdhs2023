@@ -82,22 +82,26 @@ router.get('/testpin', async function(req, res, next) {
 });
 
 
-router.get('/updatedetails/:hid/:hodData', async function(req, res, next) {
+router.get('/updatedetails/:hodData', async function(req, res, next) {
   setHeader(res);
   
-  var {hid, hodData} = req.params;
-	hid = Number(hid);
-	hodData = JSON.parse(hodData);
+  var {hodData} = req.params;
 
-		// first verify pin code 
-		let pDetails = await fetchPinDetails(hodData.pinCode);
-		//console.log(pDetails)
-		if (!pDetails) return senderr(res, 602, "Invalid Pin code");
 	
+	hodData = JSON.parse(hodData);
+	var hid = hodData.hid;
+
+	console.log(hodData);
+	return senderr(res, 601, "Not implemented");
+	
+	// first verify pin code 
+	let pDetails = await fetchPinDetails(hodData.pinCode);
+	//console.log(pDetails)
+	if (!pDetails) return senderr(res, 602, "Invalid Pin code");
+
 	let	mRec = await M_Hod.findOne({hid: hid});
 	if (!mRec) return senderr(res, 601, "Invalid Hid");
 	
-	mRec.gotra				= hodData.gotra;
 	mRec.village			= hodData.village;
 
 	mRec.addr1				= hodData.addr1;
@@ -120,6 +124,26 @@ router.get('/updatedetails/:hid/:hodData', async function(req, res, next) {
 
 	mRec.save();
 	//console.log(mRec);
+
+	sendok(res, mRec);
+});
+
+router.get('/updategotra/:hodData', async function(req, res, next) {
+  setHeader(res);
+  
+  var {hodData} = req.params;
+	hodData = JSON.parse(hodData);
+	var hid = hodData.hid;
+	console.log(hodData);
+	
+	
+	let	mRec = await M_Hod.findOne({hid: hid});
+	if (!mRec) return senderr(res, 601, "Invalid Hid");
+	
+	mRec.gotra    = hodData.gotra;
+	mRec.caste		= hodData.caste;
+	mRec.subCaste	= hodData.subCaste;
+	mRec.save();
 
 	sendok(res, mRec);
 });

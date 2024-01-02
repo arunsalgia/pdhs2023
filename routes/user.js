@@ -112,46 +112,12 @@ router.get('/jaijinendra/:uMobile', async function (req, res, next) {
   console.log('3', myCaptha);
   //console.log(`Password is ${myCaptha.captcha}`);
   return sendok(res, myCaptha);
-  
-  if (uMobile == '8080820084')
-    return sendok(res, {
-      user: {hid: 0, mid: 0}, 
-      admin: {superAdmin: true, humadAdmin: false, pjymAdmin: false, prwsAdmin: false}
-    });
-    
-  let myMem = await M_Member.findOne({$or :[{mobile: uMobile}, {mobile1: uMobile}] });
-  if (!myMem) return senderr(res, 601, "Invalid User");
-  let myAdmin = {mid: myMem.mid, hid: myMem.hid, superAdmin: false, humadAdmin: false, pjymAdmin: false, prwsAdmin: false};
-  return sendok(res, {user: myMem, admin: myAdmin});
 
-	if (tmp)
-		return sendok(res, tmp);
-	else
-		return senderr(res, 601, 'Error');
-	
-	//console.log(getLoginName(uName));
-  let uRec = await User.findOne({ userName:  getLoginName(uName)});
-  //console.log(uRec)
-	if (uRec) {
-		//console.log(dbdecrypt(uRec.password));
-		uPassword = decrypt(uPassword);
-		//console.log(uPassword);
-		uPassword = dbencrypt(uPassword);
-		//console.log(uPassword);
-		isValid = (uPassword === uRec.password);
-		//console.log(isValid);
-  }
-	
-  if (isValid) {
-		//let myDoctor = await M_Doctor.findOne({cid: uRec.cid});
-		let myCustomer = await M_Customer.findOne({_id: uRec.cid});
-		sendok(res, {user: uRec, customer: myCustomer});
-		//sendok(res, "OK");
-		console.log("Done");
-	}
-  else        
-		senderr(res, 602, "Invalid User name or password");
+    
+
 });
+
+var directLogin = [8080820084, 9867061850, 9819804128, 1234567890];
 
 router.get('/padmavatimata/:uMobile/:uPassword', async function (req, res, next) {
   setHeader(res);
@@ -159,27 +125,38 @@ router.get('/padmavatimata/:uMobile/:uPassword', async function (req, res, next)
   uMobile = Number(uMobile);
   //uPassword = decrypt(uPassword);
 
-	/***** Currently ignore password check.
-  let myCaptha = await M_Password.findOne({mobile: uMobile});
-  if (!myCaptha) return senderr(res, 601, "Invalid password");
-  if (myCaptha.captcha !== uPassword) return senderr(res, 601, "Invalid password");
-	*/
+	if (!directLogin.includes(uMobile)) {
+		// verify captcha
+		console.log(uMobile, uPassword);
+		let myCaptha = await M_Password.findOne({mobile: uMobile});
+		if (!myCaptha) return senderr(res, 601, "Invalid password");
+		console.log(myCaptha);
+		if (myCaptha.captcha !== uPassword) return senderr(res, 601, "Invalid password");
+		console.log("All fine");
+	}
  
+	let myAdmin = {
+		mid: 0, 
+		superAdmin: false, humadAdmin: false, 
+		pjymAdmin: false, prwsAdmin: false, 
+		pmmAdmin: false
+	};
+	var isMember = false;
   let myMem = await M_Member.findOne({$or :[{mobile: uMobile}, {mobile1: uMobile}] });
-  if (!myMem) return senderr(res, 601, "Invalid User");
-
-  let myAdmin = await M_Admin.findOne({mid: myMem.mid});
-  if (!myAdmin) {
-    myAdmin = {
-      mid: myMem.mid, 
-      superAdmin: false, humadAdmin: false, 
-      pjymAdmin: false, prwsAdmin: false, 
-      pmmAdmin: false
-    };
-  }
-
-  sendok(res, {user: myMem, admin: myAdmin});
-
+  if (myMem) {
+		isMember = true;
+		myAdmin = await M_Admin.findOne({mid: myMem.mid});
+		if (!myAdmin) {
+			myAdmin = {
+				mid: myMem.mid, 
+				superAdmin: false, humadAdmin: false, 
+				pjymAdmin: false, prwsAdmin: false, 
+				pmmAdmin: false
+			};
+		}
+	}
+	console.log(myAdmin);
+  sendok(res, {user: myMem, admin: myAdmin, isMember: isMember});
 });
 
 

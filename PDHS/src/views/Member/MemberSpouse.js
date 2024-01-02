@@ -17,7 +17,7 @@ import VsCheckBox from "CustomComponents/VsCheckBox";
 
 import axios from "axios";
 import Drawer from '@material-ui/core/Drawer';
-import { useAlert } from 'react-alert'
+//import { useAlert } from 'react-alert'
 
 import Grid from "@material-ui/core/Grid";
 import Typography from '@material-ui/core/Typography';
@@ -48,10 +48,12 @@ import {
 	getMemberName,
 	dispAge, getAdminInfo, dateString,
 	decrypt, dispMobile, dispEmail, disableFutureDt, 
+	showError, 
 } from "views/functions.js";
 
 
 export default function MemberSpouse(props) {
+	//console.log("In spouse 1st line");
 	const loginHid = parseInt(sessionStorage.getItem("hid"), 10);
 	const loginMid = parseInt(sessionStorage.getItem("mid"), 10);
 	const isMember = props.isMember;
@@ -59,10 +61,10 @@ export default function MemberSpouse(props) {
 	const adminInfo = getAdminInfo();
 	
 	const gClasses = globalStyles();
-	const alert = useAlert();
+	//const alert = useAlert();
 
-	const [memberArray, setMemberArray] = useState(props.list);
-	const [directory, setDirectory] = useState(JSON.parse(sessionStorage.getItem("MemberData")));
+	const [memberArray, setMemberArray] = useState(JSON.parse(sessionStorage.getItem("member_members")));
+	//const [directory, setDirectory] = useState(JSON.parse(sessionStorage.getItem("MemberData")));
 	
 	const [coupleArray, setCoupleArray] = useState([]);
 	const [unLinkedMembers, setUnLinkedMembers] = useState([]);
@@ -79,50 +81,47 @@ export default function MemberSpouse(props) {
 
 	
   useEffect(() => {	
-
-		const getMarriageDetails = async () => {	
+		//console.log("In SPouse");
+		//console.log(memberArray);
 		
-			// first get list of all married men in family
-			let allGrooms = memberArray.filter(x => 
-				x.emsStatus.toUpperCase() === 'MARRIED' &&
-				x.gender.toUpperCase() === 'MALE'
-			);
-			let myCouples = [];
-			for(var i=0; i<allGrooms.length; ++i) {
-				let bTmp = directory.find(x => x.mid === allGrooms[i].spouseMid);
-				let bName = (bTmp) ? getMemberName(bTmp, false) : "";
-				let bMid = (bTmp) ? bTmp.mid : 0;
-				myCouples.push({
-					gMid: allGrooms[i].mid, gName: getMemberName(allGrooms[i], false),
-					bMid: bMid, bName: bName,
-					dom: allGrooms[i].dateOfMarriage, momentDom: moment(allGrooms[i].dateOfMarriage),
-				});
-			}
-			
-			let ladiesMid = lodashMap(myCouples.filter(x => x.bMid !== 0), 'bMid');
-			//console.log(ladiesMid);
-			let balanceBrides = memberArray.filter(x => 
-				x.emsStatus === 'Married'  && 
-				x.gender === 'Female' &&
-				!ladiesMid.includes(x.mid)
-			);
-			//console.log(balanceBrides);
-			
-			for(var i=0; i<balanceBrides.length; ++i) {
-				let gTmp = directory.find(x => x.mid === balanceBrides[i].spouseMid);
-				let gName = (gTmp) ? getMemberName(gTmp, false) : "";
-				let gMid = (gTmp) ? gTmp.mid : 0;
-				myCouples.push({
-					gMid: gMid, gName: gName,
-					bMid: balanceBrides[i].mid , bName: getMemberName(balanceBrides[i], false),
-					dom: balanceBrides[i].dateOfMarriage, momentDom: moment(balanceBrides[i].dateOfMarriage),
-				});
-			}
-			//console.log(myCouples);
-			setCoupleArray(myCouples);
+		// first get list of all married men in family
+		let allGrooms = memberArray.filter(x => 
+			x.emsStatus.toUpperCase() === 'MARRIED' &&
+			x.gender.toUpperCase() === 'MALE'
+		);
+		let myCouples = [];
+		for(var i=0; i<allGrooms.length; ++i) {
+			let bTmp = memberArray.find(x => x.mid === allGrooms[i].spouseMid);
+			let bName = (bTmp) ? getMemberName(bTmp, false) : "";
+			let bMid = (bTmp) ? bTmp.mid : 0;
+			myCouples.push({
+				gMid: allGrooms[i].mid, gName: getMemberName(allGrooms[i], false),
+				bMid: bMid, bName: bName,
+				dom: allGrooms[i].dateOfMarriage, momentDom: moment(allGrooms[i].dateOfMarriage),
+			});
 		}
-
-		getMarriageDetails();
+			
+		let ladiesMid = lodashMap(myCouples.filter(x => x.bMid !== 0), 'bMid');
+		//console.log(ladiesMid);
+		let balanceBrides = memberArray.filter(x => 
+			x.emsStatus === 'Married'  && 
+			x.gender === 'Female' &&
+			!ladiesMid.includes(x.mid)
+		);
+		//console.log(balanceBrides);
+			
+		for(var i=0; i<balanceBrides.length; ++i) {
+			let gTmp = memberArray.find(x => x.mid === balanceBrides[i].spouseMid);
+			let gName = (gTmp) ? getMemberName(gTmp, false) : "";
+			let gMid = (gTmp) ? gTmp.mid : 0;
+			myCouples.push({
+				gMid: gMid, gName: gName,
+				bMid: balanceBrides[i].mid , bName: getMemberName(balanceBrides[i], false),
+				dom: balanceBrides[i].dateOfMarriage, momentDom: moment(balanceBrides[i].dateOfMarriage),
+			});
+		}
+		//console.log(myCouples);
+		setCoupleArray(myCouples);
 		
   }, []);
 
@@ -175,7 +174,7 @@ export default function MemberSpouse(props) {
 			applicationSuccess(resp.data);
 		} catch (e) {
 			console.log(e);
-			alert.error(`Error applying for spouse details`);
+			showError(`Error applying for spouse details`);
 		}
 		setIsDrawerOpened("");
 	}
@@ -184,7 +183,7 @@ export default function MemberSpouse(props) {
 	function selectBrideGroom(index, whoIsIt) {
 		//console.log(whoIsIt);
 		let tmpArray = unLinkedMembers.filter(x => x.type === whoIsIt);
-		if (tmpArray.length === 0) return alert.error(`No ${whoIsIt} available`);
+		if (tmpArray.length === 0) return showError(`No ${whoIsIt} available`);
 		setBrideOrGroomArray(tmpArray);
 		setNewCoupleMember(tmpArray[0].mid);
 		setCurrentIndex(index);

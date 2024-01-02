@@ -1,8 +1,8 @@
 
 
 var allMemberlist = [];
-var allHodLisr = [];
-
+var allHodList = [];
+var hodCityArray = []
 let debugTest = true;
 
 
@@ -10,12 +10,24 @@ let debugTest = true;
 async function memberGetAll() {
 	if (allMemberlist.length === 0) {
 		console.log("Reading member data from mongoose");
-		allMemberlist = await M_Member.find({}).sort({lastName: 1, middleName: 1, firstName: 1});
+		allMemberlist = await M_Member.find({ceased: false}).sort({lastName: 1, middleName: 1, firstName: 1});
 		return allMemberlist;
 	}
 	else {
 		return allMemberlist;
 	}
+}
+
+// get list of members who are hod
+
+async function memberGetHodMembers() {
+	if (allMemberlist.length === 0) await memberGetAll();
+	// Now get hod mid
+	var hodList = await M_Hod.find({}, {_id: 0, mid: 1});
+	hodList = _.map(hodList, 'mid');
+	var hodMembers = allMemberlist.filter( x => hodList.includes(x.mid) )
+	return hodMembers;
+
 }
 
 async function memberUpdateOne(memberRec) {
@@ -77,13 +89,37 @@ async function memberGetAlive() {
 	return memberRecArray;	
 }
 
+async function readHodCityList() {
+	console.log("Reading city list from database");
+	let myData = await M_Hod.find({city: {"$ne": ""} },{hid: 1, city:1,_id:0}).sort({city: 1,});
+	// Now get all the cities
+	var allCity = _.map(myData, 'city');
+	allCity = _.uniqBy(allCity);
+	
+	hodCityArray = [];
+	for (var i=0; i<allCity.length; ++i) {
+		var tmp = myData.filter(x => x.city === allCity[i]);
+		hodCityArray.push({ city: allCity[i], hidList: _.map(tmp, 'hid') });
+	}	
+}
+
+async function getHodCityList() {
+	if (hodCityArray.length === 0) {
+		await readHodCityList();
+		return hodCityArray;
+	}
+	else {
+		return hodCityArray;
+	}
+}
 
 module.exports = {
-	memberGetAll,
+	memberGetAll, memberGetHodMembers,
 	memberAddOne, memberAddMany,
 	memberUpdateOne, memberUpdateMany,
 	memberGetByMidOne, memberGetByMidMany,
 	memberGetByHidMany,
 	memberGetAlive,
+	getHodCityList,
 }; 
 

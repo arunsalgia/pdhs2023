@@ -25,7 +25,7 @@ import VsSelect from "CustomComponents/VsSelect";
 //import { useLoading, Audio } from '@agney/react-loading';
 import axios from "axios";
 import Drawer from '@material-ui/core/Drawer';
-import { useAlert } from 'react-alert'
+//import { useAlert } from 'react-alert'
 
 import Grid from "@material-ui/core/Grid";
 import Typography from '@material-ui/core/Typography';
@@ -42,9 +42,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import globalStyles from "assets/globalStyles";
 
 //icons
-import MoveUp    from '@material-ui/icons/ArrowUpwardRounded';
-import MoveDown  from '@material-ui/icons/ArrowDownwardRounded';
-import InfoIcon  from 	'@material-ui/icons/Info';
+//import MoveUp    from '@material-ui/icons/ArrowUpwardRounded';
+//import MoveDown  from '@material-ui/icons/ArrowDownwardRounded';
+//import InfoIcon  from 	'@material-ui/icons/Info';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 import {
@@ -78,11 +78,13 @@ import {
 import SplitFamily from "views/Member/SplitFamily";
 import CeasedMember from "views/Member/CeasedMember";
 import NewHod from "views/Member/NewHod";
+import MemberAddEdit from "views/Member/MemberAddEdit";
 
 
 const InitialContextParams = {show: false, x: 0, y: 0};
 var radioMid = -1;
-var familyCity = "";
+//var familyCity = "";
+
 
 export default function MemberPersonal(props) {
 	//console.log(props);
@@ -95,9 +97,10 @@ export default function MemberPersonal(props) {
 	const adminInfo = getAdminInfo();
 		
 	const gClasses = globalStyles();
-	const alert = useAlert();
+	//const alert = useAlert();
 
-	const [memberArray, setMemberArray] = useState(props.memberList)
+	const [hodRec, setHodRec] = useState({});
+	const [memberArray, setMemberArray] = useState([])
 	const [selMember, setSelMember] = useState({mid: 0});
 
 	const [hodNamesArray, setHodNamesArray] = useState([])
@@ -156,7 +159,9 @@ export default function MemberPersonal(props) {
       //console.log(displayType(myDim.width));
       setDispType(displayType(myDim.width));
 		}
-		const getDetails = async () => {	
+		const getDetails = async () => {
+			setHodRec(JSON.parse(sessionStorage.getItem("member_hod")));
+			setMemberArray(JSON.parse(sessionStorage.getItem("member_members")));
 		}
 
 		getDetails();
@@ -224,7 +229,7 @@ export default function MemberPersonal(props) {
 			//setRadioRecord(index-1);
 		} catch (e) {
 			console.log(e);
-			alert.error(`Error moving up member`);
+			showError(`Error moving up member`);
 		}	
 	}
 
@@ -243,33 +248,10 @@ export default function MemberPersonal(props) {
 			//setRadioRecord(index+1);				
 		} catch (e) {
 			console.log(e);
-			alert.error(`Error scrolling down member`);
+			showError(`Error scrolling down member`);
 		}	
 	}
 
-	// edit member details
-	
-	function handlePersonalEdit() {
-		handleMemPerContextMenuClose();		
-		//console.log(radioMid);
-		let m = memberArray.find(x => x.mid === radioMid);			//	memberArray[radioRecord];
-		setEmurAddr1(m.title);
-		setEmurAddr2(m.lastName);
-		setEmurAddr3(m.firstName);
-		setEmurAddr4(m.middleName);
-		setEmurAddr5(m.alias)
-		setEmurAddr6(m.relation);
-		setEmurAddr7(m.gender)
-		setEmurAddr8(m.emsStatus)
-		setEmurAddr9(m.bloodGroup);
-		setEmurDate1(moment(m.dob));
-		setEmurAddr10(m.occupation);
-		setEmurAddr11(m.mobile);
-		setEmurAddr12(m.mobile1);
-		setEmurAddr13(decrypt(m.email));
-
-		setIsDrawerOpened("EDITPERSONAL");
-	}
 
 	async function handleEditPersonalSubmit() {
 
@@ -297,7 +279,6 @@ function DisplayPersonalInformation() {
 	<PersonalHeader dispType={dispType} />
 	{memberArray.map( (m, index) => {
 		if (m.ceased) return null;
-		//var cityRec = cityArray.find( x => x.hid === m.hid ); // get City record
 		return (
 			<PersonalMember key={"MEMBER"+index} m={m} dispType={dispType}  index={index} 
 					onClick={(event) => { radioMid = m.mid; handleMemberPersonalContextMenu(event); }}
@@ -338,7 +319,7 @@ function DisplayPersonalInformation() {
 	>
 		<Typography className={gClasses.patientInfo2Blue} style={{paddingLeft: "5px", paddingRight: "5px"}}>{memberRecord.firstName + " " + memberRecord.lastName}</Typography>
 		<Divider />
-		<MenuItem disabled={!isFamilyMember && !admin} onClick={handlePersonalEdit}>
+		<MenuItem disabled={!isFamilyMember && !admin} onClick={() => { handleMemPerContextMenuClose(); handlePersonalEdit(memberRecord) } }>
 			<Typography>Edit</Typography>
 		</MenuItem>
 		<MenuItem disabled={(myIndex == 0) || (!isFamilyMember && !admin)} onClick={handleMoveUpMember}>
@@ -437,7 +418,7 @@ if (false) {
 			applicationSuccess(resp.data);
 		} catch (e) {
 			console.log(e);
-			alert.error(`Error applying for split family`);
+			showError(`Error applying for split family`);
 		}
 		setIsDrawerOpened("");
 	}
@@ -568,7 +549,7 @@ if (false) {
 			applicationSuccess(resp.data);
 		} catch (e) {
 			console.log(e);
-			alert.error(`Error applying for split family`);
+			showError(`Error applying for split family`);
 		}
 		setIsDrawerOpened("");
 	}
@@ -589,7 +570,7 @@ if (false) {
 			setRadioRecord(0);
 			} catch (e) {
 			console.log(e);
-			alert.error(`Error setting member as ceased`);
+			showError(`Error setting member as ceased`);
 		}	
 	}
 	
@@ -614,7 +595,7 @@ if (false) {
 			applicationSuccess(resp.data);
 		} catch (e) {
 			console.log(e);
-			alert.error(`Error applying for new hod`);
+			showError(`Error applying for new hod`);
 		}
 		setIsDrawerOpened("");
 	}
@@ -637,7 +618,7 @@ if (false) {
 			setRadioRecord(0);				
 		} catch (e) {
 			console.log(e);
-			alert.error(`Error fetching HOD details of ${hid}`);
+			showError(`Error fetching HOD details of ${hid}`);
 			setCurrentHod({});
 		}	
 		
@@ -722,8 +703,45 @@ if (false) {
 		}
 		setIsDrawerOpened("");
 	}
-				
+	
+	// edit member details
+	
+	function handlePersonalEdit(m) {
+		/*//handleMemPerContextMenuClose();		
+		//console.log(radioMid);
+		//let m = memberArray.find(x => x.mid === radioMid);			//	memberArray[radioRecord];
+		setEmurAddr1(m.title);
+		setEmurAddr2(m.lastName);
+		setEmurAddr3(m.firstName);
+		setEmurAddr4(m.middleName);
+		setEmurAddr5(m.alias)
+		setEmurAddr6(m.relation);
+		setEmurAddr7(m.gender)
+		setEmurAddr8(m.emsStatus)
+		setEmurAddr9(m.bloodGroup);
+		setEmurDate1(moment(m.dob));
+		setEmurAddr10(m.occupation);
+		setEmurAddr11(m.mobile);
+		setEmurAddr12(m.mobile1);
+		setEmurAddr13(decrypt(m.email));*/
+		setSelMember(m);
+		setIsDrawerOpened("EDIT");
+	}
 
+	function handleAddEditBack(sts) {
+		console.log(sts);
+		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
+		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
+		
+		if (sts.status == STATUS_INFO.SUCCESS) {
+		}
+		else {
+			console.log("Yaha kaise aaya");
+		}
+		setIsDrawerOpened("");
+	}
+	
+	//console.log(isDrawerOpened);
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
 	<DisplayPersonalInformation />
@@ -1092,13 +1110,16 @@ if (false) {
 	</div>
 	}
 	{(isDrawerOpened === "SPLIT") &&
-		<SplitFamily memberList={memberArray} hodMid={props.hodRec.mid} selectedMid={selMember.mid} onReturn={handleSplitFamilyBack} />
+		<SplitFamily memberList={memberArray} hodMid={hodRec.mid} selectedMid={selMember.mid} onReturn={handleSplitFamilyBack} />
 	}
 	{(isDrawerOpened === "CEASED") &&
-		<CeasedMember memberList={memberArray} hodMid={props.hodRec.mid} selectedMid={selMember.mid} onReturn={handleSplitFamilyBack} />
+		<CeasedMember memberList={memberArray} hodMid={hodRec.mid} selectedMid={selMember.mid} onReturn={handleSplitFamilyBack} />
 	}
 	{(isDrawerOpened === "NEWHOD") &&
-		<NewHod memberList={memberArray} hodMid={props.hodRec.mid} selectedMid={selMember.mid} onReturn={handleNewHodBack} />
+		<NewHod memberList={memberArray} hodMid={hodRec.mid} selectedMid={selMember.mid} onReturn={handleNewHodBack} />
+	}
+	{((isDrawerOpened === "ADD") || (isDrawerOpened === "EDIT")) &&
+		<MemberAddEdit mode={isDrawerOpened} hodMid={hodRec.mid} memberRec={selMember} onReturn={handleAddEditBack}/>
 	}
 	</Box>
 	</Container>
