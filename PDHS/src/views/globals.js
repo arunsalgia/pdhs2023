@@ -282,4 +282,5 @@ FAILURE: -2,
 CANCEL: -1,
 OKAY: 1,
 SUCCESS: 1,
+INFO: 2,
 };

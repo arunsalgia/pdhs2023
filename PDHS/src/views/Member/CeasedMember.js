@@ -19,6 +19,7 @@ import { UserContext } from "../../UserContext";
 import { JumpButton, DisplayPageHeader, ValidComp, BlankArea} from 'CustomComponents/CustomComponents.js';
 
 import lodashSortBy from "lodash/sortBy";
+import lodashMap from "lodash/map";
 
 import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
@@ -55,6 +56,7 @@ import {
 
 import {
 	getMemberName,
+	hasPRWSpermission,
 } from 'views/functions';
 
 
@@ -65,6 +67,7 @@ export default function SplitFamily(props) {
 	const [header, setHeader] = useState("");
 	const [stage, setStage] = useState("STAGE1");
 	const [stage2Req, setStage2Ref] = useState(false);
+	const [ceasedName, setCeasedName] = useState("");
 	
 	const [emurDate1, setEmurDate1] = useState(moment());
 	
@@ -80,6 +83,7 @@ export default function SplitFamily(props) {
 
 	useEffect(() => {
 		let memRec = props.memberList.find(x => x.mid === props.selectedMid);
+		setCeasedName(getMemberName(memRec));
 		setHeader("Apply for ceased " + getMemberName(memRec) );
 		if ((props.selectedMid === props.hodMid) && (props.memberList.length > 1)) {
 			setStage2Ref(true);
@@ -165,7 +169,7 @@ function handleStage2() {
 	for (var i=0; i<memberList.length; ++i) {
 		if (memberList[i].mid !== newHod) {
 			otherArray.push(memberList[i]);
-			tmpRelations.push((memberList[i].gender === "Male") ? "Brother" : "Sister");
+			tmpRelations.push(memberList[i].relation);
 		}
 	}
 	setSelectedMemberList([newHodRec].concat(otherArray));
@@ -178,7 +182,43 @@ function handleStage3() {
 }
 
 async function handleCeasedSubmit() {
-	props.onReturn.call(this, {status: STATUS_INFO.ERROR, msg: `Error ceased member`});
+	var midList = lodashMap(memberList, 'mid');
+	var myInfo = {
+		hid:  props.memberList[0].hid,
+		ceasedMid: props.selectedMid,
+		ceasedDate: emurDate1.toDate(),
+		newHod: 0,
+		midList: [],
+		relationList: []
+	}
+	if (props.hodMid === props.selectedMid) {
+		myInfo.newHod = newHod;
+		myInfo.midList = midList;
+		myInfo.relationList = relation;
+	}
+	console.log(myInfo);
+	myInfo = encodeURIComponent(JSON.stringify(myInfo));
+	try {
+		// if admin then update else apply
+		//let myUrl = "";
+		//let mode = "";
+		
+		let myUrl = (hasPRWSpermission()) 
+			? `${process.env.REACT_APP_AXIOS_BASEPATH}/member/ceased/${myInfo}`
+			: `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/ceased/${sessionStorage.getItem("mid")}/${myInfo}`;
+		var resp = await axios.get(myUrl);
+		
+		props.onReturn.call(this, {
+			status: (hasPRWSpermission() ? STATUS_INFO.SUCCESS : STATUS_INFO.INFO),
+			data: resp.data,
+			msg: (hasPRWSpermission() ? `Successfully set ${ceasedName} as ceased.` : `Successfully applied for ${ceasedName} as ceased. Your application id ref. ${resp.data.id}`)
+		});
+	} catch (e) {
+		console.log(e);
+		props.onReturn.call(this, {status: STATUS_INFO.ERROR,  msg: `Error setting ${ceasedName} as ceased.`});
+	}	
+	
+	//props.onReturn.call(this, {status: STATUS_INFO.ERROR, msg: `Error ceased member`});
 	return;
 }
 

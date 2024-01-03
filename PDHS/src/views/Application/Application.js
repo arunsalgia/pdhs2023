@@ -252,6 +252,8 @@ export default function Application(props) {
 			let myUrl =  `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/delete/${appRec.id}`;
 			let resp = await axios.get(myUrl);
 			showSuccess(`Successfully deleted application with id ${appRec.id}`);
+			setApplicationArray(applicationArray.filter(x => x.id !== appRec.id));
+			setApplicationMasterArray(applicationMasterArray.filter(x => x.id !== appRec.id));
 		} catch (e) {
 			console.log(e);
 			showError(`Error deleting application with id ${appRec.id}`);

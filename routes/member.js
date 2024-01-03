@@ -150,7 +150,7 @@ router.post('/sethod/:mid', async function (req, res) {
 	sendok(res, "Done");
 });	
 
-router.post('/ceased/:mid/:datestr', async function (req, res) {
+router.post('/orgceased/:mid/:datestr', async function (req, res) {
   setHeader(res);
   var {mid, datestr } = req.params;
 	mid = Number(mid);
@@ -189,6 +189,15 @@ router.post('/ceased/:mid/:datestr', async function (req, res) {
 	await memberUpdateMany(myData);
 
 	sendok(res, "Done");
+});
+
+router.get('/ceased/:ceasedInfo', async function (req, res) {
+  setHeader(res);
+  var {ceasedInfo} = req.params;
+	
+	ceasedInfo = JSON.parse(ceasedInfo);
+	console.log(ceasedInfo);
+	senderr(res, 601, "Done");
 });
 
 
@@ -251,7 +260,7 @@ router.get('/split/:newFamilyData', async function (req, res) {
 });	
 
 
-router.post('/scrollup/:mid', async function (req, res) {
+router.post('/orgscrollup/:mid', async function (req, res) {
   setHeader(res);
   var {mid } = req.params;
 	mid = Number(mid);
@@ -275,7 +284,39 @@ router.post('/scrollup/:mid', async function (req, res) {
 	sendok(res, "Done");
 });	
 
-router.post('/scrolldown/:mid', async function (req, res) {
+router.get('/scrollup/:mid', async function (req, res) {
+  setHeader(res);
+  var {mid } = req.params;
+	mid = Number(mid);
+	let hid = Math.trunc(mid / FAMILYMF);
+
+	//let myData = await M_Member.find({hid: hid, ceased: false}).sort({order: 1});
+	//let myData = _.cloneDeep(allMemberlist);
+	//myData = myData.filter(x => !x.ceased && x.hid === hid);
+	myData = _.cloneDeep(await memberGetByHidMany(hid));
+	
+	var myIndex = myData.findIndex(x => x.mid === mid);
+	console.log(myIndex);
+	
+	if (myIndex > 0) {
+		// swap order with previous record
+		var tmp = myData[myIndex].order;
+		myData[myIndex].order = myData[myIndex-1].order;
+		myData[myIndex-1].order = tmp;
+		
+		memberUpdateOne(myData[myIndex-1]);
+		memberUpdateOne(myData[myIndex]);
+		// send complete list after again sorting on order
+		myData = _.sortBy(myData, 'order');
+		return sendok(res, myData);
+	}
+	else {
+		return senderr(res, 601, "Incorrect order");
+	}
+});	
+
+
+router.post('/orgscrolldown/:mid', async function (req, res) {
   setHeader(res);
   var {mid } = req.params;
 	mid = Number(mid);
@@ -292,6 +333,39 @@ router.post('/scrolldown/:mid', async function (req, res) {
 	}
 	sendok(res, "Done");
 });	
+
+
+router.get('/scrolldown/:mid', async function (req, res) {
+  setHeader(res);
+  var {mid } = req.params;
+	mid = Number(mid);
+	let hid = Math.trunc(mid / FAMILYMF);
+
+	//let myData = await M_Member.find({hid: hid, ceased: false}).sort({order: 1});
+	//let myData = _.cloneDeep(allMemberlist);
+	//myData = myData.filter(x => !x.ceased && x.hid === hid);
+	myData = _.cloneDeep(await memberGetByHidMany(hid));
+	
+	var myIndex = myData.findIndex(x => x.mid === mid);
+	console.log(myIndex);
+	
+	if ((myIndex > 0) && (myIndex < (myData.length -1)) )  {
+		// swap order with previous record
+		var tmp = myData[myIndex].order;
+		myData[myIndex].order = myData[myIndex+1].order;
+		myData[myIndex+1].order = tmp;
+		
+		memberUpdateOne(myData[myIndex+1]);
+		memberUpdateOne(myData[myIndex]);
+		// send complete list after again sorting on order
+		myData = _.sortBy(myData, 'order');
+		return sendok(res, myData);
+	}
+	else {
+		return senderr(res, 601, "Incorrect order");
+	}
+});	
+
 
 
 router.get('/test', async function (req, res) {

@@ -144,6 +144,37 @@ router.get('/updategotra/:editor_mid/:appData', async function (req, res) {
 	sendok(res, aRec);
 });
 
+router.get('/ceased/:editor_mid/:appData', async function (req, res) {
+  setHeader(res);
+	var {editor_mid, appData } = req.params;
+	console.log(appData);
+
+	var editorRec = await memberGetByMidOne(Number(editor_mid));
+	
+	let aRec = new M_Application();
+	aRec.owner = "PRWS";
+	aRec.desc = "Ceased";
+	aRec.name = getMemberName(editorRec);
+	aRec.mid = editorRec.mid;
+	aRec.isMember = true;
+	aRec.data = appData;
+	aRec.status = 'Pending';
+	aRec.adminName = '';
+	aRec.comments = '';
+	
+	let justNow = new Date();
+	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
+	console.log(baseid);
+	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
+	
+	aRec.date = justNow;
+	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
+	await aRec.save();
+	console.log(aRec);
+	
+	sendok(res, aRec);
+});
+
 
 
 router.get('/reject/:id/:adminName/:comments', async function (req, res) {

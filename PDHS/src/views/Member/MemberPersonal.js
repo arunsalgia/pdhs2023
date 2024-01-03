@@ -66,7 +66,7 @@ import {
 	isMobile, 
 	dateString,
 	getImageName,
-	vsDialog,
+	vsDialog, vsInfo,
 	getMemberName,
 	getRelation, dispAge, capitalizeFirstLetter,
 	getMemberTip,
@@ -214,38 +214,35 @@ export default function MemberPersonal(props) {
   }
 
 	// move up / down member 
-	function handleMoveUpMember() {
-		handleMemPerContextMenuClose();
+	async function handleMoveUpMember(memRec) {
+		//handleMemPerContextMenuClose();
 		//console.log(radioMid);
-		let index = memberArray.findIndex(x => x.mid === radioMid);
-		let tmpArray = [].concat(memberArray);
+		//let index = memberArray.findIndex(x => x.mid === memRec.mid);
+		//let tmpArray = [].concat(memberArray);
 		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/scrollup/${tmpArray[index].mid}`
-			axios.post(myUrl);
-			let tmp = tmpArray[index-1].order;
-			tmpArray[index-1].order = tmpArray[index].order;
-			tmpArray[index].order = tmp;
-			setMemberArray(lodashSortBy(tmpArray, 'order'));
-			//setRadioRecord(index-1);
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/scrollup/${memRec.mid}`
+			var resp = await axios.get(myUrl);
+			//showSuccess("Successfuly");
+			setMemberArray(resp.data);
+			sessionStorage.setItem("member_members", JSON.stringify(resp.data));
 		} catch (e) {
 			console.log(e);
 			showError(`Error moving up member`);
 		}	
 	}
 
-	function handleMoveDownMember() {
-		handleMemPerContextMenuClose();
+	async function handleMoveDownMember(memRec) {
+		//handleMemPerContextMenuClose();
 		//let index = radioRecord;
-		let index = memberArray.findIndex(x => x.mid === radioMid);
-		let tmpArray = [].concat(memberArray);
+		//let index = memberArray.findIndex(x => x.mid === radioMid);
+		//let tmpArray = [].concat(memberArray);
 		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/scrolldown/${tmpArray[index].mid}`
-			axios.post(myUrl);
-			let tmp = tmpArray[index].order;
-			tmpArray[index].order = tmpArray[index+1].order;
-			tmpArray[index+1].order = tmp;
-			setMemberArray(lodashSortBy(tmpArray, 'order'));
-			//setRadioRecord(index+1);				
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/scrolldown/${memRec.mid}`
+			var resp = await axios.get(myUrl);
+			//showSuccess("Successfuly");
+			console.log(resp.data);
+			setMemberArray(resp.data);
+			sessionStorage.setItem("member_members", JSON.stringify(resp.data));
 		} catch (e) {
 			console.log(e);
 			showError(`Error scrolling down member`);
@@ -273,7 +270,7 @@ export default function MemberPersonal(props) {
 	}
 
 function DisplayPersonalInformation() {
-	if (memberArray.length === 0) return null;
+	if (memberArray.length === 0) return false;
 	return (
 	<div key="MEMBERLIST">
 	<PersonalHeader dispType={dispType} />
@@ -297,7 +294,7 @@ function DisplayPersonalInformation() {
 		var memberRecord = memberArray.find(x => x.mid === radioMid);
 		if (!memberRecord) return;
 		var myIndex = memberArray.findIndex(x => x.mid === radioMid);
-		console.log(myIndex);
+		//console.log(myIndex);
 		let isFamilyMember = (memberArray[0].hid === loginHid);
 		let admin = ((adminInfo & (ADMIN.superAdmin | ADMIN.prwsAdmin)) !== 0); 
 	return(
@@ -322,16 +319,16 @@ function DisplayPersonalInformation() {
 		<MenuItem disabled={!isFamilyMember && !admin} onClick={() => { handleMemPerContextMenuClose(); handlePersonalEdit(memberRecord) } }>
 			<Typography>Edit</Typography>
 		</MenuItem>
-		<MenuItem disabled={(myIndex == 0) || (!isFamilyMember && !admin)} onClick={handleMoveUpMember}>
+		<MenuItem disabled={(myIndex == 0) || (!isFamilyMember && !admin)} onClick={() => {handleMemPerContextMenuClose(); handleMoveUpMember(memberRecord) } }>
 			<Typography>Move Up</Typography>
 		</MenuItem>	
-		<MenuItem disabled={(myIndex == 0) || (myIndex == (memberArray.length -1)) || (!isFamilyMember && !admin) } onClick={handleMoveDownMember}>
+		<MenuItem disabled={(myIndex == 0) || (myIndex == (memberArray.length -1)) || (!isFamilyMember && !admin) } onClick={() => {handleMemPerContextMenuClose();  handleMoveDownMember(memberRecord)} }>
 			<Typography>Move Down</Typography>
 		</MenuItem>	
 		<MenuItem disabled={(myIndex == 0) || (!isFamilyMember && !admin)} onClick={() => { handleMemPerContextMenuClose(); newHOD(memberRecord) } }>
 			<Typography>New Hod</Typography>
 		</MenuItem>
-		<MenuItem disabled={!isFamilyMember && !admin} onClick={() => {handleMemPerContextMenuClose(); ceasedMember(radioMid); } } >
+		<MenuItem disabled={!isFamilyMember && !admin} onClick={() => {handleMemPerContextMenuClose(); ceasedMember(memberRecord); } } >
 			<Typography>Ceased</Typography>
 		</MenuItem>
 		<MenuItem disabled={(myIndex == 0) || (!isFamilyMember && !admin) } onClick={() => {handleMemPerContextMenuClose(); handleSplitFamily("APPLYSPLIT", memberRecord) } } >
@@ -636,7 +633,6 @@ if (false) {
 	}
 	
 	function handleSplitFamilyBack(sts) {
-		console.log(sts);
 		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
 		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
 		
@@ -649,10 +645,10 @@ if (false) {
 	}
 		
 	// Ceased Member
-	function ceasedMember(selMid) {
-		let m = memberArray.find(x => x.mid === selMid);
-		vsDialog("Ceased", `Are you sure you want to set ${getMemberName(m)} as ceased?`,
-		{label: "Yes", onClick: () => ceasedMemberConfirm(m) },
+	function ceasedMember(memRec) {
+		//let m = memberArray.find(x => x.mid === memRec.mid);
+		vsDialog("Ceased", `Are you sure you want to set ${getMemberName(memRec)} as ceased?`,
+		{label: "Yes", onClick: () => ceasedMemberConfirm(memRec) },
 		{label: "No" }
 		);
 	}
@@ -663,14 +659,17 @@ if (false) {
 	}
 
 	function handleCeasedMemberBack(sts) {
-		console.log(sts);
-		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
-		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
-		
-		if (sts.status == STATUS_INFO.SUCCESS) {
+		if (sts.status === STATUS_INFO.ERROR) 
+			showError(sts.msg); 
+		else if (sts.status === STATUS_INFO.SUCCESS) {
+			showSuccess(sts.msg); 
+			// update member list
 		}
-		else {
-			console.log("Yaha kaise aaya");
+		else if (sts.status === STATUS_INFO.INFO) {
+			console.log("In info");
+			vsInfo("Applied for ceased", sts.msg,
+				{label: "Okay"}
+			);
 		}
 		setIsDrawerOpened("");
 	}
@@ -1113,7 +1112,7 @@ if (false) {
 		<SplitFamily memberList={memberArray} hodMid={hodRec.mid} selectedMid={selMember.mid} onReturn={handleSplitFamilyBack} />
 	}
 	{(isDrawerOpened === "CEASED") &&
-		<CeasedMember memberList={memberArray} hodMid={hodRec.mid} selectedMid={selMember.mid} onReturn={handleSplitFamilyBack} />
+		<CeasedMember memberList={memberArray} hodMid={hodRec.mid} selectedMid={selMember.mid} onReturn={handleCeasedMemberBack} />
 	}
 	{(isDrawerOpened === "NEWHOD") &&
 		<NewHod memberList={memberArray} hodMid={hodRec.mid} selectedMid={selMember.mid} onReturn={handleNewHodBack} />

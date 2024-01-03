@@ -32,16 +32,17 @@ async function memberGetHodMembers() {
 
 async function memberUpdateOne(memberRec) {
 	if (allMemberlist.length === 0) await memberGetAll();
-	allMemberlist = _.sortBy(allMemberlist.filter(x => x.mid !== memberRec.mod).concat([memberRec]), [ 'lastName', 'middleName', 'firstName' ] );	
+	var newList = allMemberlist.filter(x => x.mid !== memberRec.mid).concat([memberRec])
+	allMemberlist = _.sortBy(newList, [ 'lastName', 'middleName', 'firstName' ] );	
 	await memberRec.save();
 }
 
 async function memberUpdateMany(memberRecArray) {
 	if (allMemberlist.length === 0) await memberGetAll();
 	var midList = _.map(memberRecArray, 'mid');
-	var tmp = allMemberlist.filter( x => !midList.includes(x.mid) );
-	allMemberlist = _.sortBy(tmp.concat(memberRecArray), [ 'lastName', 'middleName', 'firstName' ] );	
-	for(var i=0; i<memberRecArray.length; ++i) {
+	var newList = allMemberlist.filter( x => !midList.includes(x.mid) ).concat(memberRecArray);
+	allMemberlist = _.sortBy(newList, [ 'lastName', 'middleName', 'firstName' ] );	
+	for(var i = 0; i < memberRecArray.length; ++i) {
 		await memberRecArray[i].save();
 	}
 }
@@ -79,7 +80,7 @@ async function memberGetByHidMany(hid) {
 	if (allMemberlist.length === 0) await memberGetAll();
 
 	var memberRecArray = allMemberlist.filter(x => x.hid === hid);
-	return memberRecArray;
+	return _.sortBy(memberRecArray, 'order');
 }
 
 async function memberGetAlive() {
