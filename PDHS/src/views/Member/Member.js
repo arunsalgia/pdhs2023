@@ -117,6 +117,7 @@ export default function Member(props) {
 				let resp = await axios.get(myUrl);
 				setCurrentHod(resp.data);
 				setCurrentCity(resp.data.city);
+				sessionStorage.removeItem("member_hod");
 				sessionStorage.setItem("member_hod", JSON.stringify(resp.data));
 			} catch (e) {
 				console.log(e);
@@ -132,7 +133,7 @@ export default function Member(props) {
 				var tmpList = lodashSortBy(resp.data, 'order');
 				setMemberArray(tmpList);
 				//console.log(tmpList);
-				sessionStorage.setItem("member_members", "");
+				sessionStorage.removeItem("member_members");
 				sessionStorage.setItem("member_members", JSON.stringify(tmpList));
 				let tmp = (mid > 0) ? tmpList.find(x => x.mid === mid) : tmpList[0];
 				setCurrentMemberData((tmp) ? tmp : null);

@@ -28,8 +28,8 @@ return (
 				label={_label}
 				onChange={props.onChange}
 			>
-			{props.options.map(x => 
-			<MenuItem key={x[_field]} value={x[_field]}>{x[_field]}</MenuItem>
+			{props.options.map( (x, index) => 
+			<MenuItem key={"VS"+index} value={x[_field]}>{x[_field]}</MenuItem>
 			)}
 			</Select>
 		}
@@ -41,8 +41,8 @@ return (
 				label={_label}
 				onChange={props.onChange}
 			>
-			{props.options.map(x => 
-			<MenuItem key={x} value={x}>{x}</MenuItem>
+			{props.options.map((x, index) => 
+			<MenuItem key={"VS"+index} value={x}>{x}</MenuItem>
 			)}
 			</Select>
 		}	</FormControl>

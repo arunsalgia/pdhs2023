@@ -366,8 +366,6 @@ router.get('/scrolldown/:mid', async function (req, res) {
 	}
 });	
 
-
-
 router.get('/test', async function (req, res) {
   setHeader(res);
   //var {cid, date, month, year } = req.params;
@@ -382,6 +380,25 @@ router.get('/test', async function (req, res) {
 		}
 	}
 	console.log(`Member count is ${count}`);
+	sendok(res, "Done");
+});
+
+router.get('/getrelation', async function (req, res) {
+  setHeader(res);
+  //var {oldR, newR } = req.params;
+	let allMem = await M_Member.distinct('relation');
+	//var myList = _.map(
+	
+	sendok(res, allMem);
+});
+router.get('/changerelation/:oldR/:newR', async function (req, res) {
+  setHeader(res);
+  var {oldR, newR } = req.params;
+	let allMem = await M_Member.find({relation: oldR});
+	for(i=0; i < allMem.length; ++i) {
+		let tmp = allMem[i].relation = newR
+		await allMem[i].save();
+	}
 	sendok(res, "Done");
 });		
  

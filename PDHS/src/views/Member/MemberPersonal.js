@@ -77,6 +77,7 @@ import {
 
 import SplitFamily from "views/Member/SplitFamily";
 import CeasedMember from "views/Member/CeasedMember";
+import TransferMember from "views/Member/TransferMember";
 import NewHod from "views/Member/NewHod";
 import MemberAddEdit from "views/Member/MemberAddEdit";
 
@@ -160,8 +161,12 @@ export default function MemberPersonal(props) {
       setDispType(displayType(myDim.width));
 		}
 		const getDetails = async () => {
-			setHodRec(JSON.parse(sessionStorage.getItem("member_hod")));
-			setMemberArray(JSON.parse(sessionStorage.getItem("member_members")));
+			var myHodRec = JSON.parse(sessionStorage.getItem("member_hod"));
+			setHodRec(myHodRec);
+			var myMemArray = JSON.parse(sessionStorage.getItem("member_members"));
+			setMemberArray(myMemArray);
+			var ccc = myMemArray.find(x => x.mid === myHodRec.mid);
+			if (!ccc) showError(`Hod of family ${myHodRec.hid} not in list. May be ceased`);
 		}
 
 		getDetails();
@@ -224,6 +229,7 @@ export default function MemberPersonal(props) {
 			var resp = await axios.get(myUrl);
 			//showSuccess("Successfuly");
 			setMemberArray(resp.data);
+			sessionStorage.removeItem("member_members");
 			sessionStorage.setItem("member_members", JSON.stringify(resp.data));
 		} catch (e) {
 			console.log(e);
@@ -240,8 +246,9 @@ export default function MemberPersonal(props) {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/scrolldown/${memRec.mid}`
 			var resp = await axios.get(myUrl);
 			//showSuccess("Successfuly");
-			console.log(resp.data);
+			//console.log(resp.data);
 			setMemberArray(resp.data);
+			sessionStorage.removeItem("member_members");
 			sessionStorage.setItem("member_members", JSON.stringify(resp.data));
 		} catch (e) {
 			console.log(e);
@@ -259,10 +266,6 @@ export default function MemberPersonal(props) {
 
 	}
 
-	// Transfer member to another family
-	function handlePersonalTransfer() {
-		setIsDrawerOpened("TRANSFER");
-	}
 
 	
 	function handlePersonalMergeFamily() {
@@ -320,20 +323,23 @@ function DisplayPersonalInformation() {
 			<Typography>Edit</Typography>
 		</MenuItem>
 		<MenuItem disabled={(myIndex == 0) || (!isFamilyMember && !admin)} onClick={() => {handleMemPerContextMenuClose(); handleMoveUpMember(memberRecord) } }>
-			<Typography>Move Up</Typography>
+			<Typography>Scroll Up</Typography>
 		</MenuItem>	
 		<MenuItem disabled={(myIndex == 0) || (myIndex == (memberArray.length -1)) || (!isFamilyMember && !admin) } onClick={() => {handleMemPerContextMenuClose();  handleMoveDownMember(memberRecord)} }>
-			<Typography>Move Down</Typography>
+			<Typography>Scroll Down</Typography>
 		</MenuItem>	
+		<MenuItem disabled={!isFamilyMember && !admin} onClick={() => { handleMemPerContextMenuClose(); handlePersonalTransfer(memberRecord) } }>
+			<Typography>Transfer</Typography>
+		</MenuItem>
 		<MenuItem disabled={(myIndex == 0) || (!isFamilyMember && !admin)} onClick={() => { handleMemPerContextMenuClose(); newHOD(memberRecord) } }>
 			<Typography>New Hod</Typography>
 		</MenuItem>
 		<MenuItem disabled={!isFamilyMember && !admin} onClick={() => {handleMemPerContextMenuClose(); ceasedMember(memberRecord); } } >
 			<Typography>Ceased</Typography>
 		</MenuItem>
-		<MenuItem disabled={(myIndex == 0) || (!isFamilyMember && !admin) } onClick={() => {handleMemPerContextMenuClose(); handleSplitFamily("APPLYSPLIT", memberRecord) } } >
+		{/*<MenuItem disabled={(myIndex == 0) || (!isFamilyMember && !admin) } onClick={() => {handleMemPerContextMenuClose(); handleSplitFamily("APPLYSPLIT", memberRecord) } } >
 			<Typography>Split family</Typography>
-		</MenuItem>
+		</MenuItem>*/}
 	</Menu>	
 	</div>
 	)}
@@ -703,6 +709,24 @@ if (false) {
 		setIsDrawerOpened("");
 	}
 	
+	
+		// Transfer member(s) to another family
+	function handlePersonalTransfer(rec) {
+		setSelMember(rec);
+		setIsDrawerOpened("TRANSFER");
+	}
+	
+	function handlePersonalTransferBack(sts) {
+		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
+		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
+		
+		if (sts.status == STATUS_INFO.SUCCESS) {
+		}
+		else {
+			console.log("Yaha kaise aaya");
+		}
+		setIsDrawerOpened("");
+	}
 	// edit member details
 	
 	function handlePersonalEdit(m) {
@@ -1113,6 +1137,9 @@ if (false) {
 	}
 	{(isDrawerOpened === "CEASED") &&
 		<CeasedMember memberList={memberArray} hodMid={hodRec.mid} selectedMid={selMember.mid} onReturn={handleCeasedMemberBack} />
+	}
+	{(isDrawerOpened === "TRANSFER") &&
+		<TransferMember memberList={memberArray} hodMid={hodRec.mid} selectedMid={selMember.mid} onReturn={handlePersonalTransferBack} />
 	}
 	{(isDrawerOpened === "NEWHOD") &&
 		<NewHod memberList={memberArray} hodMid={hodRec.mid} selectedMid={selMember.mid} onReturn={handleNewHodBack} />

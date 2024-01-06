@@ -51,7 +51,7 @@ import VsCheckBox from "CustomComponents/VsCheckBox";
 import {
 	ADMIN, APPLICATIONTYPES, SELECTSTYLE,
   PADSTYLE,
-	MEMBERTITLE, RELATION, SELFRELATION, GENDER, BLOODGROUP, MARITALSTATUS,	COMPACTRELATION,
+	MEMBERTITLE, RELATION, SELFRELATION, GENDER, BLOODGROUP, MARITALSTATUS,
 	STATUS_INFO,
 } from 'views/globals';
 
@@ -178,7 +178,7 @@ return (
 		</Grid>
 		<Grid item xs={7} sm={7} md={7} lg={7} >
 			<VsSelect size="small" align="left"  style={{paddingLeft: "10px", paddingRight: "10px" }}
-				inputProps={{className: gClasses.dateTimeNormal}} options={(isMemberHod) ? SELFRELATION : COMPACTRELATION} 
+				inputProps={{className: gClasses.dateTimeNormal}} options={(isMemberHod) ? SELFRELATION : RELATION} 
 				value={emurAddr6} onChange={(event) => { setEmurAddr6(event.target.value); }} 
 			/>				
 		</Grid>

@@ -53,7 +53,7 @@ import VsCheckBox from "CustomComponents/VsCheckBox";
 
 
 import {
-	COMPACTRELATION,
+	RELATION,
 	STATUS_INFO,
 } from 'views/globals';
 
@@ -238,7 +238,7 @@ return (
 					</Grid>	
 					<Grid item xs={5} sm={5} md={5} lg={5} >
 						<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} 
-						options={(index === 0) ? ["Self"] : COMPACTRELATION} value={relation[index]} onChange={(event) => { handleNewRelation(event.target.value, index); }} />
+						options={(index === 0) ? ["Self"] : RELATION} value={relation[index]} onChange={(event) => { handleNewRelation(event.target.value, index); }} />
 					</Grid>
 					</Grid>	
 				)}

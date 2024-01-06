@@ -50,7 +50,7 @@ import VsCheckBox from "CustomComponents/VsCheckBox";
 
 
 import {
-	COMPACTRELATION,
+	RELATION,
 	STATUS_INFO,
 } from 'views/globals';
 
@@ -170,8 +170,10 @@ function handleStage2() {
 		if (memberList[i].mid !== newHod) {
 			otherArray.push(memberList[i]);
 			tmpRelations.push(memberList[i].relation);
+			console.log(memberList[i].mid, memberList[i].relation);
 		}
 	}
+	
 	setSelectedMemberList([newHodRec].concat(otherArray));
 	setRelation(tmpRelations);	
 	setStage("STAGE3");
@@ -319,7 +321,7 @@ return (
 					</Grid>	
 					<Grid item xs={5} sm={5} md={5} lg={5} >
 						<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} 
-						options={(index === 0) ? ["Self"] : COMPACTRELATION} value={relation[index]} onChange={(event) => { handleNewRelation(event.target.value, index); }} />
+						options={(index === 0) ? ["Self"] : RELATION} value={relation[index]} onChange={(event) => { handleNewRelation(event.target.value, index); }} />
 					</Grid>
 					</Grid>	
 				)}

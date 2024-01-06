@@ -74,6 +74,7 @@ import {
 	dispAge,
 	getMemberTip,
 	getHodCityList,
+	hasPRWSpermission,
 } 
 from "views/functions.js";
 
@@ -229,9 +230,6 @@ export default function Pjym() {
 
   
   function displayMember() {
-    //sessionStorage.setItem("memberHid", menuMember.hid);
-    //sessionStorage.setItem("memberMid", menuMember.mid);
-    //setTab(100);
 		setDisplayPage(PAGELIST.FAMILY, menuMember.hid, menuMember.mid);
   }
 	

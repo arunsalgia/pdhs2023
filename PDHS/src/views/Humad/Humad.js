@@ -67,6 +67,7 @@ import {
 	disableFutureDt,
 	getMemberTip,
 	getHodCityList,
+	hasPRWSpermission,
 } 
 from "views/functions.js";
 
@@ -412,26 +413,27 @@ export default function Humad() {
 	)}
 
 	function HumadContextMenu() {
-		//console.log("in MemberPersonalContextMenu");
+		console.log("in HUmadContextMenu");
 		console.log(menuMember);
+		console.log(grpAnchorEl);
 		//let family = (menuMember.hid === loginHid);
-		let admin = ((adminInfo & (ADMIN.superAdmin | ADMIN.prwsAdmin)) !== 0);
+		//let admin = ((adminInfo & (ADMIN.superAdmin | ADMIN.prwsAdmin)) !== 0);
 	
 		var tmp = menuMember;		//memberArray.find(x => x.mid === menuMember.mid);
 		if (!tmp) return;		
     let myName = tmp.firstName + " " + tmp.lastName;
-		//console.log(contextParams);
 		var myStyle={top: `${contextParams.y}px` , left: `${contextParams.x}px` };
 	return(
 	<div ref={menuRef} className='absolute z-20' style={myStyle}>
-	<Menu id="pjym-menu" anchorEl={grpAnchorEl}
+	<Menu id="pjym-menu" 
+		anchorEl={grpAnchorEl}
 		anchorOrigin={{ vertical: 'top', horizontal: 'center', }}
 		// keepMounted
 		transformOrigin={{ vertical: 'top', horizontal: 'center', }}
 		open={contextParams.show} onClose={handleHumadMenuClose}
 	>
 		<Typography className={gClasses.patientInfo2Blue} style={{paddingLeft: "5px", paddingRight: "5px"}}>{tmp.firstName + " " + tmp.lastName}</Typography>
-		<MenuItem onClick={upgradeHumad}>
+		<MenuItem disabled={!hasPRWSpermission()} onClick={upgradeHumad}>
 			<Typography>Upgrade</Typography>
 		</MenuItem>
 		<Divider />
