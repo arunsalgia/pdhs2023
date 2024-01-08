@@ -268,10 +268,6 @@ export default function MemberPersonal(props) {
 
 	}
 
-	// add new member
-	function handlePersonalAdd() {
-
-	}
 
 
 	
@@ -735,6 +731,11 @@ if (false) {
 		setIsDrawerOpened("");
 	}
 	// edit member details
+
+	function handlePersonalAdd() {
+		setSelMember(null);
+		setIsDrawerOpened("ADD");
+	}
 	
 	function handlePersonalEdit(m) {
 		/*//handleMemPerContextMenuClose();		
@@ -774,13 +775,14 @@ if (false) {
 	//console.log(isDrawerOpened);
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
+	<Typography align="right" style={{paddingRight: "10px"}}  className={gClasses.patientInfo2Blue} onClick={handlePersonalAdd} >Add Member</Typography>
 	<DisplayPersonalInformation />
 	<DisplayAllToolTips />
-
 	<Drawer style={{ width: "100%"}} anchor="top" variant="temporary" open={isDrawerOpened != ""} >
 	<Container component="main" maxWidth="xs">	
 	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
 	<VsCancel align="right" onClick={() => { setIsDrawerOpened("")}} />
+		{/*
 	{((isDrawerOpened === "APPLYCEASED") || (isDrawerOpened === "EDITCEASED")) &&
 		<Container component="main" maxWidth="xs">	
 		<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
@@ -1139,6 +1141,7 @@ if (false) {
 		<VsButton align="center" name="Create New Family" onClick={handleNewFamilySubmit} />
 	</div>
 	}
+*/}
 	{(isDrawerOpened === "SPLIT") &&
 		<SplitFamily memberList={memberArray} hodMid={hodRec.mid} selectedMid={selMember.mid} onReturn={handleSplitFamilyBack} />
 	}

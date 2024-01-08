@@ -189,6 +189,7 @@ router.get('/hod/:hid', async function (req, res) {
 	
 	
 	let myData = await memberGetByHidMany(Number(hid));
+	myData = _.cloneDeep(myData);
 	for(let i=0; i<myData.length; ++i) {
 		myData[i].email = dbToSvrText(myData[i].email);
 		myData[i].email1 = dbToSvrText(myData[i].email1);
@@ -377,16 +378,21 @@ router.get('/scrollup/:mid', async function (req, res) {
 		myData[myIndex].order = myData[myIndex-1].order;
 		myData[myIndex-1].order = tmp;
 		
+		console.log(myData[myIndex-1].email, myData[myIndex].email);
 		memberUpdateOne(myData[myIndex-1]);
 		memberUpdateOne(myData[myIndex]);
+		console.log(myData[myIndex-1].email, myData[myIndex].email);
+		
 		// send complete list after again sorting on order
-		myData = _.sortBy(myData, 'order');
+		myData = _.cloneDeep(_.sortBy(myData, 'order'));
+		console.log(myData[myIndex-1].email, myData[myIndex].email);
 		for(var i=0; i<myData.length; ++i) {
 			var tmp = dbdecrypt(myData[i].email);
 			myData[i].email = encrypt(tmp);
 			tmp = dbdecrypt(myData[i].email1);
 			myData[i].email1 = encrypt(tmp);
 		}
+		console.log(myData[myIndex-1].email, myData[myIndex].email);
 
 		return sendok(res, myData);
 	}
@@ -434,7 +440,7 @@ router.get('/scrolldown/:mid', async function (req, res) {
 		memberUpdateOne(myData[myIndex+1]);
 		memberUpdateOne(myData[myIndex]);
 		// send complete list after again sorting on order
-		myData = _.sortBy(myData, 'order');
+		myData = _.cloneDeep(_.sortBy(myData, 'order'));
 		for(var i=0; i<myData.length; ++i) {
 			var tmp = dbdecrypt(myData[i].email);
 			myData[i].email = encrypt(tmp);

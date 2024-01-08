@@ -15,10 +15,10 @@ async function memberGetAll() {
 		//for(var i=0; i<10; ++i) {
 		//	console.log(allMemberlist[i].lastName, allMemberlist[i].middleName, allMemberlist[i].firstName);
 		//}
-		return allMemberlist;
+		return _.cloneDeep(allMemberlist);
 	}
 	else {
-		return allMemberlist;
+		return _.cloneDeep(allMemberlist);
 	}
 }
 
@@ -30,7 +30,7 @@ async function memberGetHodMembers() {
 	var hodList = await M_Hod.find({}, {_id: 0, mid: 1});
 	hodList = _.map(hodList, 'mid');
 	var hodMembers = allMemberlist.filter( x => hodList.includes(x.mid) )
-	return hodMembers;
+	return _.cloneDeep(hodMembers);
 
 }
 
@@ -69,14 +69,14 @@ async function memberGetByMidOne(mid) {
 	if (allMemberlist.length === 0) await memberGetAll();
 
 	var memberRec = allMemberlist.find(x => x.mid === mid);
-	return memberRec;
+	return _.cloneDeep(memberRec);
 }
 
 async function memberGetByMidMany(midList) {
 	if (allMemberlist.length === 0) await memberGetAll();
 
 	var memberRecArray = allMemberlist.find(x => midList.includes(x.mid) );
-	return memberRecArray;
+	return _.cloneDeep(memberRecArray);
 }
 
 
@@ -84,14 +84,14 @@ async function memberGetByHidMany(hid) {
 	if (allMemberlist.length === 0) await memberGetAll();
 
 	var memberRecArray = allMemberlist.filter(x => x.hid === hid);
-	return _.sortBy(memberRecArray, 'order');
+	return _.cloneDeep(_.sortBy(memberRecArray, 'order'));
 }
 
 async function memberGetAlive() {
 	if (allMemberlist.length === 0) await memberGetAll();
 
 	var memberRecArray = allMemberlist.filter(x => !x.ceased);
-	return memberRecArray;	
+	return _.cloneDeep(memberRecArray);	
 }
 
 async function readHodCityList() {

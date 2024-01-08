@@ -220,7 +220,7 @@ export default function Prws() {
 	function DisplayAllToolTips() {
 	return(
 		<div>
-		{memberArray.slice(page*ROWSPERPAGE, (page+1)*ROWSPERPAGE).map( t =>
+		{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( t =>
 		  <DisplaySingleTip key={"MEMBETIP"+t.mid}  id={"MEMBER"+t.mid} />
 		)}
 		</div>
@@ -257,10 +257,11 @@ export default function Prws() {
 		try {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/filterdata/${myData}`;
 			let resp = await axios.get(myUrl);
-			console.log(resp.data);
+			//console.log(resp.data);
 			currentPage = (process.env.REACT_APP_BACKENDFILTER === "true") ? 0 : pageNumber;
 			setMemberCount(resp.data.count);
 			setMemberArray(resp.data.data);
+			setMemberMasterArray(resp.data.data);
 		} catch (e) {
 			console.log("Error fetching filter member data");
 			showError(`Error fetching member data of page ${pageNumber}`);

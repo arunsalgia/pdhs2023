@@ -79,15 +79,15 @@ export default function MemberAddEdit(props) {
 	const [emurDate1, setEmurDate1] = useState(moment());
 
 
-	const [emurAddr1, setEmurAddr1] = useState("");
+	const [emurAddr1, setEmurAddr1] = useState("Shri");
 	const [emurAddr2, setEmurAddr2] = useState("");
 	const [emurAddr3, setEmurAddr3] = useState("");
 	const [emurAddr4, setEmurAddr4] = useState("");
 	const [emurAddr5, setEmurAddr5] = useState("");
-	const [emurAddr6, setEmurAddr6] = useState("");
-	const [emurAddr7, setEmurAddr7] = useState("");
-	const [emurAddr8, setEmurAddr8] = useState("");
-	const [emurAddr9, setEmurAddr9] = useState("");
+	const [emurAddr6, setEmurAddr6] = useState("Son");
+	const [emurAddr7, setEmurAddr7] = useState("Male");
+	const [emurAddr8, setEmurAddr8] = useState("Unmarried");
+	const [emurAddr9, setEmurAddr9] = useState("O+");
 	const [emurAddr10, setEmurAddr10] = useState("");
 	const [emurAddr11, setEmurAddr11] = useState("");
 	const [emurAddr12, setEmurAddr12] = useState("");
@@ -293,7 +293,7 @@ return (
 		</Grid>
 		<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 		</Grid>
-		<VsButton align="center" name="Update" type="submit" />		
+		<VsButton align="center" name={(props.mode === "ADD") ? "Add" : "Update"} type="submit" />		
 	</ValidatorForm>
 	<ToastContainer />
 	</div>
