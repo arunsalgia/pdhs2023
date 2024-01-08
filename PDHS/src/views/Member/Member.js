@@ -12,14 +12,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import lodashSortBy from "lodash/sortBy";
 //import lodashMap from "lodash/map";
 
-//import VsButton from "CustomComponents/VsButton";
-//import VsCancel from "CustomComponents/VsCancel";
-//import VsRadio from "CustomComponents/VsRadio";
-//import VsRadioGroup from "CustomComponents/VsRadioGroup";
-//import VsCheckBox from "CustomComponents/VsCheckBox";
-//import VsSelect from "CustomComponents/VsSelect";
-//import VsTextFilter from "CustomComponents/VsTextFilter";
-//import VsList from "CustomComponents/VsList";
 
 import MemberGeneral from "views/Member/MemberGeneral"
 import MemberPersonal from "views/Member/MemberPersonal"
@@ -32,15 +24,11 @@ import { useAlert } from 'react-alert'
 
 import Grid from "@material-ui/core/Grid";
 import Typography from '@material-ui/core/Typography';
-//import Box from '@material-ui/core/Box';
-//import 'react-step-progress/dist/index.css';
-//import Datetime from "react-datetime";
-//import "react-datetime/css/react-datetime.css";
-//import moment from "moment";
+
 
 // styles
 import globalStyles from "assets/globalStyles";
-//import modalStyles from "assets/modalStyles";
+
 
 
 
@@ -51,32 +39,16 @@ import {
 	DisplayMemberHeader,
 } from "CustomComponents/CustomComponents.js"
 
-/*import {
-//SupportedMimeTypes, SupportedExtensions,
-//str1by4, str1by2, str3by4,
-//HOURSTR, MINUTESTR, 
-MEMBERTITLE, RELATION, SELFRELATION, GENDER, BLOODGROUP, MARITALSTATUS,
-DATESTR, MONTHNUMBERSTR,
-CASTE, HUMADSUBCASTRE,
-} from "views/globals.js";
-*/
+
 
 import { 
 	showSuccess, showError,
 } from "views/functions.js";
 
-/*
-import { 
-	decrypt, dispMobile, dispEmail, disableFutureDt,
-} from 'views/functions';
-import {  } from 'views/functions';
-*/
+import {
+	readAllMembers, memberGetByHidMany,
+} from "views/clientdbfunctions";
 
-//import { update } from 'lodash';
-//import { updateCbItem } from 'typescript';
-
-//var loginHid, loginMid;
-//var adminData = {superAdmin: false, humadAdmin: false, pjymAdmin: false, prwsAdmin: false} ;
 
 var isMember = false;
 
@@ -95,17 +67,7 @@ export default function Member(props) {
 	const [currentHod, setCurrentHod] = useState({});
 	const [currentCity, setCurrentCity] = useState("");
 	
-	/*const [gotraArray, setGotraArray] = useState([]);
-	const [gotraFilterArray, setGotraFilterArray] = useState([]);
-	//const [ceasedArray, setCeasedArray] = useState([]);
-	const [hodNamesArray, setHodNamesArray] = useState([])
-	const [groomArray, setGroomArray] = useState([])
-	const [brideArray, setBrideArray] = useState([])
-	const [domArray, setDomArray] = useState([])
-	const [domMomemtArray, setDomMomemtArray] = useState([])
-	const [unLinkedLadies, setUnLinkedLadies] = useState([]);
-	const [radioRecord, setRadioRecord] = useState(0);
-	const [emurDate1, setEmurDate1] = useState(moment());*/
+
 
 
   useEffect(() => {	
@@ -128,14 +90,23 @@ export default function Member(props) {
 
 		async function getHodMembers(hid, mid) {
 			try {
-				let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/hod/${hid}`;
-				let resp = await axios.get(myUrl);
-				var tmpList = lodashSortBy(resp.data, 'order');
-				setMemberArray(tmpList);
+				var myData = [];
+				if (process.env.REACT_APP_PRWS_DB === "true") {
+					myData = memberGetByHidMany(hid);		
+					/*JSON.parse(localStorage.getItem("prwsMemberList"));
+					myData = myData.filter(x => x.hid === hid);*/
+				}
+				else {
+					let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/hod/${hid}`;
+					let resp = await axios.get(myUrl);
+					myData = resp.data;
+					myData = lodashSortBy(myData, 'order');
+				}
+				setMemberArray(myData);
 				//console.log(tmpList);
 				sessionStorage.removeItem("member_members");
-				sessionStorage.setItem("member_members", JSON.stringify(tmpList));
-				let tmp = (mid > 0) ? tmpList.find(x => x.mid === mid) : tmpList[0];
+				sessionStorage.setItem("member_members", JSON.stringify(myData));
+				let tmp = (mid > 0) ? myData.find(x => x.mid === mid) : myData[0];
 				setCurrentMemberData((tmp) ? tmp : null);
 			} catch (e) {
 				console.log(e);

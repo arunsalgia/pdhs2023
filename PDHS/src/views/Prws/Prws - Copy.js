@@ -109,8 +109,6 @@ const InitialContextParams = {show: false, x: 0, y: 0};
 
 var memberMasterArray = [];  function setMemberMasterArray(data) { memberMasterArray = data; }
 var radioMid = -1;
-
-var currentPage = 0;
   
 export default function Prws() {
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
@@ -130,8 +128,6 @@ export default function Prws() {
 
 	//const [memberMasterArray, setMemberMasterArray] = useState([]);
 	const [memberArray, setMemberArray] = useState([]);
-	const [memberCount, setMemberCount] = useState(0);
-	
 	//const [cityArray, setCityArray] = useState([]);
 	// pagination
 	const [page, setPage] = useState(0);
@@ -169,19 +165,14 @@ export default function Prws() {
 				var myData = [];
 				if (process.env.REACT_APP_PRWS_DB === "true") {
 					myData = JSON.parse(localStorage.getItem("prwsMemberList"));
-					setMemberMasterArray(myData);
-					setMemberArray(myData);
-				}
-				else if (process.env.REACT_APP_BACKENDFILTER === "true") {
-					await getMemeberPage([], 0);
 				}
 				else {
 					let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/list/all`;
 					let resp = await axios.get(myUrl);
 					var myData = resp.data;					
-					setMemberMasterArray(myData);
-					setMemberArray(myData);
 				}
+				setMemberMasterArray(myData);
+				setMemberArray(myData);
 			} catch (e) {
 				console.log("Error fetching member data");
 				//setMemberArray([]);		
@@ -247,28 +238,6 @@ export default function Prws() {
 		setInputFilterMode(true);
 	}
 
-	async function getMemeberPage(filterList, pageNumber)  {
-		var myData = encodeURIComponent(JSON.stringify({
-			pageNumber: pageNumber,
-			pageSize:	ROWSPERPAGE,
-			filterData: filterList
-		}));
-
-		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/filterdata/${myData}`;
-			let resp = await axios.get(myUrl);
-			console.log(resp.data);
-			currentPage = (process.env.REACT_APP_BACKENDFILTER === "true") ? 0 : pageNumber;
-			setMemberCount(resp.data.count);
-			setMemberArray(resp.data.data);
-		} catch (e) {
-			console.log("Error fetching filter member data");
-			showError(`Error fetching member data of page ${pageNumber}`);
-		}
-		
-	}
-	
-	
 	function addFilterConfirm(tmpValue) {
 		//console.log("addFilterConfirm", tmpValue);
 		let finalFilter;
@@ -298,12 +267,7 @@ export default function Prws() {
 		}
 		setInputFilterMode(false);
 		updateFilterItems(finalFilter);
-		if (process.env.REACT_APP_BACKENDFILTER === "true") {
-			getMemeberPage(finalFilter, 0);
-		}
-		else {
-			updateMemberArray(finalFilter);
-		}
+		updateMemberArray(finalFilter);
 		setPage(0);
 	}
 	
@@ -311,12 +275,7 @@ export default function Prws() {
 		let tmp = filterList.filter(x => x.item !== item);
 		setFilterList(tmp);	
 		updateFilterItems(tmp);
-		if (process.env.REACT_APP_BACKENDFILTER === "true") {
-			getMemeberPage(tmp, 0);
-		}
-		else {
-			updateMemberArray(tmp);
-		}
+		updateMemberArray(tmp);
 		setPage(0);
 	}
 	
@@ -410,9 +369,6 @@ export default function Prws() {
 	
 	// pagination function 
 	const handleChangePage = (event, newPage) => {
-		if (process.env.REACT_APP_BACKENDFILTER === "true") {
-			getMemeberPage(filterList, newPage);
-		}
     setPage(newPage);
   };
 
@@ -566,9 +522,7 @@ export default function Prws() {
 	);
 	
 	
-	// If filter at back-end then we have only 1 page data
-	currentPage =(process.env.REACT_APP_BACKENDFILTER === "true") ? 0 : page;
-	
+	// return work here ***********************
 	return (
 	<div key="PRWS" className={gClasses.webPage} align="center" key="main">
 		{/*<DisplayPersonalButtons />*/}
@@ -638,7 +592,7 @@ export default function Prws() {
 </Box>*/}
 		<PersonalHeader dispType={dispType} />
 		{/* display members here */}
-		{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
+		{memberArray.slice(page*ROWSPERPAGE, (page+1)*ROWSPERPAGE).map( (m, index) => {
 			if (m.ceased) return null;		
 			//var cityRec = cityArray.find( x => x.hid === m.hid ); // get City record
 			var memberCity = getMyCity(m.hid);
@@ -652,27 +606,13 @@ export default function Prws() {
 			/>
 			)})}	
 		{/* Table pagination here */}
-		{((process.env.REACT_APP_BACKENDFILTER !== "true") && (memberArray.length > ROWSPERPAGE)) &&
+		{(memberArray.length > ROWSPERPAGE) &&
 			<TablePagination
 				align="right"
 				rowsPerPageOptions={[ROWSPERPAGE]}
 				component="div"
 				labelRowsPerPage="Members per page"
 				count={memberArray.length}
-				rowsPerPage={ROWSPERPAGE}
-				page={page}
-				onPageChange={handleChangePage}
-				//onRowsPerPageChange={handleChangeRowsPerPage}
-				//showFirstButton={true}
-			/>
-		}
-		{((process.env.REACT_APP_BACKENDFILTER === "true") && (memberCount > ROWSPERPAGE)) &&
-			<TablePagination
-				align="right"
-				rowsPerPageOptions={[ROWSPERPAGE]}
-				component="div"
-				labelRowsPerPage="Members per page"
-				count={memberCount}
 				rowsPerPage={ROWSPERPAGE}
 				page={page}
 				onPageChange={handleChangePage}

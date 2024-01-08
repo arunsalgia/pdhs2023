@@ -6,7 +6,7 @@ import { UserContext } from "./UserContext";
 //import Admin from "layouts/Admin.js";
 import "assets/css/material-dashboard-react.css?v=1.9.0";
 // import { DesktopWindows } from "@material-ui/icons";
-import { CricDreamTabs, setTab }from "CustomComponents/CricDreamTabs"
+import { CricDreamTabs, setTab } from "CustomComponents/CricDreamTabs"
 
 import SignIn from "views/Login/SignIn"
 import LandingPage from "views/Login/LandingPage"
@@ -16,6 +16,9 @@ import IdleTimer from 'react-idle-timer'
 
 import { PinDropSharp } from "@material-ui/icons";
 
+import {
+	readAllMembers,
+} from "views/clientdbfunctions";
 
 //import firebase from 'firebase';
 //import arunfb from 'firebase';
@@ -32,17 +35,6 @@ clearBackupData, downloadApk
 
 const hist = createBrowserHistory();
 
-
-/***
-function checkJoinGroup(pathArray) {
-  let sts = false;
-  if ((pathArray[1].toLowerCase() === "joingroup") && (pathArray.length === 3) && (pathArray[2].length > 0)) {
-    localStorage.setItem("joinGroupCode", pathArray[2]);
-    sts = true;
-  }
-  return sts;
-}
-***/
 
 function initCdParams() {
   let ipos = 0;
@@ -144,6 +136,8 @@ function AppRouter() {
 
   var myStatus = sessionStorage.getItem("prwsLogin");
   var showLanding = ((typeof myStatus === 'undefined') || (myStatus == null) || (myStatus === ""));
+	//sessionStorage.removeItem("prwsMemberList");
+	//readAllMembers();
   return (
     <Router history={hist}> 
     <UserContext.Provider value={value}>

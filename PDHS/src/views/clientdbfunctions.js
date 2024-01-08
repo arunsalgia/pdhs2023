@@ -1,20 +1,72 @@
+import axios from "axios";
+
+import lodashCloneDeep from 'lodash/cloneDeep';
+import lodashSortBy from "lodash/sortBy";
+import lodashMap from "lodash/map";
 
 
-var allMemberlist = [];
+/*var allMemberlist = [];
 var allHodList = [];
 var hodCityArray = []
-let debugTest = true;
+let debugTest = true;*/
 
 
+export async function readAllMembers() {
+	// now fetch all members
+	if (process.env.REACT_APP_PRWS_DB !== "true") return;
+	
+	localStorage.removeItem("prwsMemberList");
+	//console.log(sessionStorage.getItem("prwsMemberList"));
+	try {
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/list/all`;
+		let resp = await axios.get(myUrl);
+		//var myData = resp.data;
+		localStorage.setItem("prwsMemberList", JSON.stringify(resp.data)) ;
+	} catch (e) {
+		console.log("Error fetching member data");
+		console.log(e);
+		//setMemberArray([]);		
+	}
+}
+
+
+export function memberGetByHidMany(hid) {
+	if (process.env.REACT_APP_PRWS_DB !== "true") return [];
+	
+	var memberRecArray = JSON.parse(localStorage.getItem("prwsMemberList")) ;
+	var memberRecArray = memberRecArray.filter(x => x.hid === hid);
+	//for(var i=0; i<memberRecArray.length; ++i) {
+	//	console.log(memberRecArray[i].mid, memberRecArray[i].email);
+	//}
+	return _.sortBy(memberRecArray, 'order');
+}
+
+
+export function memberUpdateMany(memberRecArray) {
+	if (process.env.REACT_APP_PRWS_DB !== "true") return;
+	
+	var allMemberlist = JSON.parse(localStorage.getItem("prwsMemberList")) ;
+	var midList = lodashMap(memberRecArray, 'mid');
+	var newList = allMemberlist.filter( x => !midList.includes(x.mid) ).concat(memberRecArray);
+	allMemberlist = lodashSortBy(newList, [ 'lastName', 'middleName', 'firstName' ] );	
+	localStorage.removeItem("prwsMemberList");
+	localStorage.setItem("prwsMemberList", JSON.stringify(allMemberlist)) ;
+}
+
+export function memberUpdateOne(memberRec) {
+	if (process.env.REACT_APP_PRWS_DB !== "true") return;
+	
+	var allMemberlist = JSON.parse(localStorage.getItem("prwsMemberList")) ;
+	var allMemberlist = allMemberlist.filter(x => x.mid !== memberRec.mid).concat([memberRec])
+	allMemberlist = lodashSortBy(newList, [ 'lastName', 'middleName', 'firstName' ] );	
+	localStorage.removeItem("prwsMemberList");
+	localStorage.setItem("prwsMemberList", JSON.stringify(allMemberlist)) ;
+}
 
 async function memberGetAll() {
 	if (allMemberlist.length === 0) {
 		console.log("Reading member data from mongoose");
-		allMemberlist = await M_Member.find({ceased: false}).sort({lastName: 1, firstName: 1, middleName: 1});
-		var tmp = allMemberlist.slice(0, 10);
-		//for(var i=0; i<10; ++i) {
-		//	console.log(allMemberlist[i].lastName, allMemberlist[i].middleName, allMemberlist[i].firstName);
-		//}
+		allMemberlist = await M_Member.find({ceased: false}).sort({lastName: 1, middleName: 1, firstName: 1});
 		return allMemberlist;
 	}
 	else {
@@ -24,7 +76,7 @@ async function memberGetAll() {
 
 // get list of members who are hod
 
-async function memberGetHodMembers() {
+async function orgmemberGetHodMembers() {
 	if (allMemberlist.length === 0) await memberGetAll();
 	// Now get hod mid
 	var hodList = await M_Hod.find({}, {_id: 0, mid: 1});
@@ -34,14 +86,14 @@ async function memberGetHodMembers() {
 
 }
 
-async function memberUpdateOne(memberRec) {
+async function orgmemberUpdateOne(memberRec) {
 	if (allMemberlist.length === 0) await memberGetAll();
 	var newList = allMemberlist.filter(x => x.mid !== memberRec.mid).concat([memberRec])
 	allMemberlist = _.sortBy(newList, [ 'lastName', 'middleName', 'firstName' ] );	
 	await memberRec.save();
 }
 
-async function memberUpdateMany(memberRecArray) {
+async function orgmemberUpdateMany(memberRecArray) {
 	if (allMemberlist.length === 0) await memberGetAll();
 	var midList = _.map(memberRecArray, 'mid');
 	var newList = allMemberlist.filter( x => !midList.includes(x.mid) ).concat(memberRecArray);
@@ -80,7 +132,7 @@ async function memberGetByMidMany(midList) {
 }
 
 
-async function memberGetByHidMany(hid) {
+async function orgmemberGetByHidMany(hid) {
 	if (allMemberlist.length === 0) await memberGetAll();
 
 	var memberRecArray = allMemberlist.filter(x => x.hid === hid);
@@ -117,14 +169,5 @@ async function getHodCityList() {
 		return hodCityArray;
 	}
 }
-
-module.exports = {
-	memberGetAll, memberGetHodMembers,
-	memberAddOne, memberAddMany,
-	memberUpdateOne, memberUpdateMany,
-	memberGetByMidOne, memberGetByMidMany,
-	memberGetByHidMany,
-	memberGetAlive,
-	getHodCityList,
-}; 
+ 
 

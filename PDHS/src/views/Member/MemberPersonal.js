@@ -81,6 +81,11 @@ import TransferMember from "views/Member/TransferMember";
 import NewHod from "views/Member/NewHod";
 import MemberAddEdit from "views/Member/MemberAddEdit";
 
+import {
+	readAllMembers, memberGetByHidMany, memberUpdateMany,
+} from "views/clientdbfunctions";
+
+
 
 const InitialContextParams = {show: false, x: 0, y: 0};
 var radioMid = -1;
@@ -229,6 +234,7 @@ export default function MemberPersonal(props) {
 			var resp = await axios.get(myUrl);
 			//showSuccess("Successfuly");
 			setMemberArray(resp.data);
+			memberUpdateMany(resp.data);
 			sessionStorage.removeItem("member_members");
 			sessionStorage.setItem("member_members", JSON.stringify(resp.data));
 		} catch (e) {
@@ -248,6 +254,7 @@ export default function MemberPersonal(props) {
 			//showSuccess("Successfuly");
 			//console.log(resp.data);
 			setMemberArray(resp.data);
+			memberUpdateMany(resp.data);
 			sessionStorage.removeItem("member_members");
 			sessionStorage.setItem("member_members", JSON.stringify(resp.data));
 		} catch (e) {
@@ -322,13 +329,13 @@ function DisplayPersonalInformation() {
 		<MenuItem disabled={!isFamilyMember && !admin} onClick={() => { handleMemPerContextMenuClose(); handlePersonalEdit(memberRecord) } }>
 			<Typography>Edit</Typography>
 		</MenuItem>
-		<MenuItem disabled={(myIndex == 0) || (!isFamilyMember && !admin)} onClick={() => {handleMemPerContextMenuClose(); handleMoveUpMember(memberRecord) } }>
+		<MenuItem disabled={(myIndex <= 1) || (!isFamilyMember && !admin)} onClick={() => {handleMemPerContextMenuClose(); handleMoveUpMember(memberRecord) } }>
 			<Typography>Scroll Up</Typography>
 		</MenuItem>	
 		<MenuItem disabled={(myIndex == 0) || (myIndex == (memberArray.length -1)) || (!isFamilyMember && !admin) } onClick={() => {handleMemPerContextMenuClose();  handleMoveDownMember(memberRecord)} }>
 			<Typography>Scroll Down</Typography>
 		</MenuItem>	
-		<MenuItem disabled={!isFamilyMember && !admin} onClick={() => { handleMemPerContextMenuClose(); handlePersonalTransfer(memberRecord) } }>
+		<MenuItem disabled={(!isFamilyMember && !admin)} onClick={() => { handleMemPerContextMenuClose(); handlePersonalTransfer(memberRecord) } }>
 			<Typography>Transfer</Typography>
 		</MenuItem>
 		<MenuItem disabled={(myIndex == 0) || (!isFamilyMember && !admin)} onClick={() => { handleMemPerContextMenuClose(); newHOD(memberRecord) } }>

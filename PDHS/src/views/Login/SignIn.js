@@ -34,6 +34,10 @@ import lodashUniqBy from "lodash/uniqBy";
 import lodashMap from "lodash/map";
 
 
+import {
+	readAllMembers,
+} from "views/clientdbfunctions";
+
 
 //let deviceIsMobile=isMobile();
 
@@ -45,8 +49,19 @@ export default function SignIn() {
   const [stage, setStage] = useState("MOBILE");
   const [ errorMessage, setErrorMessage ] = useState({msg: "", isError: false });
 
-
+	async function getMemberList() {
+		await readAllMembers();
+	}
+	
   useEffect(() => {
+		async function getData() {
+			getMemberList();
+			console.log("Got it");			
+		}
+		
+		if (process.env.REACT_APP_PRWS_DB === "true") {
+			getData();
+		}
     if (window.localStorage.getItem("logout")) {
       localStorage.clear();
     }
@@ -56,7 +71,7 @@ export default function SignIn() {
     } else {
       // setShowPage(true)
     }
-  });
+  }, []);
 
   function setError(msg, isError) {
     setErrorMessage({msg: msg, isError: isError});
