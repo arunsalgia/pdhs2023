@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
-import { BrowserRouter as Router, Route, Redirect } from "react-router-dom";
+//import { BrowserRouter as Router, Route, Redirect } from "react-router-dom";
+import { Router, Route, Redirect } from "react-router-dom";
 import { useHistory } from "react-router-dom";
 import { createBrowserHistory } from "history";
 import { UserContext } from "./UserContext"; 

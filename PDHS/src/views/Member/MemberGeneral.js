@@ -78,11 +78,13 @@ export default function MemberGeneral (props) {
 	const gClasses = globalStyles();
 
 	const [currentHod, setCurrentHod] = useState(JSON.parse(sessionStorage.getItem("member_hod")));
+	//const [memberArray, setMemberArray] = useState(JSON.parse(sessionStorage.getItem("member_members")));
+	//const [hodName, setHodName] = useState("");
+	
 	const [existingGotra, setExistingGotra] = useState(true);
 	const [header, setHeader] = useState("");
 	const [isFamily, setIsFamily] = useState(false);
 	
-	const [memberArray, setMemberArray] = useState([]);
 	
 	//const [currentMember, setCurrentMember] = useState("");
 	const [currentMemberData, setCurrentMemberData] = useState({});
@@ -131,11 +133,15 @@ export default function MemberGeneral (props) {
 
 	
   useEffect(() => {	
-		const getDetails = async () => {		
-		}
+		
+		//var memRec = memberArray.find(x => x.mid === currentHod.mid);
+		//setHodName(getMemberName(memrec, false));
+		
+		
 		setIsFamily(currentHod.hid === loginHid);
 		getGotraList();
 		getCityList(); 
+
   }, []);
 
 	async function getGotraList() {
@@ -232,18 +238,6 @@ export default function MemberGeneral (props) {
 	}
 
 
-	async function handleEditGotra() {
-		
-
-	}
-
-	function handleEditApplyGotra() {
-		console.log("Common");
-		if (isDrawerOpened === "APPLYGOTRA") 
-			handleApplyGotra();
-		else
-			handleEditGotra();
-	}
 
 	// Apply / Edit for General details
 
@@ -274,7 +268,7 @@ export default function MemberGeneral (props) {
 		setIsDrawerOpened("GENERAL");
 	}
 
-	async function handleEditGeneral() {
+	async function handleEditGeneralSubmit() {
 		//if (isDrawerOpened === "EDITGENERAL") return handleVerifyPincode();
 		setRegisterStatus(0);
 		let tmp = encodeURIComponent(JSON.stringify({
@@ -324,8 +318,7 @@ export default function MemberGeneral (props) {
 		setIsDrawerOpened("GOTRA");
 	}
 
-
-	async function handleEditGotra() {
+	async function handleEditGotraSubmit() {
 		let tmp = encodeURIComponent(JSON.stringify({
 			hid: currentHod.hid,
 			gotra: emurAddr1, 
@@ -336,7 +329,7 @@ export default function MemberGeneral (props) {
 		try {
 			let myUrl = (isAdmin) 
 				? `${process.env.REACT_APP_AXIOS_BASEPATH}/hod/updategotra/${tmp}`
-				: `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/updategotra/${loginMid}/${tmp}`;
+				: `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/updategotra/${currentHod.mid}/${loginMid}/${tmp}`;
 
 			let resp = await axios.get(myUrl);
 			if (isAdmin) 
@@ -412,7 +405,7 @@ export default function MemberGeneral (props) {
 	<Typography align="center" className={gClasses.patientInfo2Blue}>{header}</Typography>
 	<br />
 	{(isDrawerOpened === "GOTRA") &&
-		<ValidatorForm align="left" className={gClasses.form} onSubmit={handleEditGotra}>
+		<ValidatorForm align="left" className={gClasses.form} onSubmit={handleEditGotraSubmit}>
 			<Grid key="ADEDITMEMBERPERSONAL" className={gClasses.noPadding} container  alignItems="flex-start" >
 			<Grid item xs={12} sm={12} md={12} lg={12} >
 				<VsCheckBox align="left" label="Existing Gotra" checked={existingGotra} onClick={() => setExistingGotra(!existingGotra) }  />
@@ -468,7 +461,7 @@ export default function MemberGeneral (props) {
 		</ValidatorForm>
 	}	
 	{(isDrawerOpened === "GENERAL") &&
-		<ValidatorForm align="left" className={gClasses.form} onSubmit={handleEditGeneral}>
+		<ValidatorForm align="left" className={gClasses.form} onSubmit={handleEditGeneralSubmit}>
 			<div>
 			<Grid key="ADEDITMEMBERGENERAL" className={gClasses.noPadding} container  alignItems="flex-start" >
 			<Grid item xs={4} sm={4} md={4} lg={4} >

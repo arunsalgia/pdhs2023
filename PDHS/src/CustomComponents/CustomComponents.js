@@ -5,6 +5,8 @@ import TextField from '@material-ui/core/TextField';
 import Tooltip from "react-tooltip";
 import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
+import Divider from '@material-ui/core/Divider';
+
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -1234,3 +1236,43 @@ export 	function DisplayPrwsFilter(props) {
 	)
 };
 	
+export function DisplayApplicationNameValue(props) {
+	const gClasses = globalStyles();
+return (	
+	<Grid key={"APPLLINE"+props.name} className={gClasses.noPadding} container  alignItems="flex-start" >
+		<Grid item xs={5} sm={5} md={5} lg={5} >
+			<Typography style={(props.style) ? props.style : {}} className={gClasses.pdhs_name} >{props.name}</Typography>
+		</Grid>
+		<Grid item xs={7} sm={7} md={7} lg={7} >
+			<Typography style={(props.style) ? props.style : {}} className={gClasses.pdhs_value} >{props.value}</Typography>
+		</Grid>
+	</Grid>
+)}
+
+export function DisplayApplicationName(props) {
+	const gClasses = globalStyles();
+return (	
+	<Typography style={(props.style) ? props.style : {}} className={gClasses.pdhs_name} >{props.name}</Typography>
+)}
+
+export function DisplayApplicationValue(props) {
+	const gClasses = globalStyles();
+return (	
+	<Typography style={(props.style) ? props.style : {}} className={gClasses.pdhs_value} >{props.value}</Typography>
+)}
+
+
+export function ApplicationHeader (props) {
+	const gClasses = globalStyles();
+	//console.log(props);
+return (
+	<div>
+	<Typography align="center"  className={gClasses.pdhs_title} >{props.header}</Typography>
+	<br />
+	<DisplayApplicationNameValue name="Appl. Date" value={dateString(props.applicationRec.date)} style={{paddingTop: "5px" }}  />
+	<DisplayApplicationNameValue name="Appl. Status" value={props.applicationRec.status} style={{paddingTop: "5px" }}  />
+	<DisplayApplicationNameValue name="Applicant" value={props.applicationRec.name} style={{paddingTop: "5px" }}  />
+	<DisplayApplicationNameValue name="Family Head" value={props.applicationRec.hodName} style={{paddingTop: "5px" }}  />
+	<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
+	</div>
+)}

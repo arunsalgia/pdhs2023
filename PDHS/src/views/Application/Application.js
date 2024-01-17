@@ -1,6 +1,9 @@
 import React,{useState, useEffect } from 'react';
 import { CssBaseline } from '@material-ui/core';
 import axios from 'axios';
+import Container from '@material-ui/core/Container';
+
+
 import VsButton from "CustomComponents/VsButton"; 
 import VsCancel from "CustomComponents/VsCancel";
 import VsCheckBox from "CustomComponents/VsCheckBox";
@@ -29,8 +32,10 @@ import InfoIcon   from 	'@material-ui/icons/Info';
 // styles
 import globalStyles from "assets/globalStyles";
 
+import ApplicationEditGotra from "views/Application/ApplicationEditGotra";
+
 import {
-	ADMIN, APPLICATIONSTATUS, APPLICATIONTYPES, SELECTSTYLE,
+	ADMIN, APPLICATIONSTATUS, APPLICATIONTYPES, SELECTSTYLE, STATUS_INFO,
 	AppDataStyle,
 	CASTE, HUMADSUBCASTRE,
 } from "views/globals.js";
@@ -66,6 +71,8 @@ export default function Application(props) {
 	const [applicationMasterArray, setApplicationMasterArray] = useState([]);	
   const [applicationArray, setApplicationArray] = useState([]);	
 	const [hodName, setHodName] = useState("");
+	
+	const [applicationRec, setApplicationRec] = useState(null);
 	
 	const [currentSelection, setCurrentSelection] = useState(DEFAULTOWNER);
 	const [onlyPending, setOnlyPending] = useState(false);
@@ -168,7 +175,7 @@ export default function Application(props) {
 			<Typography className={gClasses.patientInfo2Brown} >Date</Typography>
 		</Grid>
 		<Grid align="center" item xs={4} sm={4} md={2} lg={2} >
-			<Typography className={gClasses.patientInfo2Brown} >Appl. Id</Typography>
+			<Typography className={gClasses.patientInfo2Brown} >Reference Id</Typography>
 		</Grid>
 		<Grid align="center" item xs={4} sm={4} md={2} lg={2} >
 			<Typography className={gClasses.patientInfo2Brown} >Description</Typography>
@@ -262,7 +269,7 @@ export default function Application(props) {
 	
 	
 	// edit application by admin
-	async function editApplication(appRec) {
+	async function oldeditApplication(appRec) {
 		console.log(new Date());
 		setEditApplRec(appRec);
 		setApprove("Application Rejected");
@@ -298,6 +305,28 @@ export default function Application(props) {
 		console.log(new Date());
 	}
 	
+	// edit application by admin
+	async function editApplication(appRec) {
+		setApplicationRec(appRec);
+		setIsDrawerOpened(appRec.desc);
+		console.log(new Date(), appRec.desc);
+	}
+	
+	function handleApplictionEditBack(sts) {
+		console.log(sts);
+		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
+		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
+		
+		if (sts.status == STATUS_INFO.SUCCESS) {
+			console.log(sts.applicationRec);
+			var tmp = [sts.applicationRec].concat(applicationArray.filter(x => x.id !== applicationRec.id));
+			setApplicationArray(lodashReverse(lodashSortBy(tmp, 'id')));
+		}
+		else {
+			console.log("Yaha kaise aaya");
+		}
+		setIsDrawerOpened("");
+	}
 	var previousDrawer;
 	function rejectApplication() {
 		previousDrawer = isDrawerOpened;
@@ -397,10 +426,11 @@ export default function Application(props) {
 	<DisplayPageHeader headerName={"Application Status" } groupName="" tournament=""/>
 	<DisplayAllApplication />
 	<DisplayAllToolTips />
-	<Drawer anchor="right" classes={{ paper: gClasses.drawerPaper }} variant="temporary" open={isDrawerOpened != ""} >
-	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
+	<Drawer style={{ width: "100%"}} anchor="top" variant="temporary" open={isDrawerOpened != ""} >
+	<Container component="main" maxWidth="xs">	
+	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
 	<VsCancel align="right" onClick={() => { setIsDrawerOpened("")}} />
-	{(isDrawerOpened !== "") &&
+		{/*{(isDrawerOpened !== "") &&
 		<div>
 		<ApplHeader appl={editApplRec} hodName={hodName} />
 		<Box sx={AppDataStyle} >
@@ -465,8 +495,12 @@ export default function Application(props) {
 		}
 		</Box>
 		</div>
+	}*/}
+	{(isDrawerOpened === APPLICATIONTYPES.editGotra) &&
+		<ApplicationEditGotra applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
 	}
 	</Box>
+	</Container>
 	</Drawer>
 	<ToastContainer />
 	</div>

@@ -5,8 +5,9 @@ import {
   hexToRgb
 } from "assets/jss/material-dashboard-react.js";
 
+
 import { red, blue, green, grey, deepOrange, deepPurple, yellow, lightGreen } from '@material-ui/core/colors';
-import { makeStyles } from '@material-ui/core/styles';
+import { createMuiTheme, makeStyles } from '@material-ui/core/styles';
 
 
 const globalStyles = makeStyles((theme) => ({
@@ -578,6 +579,21 @@ const globalStyles = makeStyles((theme) => ({
   hide: {
     display: 'none',
   },
+	pdhs_title: {
+		fontSize: theme.typography.pxToRem(20),
+		fontWeight: theme.typography.fontWeightBold,
+		color: 'brown',
+	},	
+	pdhs_name: {
+		fontSize: theme.typography.pxToRem(16),
+		fontWeight: theme.typography.fontWeightBold,
+		color: 'brown',
+	},	
+	pdhs_value: {
+		fontSize: theme.typography.pxToRem(16),
+		fontWeight: theme.typography.fontWeightBold,
+		color: 'blue',
+	},		
 }));
 
 export default globalStyles;

@@ -308,13 +308,16 @@ ApplicationSchema = mongoose.Schema({
 	date: Date,
 	owner: String,
 	desc: String,
-	name: String,
 	hid: Number,
+	hodMid: Number,
+	hodName: String,
 	mid: Number,
+	name: String,
 	isMember: Boolean,
 	data: String,
 	//type: String,
 	status: String,
+	aminMid: Number,
 	adminName: String,
 	comments: String
 });
@@ -505,3 +508,17 @@ FAMILYMF = 1000;
 
 
 
+APPLICATIONTYPES = {
+	editGotra:  "Edit Gotra",
+	addMember: "Add Member",
+	splitFamily: "Split Family",
+	memberCeased: "Member Ceased",
+	spouseDetails: "Spouse Details",
+	memberHOD: "New HOD",
+};
+
+APPLICATIONSTATUS = {
+	approved:  "Approved",
+	rejected: "Rejected",
+	pending: "Pending"
+};

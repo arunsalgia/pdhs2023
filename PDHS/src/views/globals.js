@@ -155,6 +155,50 @@ export const RELATION = [
 	"Uncle"
 ];
 
+export const GENTSRELATION = [
+	"Brother",
+	"Brother in law",
+	"Family",
+	"Father",
+	"Father in law",
+	"Gr. grand father",
+	"Gr. grand FIL",
+	"Gr. grand son",
+	"Grand father",
+	"Grand FIL",
+	"Grand son",
+	"Nephew",
+	"Relative",
+	"Son",
+	"Son in law",
+	"Spouse",
+	"Uncle"
+];
+
+export const LADIESRELATION = [
+	"Aunt",
+	"Daughter",
+	"Daughter in law",
+	"Family",
+	"Gr. grand daughter",
+	"Gr. grand DIL",
+	"Gr. grand mother",
+	"Gr. grand MIL",
+	"Gr. grand SIL",
+	"Grand daughter",
+	"Grand DIL",
+	"Grand mother",
+	"Grand MIL",
+	"Grand SIL",
+	"Mother",
+	"Mother in law",
+	"Neice",
+	"Relative",
+	"Sister",
+	"Sister in law",
+	"Spouse"
+];
+
 export const JUNKED_COMPACTRELATION = [
 	"Brother",
 	"Brother in law",
@@ -192,20 +236,7 @@ export const JUNKED_COMPACTRELATION = [
 ];
 
 
-export const APPLICATIONTYPES = {
-	editGotra:  "Edit Gotra",
-	addMember: "Add Member",
-	splitFamily: "Split Family",
-	memberCeased: "Member Ceased",
-	spouseDetails: "Spouse Details",
-	memberHOD: "New HOD",
-};
 
-export const APPLICATIONSTATUS = {
-	approved:  "Approved",
-	rejected: "Rejected",
-	pending: "Pending"
-};
 
 export const MemberStyle={ 
 	marginTop: 5,
@@ -285,4 +316,20 @@ CANCEL: -1,
 OKAY: 1,
 SUCCESS: 1,
 INFO: 2,
+};
+
+
+export const APPLICATIONTYPES = {
+	editGotra:  "Edit Gotra",
+	addMember: "Add Member",
+	//splitFamily: "Split Family",
+	memberCeased: "Member Ceased",
+	spouseDetails: "Spouse Details",
+	memberHOD: "New HOD",
+};
+
+export const APPLICATIONSTATUS = {
+	approved: "Approved",
+	rejected: "Rejected",
+	pending:  "Pending"
 };

@@ -9,7 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import Box from '@material-ui/core/Box';
 import Grid from "@material-ui/core/Grid";
-
+import Divider from '@material-ui/core/Divider';
 
 import Typography from '@material-ui/core/Typography';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -50,7 +50,7 @@ import VsCheckBox from "CustomComponents/VsCheckBox";
 
 
 import {
-	RELATION,
+	SELFRELATION, RELATION, GENTSRELATION, LADIESRELATION,
 	STATUS_INFO,
 } from 'views/globals';
 
@@ -62,7 +62,7 @@ import {
 const MERGECREATEARRAY = [
 {msg: "Merge with existing family", value: "MERGE"},
 {msg: "Create new family", value: "CREATE"}
-]
+];
 const MERGEINDEX = 0;
 const CREATEINDEX = 1;
 
@@ -72,7 +72,7 @@ export default function TransferMember(props) {
 	const gClasses = globalStyles();
 	
 	const [header, setHeader] = useState("");
-	const [stage, setStage] = useState("");
+	const [stage, setStage] = useState("PREFINALSTAGE");
 	
 	const [cbArray, setCbArray] = useState(Array(25).fill(""));
 	const [memberList, setMemberList] = useState([]);
@@ -81,42 +81,73 @@ export default function TransferMember(props) {
 	const [hodMemberList, setHodmemberList] = useState([]);
 	
 	const [hodTransfer, setHodTransfer] = useState(false);
-	const [familyHod, setFamilyHod] = useState(0);
+	const [familyHod, setFamilyHod] = useState("");
 	const [mergedOrCreate, setMergeOrCreate] = useState(MERGECREATEARRAY[0].value);
 	const [relation, setRelation] = useState([]);
+
+	// If create new family
+	const [newHod, setNewHod] = useState(0);
 	
+	//const [destFamilyHeadName, setDestFamilyHeadName] = useState("");
 	const [msg1,  setMsg1] = useState("");
 	const [msg2,  setMsg2] = useState("");
 	const [registerStatus, setRegisterStatus] = useState(0);
 
-
-
-/*	
-	
-	
-	
-	
-	const [selectedMemberList, setSelectedMemberList] = useState([]);
-
-	const [newHod, setNewHod] = useState(props.selectedMid);*/
-	
 	
 
 	useEffect(() => {
+		async function fetchFamilyHodNames() {
+		// Now get the list of all HOD if not available with us
+		try {
+			if (hodMemberList.length === 0) {
+				let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/hod/all`;
+				var resp = await axios.get(myUrl);
+				var tmpList = [].concat(resp.data);
+				for (var i=0; i<tmpList.length; ++i) {
+					tmpList[i]["mergedName"] = getMemberName(tmpList[i], false, false);
+				}
+				tmpList = lodashSortBy(tmpList, 'mergedName');
+				setHodmemberList(tmpList);
+				setFamilyHod(tmpList[0].mergedName);
+			}
+			else {
+				setFamilyHod(hodMemberList[0].mergedName);
+			}
+		} catch (e) {
+			console.log(e);
+			showError("Unable to fetch HOD Member list");
+		}	
+	}		
+
 		setHeader((hasPRWSpermission()) ? "Transfer member(s)" : "Apply to transfer member(s)" );
 		var tmp = [].concat(props.memberList);
+		var tmpRelation = [];
 		for(var i=0; i<tmp.length; ++i) {
 			tmp[i]["mergedName"] = getMemberName(tmp[i], false, false);	
+			tmpRelation.push(tmp[i].relation);
 		}
 		setMemberList(tmp);
+		setRelation(tmpRelation);
 		var tmpCbArray = [];
 		for(var i=0; i< props.memberList.length; ++i) {
 			tmpCbArray.push( (props.memberList[i].mid === props.selectedMid) ? props.selectedMid : 0);
 		}
 		setCbArray(tmpCbArray);
-		setStage("SELECTMEMBERS");
+		
+		// Is HOD selected for transfer then set accordingly
+		if (props.selectedMid === props.hodMid) {
+			setHodTransfer(true);
+			setMergeOrCreate("MERGE");
+			//set
+		}
+		else {
+			setHodTransfer(false);
+		}
+		
+		fetchFamilyHodNames();				// required for merge
+		
+		//setStage("SELECTMEMBERS");
 	}, [])
-
 
 
 function DisplayRegisterStatus() {
@@ -151,27 +182,74 @@ function DisplayRegisterStatus() {
     )
   }
 
+// new functions
+
+// Member selected / deselected for transfer
+function handleSelectMemberCb(idx) {
+	
+	// Minimum 1 member to be selected
+	// If member to be deselected and only member selected then error
+	if (cbArray[idx] !== 0)
+	if (cbArray.filter( x => x !== 0).length === 1) {
+		setRegisterStatus(1001);
+		return;
+	}
+	setRegisterStatus(0);
+	
+	var tmpArray = [].concat(cbArray);
+	tmpArray[idx] = (tmpArray[idx] !== 0) ? 0 : memberList[idx].mid	
+	setCbArray(tmpArray);
+	if (tmpArray.includes(props.hodMid)) {
+		setHodTransfer(true);
+		setMergeOrCreate("MERGE");
+	}
+	else {		
+		setHodTransfer(false);
+	}
+	
+	// If this was new hod (required for create new family), select by default at member
+	//console.log(newHod, tmpArray[idx], tmpArray);
+	if ((cbArray[idx] === newHod) && (tmpArray[idx] === 0)) {
+		var tmp = tmpArray.find(x => x !== 0);
+		//console.log(tmp);
+		setNewHod(tmp);
+	}
+}
+
+function handleMergeOrCreate(newValue) {
+	if (newValue === "CREATE") {
+		var tmp = cbArray.find(x => x !== 0);
+		//console.log(tmp);
+		setNewHod(tmp);
+	}
+	setMergeOrCreate(newValue);
+}
+
+
+function preFinalStage() {	
+	if (mergedOrCreate === "MERGE") {
+		setMsg1(`Transfer members to family of`);
+		setMsg2(`${familyHod}`);
+	}
+	else {
+		setMsg1('Transfer members to new family with');
+		var tmp = memberList.find(x => x.mid === newHod);
+		setMsg2(`${tmp.mergedName} as hod`);
+	}
+}
+
+
+function handleSubmit() {
+	preFinalStage();
+	setStage("FINALSTAGE");
+}
+
+
+
+// old functions
 function handleNewHod(index) {
 		setNewHod(memberList[index].mid);
 }
-
-function handleFamilyMember(index) {
-	//console.log(index, cbArray);
-	if (cbArray[index] === "") {
-		// Not yet selected
-		var clonedArray = [].concat(cbArray);
-		clonedArray[index] = memberList[index].mid;
-		setCbArray(clonedArray);
-	}
-	else if (memberList[index].mid !== newHod) {
-		// Selected but not set has new HOD
-		var clonedArray = [].concat(cbArray);
-		clonedArray[index] = "";
-		setCbArray(clonedArray);
-
-	}
-}
-
 
 function handleStage2() {
 	// Members selected. Now get the relation of members wrt HOD
@@ -239,29 +317,6 @@ async function handleCeasedSubmit() {
 // Transfer functions
 
 
-async function fetchFamilyHodNames() {
-	// Now get the list of all HOD if not available with us
-	try {
-		if (hodMemberList.length === 0) {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/hod/all`;
-			var resp = await axios.get(myUrl);
-			var tmpList = [].concat(resp.data);
-			for (var i=0; i<tmpList.length; ++i) {
-				tmpList[i]["mergedName"] = getMemberName(tmpList[i], false, false);
-			}
-			tmpList = lodashSortBy(tmpList, 'mergedName');
-			setHodmemberList(tmpList);
-			setFamilyHod(tmpList[0].mergedName);
-		}
-		else {
-			setFamilyHod(hodMemberList[0].mergedName);
-		}
-	} catch (e) {
-		console.log(e);
-		showError("Unable to fetch HOD Member list");
-	}	
-}
-
 
 function handleNewRelation(rel, idx) {
 	//console.log(rel, idx);	
@@ -270,24 +325,6 @@ function handleNewRelation(rel, idx) {
 	setRelation(tmp);
 }
 
-
-function handleSelectMemberCb(idx) {
-	// Make sure at least 1 member is select
-	var tmpArray = [].concat(cbArray);
-	if (tmpArray[idx] !== 0) {
-		if (tmpArray.filter( x => x !== 0).length > 1)
-			tmpArray[idx] = 0;
-		else {
-			setRegisterStatus(1001);
-			return;
-		}
-	}
-	else {
-		tmpArray[idx] = memberList[idx].mid		
-	}
-	setRegisterStatus(0);
-	setCbArray(tmpArray);
-}
 
 function handleSelectMemberSubmit() {
 	setTransferMemberList(memberList.filter(x => cbArray.includes(x.mid)));
@@ -363,17 +400,6 @@ function handleNewRelationBack() {
 	setStage("SELECTHOD");
 }
 
-function preFinalStage() {
-	if (mergedOrCreate === "MERGE") {
-		setMsg1(`Transfer members to family of`);
-		setMsg2(`${familyHod}`);
-	}
-	else {
-		var tmp = transferMemberList.find(x => x.mid === familyHod);
-		setMsg1('Transfer members to new family with');
-		setMsg2(`${tmp.mergedName} as hod`);
-	}
-}
 
 function handleFinalStageSubmit() {
 	props.onReturn.call(this, {status: STATUS_INFO.ERROR,  msg: `Error Transferring members`});
@@ -389,100 +415,74 @@ function handleFinalStageBack() {
 
 
 return (
+<div>
+	<Typography align="center" className={gClasses.pdhs_title}>{header}</Typography>
+	<br />
+	{(stage !== "FINALSTAGE") &&
 	<div>
-		<br />
-		<Typography align="center" className={gClasses.title}>{header}</Typography>
-		<br />
-		{(stage === "SELECTMEMBERS") &&
-		<div>
-			<Typography align="center" className={gClasses.title}>Select Member(s) to transfer</Typography>
-			<Grid key="SELECTMEMBERS" className={gClasses.noPadding} container  alignItems="flex-start" >
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-				<Grid item xs={8} sm={8} md={8} lg={8} >
-					<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
+	<Typography align="center" className={gClasses.title}>Select Member(s) to transfer</Typography>
+	{/* First select the members to be transferred */}
+	<Grid key="SELECTMEMBERS" className={gClasses.noPadding} container  alignItems="flex-start" >
+		<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+		<Grid item xs={8} sm={8} md={8} lg={8} >
+			<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
+		</Grid>	
+		<Grid item xs={2} sm={2} md={2} lg={2} >
+			<Typography className={gClasses.titleOrange}>{"Transfer"}</Typography>
+		</Grid>
+		<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+	</Grid>	
+	{memberList.map( (m, index) => {
+		return (
+			<Grid key={"SELECTMEMBERS"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
+			<Grid style={{marginTop: "10px"}}  item xs={8} sm={8} md={8} lg={8} >
+				<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{getMemberName(m, false, false)}</Typography>
+			</Grid>	
+			<Grid item xs={2} sm={2} md={2} lg={2} >
+				<VsCheckBox checked={cbArray[index] !== 0} onClick={() => handleSelectMemberCb(index) }  />
+			</Grid>
+			</Grid>	
+		)}
+	)}
+	<DisplayRegisterStatus />
+	<br />
+	<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
+	{/* First selected members to be merged with another family or create new family
+			If HOD is also transferred. Then it has to be merge only
+	*/}
+	{ (!hodTransfer) &&
+	<div>
+		<Typography align="center" className={gClasses.title}>Create new family or merge</Typography>
+		{MERGECREATEARRAY.map( (m, index) => {
+			return (
+				<Grid key={"MERGEORCREATEITEM"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
+				<Grid style={{marginTop: "10px"}}  item xs={8} sm={8} md={8} lg={8} >
+					<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{m.msg}</Typography>
 				</Grid>	
 				<Grid item xs={2} sm={2} md={2} lg={2} >
-					<Typography className={gClasses.titleOrange}>{"Transfer"}</Typography>
+					<VsRadio checked={mergedOrCreate === m.value} onClick={() => handleMergeOrCreate(m.value) }  />
 				</Grid>
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-			</Grid>	
-			{memberList.map( (m, index) => {
-				return (
-					<Grid key={"SELECTMEMBERS"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
-					<Grid style={{marginTop: "10px"}}  item xs={8} sm={8} md={8} lg={8} >
-						<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{getMemberName(m, false, false)}</Typography>
-					</Grid>	
-					<Grid item xs={2} sm={2} md={2} lg={2} >
-						<VsCheckBox checked={cbArray[index] !== 0} onClick={() => handleSelectMemberCb(index) }  />
-					</Grid>
-					</Grid>	
-				)}
+				</Grid>	
 			)}
-			<DisplayRegisterStatus />
-			<br />
-			<VsButton align="center" name="Next" onClick={handleSelectMemberSubmit} />
-			<br />
-		</div>
-		}
-		{ (stage === "MERGEORCREATE") &&
+		)}
+		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
+	</div>
+	}
+	{/* If merge then select family with whom  to be merged */}
+	{(mergedOrCreate === "MERGE") &&
 		<div>
-			<Typography align="center" className={gClasses.title}>Create new family or merge</Typography>
-			{MERGECREATEARRAY.map( (m, index) => {
-				return (
-					<Grid key={"MERGEORCREATEITEM"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
-					<Grid style={{marginTop: "10px"}}  item xs={8} sm={8} md={8} lg={8} >
-						<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{m.msg}</Typography>
-					</Grid>	
-					<Grid item xs={2} sm={2} md={2} lg={2} >
-						<VsRadio checked={mergedOrCreate === m.value} onClick={() => setMergeOrCreate(m.value) }  />
-					</Grid>
-					</Grid>	
-				)}
-			)}
-			<DisplayRegisterStatus />
-			<br />
-			<Grid key={"MERGEORCREATEBUTTON"} className={gClasses.noPadding} container  alignItems="flex-start" >
-				<Grid item xs={2} sm={2} md={2} lg={2} />
-				<Grid item xs={3} sm={3} md={3} lg={3} >
-					<VsButton align="right" name="Next" onClick={handleMergeOrCreateSubmit} />
-				</Grid>
-				<Grid item xs={2} sm={2} md={2} lg={2} />
-				<Grid item xs={3} sm={3} md={3} lg={3} >
-					<VsButton align="left" name="Back" onClick={() => setStage("SELECTMEMBERS") } />
-				</Grid>
+		<Typography align="center" className={gClasses.title}>Select Family</Typography>
+		<Grid key="SELECTFAMILY" className={gClasses.noPadding} container  alignItems="flex-start" >
+			<Grid item xs={4} sm={4} md={4} lg={4} >
+				<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Family Head</Typography>
 			</Grid>
-			<br />
-		</div>
-		}
-		{ (stage === "SELECTFAMILY") &&
-		<div>
-			<Typography align="center" className={gClasses.title}>Select Family</Typography>
-			<br />
-			<Grid key="SELECTFAMILY" className={gClasses.noPadding} container  alignItems="flex-start" >
-				<Grid item xs={4} sm={4} md={4} lg={4} >
-					<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Family Head</Typography>
-				</Grid>
-				<Grid item xs={8} sm={8} md={8} lg={8} >
-					<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} style={{paddingRight: "5px" }}
-					options={hodMemberList} field="mergedName"  value={familyHod} onChange={(event) => setFamilyHod(event.target.value) } />
-				</Grid>
+			<Grid item xs={8} sm={8} md={8} lg={8} >
+				<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} style={{paddingRight: "5px" }}
+				options={hodMemberList} field="mergedName"  value={familyHod} onChange={(event) => setFamilyHod(event.target.value) } />
 			</Grid>
-			<br />
-			<Grid key={"SELECTFAMILYBUTTON"} className={gClasses.noPadding} container  alignItems="flex-start" >
-				<Grid item xs={2} sm={2} md={2} lg={2} />
-				<Grid item xs={3} sm={3} md={3} lg={3} >
-					<VsButton align="right" name="Next" onClick={handleSelectFamilySubmit} />
-				</Grid>
-				<Grid item xs={2} sm={2} md={2} lg={2} />
-				<Grid item xs={3} sm={3} md={3} lg={3} >
-					<VsButton align="left" name="Back" onClick={handleSelectFamilyBack} />
-				</Grid>
-			</Grid>
-			<br />
-		</div>
-		}
-		{ (stage === "SELECTRELATION") &&
-		<div>
+		</Grid>
+		<br />
+		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
 			<Typography align="center" className={gClasses.title}>{`Select relation with ${familyHod}`}</Typography>
 			<br />
 			<Grid key="SPLIT3" className={gClasses.noPadding} container  alignItems="flex-start" >
@@ -493,8 +493,18 @@ return (
 					<Typography className={gClasses.titleOrange}>{"Relation"}</Typography>
 				</Grid>
 			</Grid>				
-			<br />
-			{transferMemberList.map( (m, index) => {
+			{memberList.map( (m, index) => {
+				if (!cbArray.includes(m.mid)) return;
+
+				var tmpRelationList = RELATION;
+				if (relation[index] === "Self")
+					tmpRelationList = SELFRELATION;
+				else if (m.gender === "Male")
+					tmpRelationList = GENTSRELATION;
+				else if (m.gender === "Female")
+					tmpRelationList = LADIESRELATION;
+				else
+					tmpRelationList = RELATION;
 				return (
 					<Grid key={"SPLITARRAY3"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
 					<Grid style={{marginTop: "10px"}}  item xs={7} sm={7} md={7} lg={7} >
@@ -502,131 +512,115 @@ return (
 					</Grid>	
 					<Grid item xs={5} sm={5} md={5} lg={5} >
 						<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} 
-						options={RELATION} value={relation[index]} onChange={(event) => { handleNewRelation(event.target.value, index); }} />
+						options={tmpRelationList} value={relation[index]} onChange={(event) => { handleNewRelation(event.target.value, index); }} />
 					</Grid>
 					</Grid>	
 				)}
-			)}			
+			)}	
 			<br />
-			<Grid key={"SELECTRELATIONBUTTON"} className={gClasses.noPadding} container  alignItems="flex-start" >
-				<Grid item xs={2} sm={2} md={2} lg={2} />
-				<Grid item xs={3} sm={3} md={3} lg={3} >
-					<VsButton align="right" name="Next" onClick={handleSelectRelationSubmit} />
-				</Grid>
-				<Grid item xs={2} sm={2} md={2} lg={2} />
-				<Grid item xs={3} sm={3} md={3} lg={3} >
-					<VsButton align="left" name="Back" onClick={handleSelectRelationBack} />
-				</Grid>
-			</Grid>
-			<br />
-		</div>
-		}
-		{ (stage === "SELECTHOD") &&
+		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
+	</div>
+	}
+	{(mergedOrCreate === "CREATE") &&
 		<div>
-			<Typography align="center" className={gClasses.title}>Select Hod for new family</Typography>
-			<Grid key="SELECTHODHDR" className={gClasses.noPadding} container  alignItems="flex-start" >
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-				<Grid item xs={8} sm={8} md={8} lg={8} >
-					<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
+		<Typography align="center" className={gClasses.title}>Select Hod for new family</Typography>
+		<Grid key="SELECTHODHDR" className={gClasses.noPadding} container  alignItems="flex-start" >
+			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+			<Grid item xs={8} sm={8} md={8} lg={8} >
+				<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
+			</Grid>	
+			<Grid item xs={2} sm={2} md={2} lg={2} >
+				<Typography className={gClasses.titleOrange}>{"HOD"}</Typography>
+			</Grid>
+			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+		</Grid>	
+		{memberList.map( (m, index) => {
+			if (!cbArray.includes(m.mid)) return; 
+			return (
+				<Grid key={"SELECTHOD2"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
+				<Grid style={{marginTop: "10px"}}  item xs={8} sm={8} md={8} lg={8} >
+					<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{m.mergedName}</Typography>
 				</Grid>	
 				<Grid item xs={2} sm={2} md={2} lg={2} >
-					<Typography className={gClasses.titleOrange}>{"HOD"}</Typography>
+					<VsRadio checked={m.mid === newHod} onClick={() => setNewHod(m.mid)}  />
 				</Grid>
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-			</Grid>	
-			{transferMemberList.map( (m, index) => {
-				return (
-					<Grid key={"SELECTHOD2"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
-					<Grid style={{marginTop: "10px"}}  item xs={8} sm={8} md={8} lg={8} >
-						<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{m.mergedName}</Typography>
-					</Grid>	
-					<Grid item xs={2} sm={2} md={2} lg={2} >
-						<VsRadio checked={m.mid === familyHod} onClick={() => setFamilyHod(m.mid)}  />
-					</Grid>
-					</Grid>	
-				)}
-			)}
-			<DisplayRegisterStatus />
-			<br />
-			<Grid key={"SELECTHODBUTTON"} className={gClasses.noPadding} container  alignItems="flex-start" >
-				<Grid item xs={2} sm={2} md={2} lg={2} />
-				<Grid item xs={3} sm={3} md={3} lg={3} >
-					<VsButton align="right" name="Next" onClick={handleSelectHodSubmit} />
-				</Grid>
-				<Grid item xs={2} sm={2} md={2} lg={2} />
-				<Grid item xs={3} sm={3} md={3} lg={3} >
-					<VsButton align="right" name="Back" onClick={handleSelectHodBack} />
-				</Grid>
-			</Grid>
-			<br />
-		</div>
-		}
-		{ (stage === "NEWRELATION") &&
-		<div>
-			<Typography align="center" className={gClasses.title}>{`Select relation of new family`}</Typography>
-			<br />
-			<Grid key="NEWRELATIONHDR" className={gClasses.noPadding} container  alignItems="flex-start" >
-				<Grid item xs={8} sm={8} md={8} lg={8} >
-					<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
 				</Grid>	
-				<Grid item xs={4} sm={4} md={4} lg={4} >
-					<Typography align="left" className={gClasses.titleOrange}>{"Relation"}</Typography>
-				</Grid>
-			</Grid>				
-			<br />
-			{transferMemberList.map( (m, index) => {
-				return (
-					<Grid key={"NEWRELATION2"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
-					<Grid style={{marginTop: "10px"}}  item xs={7} sm={7} md={7} lg={7} >
-						<Typography style={{marginLeft: "10px", marginTop: "10px" }} className={gClasses.title}>{getMemberName(m, false, false)}</Typography>
-					</Grid>	
-					<Grid item xs={5} sm={5} md={5} lg={5} >
-						<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} 
-						options={(m.mid === familyHod) ? ["Self"] : RELATION} value={relation[index]} onChange={(event) => { handleNewRelation(event.target.value, index); }} />
-					</Grid>
-					</Grid>	
-				)}
-			)}			
-			<br />
-			<Grid key={"NEWRELATIONBUTTON"} className={gClasses.noPadding} container  alignItems="flex-start" >
-				<Grid item xs={2} sm={2} md={2} lg={2} />
-				<Grid item xs={3} sm={3} md={3} lg={3} >
-					<VsButton align="right" name="Next" onClick={handleNewRelationSubmit} />
-				</Grid>
-				<Grid item xs={2} sm={2} md={2} lg={2} />
-				<Grid item xs={3} sm={3} md={3} lg={3} >
-					<VsButton align="left" name="Back" onClick={handleNewRelationBack} />
-				</Grid>
+			)}
+		)}
+		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
+		<Typography align="center" className={gClasses.title}>{`Select relation with new family head`}</Typography>
+		<br />
+		<Grid key="SPLIT3" className={gClasses.noPadding} container  alignItems="flex-start" >
+			<Grid item xs={8} sm={8} md={8} lg={8} >
+				<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
+			</Grid>	
+			<Grid item xs={4} sm={4} md={4} lg={4} >
+				<Typography className={gClasses.titleOrange}>{"Relation"}</Typography>
 			</Grid>
-			<br />
+		</Grid>				
+		<br />
+		{memberList.map( (m, index) => {
+			//console.log(m.mid);
+			if (!cbArray.includes(m.mid)) return;
+			var tmpRelation = (m.mid === newHod) ? "Self" : relation[index];
+			var tmpRelationList = RELATION;
+			if (tmpRelation === "Self")
+				tmpRelationList = SELFRELATION;
+			else if (m.gender === "Male")
+				tmpRelationList = GENTSRELATION;
+			else if (m.gender === "Female")
+				tmpRelationList = LADIESRELATION;
+			else
+				tmpRelationList = RELATION;
+			
+			return (
+				<Grid key={"NEWFAMILYRELATION"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
+				<Grid style={{marginTop: "10px"}}  item xs={7} sm={7} md={7} lg={7} >
+					<Typography style={{marginLeft: "10px", marginTop: "10px" }} className={gClasses.title}>{getMemberName(m, false, false)}</Typography>
+				</Grid>	
+				<Grid item xs={5} sm={5} md={5} lg={5} >
+					<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} 
+					options={tmpRelationList} value={tmpRelation} onChange={(event) => { handleNewRelation(event.target.value, index); }} />
+				</Grid>
+				</Grid>	
+			)}
+		)}			
+			<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
 		</div>
-		}
-		{ (stage === "FINALSTAGE") &&
-		<div>
-			<Typography align="center" className={gClasses.title}>{msg1}</Typography>
-			<Typography align="center" className={gClasses.title}>{msg2}</Typography>
-			<br />
-			{transferMemberList.map( (m, index) => {
-				if (m.mid === familyHod) return;
-				return (
-					<Typography key={"MEMREL"+index} style={{marginLeft: "10px", marginTop: "10px" }} className={gClasses.title}>{`${m.mergedName} as ${relation[index]}`}</Typography>
-				)}
-			)}			
-			<br />
-			<Grid key={"FINALSTAGEBUTTON"} className={gClasses.noPadding} container  alignItems="flex-start" >
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<VsButton align="right" name={(hasPRWSpermission()) ? "Submit" : "Apply"}  onClick={handleFinalStageSubmit} />
-				</Grid>
-				<Grid item xs={2} sm={2} md={2} lg={2} />
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<VsButton align="left" name="Back" onClick={handleFinalStageBack} />
-				</Grid>
+	}
+	<br />
+	<VsButton align="center" name="Submit" onClick={handleSubmit} />
+	<br />
+	</div>
+	}
+	{ (stage === "FINALSTAGE") &&
+	<div>
+		<Typography align="center" className={gClasses.title}>{msg1}</Typography>
+		<Typography align="center" className={gClasses.title}>{msg2}</Typography>
+		<br />
+		{memberList.map( (m, index) => {
+			if (!cbArray.includes(m.mid)) return;
+			if (m.mid === newHod) return;
+			return (
+				<Typography key={"MEMREL"+index} style={{marginLeft: "10px", marginTop: "10px" }} className={gClasses.title}>{`${m.mergedName} as ${relation[index]}`}</Typography>
+			)}
+		)}			
+		<br />
+		<Grid key={"FINALSTAGEBUTTON"} className={gClasses.noPadding} container  alignItems="flex-start" >
+			<Grid item xs={5} sm={5} md={5} lg={5} >
+				<VsButton align="right" name={(hasPRWSpermission()) ? "Submit" : "Apply"}  onClick={handleFinalStageSubmit} />
 			</Grid>
-			<DisplayRegisterStatus />
-			<br />
-		</div>
-		}
-		<ToastContainer />
+			<Grid item xs={2} sm={2} md={2} lg={2} />
+			<Grid item xs={5} sm={5} md={5} lg={5} >
+				<VsButton align="left" name="Back" onClick={() => setStage("") } />
+			</Grid>
+		</Grid>
+		<DisplayRegisterStatus />
+		<br />
+	</div>
+	}
+
+	<ToastContainer />
 	</div>
 	)
 }
