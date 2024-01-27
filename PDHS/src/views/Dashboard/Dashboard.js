@@ -44,7 +44,6 @@ import CardFooter from "components/Card/CardFooter.js";
 import socketIOClient from "socket.io-client";
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
 import globalStyles from "assets/globalStyles";
-import {hasGroup} from "views/functions.js";
 import { NoGroup, BlankArea } from 'CustomComponents/CustomComponents.js';
 import { blue, orange, deepOrange}  from '@material-ui/core/colors';
 import { getTsBuildInfoEmitOutputFilePath } from "typescript";
@@ -53,6 +52,9 @@ import Modal from 'react-modal';
 
 const CardColor = "#ff9800";
 const currencyChar = '₹';
+
+import {setTab, setDisplayPage } from "CustomComponents/CricDreamTabs.js"
+
 
 const modelStyles = {
   content : {
@@ -176,535 +178,199 @@ const useDashStyles = makeStyles((theme) => ({
   },
 })); 
 
-function leavingDashboard(myConn) {
-  //console.log("Leaving Dashboard wah wah ");
-  myConn.disconnect();
-}
+import { 
+	dateString,
+	getMemberName,
+	getAdminInfo, getAdminRec,
+} from "views/functions.js";
 
 
+const IMAGESIZE = 75;
 let first =  true;
 
 export default function Dashboard() {
   const gClasses = globalStyles();
-
-  const [rankArray, setRankArray] = useState([]);
-  const [rank, setRank] = useState(0);
-  const [prize, setPrize] = useState(0);
-  const [score, setScore] = useState(0);
-  const [mostRuns, setMostRuns] = useState({});
-  const [mostWickets, setMostwickets] = useState({});
-  const date = new Date().toDateString() + " " + new Date().toLocaleTimeString();
-  const [iplovers, setIPLOvers] = useState("0");
-  const [ipltitle, setIPLTitle] = useState("");
-  const [iplmatch, setIPLMatch] = useState("");
-  const [teamArray, setTeamArray] = useState([]);
-  const [currentGuide, setCurrentGuide] = useState({guideNumber: 0});
-  const [maxGuide, setMaxGuide] = useState(0);
-	const [tournamentOver, setTournamentOver] = useState(false);
   const classes = useStyles();
   const dashClasses = useDashStyles();
 
-  const tableData = (rankDetails) => {
-    const arr = rankDetails.map(element => {
-      const { displayName, userName, grandScore, rank } = element;
-      //const {rank,displayName,userName,grandScore}=element;
-      // return { data: Object.values({ rank, displayName, userName, displayName, grandScore }), collapse: [] }
-      return { data: Object.values({ rank, displayName, userName, grandScore }), collapse: [] }
-    });
-
-    return arr;
-  }
-
+  const [countInfo, setCountInfo] = useState({});
+	const [loginUserRec, setLoginUserRec] = useState(JSON.parse(sessionStorage.getItem("memberRec")));
+	const [applMsg, setApplMsg] = useState("");
+	const adminRec = getAdminRec();
+	
   useEffect(() => {
-    var sendMessage = {page: "DASH", gid: localStorage.getItem("gid"), uid: localStorage.getItem("uid"), userName:  localStorage.getItem("userName")};
+		
+		async function getCount() {
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/count/all/${sessionStorage.getItem("mid")}`;
+			let resp = await axios.get(myUrl);
+			setCountInfo(resp.data);
+			console.log(resp.data.application);
+			setApplMsg(resp.data.application + " application" + ((resp.data.application > 1) ? "s" : ""));
 
-    if (localStorage.getItem("saveRank"))
-      setRank(JSON.parse(localStorage.getItem("saveRank")));
-
-		if (localStorage.getItem("savePrize"))
-      setPrize(JSON.parse(localStorage.getItem("savePrize")));
-  
-    if (localStorage.getItem("saveScore"))
-      setScore(JSON.parse(localStorage.getItem("saveScore")));
-
-    if (localStorage.getItem("saveMaxRun"))
-      setMostRuns(JSON.parse(localStorage.getItem("saveMaxRun")))
-
-    if (localStorage.getItem("saveMaxWicket"))
-      setMostwickets(JSON.parse(localStorage.getItem("saveMaxWicket")));
-
-    if (localStorage.getItem("statData")) {
-      let sData = JSON.parse(localStorage.getItem("statData"))
-      setTeamArray(sData);
-      // generatePlayerList(sData);
-    }
-
-    if (localStorage.getItem("saveRankArray"))
-      setRankArray(JSON.parse(localStorage.getItem("saveRankArray")));
-
-    const makeconnection = async () => {
-      await sockConn.connect();
-      // console.log("just after connect command");
-      // console.log(`DASG gis ${sendMessage}`);
-      sockConn.emit("page", sendMessage);
-    }
-
-    var sockConn = socketIOClient(process.env.REACT_APP_ENDPOINT);
-    // console.log("in dashboard before make connection");
-    makeconnection();
-    // console.log("in dashboard after make connection");
-
-    sockConn.on("connect", function() {
-      sockConn.emit("page", sendMessage);
-      sockConn.on("rank", (rank) => {
-        // console.log(new Date());
-        // console.log(localStorage.getItem("uid"))
-				//console.log("Rank from server");
-				//console.log(rank);
-				// array = [{"adults":2,"children":3},{"adults":2,"children":1}];
-				// var totalChild = this.array.reduce((accum,item) => accum + item.children, 0)
-				var totprize = rank.reduce((accum, item) => accum + item.prize, 0)
-				//console.log(totprize);
-				setTournamentOver(totprize > 0);
-				// console.log(totprize > 0);
-				
-        const allRank = rank.filter(x => x.gid == localStorage.getItem("gid"));
-        const userDetails = allRank.filter(x => x.uid == localStorage.getItem("uid"));
-        // console.log(allRank);
-
-        if (userDetails.length > 0) {
-          // if details of current user found (current user is a member of group 1)
-          //console.log(userDetails[0]);
-          setRank(userDetails[0].rank);
-					setPrize(userDetails[0].prize);
-          setScore(userDetails[0].grandScore)
-          localStorage.setItem("saveRank", JSON.stringify(userDetails[0].rank));
-					localStorage.setItem("savePrize", JSON.stringify(userDetails[0].prize));
-          localStorage.setItem("saveScore", JSON.stringify(userDetails[0].grandScore));
-		  //console.log(userDetails[0].rank);
-		  
-          // let myArray = tableData(allRank)
-          let myArray = allRank;
-          setRankArray(myArray);
-          localStorage.setItem("saveRankArray", JSON.stringify(myArray));
-
-        } else if (localStorage.getItem("admin") === "true") {
-          // current user is not member of the group but is ADMIN. Thus show the rank details
-          setRankArray(tableData(allRank));
-        }
-
-      });
-
-      sockConn.on("maxRun", (maxRun) => {
-        
-        const allMaxRun = maxRun.filter(x => x.gid === parseInt(localStorage.getItem("gid")));
-        const runDetails = allMaxRun.filter(x => x.uid === parseInt(localStorage.getItem("uid")));
-        // console.log(runDetails)
-        if (runDetails.length > 0) {
-          setMostRuns(runDetails[0])
-          localStorage.setItem("saveMaxRun", JSON.stringify(runDetails[0]));
-        }
-
-      });
-
-      sockConn.on("maxWicket", (maxWicket) => {
-        
-        const allMaxWicket = maxWicket.filter(x => x.gid === parseInt(localStorage.getItem("gid")));
-        const wicketDetails = allMaxWicket.filter(x => x.uid === parseInt(localStorage.getItem("uid")));
-        // console.log(wicketDetails);
-        if (wicketDetails.length > 0) {
-          setMostwickets(wicketDetails[0]);
-          localStorage.setItem("saveMaxWicket", JSON.stringify(wicketDetails[0]));
-        }
-
-      });
-
-      sockConn.on("brief", (stat) => {
-        var gStat = stat.filter(x => x.gid === parseInt(localStorage.getItem("gid")));
-		//console.log(gStat);
-        if (gStat.length > 0) {
-          for(let rank=0; rank < gStat.length; ++rank) {
-            gStat[rank]["rank"] = rank+1;
-          }
-          setTeamArray(gStat)
-          localStorage.setItem("statData", JSON.stringify(gStat));
-          if (first) {
-            //console.log(gStat);
-            first = false;
-          }
-        }
-        // let myTime = new Date().toDateString() + " " + new Date().toLocaleTimeString();
-        // setUpdTime(myTime);
-      })
-
-      sockConn.on("overs", (myOvers) => {
-        // console.log(myOvers);
-        if (myOvers.tournament !== "") {
-          let currOver = 0;
-          let currTitle = "";
-          let currMatch = myOvers.team1 + " Vs. " + myOvers.team2;
-          if (myOvers.bowl4)      { currOver = myOvers.bowl4;  currTitle = myOvers.title4 }
-          else if (myOvers.bowl3) { currOver = myOvers.bowl3;  currTitle = myOvers.title3 }
-          else if (myOvers.bowl2) { currOver = myOvers.bowl2;  currTitle = myOvers.title2 }
-          else                    { currOver = myOvers.bowl1;  currTitle = myOvers.title1 }
-          // currOver = currOver / 10;
-          setIPLOvers(currOver);
-          setIPLTitle(currTitle);
-          setIPLMatch(currMatch);
-        } else {
-          setIPLOvers(0);
-          setIPLTitle("");
-          setIPLMatch("");
-        }
-      });
-    });
-
-    async function getGuide() {
-      try {
-        let myURL = `${process.env.REACT_APP_AXIOS_BASEPATH}/apl/getmaxguide`;
-        // console.log(myURL);
-        let response = await axios.get(myURL);
-        console.log(response);
-        setMaxGuide(parseInt(response.data));
-        let tmp = await getNextGuide();
-        if (tmp) {
-          console.log(tmp);
-          openModal();
-        } else
-          closeModal();
-      } catch(e) {
-        console.log(e);
-        setCurrentGuide({guideNumber: 0});
-        closeModal();
-      }
-    }
-
-    //getGuide();
-    return () => {
-      // componentwillunmount in functional component.
-      // Anything in here is fired on component unmount.
-      leavingDashboard(sockConn);
-    }
-   
-
-  }, []);
-// }, [rankArray]);
-
-  async function getNextGuide() {
-    let myGuide;
-    try {
-    let tmp = await axios.get(`${process.env.REACT_APP_AXIOS_BASEPATH}/apl/getnextguide/${localStorage.getItem("uid")}`);
-      myGuide = tmp.data;
-      setCurrentGuide(myGuide);
-      // myNum = myGuide.data.guideNUmber;
-    } catch (e) {
-      setCurrentGuide({guideNumber: 0});
-      // myNum = 0;
-      console.log(e);
-    }
-    return myGuide;
-  }
-
-  async function getPrevGuide() {
-    let myNum;
-    try {
-    let myGuide = await axios.get(`${process.env.REACT_APP_AXIOS_BASEPATH}/apl/getprevguide/${localStorage.getItem("uid")}`);
-      setCurrentGuide(myGuide.data);
-      myNum = myGuide.data.guideNUmber;
-      openModal();  
-    } catch (e) {
-      setCurrentGuide({guideNumber: 0});
-      myNum = 0;
-      console.log(e);
-    }
-    return myNum;
-  }
-
-  const [modalIsOpen,setIsOpen] = React.useState(false);
-  function openModal() {
-    setIsOpen(true);
-  }
-
-  function afterOpenModal() {
-    // references are now sync'd and can be accessed.
-    //subtitle.style.color = '#f00';
-  }
-
-  function closeModal(){
-    setIsOpen(false);
-  }
+		}
+		
+		getCount();
+		
+	}, []);
 
 
-  function ShowUserBoard() {
-    // if (localStorage.getItem("ismember") === "true")
-      return(
+	function jumpToPrws() {
+		setTab(process.env.REACT_APP_PRWS);
+	}
+
+	function jumpToPjym() {
+		setTab(process.env.REACT_APP_PJYM);
+	}
+
+	function jumpToHumad() {
+		setTab(process.env.REACT_APP_HUMAD);
+	}
+
+	function jumpToFamily() {
+		setDisplayPage(process.env.REACT_APP_FAMILY, 0, 0);
+	}
+
+	function jumpToApplication() {
+		setDisplayPage(process.env.REACT_APP_APPLICATION, 0, 0);
+	}
+
+	function jumpToGotra() {
+		setDisplayPage(process.env.REACT_APP_GOTRA, 0, 0);
+	}
+	
+	function jumpToCity() {
+		setDisplayPage(process.env.REACT_APP_CITY, 0, 0);		
+	}
+	
+	function jumpToAdmin() {
+		setDisplayPage(process.env.REACT_APP_ADMIN, 0, 0);
+	}
+	
+	return (
+	<div style={{padding: "10px"}} >
       <GridContainer key="db_gc_ub">
-        <GridItem key="db_gi_ub1" xs={12} sm={6} md={3}>
-          <Card key="db_card_ub1">
+        <GridItem key="db_gi_ub1" xs={12} sm={6} md={4} lg={3}>
+          <Card key="db_card_ub1" onClick={jumpToPrws} >
             <CardHeader key="db_chdr_ub1" color="warning" stats icon>
               <CardIcon color="warning">
-                <GroupIcon />
+								<img src={process.env.PUBLIC_URL + 'image/PJYM.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 
               </CardIcon>
-              <h2 className={classes.cardCategory}>Rank</h2>
-              <h3 className={classes.cardTitle}>
-                {rank + ((prize >0) ? " (You won: ₹" + prize + ")" : "") }
-              </h3>
+							<div>
+              <h3 style={{color: 'black'}} >{"PRWS"}</h3>
+							<h5 align="right" color="blue"  className={classes.cardTitle} >{`${countInfo.prws} members`}</h5>
+							</div>
             </CardHeader>
             <CardFooter key="db_cftr_ub1" stats>
-              <div className={classes.stats}>
-                <GroupIcon />
-                <a href="#pablo" onClick={e => e.preventDefault()}>
-                  {localStorage.getItem("groupName") + ((tournamentOver) ? " (Tournament Over)" : "")}
-                </a>
-              </div>
+							<Typography className={gClasses.patientInfo2Blue} >Pratapgarh Rajasthan Welfare Samiti</Typography>
             </CardFooter>
           </Card>
         </GridItem>
-        <GridItem key="db_gi_ub2" xs={12} sm={6} md={3}>
-          <Card key="db_card_ub2">
+        <GridItem key="db_gi_ub2" xs={12} sm={6} md={4} lg={3}>
+          <Card key="db_card_ub2" onClick={jumpToPjym} >
             <CardHeader key="db_chdr_ub2" color="success" stats icon>
               <CardIcon color="success">
-                <TimelineIcon />
+							<img src={process.env.PUBLIC_URL + 'image/PJYM.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 
               </CardIcon>
-              <p className={classes.cardCategory}>Total Points</p>
-              <h3 className={classes.cardTitle}>{score}</h3>
+              <h3 style={{color: 'black'}} >{"PJYM"}</h3>
+							<h5 color="blue"  className={classes.cardTitle} >{`${countInfo.pjym} members`}</h5>
             </CardHeader>
-            <CardFooter key="db_cftr_ub2" stats>
-              <div className={classes.stats}>
-                <Update />
-                {localStorage.getItem("tournament")}
-              </div>
+            <CardFooter key="db_cftr_ub2" stats> 
+							<Typography className={gClasses.patientInfo2Blue} >Pratapgarh Jain Yuva Manch</Typography>
             </CardFooter>
           </Card>
         </GridItem>
-        <GridItem key="db_gi_ub3" xs={12} sm={6} md={3}>
-          <Card key="db_card_ub3">
+        <GridItem key="db_gi_ub3" xs={12} sm={6} md={4} lg={3} >
+          <Card key="db_card_ub3" onClick={jumpToHumad} >
             <CardHeader key="db_chdr_ub3" color="info" stats icon>
               <CardIcon color="info">
-                <Accessibility />
+								<img src={process.env.PUBLIC_URL + 'image/HUMAD.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 
               </CardIcon>
-              <p className={classes.cardCategory}>Most Runs</p>
-              <h3 className={classes.cardTitle}>{mostRuns ? mostRuns.maxRunPlayerName : ""}</h3>
+              <h3 style={{color: 'black'}} >{"Humad"}</h3>
+							<h5 align="right" color="blue"  className={classes.cardTitle} >{`${countInfo.humad} members`}</h5>
             </CardHeader>
             <CardFooter key="db_cftr_ub3" stats>
-              <div className={classes.stats}>
-                <Accessibility />
-                {mostRuns ? mostRuns.maxRun : ""}
-              </div>
+							<Typography className={gClasses.patientInfo2Blue} >Humad Jain Samaj</Typography>
             </CardFooter>
           </Card>
         </GridItem>
-        <GridItem key="db_gi_ub4" xs={12} sm={6} md={3}>
-          <Card key="db_card_ub4">
-            <CardHeader key="db_chdr_ub4" color="danger" stats icon>
-              <CardIcon color="danger">
-                <SportsHandballIcon />
+        <GridItem key="db_gi_ub4" xs={12} sm={6} md={4} lg={3} >
+          <Card key="db_card_ub4" onClick={jumpToFamily} >
+            <CardHeader key="db_chdr_ub4" color="info" stats icon>
+              <CardIcon color="info">
+							{/*<SportsHandballIcon />*/}
+							<img src={process.env.PUBLIC_URL + 'image/FAMILY.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 							
               </CardIcon>
-              <p className={classes.cardCategory}>Most Wickets</p>
-              <h3 className={classes.cardTitle}>{mostWickets ? mostWickets.maxWicketPlayerName : ""}</h3>
+              <h3 style={{color: 'black'}} >{"Family"}</h3>
+							<h5 align="right" color="blue"  className={classes.cardTitle} >{`${countInfo.family} family members`}</h5>
             </CardHeader>
             <CardFooter key="db_cftr_ub4" stats>
-              <div className={classes.stats}>
-                <SportsHandballIcon />
-                {mostWickets ? mostWickets.maxWicket : ""}
-              </div>
+							<Typography className={gClasses.patientInfo2Blue} >{`Family of ${getMemberName(loginUserRec, false, false)}`}</Typography>
             </CardFooter>
           </Card>
         </GridItem>
-      </GridContainer>
-      )
-    // else
-    //     return(<div></div>);        // no display if not a member
-  } 
-
-  function OrgDisplayAllRank() {
-    return (
-      <Table
-      tableHeaderColor="warning"
-      tableHead={["Rank", "Franchise", "Owner", "Score"]}
-      tableData={rankArray}
-      />
-    );
-  }
-
-
-  function DisplayAllRank() {
-    return (
-      // <Grid container justify="center" alignItems="center" >
-      // <GridItem xs={12} sm={12} md={12} lg={12} >
-      <Table>
-        <TableHead p={0}>
-        <TableRow align="center">
-          <TableCell className={gClasses.th} p={0} align="center">Rank</TableCell>
-          <TableCell className={gClasses.th} p={0} align="center">Franchise (Owner)</TableCell>
-          {/* <TableCell className={dashClasses.th} p={0} align="center">Owner</TableCell> */}
-          <TableCell className={gClasses.th} p={0} align="center">Score</TableCell>      
-        </TableRow>
-      </TableHead>
-      < TableBody p={0}>
-        {rankArray.map(item => {
-          return (
-            <TableRow key={item.userName}>
-              <TableCell  className={gClasses.td} p={0} align="center" >
-                {item.rank}
-              </TableCell>
-              <TableCell  className={gClasses.td} p={0} align="center" >
-                {item.displayName+" ("+item.userName+")"}
-              </TableCell>
-              <TableCell className={gClasses.td} p={0} align="center" >
-                {item.grandScore}
-              </TableCell>
-            </TableRow>
-          )
-        })}
-      </TableBody> 
-    </Table>
-      // </GridItem>
-      // </Grid>
-    );
-  }
-
-  function ShowHeader() {
-    if (iplovers > 0)
-      return (
-        <div>
-          <h4 className={dashClasses.dashTitleWhite}>Franchise Score Board</h4>
-          <p className={dashClasses.dashCategoryWhite}>{iplmatch}</p>
-          <p className={dashClasses.dashCategoryWhite}>Points last updated after {iplovers} overs</p>
-          <p className={dashClasses.dashCategoryWhite}>{`Updated as of ${date}`}</p>
-        </div>
-      )
-    else
-    return (
-      <div>
-        <h4 className={dashClasses.dashTitleWhite}>Franchise Score Board</h4>
-        {/* <p className={classes.dashCategoryWhite}>{iplmatch}</p>
-        <p className={classes.dashCategoryWhite}>Points last updated after {iplovers} overs</p> */}
-        <p className={dashClasses.dashCategoryWhite}>{`Updated as of ${date}`}</p>
-      </div>
-    )
-}
-
-function DisplayFranchiseeDetails(props) {
-  return (
-    <Grid container justify="center" alignItems="center" >
-    <GridItem xs={12} sm={12} md={12} lg={12} >
-    <Table>
-      <TableHead>
-        <TableRow align="center">
-          <TableCell className={dashClasses.th} align="center">Player Name</TableCell>
-          <TableCell className={dashClasses.th} align="center">Score</TableCell>      
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {props.franchisee.map(item => {
-          return (
-            <TableRow key={item.playerName}>
-              <TableCell  className={dashClasses.td} align="center" >
-                {item.playerName}
-              </TableCell>
-              <TableCell className={dashClasses.td} align="center" >
-                {item.playerScore}
-              </TableCell>
-            </TableRow>
-          )
-        })}
-      </TableBody> 
-    </Table>
-    </GridItem>
-    </Grid>
-  )
-}
-
-const [expandedPanel, setExpandedPanel] = useState(false);
-const handleAccordionChange = (panel) => (event, isExpanded) => {
-  console.log({ event, isExpanded });
-  setExpandedPanel(isExpanded ? panel : false);
-};
-
-function ShowStats() {  
-  // console.log(teamArray);
-  return (teamArray.map(team =>
-  <Accordion key={"AC"+team.displayName} expanded={expandedPanel === team.displayName} onChange={handleAccordionChange(team.displayName)}>
-      <AccordionSummary key={"AS"+team.displayName} expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
-          <Typography className={dashClasses.heading}>{team.rank}-{team.userName} </Typography>
-          <Typography className={dashClasses.heading}>Rank-{team.rank} Score({team.userScore})</Typography>
-      </AccordionSummary>
-      <AccordionDetails>
-        <DisplayFranchiseeDetails franchisee={team.playerStat} />
-      </AccordionDetails>
-  </Accordion>
-  ))
-}
-
-  function ShowUserRank() {
-    return(
-        <Card key="db_card">
-          <CardHeader key="db_cheader" color="warning">
-            <ShowHeader />
-          </CardHeader>
-          <CardBody key="db_cbody">
-            <DisplayAllRank />
-            {/* <ShowStats/> */}
-          </CardBody>
-        </Card>
-    )
-  }
-
-  async function handleNextGuide() {
-    let myNum = await getNextGuide();
-    if (myNum === 0) closeModal();
-  }
-
-  async function handlePrevGuide() {
-    let myNum = await getPrevGuide();
-    if (myNum === 0) closeModal();
-  }
-
-
-  function ShowGuide() {
-    return (
-    <form>
-      <Typography id="modalTitle" className={dashClasses.modalTitle} align="center">{currentGuide.guideTitle}</Typography>
-      <BlankArea />
-      <p align="ceter">{currentGuide.guideText}</p>
-      <BlankArea />
-      <div align="center">
-        <Button key={"prevGuide"} variant="contained" color="primary" size="small"
-          disabled={currentGuide.guideNumber === 1}
-          className={classes.modalbutton} onClick={handlePrevGuide}>Prev
-        </Button>
-        <Button key="nextGuide" variant="contained" color="primary" size="small"
-          disabled={currentGuide.guideNumber === maxGuide}        
-          className={classes.modalbutton} onClick={handleNextGuide}>Next
-      </Button>
-      </div>
-    </form>  
-    )
-  }
-
-  if (hasGroup())
-    return (
-    <div>
-      <ShowUserBoard />
-      <ShowUserRank />
-      <div className={dashClasses.modalContainer} >
-        <Modal
-          isOpen={modalIsOpen}
-          onAfterOpen={afterOpenModal}
-          onRequestClose={closeModal}
-          style={modelStyles}
-          contentLabel="Example Modal"
-          aria-labelledby="modalTitle"
-          aria-describedby="modalDescription"
-        >
-          <ShowGuide />
-        </Modal>
-      </div>
-    </div>
-    );
-  else
-    return (
-    <NoGroup/>  
-    )
+        <GridItem key="db_gi_ub5" xs={12} sm={6} md={4} lg={3} >
+          <Card key="db_card_ub5" onClick={jumpToApplication}>
+            <CardHeader key="db_chdr_ub5" color="primary" stats icon>
+              <CardIcon color="primary">
+							<img src={process.env.PUBLIC_URL + 'image/APPLICATION.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 							
+              </CardIcon>
+              <h3 style={{color: 'black'}} >{"Application"}</h3>
+							<h5 align="right" color="blue"  className={classes.cardTitle} >{applMsg}</h5>
+            </CardHeader>
+            <CardFooter key="db_cftr_ub5" stats>
+							<Typography className={gClasses.patientInfo2Blue} >{`Pending applications`}</Typography>
+            </CardFooter>
+          </Card>
+        </GridItem>
+				{(adminRec.superAdmin || adminRec.prwsAdmin) &&
+        <GridItem key="gotra_item" xs={12} sm={6} md={4} lg={3} >
+          <Card key="gotra_card" onClick={jumpToGotra}>
+            <CardHeader key="gotra_header" color="warning" stats icon>
+              <CardIcon color="warning">
+							<img src={process.env.PUBLIC_URL + 'image/GOTRA.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 							
+              </CardIcon>
+              <h3 style={{color: 'black'}} >{"Gotra"}</h3>
+							<h5 align="right" color="blue"  className={classes.cardTitle} ></h5>
+            </CardHeader>
+            <CardFooter key="gotra_footer" stats>
+							<Typography className={gClasses.patientInfo2Blue} >{`Configured Gotras`}</Typography>
+            </CardFooter>
+          </Card>
+        </GridItem>
+				}
+				{(adminRec.superAdmin || adminRec.prwsAdmin) &&
+        <GridItem key="city_item" xs={12} sm={6} md={4} lg={3} >
+          <Card key="city_card" onClick={jumpToCity}>
+            <CardHeader key="city_header" color="warning" stats icon>
+              <CardIcon color="warning">
+							<img src={process.env.PUBLIC_URL + 'image/CITY.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 							
+              </CardIcon>
+              <h3 style={{color: 'black'}} >{"City"}</h3>
+							<h5 align="right" color="blue"  className={classes.cardTitle} ></h5>
+            </CardHeader>
+            <CardFooter key="city_footer" stats>
+							<Typography className={gClasses.patientInfo2Blue} >{`Configured Cities`}</Typography>
+            </CardFooter>
+          </Card>
+        </GridItem>
+				}
+				{(adminRec.superAdmin ) &&
+        <GridItem key="admin_item" xs={12} sm={6} md={4} lg={3} >
+          <Card key="admin_card" onClick={jumpToAdmin}>
+            <CardHeader key="admin_header" color="info" stats icon>
+              <CardIcon color="info">
+							<img src={process.env.PUBLIC_URL + 'image/ADMIN.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 							
+              </CardIcon>
+              <h3 style={{color: 'black'}} >{"Admins"}</h3>
+							<h5 align="right" color="blue"  className={classes.cardTitle} ></h5>
+            </CardHeader>
+            <CardFooter key="admin_footer" stats>
+							<Typography className={gClasses.patientInfo2Blue} >{`Configured Admins`}</Typography>
+            </CardFooter>
+          </Card>
+        </GridItem>
+				}
+      </GridContainer>  
+		</div>
+);		
 }

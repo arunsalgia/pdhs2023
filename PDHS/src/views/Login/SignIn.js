@@ -109,7 +109,9 @@ export default function SignIn() {
 		//sessionStorage.setItem("menuMid", 0);	
 		//sessionStorage.setItem("menuCurrentSelection", "PRWS");	
 		//setTab(process.env.REACT_APP_HOME);
-		setDisplayPage(PAGELIST.PRWS, 0, 0);
+		//setDisplayPage(PAGELIST.PRWS, 0, 0);
+		//setDisplayPage(PAGELIST.DASHBOARD, 0, 0);
+		setTab(process.env.REACT_APP_DASH);
 	} catch (err) {
 		setError("Invalid Captcha", true);
 	}

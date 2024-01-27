@@ -2,7 +2,7 @@ import axios from "axios";
 import download from 'js-file-download';
 //import LinearProgressWithLabel from '@material-ui/core/LinearProgress';
 //import LinearProgress from '@material-ui/core/LinearProgress';
-//import CircularProgressWithLabel from '@material-ui/core/LinearProgress';
+//import CircularProgressWitheLabel from '@material-ui/core/LinearProgress';
 import moment from "moment";
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
@@ -47,6 +47,9 @@ export function displayType(width) {
 	 }
 }
 
+export function getAdminRec() {
+	return JSON.parse(sessionStorage.getItem("adminRec"));
+}
 
 export function getAdminInfo() {
 	let tmp = JSON.parse(sessionStorage.getItem("adminRec"));

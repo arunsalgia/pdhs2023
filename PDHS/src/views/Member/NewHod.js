@@ -80,7 +80,7 @@ export default function NewHod(props) {
 
 	useEffect(() => {
 		let memRec = props.memberList.find(x => x.mid === props.selectedMid);
-		setHeader("Apply to set " + getMemberName(memRec) + "as new HOD" );
+		setHeader("Apply to set " + getMemberName(memRec) + " as new HOD" );
 		var tmp = props.memberList.filter (x => x.mid !== props.selectedMid);
 		var newRelationList = ["Self"]
 		for(var i=0; i < props.memberList.length; ++i) {

@@ -585,7 +585,8 @@ return (
 				</Grid>	
 			)}
 		)}			
-			<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
+		<br />
+		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
 		</div>
 	}
 	<br />

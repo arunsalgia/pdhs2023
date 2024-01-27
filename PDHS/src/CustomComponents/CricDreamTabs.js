@@ -26,23 +26,26 @@ import Menu from '@material-ui/core/Menu';
 import {red, blue, green, deepOrange, white} from '@material-ui/core/colors';
 import Divider from '@material-ui/core/Divider';
 
+import Dashboard from 'views/Dashboard/Dashboard'
 import Directory from 'views/Directory/Directory'
 import Member from 'views/Member/Member'
 import Humad from 'views/Humad/Humad'
 import Pjym from 'views/Pjym/Pjym'
 import Prws from 'views/Prws/Prws'
 import Admin from 'views/Admin/Admin'
+import Application from 'views/Application/Application'
 
 import Profile from "views/Profile/UserProfile" 
 //import Home from "views/MED/Home.js";
 //import UserApplication from "views/Application/UserApplication";
-import Application from "views/Application/Application";
 
 
 // only for admin
-//import Gotra from "views/SuperUser/Gotra";
+import Gotra from "views/Admin/Gotra";
+import City from "views/Admin/City";
+import Permissions from "views/Admin/Permissions";
+
 import PDHSAdmin from "views/SuperUser/PDHSAdmin";
-import AdminApplication from "views/Application/AdminApplication";
 
 
 import Modal from 'react-modal';
@@ -201,7 +204,9 @@ function setMenuCurrent(xxx) {
 export function setDisplayPage(item, hid, mid) {
 	setMenuHid(hid);
 	setMenuMid(mid);
-	setMenuCurrent(item);
+	//setMenuCurrent(item);
+	console.log(item);
+	setTab(Number(item));
 }
 
 
@@ -326,32 +331,38 @@ export function CricDreamTabs() {
 
 	const handleHome = () => { setMenuValue(1);  }
   
+	const handleDashBoard= () => { handleClose(); setMenuValue(900);}
   const handleDirectory = () => { handleClose(); setMenuValue(901);}
 	const handleHumad = () => { handleClose(); setMenuValue(902);}
 	const handlePjym = () => { handleClose(); setMenuValue(903);}
-	const handleUserApp = () => { handleClose(); setMenuValue(904);}
+	const handleFamily = () => { handleClose(); setMenuValue(904);}
+	const handleApplication = () => { handleClose(); setMenuValue(905);}
 	
 	
   const handleGotra = () => { handleClose(); setMenuValue(1001);}
-	const handleAdmin = () => { handleClose(); setMenuValue(1002);}
-	const handleAdminApplication = () => { handleClose(); setMenuValue(1003);}
+  const handleCity = () => { handleClose(); setMenuValue(1002);}
+	const handlePermissions = () => { handleClose(); setMenuValue(951);}
+	//const handleAdminApplication = () => { handleClose(); setMenuValue(1003);}
 	
   function DisplayCdItems() {
-		//console.log("CD Value", value);
+		console.log("CD Value", value);
     switch(value) {
       case 1: return <Prws />
 
       case 100: return <Member />;      // called directly from PJYM and Humad 
-      case 901: return <Prws />;
+      case 900: return <Dashboard />;
+			case 901: return <Prws />;
       case 902: return <Humad />;
 			case 903: return <Pjym />;
-			case 904: return <Application userType="user" />;
+			case 904: return <Member hid={Number(sessionStorage.getItem("menuHid"))} mid={Number(sessionStorage.getItem("menuMid"))} />;
+			case 905: return <Application />;
+			case 999: return <Application userType="user" />;
 			
       case 1001: return <Gotra />;
-      case 1002: return <PDHSAdmin />;
-			case 1003: return <Application userType="admin" />;
+      case 1002: return <City />;
+			case 951: return <Permissions />;
 
-      default: return <Home />;
+      default: return <Dashboard />;
     }
   }
 
@@ -465,7 +476,7 @@ export function CricDreamTabs() {
         <Grid key="SUBMITMOBILE" container>
         <Grid align="left" item xs={6} sm={6} md={6} lg={6} >	
 					<Typography>
-						<span className={classes.ankit}>{((dispType == "lg") || (dispType == "md")) ? "PRWS" : "PRWS"}</span>
+						<span onClick={handleDashBoard}  className={classes.ankit}>{((dispType == "lg") || (dispType == "md")) ? "PRWS" : "PRWS"}</span>
 							{/*<span style={{margin: "5px"}}  ><HomeIcon className={classes.icon} onClick={handleHome} /></span>*/}
 					</Typography>
         </Grid>
@@ -504,21 +515,21 @@ export function CricDreamTabs() {
 			 </Toolbar>
       </AppBar>
 			
-			<Grid className={gClasses.noPadding} key="AllPatients" container align="center">
+			{/*<Grid className={gClasses.noPadding} key="AllPatients" container align="center">
 				<DisplayFunctionItem item="PRWS"  />
 				<DisplayFunctionItem item="PJYM"  match={currentSelection}  onClick={() => setMenuCurrent("PJYM")} />
 				<DisplayFunctionItem item="HUMAD"  match={currentSelection}  onClick={() => setMenuCurrent("HUMAD")} />
 				<DisplayFunctionItem item="FAMILY"  match={currentSelection}  onClick={() => setMenuCurrent("FAMILY")} />
 				<DisplayFunctionItem item="APPLICATION"  match={currentSelection}  onClick={() => setMenuCurrent("APPLICATION")} />
 				<DisplayFunctionItem item="ADMIN"  match={currentSelection}  onClick={() => setMenuCurrent("ADMIN")} />
-			</Grid>
+			</Grid>*/}
       {((false) && (dispType !== "lg") && (dispType !== "md")) &&
         <Typography align="center" >
             <span className={gClasses.message16Blue}>{"Welcome "+sessionStorage.getItem("firstName")}</span>
         </Typography>
       }
-      {/*<DisplayCdItems/>*}
-      {/* <DisplayUpgrade/> */}
+      <DisplayCdItems/>
+      {/* <DisplayUpgrade/> 
 			{ (currentSelection === "PRWS") && 
 				<Prws />
 			}
@@ -537,7 +548,7 @@ export function CricDreamTabs() {
 			{ (currentSelection === "ADMIN") && 
 				<Admin />
 			}
-			
+			*/}
     </div>
   );
 }

@@ -7,6 +7,7 @@ const {
 	memberUpdateOne, memberUpdateMany,
 	memberGetByMidOne, memberGetByMidMany,
 	memberGetByHidMany,
+	memberGetCount,
 	memberGetAlive,
 	getHodCityList,
 	
@@ -29,14 +30,46 @@ return { $regex: name, $options: "i" }
 }
 
 
+router.get('/count/all/:mid', async function (req, res) {
+  setHeader(res);
+  var { mid } = req.params;
+	
+	var prwsCount = await memberGetCount();
+  var pjymCount = await M_Pjym.countDocuments({active: true});
+	var humadCount = await M_Humad.countDocuments({active: true});
+	//console.log(Math.floor (Number(mid) / FAMILYMF));
+	var familyRecs = await memberGetByHidMany(Math.floor (Number(mid) / FAMILYMF));
+	//console.log(familyRecs);
+	var familyCount = familyRecs.length;
+
+	// first check if admin
+	var adminRec = await M_Admin.findOne({mid: mid});
+	var applCount = 0;	
+	if (adminRec) {
+		if (adminRec.prwsAdmin || adminRec.superAdmin)
+			applCount += await M_Application.countDocuments({owner: "PRWS", status: APPLICATIONSTATUS.pending});
+		if (adminRec.pjymAdmin || adminRec.superAdmin)
+			applCount += await M_Application.countDocuments({owner: "PJYM", status: APPLICATIONSTATUS.pending});
+		if (adminRec.humadAdmin || adminRec.superAdmin)
+			applCount += await M_Application.countDocuments({owner: "HUMAD", status: APPLICATIONSTATUS.pending});
+	}
+	else {
+		applCount = await M_Application.countDocuments({mid: mid, status: APPLICATIONSTATUS.pending});
+	}
+	
+	var myData = {prws: prwsCount, pjym: pjymCount,  humad: humadCount,  family: familyCount, application:  applCount}; 
+	//console.log(myData);
+	sendok(res, myData);
+});
+
 router.get('/list/all', async function (req, res) {
   setHeader(res);
   var {fName, mName, lName } = req.params;
-
+ 
 	let myData = await memberGetAll();
 	var clonedArray = _.cloneDeep(myData);
 	myData = clonedArray.filter(x => !x.ceased);
-	for (var i=0; i< myData.length; ++i) {
+	for (var i=0; i< myData.length; ++i) { 
 		var tmp = dbdecrypt(myData[i].email);
 		if (myData[i].mid === 2001) console.log(tmp);
 		tmp = encrypt(tmp);

@@ -390,7 +390,7 @@ export default function Prws() {
 		//sessionStorage.setItem("memberHid", tmp.hid);
 		//sessionStorage.setItem("memberMid", tmp.mid);
 		//setTab(process.env.REACT_APP_MEMBER);
-		setDisplayPage(PAGELIST.FAMILY, tmp.hid, tmp.mid);
+		setDisplayPage(process.env.REACT_APP_FAMILY, tmp.hid, tmp.mid);
 	}
 	function jumpPjym() {
 		handlePrwsContextMenuClose();

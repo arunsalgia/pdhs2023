@@ -31,7 +31,6 @@ async function memberGetHodMembers() {
 	hodList = _.map(hodList, 'mid');
 	var hodMembers = allMemberlist.filter( x => hodList.includes(x.mid) )
 	return _.cloneDeep(hodMembers);
-
 }
 
 async function memberUpdateOne(memberRec) {
@@ -118,12 +117,18 @@ async function getHodCityList() {
 	}
 }
 
+async function memberGetCount() {
+	if (allMemberlist.length === 0) await memberGetAll();
+	return allMemberlist.length;
+}
+
 module.exports = {
 	memberGetAll, memberGetHodMembers,
 	memberAddOne, memberAddMany,
 	memberUpdateOne, memberUpdateMany,
 	memberGetByMidOne, memberGetByMidMany,
 	memberGetByHidMany,
+	memberGetCount,
 	memberGetAlive,
 	getHodCityList,
 }; 
