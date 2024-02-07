@@ -193,7 +193,7 @@ export default function Dashboard() {
   const classes = useStyles();
   const dashClasses = useDashStyles();
 
-  const [countInfo, setCountInfo] = useState({});
+  const [countInfo, setCountInfo] = useState({prws: 0, pjym: 0,  humad: 0,  family: 0, application:  0});
 	const [loginUserRec, setLoginUserRec] = useState(JSON.parse(sessionStorage.getItem("memberRec")));
 	const [applMsg, setApplMsg] = useState("");
 	const adminRec = getAdminRec();
@@ -256,7 +256,7 @@ export default function Dashboard() {
 								<img src={process.env.PUBLIC_URL + 'image/PJYM.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 
               </CardIcon>
 							<div>
-              <h3 style={{color: 'black'}} >{"PRWS"}</h3>
+              <button className={gClasses.dashText} >PRWS</button>
 							<h5 align="right" color="blue"  className={classes.cardTitle} >{`${countInfo.prws} members`}</h5>
 							</div>
             </CardHeader>
@@ -271,7 +271,7 @@ export default function Dashboard() {
               <CardIcon color="success">
 							<img src={process.env.PUBLIC_URL + 'image/PJYM.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 
               </CardIcon>
-              <h3 style={{color: 'black'}} >{"PJYM"}</h3>
+              <button className={gClasses.dashText} >PJYM</button>
 							<h5 color="blue"  className={classes.cardTitle} >{`${countInfo.pjym} members`}</h5>
             </CardHeader>
             <CardFooter key="db_cftr_ub2" stats> 
@@ -285,7 +285,7 @@ export default function Dashboard() {
               <CardIcon color="info">
 								<img src={process.env.PUBLIC_URL + 'image/HUMAD.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 
               </CardIcon>
-              <h3 style={{color: 'black'}} >{"Humad"}</h3>
+              <button className={gClasses.dashText} >Humad</button>
 							<h5 align="right" color="blue"  className={classes.cardTitle} >{`${countInfo.humad} members`}</h5>
             </CardHeader>
             <CardFooter key="db_cftr_ub3" stats>
@@ -300,7 +300,7 @@ export default function Dashboard() {
 							{/*<SportsHandballIcon />*/}
 							<img src={process.env.PUBLIC_URL + 'image/FAMILY.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 							
               </CardIcon>
-              <h3 style={{color: 'black'}} >{"Family"}</h3>
+              <button className={gClasses.dashText} >Family</button>
 							<h5 align="right" color="blue"  className={classes.cardTitle} >{`${countInfo.family} family members`}</h5>
             </CardHeader>
             <CardFooter key="db_cftr_ub4" stats>
@@ -314,7 +314,7 @@ export default function Dashboard() {
               <CardIcon color="primary">
 							<img src={process.env.PUBLIC_URL + 'image/APPLICATION.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 							
               </CardIcon>
-              <h3 style={{color: 'black'}} >{"Application"}</h3>
+              <button className={gClasses.dashText} >Application</button>
 							<h5 align="right" color="blue"  className={classes.cardTitle} >{applMsg}</h5>
             </CardHeader>
             <CardFooter key="db_cftr_ub5" stats>
@@ -329,7 +329,7 @@ export default function Dashboard() {
               <CardIcon color="warning">
 							<img src={process.env.PUBLIC_URL + 'image/GOTRA.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 							
               </CardIcon>
-              <h3 style={{color: 'black'}} >{"Gotra"}</h3>
+              <button className={gClasses.dashText} >Gotra</button>
 							<h5 align="right" color="blue"  className={classes.cardTitle} ></h5>
             </CardHeader>
             <CardFooter key="gotra_footer" stats>
@@ -345,7 +345,7 @@ export default function Dashboard() {
               <CardIcon color="warning">
 							<img src={process.env.PUBLIC_URL + 'image/CITY.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 							
               </CardIcon>
-              <h3 style={{color: 'black'}} >{"City"}</h3>
+              <button className={gClasses.dashText} >City</button>
 							<h5 align="right" color="blue"  className={classes.cardTitle} ></h5>
             </CardHeader>
             <CardFooter key="city_footer" stats>
@@ -361,7 +361,7 @@ export default function Dashboard() {
               <CardIcon color="info">
 							<img src={process.env.PUBLIC_URL + 'image/ADMIN.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 							
               </CardIcon>
-              <h3 style={{color: 'black'}} >{"Admins"}</h3>
+             <button className={gClasses.dashText} >Admins</button>
 							<h5 align="right" color="blue"  className={classes.cardTitle} ></h5>
             </CardHeader>
             <CardFooter key="admin_footer" stats>

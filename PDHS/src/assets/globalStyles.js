@@ -261,6 +261,14 @@ const globalStyles = makeStyles((theme) => ({
 		fontWeight: theme.typography.fontWeightBold,	
 		color: 'blue',
 	},
+	dashText: {
+		fontSize: theme.typography.pxToRem(28),
+		//fontWeight: theme.typography.fontWeightBold,
+		color: 'brown',
+		border: 'none',
+		marginTop: '10px',
+		backgroundColor: 'transparent'
+	},
 	patientInfo: {
 		//marginLeft: theme.spacing(3),
 		fontSize: theme.typography.pxToRem(14),
@@ -366,6 +374,25 @@ const globalStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     alignItems: 'center',
     // backgroundColor: '#FAF5E9',
+  },
+	accordianHeading: {
+    fontSize: theme.typography.pxToRem(24),
+		fontWeight: theme.typography.fontWeightBold,
+		color: 'green',
+  },
+	boxStyle: {
+		padding: "5px 10px", 
+		margin: "4px 2px", 
+		//backgroundColor: 'green',
+		//backgroundColor: blue[300] 
+	},
+	normalAccordian: {
+    backgroundColor: '#FFCCBC',
+    //borderRadius: 25,
+  },
+  selectedAccordian: {
+    backgroundColor: '#B2EBF2',
+    //borderRadius: 25,
   },
   heading: {
     fontSize: theme.typography.pxToRem(15),

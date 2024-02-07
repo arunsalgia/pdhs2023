@@ -7,6 +7,10 @@ import Drawer from '@material-ui/core/Drawer';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+
 import Box from '@material-ui/core/Box';
 import Grid from "@material-ui/core/Grid";
 import Divider from '@material-ui/core/Divider';
@@ -31,6 +35,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import IndeterminateCheckBoxIcon from '@material-ui/icons/IndeterminateCheckBox';
 import CancelIcon from '@material-ui/icons/Cancel';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 //import { NoGroup, JumpButton, DisplayPageHeader, MessageToUser } from 'CustomComponents/CustomComponents.js';
 import { 
@@ -82,18 +87,26 @@ export default function TransferMember(props) {
 	
 	const [hodTransfer, setHodTransfer] = useState(false);
 	const [familyHod, setFamilyHod] = useState("");
-	const [mergedOrCreate, setMergeOrCreate] = useState(MERGECREATEARRAY[0].value);
+	const [mergedOrCreate, setMergeOrCreate] = useState(MERGECREATEARRAY[1].value);
 	const [relation, setRelation] = useState([]);
 
 	// If create new family
-	const [newHod, setNewHod] = useState(0);
+	const [newHod, setNewHod] = useState(props.selectedMid);
+
+  const [balanceHod, setBalanceHod] = useState(0)	
 	
 	//const [destFamilyHeadName, setDestFamilyHeadName] = useState("");
 	const [msg1,  setMsg1] = useState("");
 	const [msg2,  setMsg2] = useState("");
 	const [registerStatus, setRegisterStatus] = useState(0);
-
 	
+	// show in accordion
+	const [expandedPanel, setExpandedPanel] = useState("");
+	const handleAccordionChange = (panel) => (event, isExpanded) => {
+    setExpandedPanel(isExpanded ? panel : false);
+    setRegisterStatus(0);
+  };
+
 
 	useEffect(() => {
 		async function fetchFamilyHodNames() {
@@ -137,7 +150,7 @@ export default function TransferMember(props) {
 		// Is HOD selected for transfer then set accordingly
 		if (props.selectedMid === props.hodMid) {
 			setHodTransfer(true);
-			setMergeOrCreate("MERGE");
+			//setMergeOrCreate("MERGE");
 			//set
 		}
 		else {
@@ -146,6 +159,14 @@ export default function TransferMember(props) {
 		
 		fetchFamilyHodNames();				// required for merge
 		
+		//console.log(props.selectedMid);
+		//console.log(props.memberList);
+		//console.log(props.memberList.filter(x => x.mid !== props.selectedMid));
+		setTransferMemberList(props.memberList.filter(x => x.mid === props.selectedMid));
+		var tmpBalance = props.memberList.filter(x => x.mid !== props.selectedMid);
+		if (tmpBalance.length > 0) 
+			setBalanceHod(tmpBalance[0].mid);
+		setBalanceMemberList (tmpBalance);
 		//setStage("SELECTMEMBERS");
 	}, [])
 
@@ -201,7 +222,7 @@ function handleSelectMemberCb(idx) {
 	setCbArray(tmpArray);
 	if (tmpArray.includes(props.hodMid)) {
 		setHodTransfer(true);
-		setMergeOrCreate("MERGE");
+		//setMergeOrCreate("MERGE");
 	}
 	else {		
 		setHodTransfer(false);
@@ -214,19 +235,33 @@ function handleSelectMemberCb(idx) {
 		//console.log(tmp);
 		setNewHod(tmp);
 	}
+	
+	setTransferMemberList(memberList.filter(x => tmpArray.includes(x.mid)));
+	var tmpBalance = memberList.filter(x => !tmpArray.includes(x.mid))
+	//console.log(tmpBalance);
+	setBalanceMemberList (tmpBalance);
+	if (tmpBalance.length > 0) 
+		setBalanceHod(tmpBalance[0].mid);
+	else
+		setMergeOrCreate("MERGE");		// All the members selected. Has to be merge only
 }
 
 function handleMergeOrCreate(newValue) {
-	if (newValue === "CREATE") {
-		var tmp = cbArray.find(x => x !== 0);
-		//console.log(tmp);
-		setNewHod(tmp);
+	if ((balanceMemberList.length === 0) && (newValue === "CREATE")) {
+		showInfo("Create new family not permitted if all members selected for transfer");
 	}
-	setMergeOrCreate(newValue);
+	else {
+		if (newValue === "CREATE") {
+			var tmp = cbArray.find(x => x !== 0);
+			//console.log(tmp);
+			setNewHod(tmp);
+		}
+		setMergeOrCreate(newValue);
+	}
 }
 
 
-function preFinalStage() {	
+function junkpreFinalStage() {	
 	if (mergedOrCreate === "MERGE") {
 		setMsg1(`Transfer members to family of`);
 		setMsg2(`${familyHod}`);
@@ -245,13 +280,12 @@ function handleSubmit() {
 }
 
 
-
 // old functions
-function handleNewHod(index) {
+function junkhandleNewHod(index) {
 		setNewHod(memberList[index].mid);
 }
 
-function handleStage2() {
+function junkhandleStage2() {
 	// Members selected. Now get the relation of members wrt HOD
 	var newHodRec = memberList.find(x => x.mid === newHod);
 	var otherArray = [];
@@ -269,11 +303,11 @@ function handleStage2() {
 	setStage("STAGE3");
 }
 
-function handleStage3() {
+function junkhandleStage3() {
 	handleCeasedSubmit();
 }
 
-async function handleCeasedSubmit() {
+async function junkhandleCeasedSubmit() {
 	var midList = lodashMap(memberList, 'mid');
 	var myInfo = {
 		hid:  props.memberList[0].hid,
@@ -327,8 +361,8 @@ function handleNewRelation(rel, idx) {
 
 
 function handleSelectMemberSubmit() {
-	setTransferMemberList(memberList.filter(x => cbArray.includes(x.mid)));
-	setBalanceMemberList (memberList.filter(x => !cbArray.includes(x.mid)));
+	//setTransferMemberList(memberList.filter(x => cbArray.includes(x.mid)));
+	//setBalanceMemberList (memberList.filter(x => !cbArray.includes(x.mid)));
 	if (cbArray.includes(props.hodMid)) {
 		setHodTransfer(true);
 		fetchFamilyHodNames();
@@ -387,41 +421,23 @@ function handleSelectHodSubmit() {
 	setStage("NEWRELATION");
 }
 
-function handleSelectHodBack() {
-	setStage("MERGEORCREATE");
-}
 
-function handleNewRelationSubmit() {
-	preFinalStage();
-	setStage("FINALSTAGE");
-}
-
-function handleNewRelationBack() {
-	setStage("SELECTHOD");
-}
 
 
 function handleFinalStageSubmit() {
 	props.onReturn.call(this, {status: STATUS_INFO.ERROR,  msg: `Error Transferring members`});
 }
 
-function handleFinalStageBack() {
+function junkhandleFinalStageBack() {
 	if (mergedOrCreate === "MERGE")
 		setStage("SELECTRELATION");
 	else
 		setStage("NEWRELATION");
 }
 
-
-
-return (
+function Display_select_to_transfer() {
+return (	
 <div>
-	<Typography align="center" className={gClasses.pdhs_title}>{header}</Typography>
-	<br />
-	{(stage !== "FINALSTAGE") &&
-	<div>
-	<Typography align="center" className={gClasses.title}>Select Member(s) to transfer</Typography>
-	{/* First select the members to be transferred */}
 	<Grid key="SELECTMEMBERS" className={gClasses.noPadding} container  alignItems="flex-start" >
 		<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 		<Grid item xs={8} sm={8} md={8} lg={8} >
@@ -446,109 +462,29 @@ return (
 	)}
 	<DisplayRegisterStatus />
 	<br />
-	<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
-	{/* First selected members to be merged with another family or create new family
-			If HOD is also transferred. Then it has to be merge only
-	*/}
-	{ (!hodTransfer) &&
-	<div>
-		<Typography align="center" className={gClasses.title}>Create new family or merge</Typography>
-		{MERGECREATEARRAY.map( (m, index) => {
-			return (
-				<Grid key={"MERGEORCREATEITEM"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
-				<Grid style={{marginTop: "10px"}}  item xs={8} sm={8} md={8} lg={8} >
-					<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{m.msg}</Typography>
-				</Grid>	
-				<Grid item xs={2} sm={2} md={2} lg={2} >
-					<VsRadio checked={mergedOrCreate === m.value} onClick={() => handleMergeOrCreate(m.value) }  />
-				</Grid>
-				</Grid>	
-			)}
-		)}
-		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
-	</div>
-	}
-	{/* If merge then select family with whom  to be merged */}
-	{(mergedOrCreate === "MERGE") &&
-		<div>
-		<Typography align="center" className={gClasses.title}>Select Family</Typography>
-		<Grid key="SELECTFAMILY" className={gClasses.noPadding} container  alignItems="flex-start" >
-			<Grid item xs={4} sm={4} md={4} lg={4} >
-				<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Family Head</Typography>
-			</Grid>
-			<Grid item xs={8} sm={8} md={8} lg={8} >
-				<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} style={{paddingRight: "5px" }}
-				options={hodMemberList} field="mergedName"  value={familyHod} onChange={(event) => setFamilyHod(event.target.value) } />
-			</Grid>
-		</Grid>
-		<br />
-		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
-			<Typography align="center" className={gClasses.title}>{`Select relation with ${familyHod}`}</Typography>
-			<br />
-			<Grid key="SPLIT3" className={gClasses.noPadding} container  alignItems="flex-start" >
-				<Grid item xs={8} sm={8} md={8} lg={8} >
-					<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
-				</Grid>	
-				<Grid item xs={4} sm={4} md={4} lg={4} >
-					<Typography className={gClasses.titleOrange}>{"Relation"}</Typography>
-				</Grid>
-			</Grid>				
-			{memberList.map( (m, index) => {
-				if (!cbArray.includes(m.mid)) return;
+</div>
+)}
 
-				var tmpRelationList = RELATION;
-				if (relation[index] === "Self")
-					tmpRelationList = SELFRELATION;
-				else if (m.gender === "Male")
-					tmpRelationList = GENTSRELATION;
-				else if (m.gender === "Female")
-					tmpRelationList = LADIESRELATION;
-				else
-					tmpRelationList = RELATION;
-				return (
-					<Grid key={"SPLITARRAY3"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
-					<Grid style={{marginTop: "10px"}}  item xs={7} sm={7} md={7} lg={7} >
-						<Typography style={{marginLeft: "10px", marginTop: "10px" }} className={gClasses.title}>{getMemberName(m, false, false)}</Typography>
-					</Grid>	
-					<Grid item xs={5} sm={5} md={5} lg={5} >
-						<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} 
-						options={tmpRelationList} value={relation[index]} onChange={(event) => { handleNewRelation(event.target.value, index); }} />
-					</Grid>
-					</Grid>	
-				)}
-			)}	
-			<br />
-		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
-	</div>
-	}
-	{(mergedOrCreate === "CREATE") &&
-		<div>
-		<Typography align="center" className={gClasses.title}>Select Hod for new family</Typography>
-		<Grid key="SELECTHODHDR" className={gClasses.noPadding} container  alignItems="flex-start" >
-			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-			<Grid item xs={8} sm={8} md={8} lg={8} >
-				<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
+function Display_merge_or_create() {
+return (
+<div>
+	{MERGECREATEARRAY.map( (m, index) => {
+		return (
+			<Grid key={"MERGEORCREATEITEM"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
+			<Grid style={{marginTop: "10px"}}  item xs={8} sm={8} md={8} lg={8} >
+				<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{m.msg}</Typography>
 			</Grid>	
 			<Grid item xs={2} sm={2} md={2} lg={2} >
-				<Typography className={gClasses.titleOrange}>{"HOD"}</Typography>
+				<VsRadio checked={mergedOrCreate === m.value} onClick={() => handleMergeOrCreate(m.value) }  />
 			</Grid>
-			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-		</Grid>	
-		{memberList.map( (m, index) => {
-			if (!cbArray.includes(m.mid)) return; 
-			return (
-				<Grid key={"SELECTHOD2"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
-				<Grid style={{marginTop: "10px"}}  item xs={8} sm={8} md={8} lg={8} >
-					<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{m.mergedName}</Typography>
-				</Grid>	
-				<Grid item xs={2} sm={2} md={2} lg={2} >
-					<VsRadio checked={m.mid === newHod} onClick={() => setNewHod(m.mid)}  />
-				</Grid>
-				</Grid>	
-			)}
+			</Grid>	
 		)}
-		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
-		<Typography align="center" className={gClasses.title}>{`Select relation with new family head`}</Typography>
+	)}
+</div>	
+)}
+
+/*
+		<Typography align="center" className={gClasses.title}>{`Select relation with ${familyHod}`}</Typography>
 		<br />
 		<Grid key="SPLIT3" className={gClasses.noPadding} container  alignItems="flex-start" >
 			<Grid item xs={8} sm={8} md={8} lg={8} >
@@ -558,11 +494,97 @@ return (
 				<Typography className={gClasses.titleOrange}>{"Relation"}</Typography>
 			</Grid>
 		</Grid>				
-		<br />
 		{memberList.map( (m, index) => {
+			if (!cbArray.includes(m.mid)) return;
+
+			var tmpRelationList = RELATION;
+			if (relation[index] === "Self")
+				tmpRelationList = SELFRELATION;
+			else if (m.gender === "Male")
+				tmpRelationList = GENTSRELATION;
+			else if (m.gender === "Female")
+				tmpRelationList = LADIESRELATION;
+			else
+				tmpRelationList = RELATION;
+			return (
+				<Grid key={"SPLITARRAY3"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
+				<Grid style={{marginTop: "10px"}}  item xs={7} sm={7} md={7} lg={7} >
+					<Typography style={{marginLeft: "10px", marginTop: "10px" }} className={gClasses.title}>{getMemberName(m, false, false)}</Typography>
+				</Grid>	
+				<Grid item xs={5} sm={5} md={5} lg={5} >
+					<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} 
+					options={tmpRelationList} value={relation[index]} onChange={(event) => { handleNewRelation(event.target.value, index); }} />
+				</Grid>
+				</Grid>	
+			)}
+		)}	
+
+*/
+
+function Display_select_merging_family() {
+return (
+<div>
+	<Typography align="center" className={gClasses.title}>Select Family</Typography>
+	<Grid key="SELECTFAMILY" className={gClasses.noPadding} container  alignItems="flex-start" >
+		<Grid item xs={4} sm={4} md={4} lg={4} >
+			<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Family Head</Typography>
+		</Grid>
+		<Grid item xs={8} sm={8} md={8} lg={8} >
+			<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} style={{paddingRight: "5px" }}
+			options={hodMemberList} field="mergedName"  value={familyHod} onChange={(event) => setFamilyHod(event.target.value) } />
+		</Grid>
+	</Grid>
+	<br />
+</div>	
+)}
+
+function Display_select_hod_for_new_family() {
+return (
+<div>
+	<Grid key="SELECTHODHDR" className={gClasses.noPadding} container  alignItems="flex-start" >
+		<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+		<Grid item xs={8} sm={8} md={8} lg={8} >
+			<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
+		</Grid>	
+		<Grid item xs={2} sm={2} md={2} lg={2} >
+			<Typography className={gClasses.titleOrange}>{"HOD"}</Typography>
+		</Grid>
+		<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+	</Grid>	
+	{memberList.map( (m, index) => {
+		if (!cbArray.includes(m.mid)) return; 
+		return (
+			<Grid key={"SELECTHOD2"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
+			<Grid style={{marginTop: "10px"}}  item xs={8} sm={8} md={8} lg={8} >
+				<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{m.mergedName}</Typography>
+			</Grid>	
+			<Grid item xs={2} sm={2} md={2} lg={2} >
+				<VsRadio checked={m.mid === newHod} onClick={() => setNewHod(m.mid)}  />
+			</Grid>
+			</Grid>	
+		)}
+	)}	
+</div>
+)}
+
+function Display_select_relation_with_hod() {
+return (	
+<div>
+	<Grid key="Display_select_relation_with_hod" className={gClasses.noPadding} container  alignItems="flex-start" >
+		<Grid item xs={8} sm={8} md={8} lg={8} >
+			<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
+		</Grid>	
+		<Grid item xs={4} sm={4} md={4} lg={4} >
+			<Typography className={gClasses.titleOrange}>{"Relation"}</Typography>
+		</Grid>
+	</Grid>				
+	<br />
+	{memberList.map( (m, index) => {
 			//console.log(m.mid);
 			if (!cbArray.includes(m.mid)) return;
-			var tmpRelation = (m.mid === newHod) ? "Self" : relation[index];
+			var tmpRelation = ((mergedOrCreate === "CREATE") && (m.mid === newHod)) ? "Self" : relation[index];
+			
+			// Select relation list based on Gender
 			var tmpRelationList = RELATION;
 			if (tmpRelation === "Self")
 				tmpRelationList = SELFRELATION;
@@ -585,14 +607,182 @@ return (
 				</Grid>	
 			)}
 		)}			
-		<br />
-		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
-		</div>
+	<br />	
+</div>
+)}
+
+
+function Display_select_balance_family_relation_with_hod() {
+return (	
+<div>
+	<Grid key="Display_balance_select_relation_with_hod" className={gClasses.noPadding} container  alignItems="flex-start" >
+		<Grid item xs={8} sm={8} md={8} lg={8} >
+			<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
+		</Grid>	
+		<Grid item xs={4} sm={4} md={4} lg={4} >
+			<Typography className={gClasses.titleOrange}>{"Relation"}</Typography>
+		</Grid>
+	</Grid>				
+	<br />
+	{memberList.map( (m, index) => {
+			if (cbArray.includes(m.mid)) return;
+			//console.log(m.mid);
+			var tmpRelation = ( (m.mid === balanceHod)) ? "Self" : relation[index];
+			
+			// Select relation list based on Gender
+			var tmpRelationList = RELATION;
+			if (tmpRelation === "Self")
+				tmpRelationList = SELFRELATION;
+			else if (m.gender === "Male")
+				tmpRelationList = GENTSRELATION;
+			else if (m.gender === "Female")
+				tmpRelationList = LADIESRELATION;
+			else
+				tmpRelationList = RELATION;
+			
+			return (
+				<Grid key={"NEWFAMILYRELATION"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
+				<Grid style={{marginTop: "10px"}}  item xs={7} sm={7} md={7} lg={7} >
+					<Typography style={{marginLeft: "10px", marginTop: "10px" }} className={gClasses.title}>{getMemberName(m, false, false)}</Typography>
+				</Grid>	
+				<Grid item xs={5} sm={5} md={5} lg={5} >
+					<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} 
+					options={tmpRelationList} value={tmpRelation} onChange={(event) => { handleNewRelation(event.target.value, index); }} />
+				</Grid>
+				</Grid>	
+			)}
+		)}			
+	<br />	
+</div>
+)}
+
+function Display_select_hod_for_balance_family() {
+	//console.log(balanceMemberList);
+return (
+<div>
+	<Grid key="SELECTHODHDR" className={gClasses.noPadding} container  alignItems="flex-start" >
+		<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+		<Grid item xs={8} sm={8} md={8} lg={8} >
+			<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
+		</Grid>	
+		<Grid item xs={2} sm={2} md={2} lg={2} >
+			<Typography className={gClasses.titleOrange}>{"HOD"}</Typography>
+		</Grid>
+		<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+	</Grid>	
+	{balanceMemberList.map( (m, index) => {
+		//if (!cbArray.includes(m.mid)) return; 
+		return (
+			<Grid key={"BALMEM"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
+			<Grid style={{marginTop: "10px"}}  item xs={8} sm={8} md={8} lg={8} >
+				<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{m.mergedName}</Typography>
+			</Grid>	
+			<Grid item xs={2} sm={2} md={2} lg={2} >
+				<VsRadio checked={m.mid === balanceHod} onClick={() => setBalanceHod(m.mid)}  />
+			</Grid>
+			</Grid>	
+		)}
+	)}	
+</div>
+)}
+
+function getTransferMembers() {
+	var myData = [];
+	for(var i=0; i<memberList.length; ++i) {
+		if (cbArray[i] !== 0) myData.push(memberList[i].firstName);
 	}
+	return myData.join(", ");
+}
+
+function getHodName(midNumber) {
+	//console.log(midNumber);
+	var myRec = memberList.find(x => x.mid === midNumber);
+	//console.log(myRec); 
+	var tmp = (myRec) ? getMemberName(myRec, false, false) : "";
+	//console.log(tmp);
+	return  tmp;
+}
+
+return (
+<div>
+	<Typography align="center" className={gClasses.pdhs_title}>{header}</Typography>
 	<br />
-	<VsButton align="center" name="Submit" onClick={handleSubmit} />
-	<br />
-	</div>
+	{(stage !== "FINALSTAGE") &&
+	<div>
+		<Accordion expanded={expandedPanel === "members_to_transfer"} onChange={handleAccordionChange("members_to_transfer")}>
+			<Box align="right" className={(expandedPanel === "members_to_transfer") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+			<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
+				<Typography align="left" >{"Transfer " + getTransferMembers()}</Typography>
+			</AccordionSummary>
+			</Box>
+			<Display_select_to_transfer />
+		</Accordion>
+		<br />
+		<Accordion expanded={expandedPanel === "create_or_merge"} onChange={handleAccordionChange("create_or_merge")}>
+			<Box align="right" className={(expandedPanel === "create_or_merge") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+			<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
+				<Typography align="left" >{(mergedOrCreate === "MERGE") ? "Selected to merge with existing family" : "Selected to create new family"}</Typography>
+			</AccordionSummary>
+			</Box>
+			<Display_merge_or_create />
+		</Accordion>
+		<br />
+		{/* If merge then select family with whom  to be merged */}
+		{(mergedOrCreate === "MERGE") &&
+		<Accordion expanded={expandedPanel === "merge_with_family"} onChange={handleAccordionChange("merge_with_family")}>
+		<Box align="right" className={(expandedPanel === "merge_with_family") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
+			<Typography align="left">{"Merge with family of " + familyHod}</Typography>
+		</AccordionSummary>
+		</Box>
+		<Display_select_merging_family />
+		</Accordion>
+		}
+		{(mergedOrCreate === "CREATE") &&
+		<Accordion expanded={expandedPanel === "select_hod_for_new_family"} onChange={handleAccordionChange("select_hod_for_new_family")}>
+		<Box align="right" className={(expandedPanel === "select_hod_for_new_family") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
+			<Typography align="left">{"New family HOD " + getHodName(newHod)}</Typography>
+		</AccordionSummary>
+		</Box>
+		<Display_select_hod_for_new_family />
+		</Accordion>		
+		}
+		<br />
+		<Accordion expanded={expandedPanel === "select_relation_with_hod"} onChange={handleAccordionChange("select_relation_with_hod")}>
+		<Box align="right" className={(expandedPanel === "select_relation_with_hod") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />} >
+			<Typography align="left" >{"Relation with "+ ((mergedOrCreate === "MERGE") ? familyHod : getHodName(newHod))}</Typography>
+		</AccordionSummary>
+		</Box>
+		<Display_select_relation_with_hod />
+		</Accordion>
+		<br />
+		{(hodTransfer && (balanceMemberList.length > 0)) &&
+		<Accordion expanded={expandedPanel === "hodTransfer"} onChange={handleAccordionChange("hodTransfer")}>
+		<Box align="right" className={(expandedPanel === "hodTransfer") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
+			<Typography align="left">{"Balance family HOD " + getHodName(balanceHod)}</Typography>
+		</AccordionSummary>
+		</Box>
+		<Display_select_hod_for_balance_family />
+		</Accordion>		
+		}
+		<br />
+		{(hodTransfer && (balanceMemberList.length > 0)) &&
+		<Accordion expanded={expandedPanel === "select_balance_relation_with_hod"} onChange={handleAccordionChange("select_balance_relation_with_hod")}>
+		<Box align="right" className={(expandedPanel === "select_balance_relation_with_hod") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />} >
+			<Typography align="left" >{"Balance family relation with " + getHodName(balanceHod)}</Typography>
+		</AccordionSummary>
+		</Box>
+		<Display_select_balance_family_relation_with_hod />
+		</Accordion>
+		}
+		<br />
+		<VsButton align="center" name="Submit" onClick={handleSubmit} />
+		<br />
+		</div>
 	}
 	{ (stage === "FINALSTAGE") &&
 	<div>
