@@ -7,10 +7,6 @@ import Drawer from '@material-ui/core/Drawer';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import Accordion from '@material-ui/core/Accordion';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
-import AccordionDetails from '@material-ui/core/AccordionDetails';
-
 import Box from '@material-ui/core/Box';
 import Grid from "@material-ui/core/Grid";
 
@@ -35,14 +31,11 @@ import EditIcon from '@material-ui/icons/Edit';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import IndeterminateCheckBoxIcon from '@material-ui/icons/IndeterminateCheckBox';
 import CancelIcon from '@material-ui/icons/Cancel';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-
 
 //import { NoGroup, JumpButton, DisplayPageHeader, MessageToUser } from 'CustomComponents/CustomComponents.js';
 import { 
 	showError, showSuccess, showInfo,
 	disableFutureDt,
-	dateString,
 } from 'views/functions';
 
 import globalStyles from "assets/globalStyles";
@@ -57,7 +50,7 @@ import VsCheckBox from "CustomComponents/VsCheckBox";
 
 
 import {
-	SELFRELATION, RELATION, GENTSRELATION, LADIESRELATION,
+	RELATION,
 	STATUS_INFO,
 } from 'views/globals';
 
@@ -83,29 +76,20 @@ export default function SplitFamily(props) {
 	const [memberList, setMemberList] = useState([]);
 	const [selectedMemberList, setSelectedMemberList] = useState([]);
 	const [relation, setRelation] = useState([]);
-	const [newHod, setNewHod] = useState(0);
-	const [newHodRec, setNewHodRec] = useState({});
+	const [newHod, setNewHod] = useState(props.selectedMid);
 	const [registerStatus, setRegisterStatus] = useState(0);
 	
-	// show in accordion
-	const [expandedPanel, setExpandedPanel] = useState("");
-	const handleAccordionChange = (panel) => (event, isExpanded) => {
-    setExpandedPanel(isExpanded ? panel : false);
-    setRegisterStatus(0);
-  };
-
+	
 
 	useEffect(() => {
 		let memRec = props.memberList.find(x => x.mid === props.selectedMid);
 		setCeasedName(getMemberName(memRec));
-		setHeader("Apply for ceased " + getMemberName(memRec, false, false) );
+		setHeader("Apply for ceased " + getMemberName(memRec) );
 		if ((props.selectedMid === props.hodMid) && (props.memberList.length > 1)) {
 			setStage2Ref(true);
 			var tmp = props.memberList.filter (x => x.mid !== props.selectedMid);
 			setMemberList(tmp);
-			setNewHod(tmp[0]);
-			setNewHod(tmp[0].mid);			
-			setRelation(lodashMap(tmp, 'relation'));
+			setNewHod(tmp[0].mid);
 		}
 	}, [])
 
@@ -240,158 +224,123 @@ async function handleCeasedSubmit() {
 	return;
 }
 
-function Display_select_ceased_date() {
-return (	
-<div>
-	<br />
-	<Grid key="SPLIT1" className={gClasses.noPadding} container  alignItems="flex-start" >
-	<Grid item xs={5} sm={5} md={5} lg={5} >
-		<Typography className={gClasses.patientInfo2Blue} >Ceased date</Typography>
-	</Grid>
-	<Grid item xs={7} sm={7} md={7} lg={7} >
-		<Datetime 
-			className={gClasses.dateTimeBlock}
-			inputProps={{className: gClasses.dateTimeNormal}}
-			timeFormat={false} 
-			initialValue={emurDate1}
-			value={emurDate1}
-			dateFormat="DD/MM/yyyy"
-			isValidDate={disableFutureDt}
-			onClose={setEmurDate1}
-			closeOnSelect={true}
-		/>
-	</Grid>
-	</Grid>
-	<br />
-</div>
-)}
 
-
-function Display_select_new_hod() {
-return (	
-<div>
-	<Grid key="select_new_hod" className={gClasses.noPadding} container  alignItems="flex-start" >
-		<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-		<Grid item xs={8} sm={8} md={8} lg={8} >
-			<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
-		</Grid>	
-		<Grid item xs={2} sm={2} md={2} lg={2} >
-			<Typography className={gClasses.titleOrange}>{"HOD"}</Typography>
-		</Grid>
-		<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-	</Grid>	
-	{memberList.map( (m, index) => {
-		return (
-			<Grid key={"SPLITARRAY2"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
-			<Grid style={{marginTop: "10px"}}  item xs={8} sm={8} md={8} lg={8} >
-				<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{getMemberName(m, false, false)}</Typography>
-			</Grid>	
-			<Grid item xs={2} sm={2} md={2} lg={2} >
-				<VsRadio checked={m.mid === newHod} onClick={() => handleNewHod(index)}  />
-			</Grid>
-			</Grid>	
-		)}
-	)}
-</div>
-)}
-
-function Display_select_new_relation() {
-return (	
-<div>
-	<Grid key="SPLIT3" className={gClasses.noPadding} container  alignItems="flex-start" >
-		<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-		<Grid item xs={8} sm={8} md={8} lg={8} >
-			<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
-		</Grid>	
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<Typography className={gClasses.titleOrange}>{"Relation"}</Typography>
-		</Grid>
-		<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-	</Grid>				
-	<br />
-	{memberList.map( (m, index) => {
-		var tmpRelation = ( (m.mid === newHod)) ? "Self" : relation[index];
-		
-		// Select relation list based on Gender
-		var tmpRelationList = RELATION;
-		if (tmpRelation === "Self")
-			tmpRelationList = SELFRELATION;
-		else if (m.gender === "Male")
-			tmpRelationList = GENTSRELATION;
-		else if (m.gender === "Female")
-			tmpRelationList = LADIESRELATION;
-		else
-			tmpRelationList = RELATION;
-
-		return (
-			<Grid key={"SPLITARRAY3"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
-			<Grid style={{marginTop: "10px"}}  item xs={7} sm={7} md={7} lg={7} >
-				<Typography style={{marginLeft: "10px", marginTop: "10px" }} className={gClasses.title}>{getMemberName(m, false, false)}</Typography>
-			</Grid>	
-			<Grid item xs={5} sm={5} md={5} lg={5} >
-				<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} 
-				options={tmpRelationList} value={tmpRelation} onChange={(event) => { handleNewRelation(event.target.value, index); }} />
-			</Grid>
-			</Grid>	
-		)}
-	)}			
-	<br />
-</div>
-)}
-
-function DisplayButtons() {
-return (
-<Grid key={"SPLITARRAY3BUTTON"} className={gClasses.noPadding} container  alignItems="flex-start" >
-	<Grid item xs={2} sm={2} md={2} lg={2} />
-	<Grid item xs={3} sm={3} md={3} lg={3} >
-		<VsButton align="right" name="Submit" onClick={handleStage3} />
-	</Grid>
-	<Grid item xs={2} sm={2} md={2} lg={2} />
-	<Grid item xs={3} sm={3} md={3} lg={3} >
-		<VsButton align="right" name="Back" onClick={() => setStage("STAGE2") } />
-	</Grid>
-</Grid>
-)}
-
-console.log(newHod);
 return (
 	<div>
 		<br />
 		<Typography align="center" className={gClasses.title}>{header}</Typography>
 		<br />
-		<Accordion expanded={expandedPanel === "ceased_date"} onChange={handleAccordionChange("ceased_date")}>
-			<Box align="right" className={(expandedPanel === "ceased_date") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
-			<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
-				<Typography align="left" >{"Ceased date " + dateString(emurDate1)}</Typography>
-			</AccordionSummary>
-			</Box>
-			<Display_select_ceased_date />
-		</Accordion>
-		<br />
-		{stage2Req &&
+		{ (stage === "STAGE1") &&
 		<div>
-		<Accordion expanded={expandedPanel === "new_hod"} onChange={handleAccordionChange("new_hod")}>
-			<Box align="right" className={(expandedPanel === "new_hod") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
-			<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
-				<Typography align="left" >{"New Hod " + getMemberName(memberList.find(x => x.mid === newHod), false, false)}</Typography>
-			</AccordionSummary>
-			</Box>
-			<Display_select_new_hod />
-		</Accordion>
-		<br />
-		<Accordion expanded={expandedPanel === "new_relation"} onChange={handleAccordionChange("new_relation")}>
-			<Box align="right" className={(expandedPanel === "new_relation") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
-			<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
-				<Typography align="left" >{"Relation with " + getMemberName(memberList.find(x => x.mid === newHod), false, false)}</Typography>
-			</AccordionSummary>
-			</Box>
-			<Display_select_new_relation />
-		</Accordion>
-		<br />
+			<Typography align="center" className={gClasses.title}>Step 1: Select ceased date</Typography>
+			<br />
+			<Grid key="SPLIT1" className={gClasses.noPadding} container  alignItems="flex-start" >
+			<Grid item xs={5} sm={5} md={5} lg={5} >
+				<Typography className={gClasses.patientInfo2Blue} >Ceased date</Typography>
+			</Grid>
+			<Grid item xs={7} sm={7} md={7} lg={7} >
+				<Datetime 
+					className={gClasses.dateTimeBlock}
+					inputProps={{className: gClasses.dateTimeNormal}}
+					timeFormat={false} 
+					initialValue={emurDate1}
+					value={emurDate1}
+					dateFormat="DD/MM/yyyy"
+					isValidDate={disableFutureDt}
+					onClose={setEmurDate1}
+					closeOnSelect={true}
+				/>
+			</Grid>
+			</Grid>
+			<DisplayRegisterStatus />
+			<BlankArea />
+			<VsButton align="center" name={(stage2Req) ? "Next" : "Submit"}  onClick={handleStage1} />
+			<br />
 		</div>
 		}
-		<VsButton align="center" name="Submit" onClick={handleStage3} />
-		<br />
+		{ (stage === "STAGE2") &&
+		<div>
+			<Typography align="center" className={gClasses.title}>Step 2: Select Hod</Typography>
+			<Grid key="SPLIT2" className={gClasses.noPadding} container  alignItems="flex-start" >
+				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+				<Grid item xs={8} sm={8} md={8} lg={8} >
+					<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
+				</Grid>	
+				<Grid item xs={2} sm={2} md={2} lg={2} >
+					<Typography className={gClasses.titleOrange}>{"HOD"}</Typography>
+				</Grid>
+				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+			</Grid>	
+			{memberList.map( (m, index) => {
+				return (
+					<Grid key={"SPLITARRAY2"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
+					<Grid style={{marginTop: "10px"}}  item xs={8} sm={8} md={8} lg={8} >
+						<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{getMemberName(m, false)}</Typography>
+					</Grid>	
+					<Grid item xs={2} sm={2} md={2} lg={2} >
+						<VsRadio checked={m.mid === newHod} onClick={() => handleNewHod(index)}  />
+					</Grid>
+					</Grid>	
+				)}
+			)}
+			<DisplayRegisterStatus />
+			<br />
+			<Grid key={"SPLITARRAY2BUTTON"} className={gClasses.noPadding} container  alignItems="flex-start" >
+				<Grid item xs={2} sm={2} md={2} lg={2} />
+				<Grid item xs={3} sm={3} md={3} lg={3} >
+					<VsButton align="right" name="Next" onClick={handleStage2} />
+				</Grid>
+				<Grid item xs={2} sm={2} md={2} lg={2} />
+				<Grid item xs={3} sm={3} md={3} lg={3} >
+					<VsButton align="right" name="Back" onClick={() => setStage("STAGE1") } />
+				</Grid>
+			</Grid>
+			<br />
+		</div>
+		}
+		{ (stage === "STAGE3") &&
+		<div>
+			<Typography align="center" className={gClasses.title}>Step 3: Select relation</Typography>
+			<br />
+			<Grid key="SPLIT3" className={gClasses.noPadding} container  alignItems="flex-start" >
+				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+				<Grid item xs={8} sm={8} md={8} lg={8} >
+					<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
+				</Grid>	
+				<Grid item xs={4} sm={4} md={4} lg={4} >
+					<Typography className={gClasses.titleOrange}>{"Relation"}</Typography>
+				</Grid>
+				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+			</Grid>				
+			<br />
+			{selectedMemberList.map( (m, index) => {
+				return (
+					<Grid key={"SPLITARRAY3"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
+					<Grid style={{marginTop: "10px"}}  item xs={7} sm={7} md={7} lg={7} >
+						<Typography style={{marginLeft: "10px", marginTop: "10px" }} className={gClasses.title}>{getMemberName(m, false)}</Typography>
+					</Grid>	
+					<Grid item xs={5} sm={5} md={5} lg={5} >
+						<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} 
+						options={(index === 0) ? ["Self"] : RELATION} value={relation[index]} onChange={(event) => { handleNewRelation(event.target.value, index); }} />
+					</Grid>
+					</Grid>	
+				)}
+			)}			
+			<br />
+			<Grid key={"SPLITARRAY3BUTTON"} className={gClasses.noPadding} container  alignItems="flex-start" >
+				<Grid item xs={2} sm={2} md={2} lg={2} />
+				<Grid item xs={3} sm={3} md={3} lg={3} >
+					<VsButton align="right" name="Submit" onClick={handleStage3} />
+				</Grid>
+				<Grid item xs={2} sm={2} md={2} lg={2} />
+				<Grid item xs={3} sm={3} md={3} lg={3} >
+					<VsButton align="right" name="Back" onClick={() => setStage("STAGE2") } />
+				</Grid>
+			</Grid>
+			<DisplayRegisterStatus />
+			<br />
+		</div>
+		}
 		<ToastContainer />
 	</div>
 	)

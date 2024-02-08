@@ -19,6 +19,7 @@ import { UserContext } from "../../UserContext";
 import { JumpButton, DisplayPageHeader, ValidComp, BlankArea} from 'CustomComponents/CustomComponents.js';
 
 import lodashSortBy from "lodash/sortBy";
+import lodashMap from "lodash/map";
 
 import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
@@ -49,7 +50,7 @@ import VsCheckBox from "CustomComponents/VsCheckBox";
 
 
 import {
-	RELATION,
+	SELFRELATION, RELATION, GENTSRELATION, LADIESRELATION,
 	STATUS_INFO,
 } from 'views/globals';
 
@@ -79,17 +80,9 @@ export default function NewHod(props) {
 	
 
 	useEffect(() => {
-		let memRec = props.memberList.find(x => x.mid === props.selectedMid);
-		setHeader("Apply to set " + getMemberName(memRec) + " as new HOD" );
-		var tmp = props.memberList.filter (x => x.mid !== props.selectedMid);
-		var newRelationList = ["Self"]
-		for(var i=0; i < props.memberList.length; ++i) {
-			if (props.memberList[i].mid !== props.selectedMid) {
-				newRelationList.push( (props.memberList[i].gender === "Male") ? "Brother" : "Sister");
-			}
-		}
-		setRelation(newRelationList);
-		setMemberList([memRec].concat(props.memberList.filter (x => x.mid !== props.selectedMid) ));
+		setHeader("Apply new HOD " + getMemberName(props.memberList.find(x => x.mid === props.selectedMid), false, false) );
+		setRelation(lodashMap(props.memberList, 'relation'));
+		setMemberList(props.memberList);
 	}, [])
 
 
@@ -125,14 +118,30 @@ return (
 		</Grid>				
 		<br />
 		{memberList.map( (m, index) => {
+			var tmpRelation = relation[index];
+			if (m.mid === props.selectedMid)
+				tmpRelation = "Self";
+			else if (tmpRelation = "Self")
+				tmpRelation = (m.gender === "Male") ? "Brother" : "Sister";
+		
+			// Select relation list based on Gender
+			var tmpRelationList = RELATION;
+			if (tmpRelation === "Self")
+				tmpRelationList = SELFRELATION;
+			else if (m.gender === "Male")
+				tmpRelationList = GENTSRELATION;
+			else if (m.gender === "Female")
+				tmpRelationList = LADIESRELATION;
+			else
+				tmpRelationList = RELATION;
 			return (
 				<Grid key={"SPLITARRAY3"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
 				<Grid style={{marginTop: "10px"}}  item xs={7} sm={7} md={7} lg={7} >
-					<Typography style={{marginLeft: "10px", marginTop: "10px" }} className={gClasses.title}>{getMemberName(m, false)}</Typography>
+					<Typography style={{marginLeft: "10px", marginTop: "10px" }} className={gClasses.title}>{getMemberName(m, false, false)}</Typography>
 				</Grid>	
 				<Grid item xs={5} sm={5} md={5} lg={5} >
 					<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} 
-					options={(index === 0) ? ["Self"] : RELATION} value={relation[index]} onChange={(event) => { handleNewRelation(event.target.value, index); }} />
+					options={tmpRelationList} value={tmpRelation} onChange={(event) => { handleNewRelation(event.target.value, index); }} />
 				</Grid>
 				</Grid>	
 			)}
