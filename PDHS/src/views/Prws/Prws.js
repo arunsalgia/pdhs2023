@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import {  CssBaseline } from '@material-ui/core';
+import {  Container, CssBaseline } from '@material-ui/core';
 import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from "react-tooltip";
@@ -8,6 +8,11 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu'; 
 import TextField from '@material-ui/core/TextField'; 
 import TablePagination from '@material-ui/core/TablePagination';
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+import HumadUpgrade from 'views/Humad/HumadUpgrade';
 
 //import Avatar from '@material-ui/core/Avatar';
 import lodashCloneDeep from 'lodash/cloneDeep';
@@ -67,10 +72,12 @@ import {
 	READMEMBERINITIAL,
 	MOBROWSPERPAGE, NONMOBROWSPERPAGE,	
 	PAGELIST,
+	STATUS_INFO,
 } from "views/globals.js";
 
 
 import { 
+	showError, showSuccess, showInfo,
   displayType, getWindowDimensions,
 	decrypt, dispMobile, dispEmail, disableFutureDt,
 	isMobile, 
@@ -111,7 +118,10 @@ var memberMasterArray = [];  function setMemberMasterArray(data) { memberMasterA
 var radioMid = -1;
 
 var currentPage = 0;
-  
+
+var menuMember = {};
+function setMenuMember(p) { menuMember = p; }
+
 export default function Prws() {
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
   const [dispType, setDispType] = useState("lg");
@@ -131,6 +141,7 @@ export default function Prws() {
 	//const [memberMasterArray, setMemberMasterArray] = useState([]);
 	const [memberArray, setMemberArray] = useState([]);
 	const [memberCount, setMemberCount] = useState(0);
+	const [isDrawerOpened, setIsDrawerOpened] = useState("");
 	
 	//const [cityArray, setCityArray] = useState([]);
 	// pagination
@@ -394,18 +405,41 @@ export default function Prws() {
 	}
 	function jumpPjym() {
 		handlePrwsContextMenuClose();
-		 setGrpAnchorEl(null);
-		setTab(process.env.REACT_APP_PJYM);
+		setGrpAnchorEl(null);
+		//setTab(process.env.REACT_APP_PJYM);
+		console.log("Here");
+		showInfo("Membership of PJYM to be implemented");
+		console.log("Here again");
 	}
+
 	function jumpHumad() {
 		handlePrwsContextMenuClose();
-		 setGrpAnchorEl(null);
-		setTab(process.env.REACT_APP_HUMAD);
+		setGrpAnchorEl(null);
+		//setTab(process.env.REACT_APP_HUMAD);
+		setIsDrawerOpened("HumadUpgrade");
+	}
+	
+	
+	function handleHumadUpgradeBack(sts) {
+		if (sts.status === STATUS_INFO.ERROR) 
+			showError(sts.msg); 
+		else if (sts.status === STATUS_INFO.SUCCESS) {
+			showSuccess(sts.msg); 
+			// update member list
+		}
+		else if (sts.status === STATUS_INFO.INFO) {
+			console.log("In info");
+			vsInfo("Applied for ceased", sts.msg,
+				{label: "Okay"}
+			);
+		}
+		setIsDrawerOpened("");
 	}
 	function jumpGotra() {
 		handlePrwsContextMenuClose();
 		 setGrpAnchorEl(null);
-		setTab(process.env.REACT_APP_GOTRA);
+		//setTab(process.env.REACT_APP_GOTRA);
+		showError("Membership of PJYM to be implemented");
 	}
 	
 	
@@ -463,6 +497,7 @@ export default function Prws() {
 	function PrwsContextMenu() {
 	//console.log(radioMid);
 		var tmp = memberMasterArray.find(x => x.mid === radioMid);
+		setMenuMember(tmp);
 		//console.log(tmp);
     var myName = tmp.firstName + " " + tmp.lastName;
 		//console.log(contextParams);
@@ -488,18 +523,19 @@ export default function Prws() {
 		onClose={handlePrwsContextMenuClose}
 	>
 		<Typography className={gClasses.patientInfo2Blue} style={{paddingLeft: "5px", paddingRight: "5px"}}>
-			{tmp.lastName + " " + tmp.firstName + " " + tmp.middleName }
+			{getMemberName(tmp, false, false)}
 		</Typography>
 		<Divider />
 		<MenuItem onClick={jumpFamily}>
 			<Typography>{"Family"}</Typography>
 		</MenuItem>
-		{/*<MenuItem onClick={jumpPjym}>
-			<Typography>Pjym</Typography>
+		<Divider />
+		<MenuItem disabled={tmp.pjymMember} onClick={jumpPjym}>
+			<Typography>Pjym Membership</Typography>
 		</MenuItem>
-		<MenuItem onClick={jumpHumad}>
-			<Typography>Humad</Typography>
-		</MenuItem>*/}
+		<MenuItem disabled={tmp.humadMember} onClick={jumpHumad}>
+			<Typography>Humad Membership</Typography>
+		</MenuItem>
 		<Divider />
 		{/*<MenuItem onClick={jumpGotra}>
 			<Typography>Gotra</Typography>
@@ -683,6 +719,17 @@ export default function Prws() {
 		}
 		<DisplayAllToolTips />
 		{contextParams.show && <PrwsContextMenu /> }
+		<Drawer style={{ width: "100%"}} anchor="top" variant="temporary" open={isDrawerOpened != ""} >
+		<Container component="main" maxWidth="xs" >	
+		<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
+		<VsCancel align="right" onClick={() => { setIsDrawerOpened("")}} />
+		{(isDrawerOpened === "HumadUpgrade") &&
+			<HumadUpgrade memberRec={menuMember} humadRec={null} onReturn={handleHumadUpgradeBack} />
+		}
+		</Box>
+		</Container>
+		</Drawer>
+		<ToastContainer />
   </div>
   );    
 }

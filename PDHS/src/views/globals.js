@@ -27,9 +27,9 @@ export const ALPHABETSTR = [
 export const ADMIN = {superAdmin: 1, pjymAdmin: 2, humadAdmin: 4, prwsAdmin: 8, pmmAdmin: 16, };
 
 export const HUMADCATEGORY = [
-	{short: "S", desc: "Sangrakshak"}, 
-	{short: "L", desc: "Life"},
-	{short: "H", desc: "Humad"} 
+	{short: "S", desc: "Sangrakshak sadasya"}, 
+	{short: "L", desc: "Life sadasya"},
+	{short: "H", desc: "Humad sadasya"} 
 ];
 
 export const Options_Gender = 				["Male", "Female", "Others" ];

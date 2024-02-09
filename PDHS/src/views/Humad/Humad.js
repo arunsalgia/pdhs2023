@@ -7,6 +7,10 @@ import ReactTooltip from "react-tooltip";
 import MenuItem from '@material-ui/core/MenuItem'; 
 import Menu from '@material-ui/core/Menu'; 
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 import axios from "axios";
 import Drawer from '@material-ui/core/Drawer';
 import { useAlert } from 'react-alert'
@@ -31,6 +35,8 @@ import VsTextSearch from "CustomComponents/VsTextSearch";
 import VsRadioGroup from "CustomComponents/VsRadioGroup";
 import VsRolodex from 'CustomComponents/VsRolodex';
 
+import HumadUpgrade from 'views/Humad/HumadUpgrade';
+
 
 // styles
 import globalStyles from "assets/globalStyles";
@@ -54,9 +60,11 @@ import {
 	Options_Gender, Options_Marital_Status, Options_Blood_Group,
 	MOBROWSPERPAGE, NONMOBROWSPERPAGE,	
 	PAGELIST,
+	STATUS_INFO,
 } from "views/globals.js";
 
 import { 
+	showInfo, showError, showSuccess,
 	displayType, getWindowDimensions,
 	isMobile,
 	dateString,
@@ -140,6 +148,8 @@ export default function Humad() {
 	const [modMasterFilterItems, setModMasterFilterItems] = useState(MasterFilterItems);
 	//---  end of filter variables
 
+	const [humadRec, setHumadRec] = useState(null);
+	
 	const [contextParams, setContextParams] = useState(InitialContextParams);
 	const [grpAnchorEl, setGrpAnchorEl] = React.useState(null);
 	const grpOpen = Boolean(grpAnchorEl);
@@ -264,7 +274,7 @@ export default function Humad() {
   }
 	
 	 	
-	function upgradeHumad() {
+	function OrgupgradeHumad() {
 		handleHumadMenuClose();
 		let humadRec = humadArray.find(x => x.mid === menuMember.mid);
 		let  myIndex = -1;  
@@ -281,7 +291,36 @@ export default function Humad() {
 			setIsDrawerOpened("Upgrade");
 		}
 	}
-		
+	
+	function upgradeHumad() {
+		handleHumadMenuClose();
+		// get Humad record
+		let tmpHumadRec = humadArray.find(x => x.mid === menuMember.mid);
+		let  myIndex = HUMADCATEGORY.map(e => e.short).indexOf(tmpHumadRec.membershipNumber.substr(0, 1));  //.find(x => x.short === );
+		if (myIndex === 0) {
+			showInfo(`${getMemberName(menuMember, false, false)} is already ${HUMADCATEGORY[0].desc} (highest upgrade)`);
+			return;
+		}
+		setHumadRec(tmpHumadRec);
+		setIsDrawerOpened("Upgrade");
+	}
+
+	function handleHumadUpgradeBack(sts) {
+		if (sts.status === STATUS_INFO.ERROR) 
+			showError(sts.msg); 
+		else if (sts.status === STATUS_INFO.SUCCESS) {
+			showSuccess(sts.msg); 
+			// update member list
+		}
+		else if (sts.status === STATUS_INFO.INFO) {
+			console.log("In info");
+			vsInfo("Applied for ceased", sts.msg,
+				{label: "Okay"}
+			);
+		}
+		setIsDrawerOpened("");
+	}
+
 	async function upgradeHumadSubmit() {
 		try {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/humad/upgrade/${currentHumad.mid}/${newCategory}`;
@@ -419,9 +458,9 @@ export default function Humad() {
 		//let family = (menuMember.hid === loginHid);
 		//let admin = ((adminInfo & (ADMIN.superAdmin | ADMIN.prwsAdmin)) !== 0);
 	
-		var tmp = menuMember;		//memberArray.find(x => x.mid === menuMember.mid);
-		if (!tmp) return;		
-    let myName = tmp.firstName + " " + tmp.lastName;
+		//var tmp = menuMember;		//memberArray.find(x => x.mid === menuMember.mid);
+		if (!menuMember) return;	
+		var tmpHumadRec = humadArray.find(x => x.mid === menuMember.mid);
 		var myStyle={top: `${contextParams.y}px` , left: `${contextParams.x}px` };
 	return(
 	<div ref={menuRef} className='absolute z-20' style={myStyle}>
@@ -432,8 +471,8 @@ export default function Humad() {
 		transformOrigin={{ vertical: 'top', horizontal: 'center', }}
 		open={contextParams.show} onClose={handleHumadMenuClose}
 	>
-		<Typography className={gClasses.patientInfo2Blue} style={{paddingLeft: "5px", paddingRight: "5px"}}>{tmp.firstName + " " + tmp.lastName}</Typography>
-		<MenuItem disabled={!hasPRWSpermission()} onClick={upgradeHumad}>
+		<Typography className={gClasses.patientInfo2Blue} style={{paddingLeft: "5px", paddingRight: "5px"}}>{getMemberName(menuMember, false, false)}</Typography>
+		<MenuItem disabled={tmpHumadRec.membershipNumber.substr(0, 1) === HUMADCATEGORY[0].short} onClick={upgradeHumad}>
 			<Typography>Upgrade</Typography>
 		</MenuItem>
 		<Divider />
@@ -720,10 +759,15 @@ export default function Humad() {
 		/>
 	}
 	<DisplayAllToolTips />
-	<Drawer anchor="right" variant="temporary" open={isDrawerOpened != ""} >
-	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
+	<Drawer style={{ width: "100%"}} anchor="top" variant="temporary" open={isDrawerOpened != ""} >
+	<Container component="main" maxWidth="xs">	
+	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
 	<VsCancel align="right" onClick={() => { setIsDrawerOpened("")}} />
-	{(isDrawerOpened === "Upgrade") &&
+	{((isDrawerOpened === "Upgrade") || (isDrawerOpened === "EDIT")) &&
+		<HumadUpgrade memberRec={menuMember} humadRec={humadRec} onReturn={handleHumadUpgradeBack}/>
+	}
+
+	{(isDrawerOpened === "xxxUpgrade") &&
 	<div style={{paddingLeft: "5px", paddingRight: "5px" }}>
 		<br />
 		<Typography className={gClasses.patientInfo2Blue}>Upgrade Humad membership category</Typography>
@@ -737,7 +781,9 @@ export default function Humad() {
 	</div>
 	}
 	</Box>
+	</Container>
 	</Drawer>
+	<ToastContainer />
   </div>
   );    
 }

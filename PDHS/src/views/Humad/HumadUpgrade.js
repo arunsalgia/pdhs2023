@@ -3,6 +3,7 @@ import axios from "axios";
 import { makeStyles } from '@material-ui/core/styles';
 
 import { ValidatorForm, TextValidator, TextValidatorcvariant} from 'react-material-ui-form-validator';
+import TextField from '@material-ui/core/TextField'; 
 import Drawer from '@material-ui/core/Drawer';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -51,6 +52,7 @@ import VsCheckBox from "CustomComponents/VsCheckBox";
 
 import {
 	SELFRELATION, RELATION, GENTSRELATION, LADIESRELATION,
+	HUMADCATEGORY,
 	STATUS_INFO,
 } from 'views/globals';
 
@@ -59,13 +61,18 @@ import {
 } from 'views/functions';
 
 
-export default function NewHod(props) {
+export default function HumadUpgrade(props) {
 	//const classes = useStyles();
 	const gClasses = globalStyles();
 	
-	const [header, setHeader] = useState("");
+	const [memberRec, setMemberRec] = useState(null);
+	const [remarks, setRemarks] = useState("");
+	
+	const [header, setHeader] = useState("Humad upgrade");
 	const [stage, setStage] = useState("STAGE1");
 	const [stage2Req, setStage2Ref] = useState(false);
+
+	const [upgradeArray, setUpgradeArray] = useState([]);
 	
 	const [emurDate1, setEmurDate1] = useState(moment());
 	
@@ -74,15 +81,26 @@ export default function NewHod(props) {
 	const [memberList, setMemberList] = useState([]);
 	const [selectedMemberList, setSelectedMemberList] = useState([]);
 	const [relation, setRelation] = useState([]);
-	const [newHod, setNewHod] = useState(props.selectedMid);
+	const [newUpgrade, setNewUpgrade] = useState(props.selectedMid);
 	const [registerStatus, setRegisterStatus] = useState(0);
 	
 	
 
 	useEffect(() => {
-		setHeader("Apply new HOD " + getMemberName(props.memberList.find(x => x.mid === props.selectedMid), false, false) );
-		setRelation(lodashMap(props.memberList, 'relation'));
-		setMemberList(props.memberList);
+		
+		if (props.humadRec) {
+			var myArray = HUMADCATEGORY.slice(0, HUMADCATEGORY.map(e => e.short).indexOf(props.humadRec.membershipNumber.substr(0, 1))); 
+			setUpgradeArray(myArray);
+			setNewUpgrade(myArray[myArray.length-1].desc);
+			setRemarks(props.humadRec.remarks);
+		}
+		else {
+			// This is for new members ship
+			setUpgradeArray(HUMADCATEGORY);
+			setNewUpgrade(HUMADCATEGORY[HUMADCATEGORY.length-1].desc);		
+		}
+		//console.log(props.memberRec);
+		//console.log(props.humadRec);
 	}, [])
 
 
@@ -96,7 +114,7 @@ function handleNewRelation(rel, idx) {
 
 
 async function handleNewHodSubmit() {
-	props.onReturn.call(this, {status: STATUS_INFO.ERROR, msg: `Error new HOD member`});
+	props.onReturn.call(this, {status: STATUS_INFO.ERROR, msg: `Error Humad upgrade`});
 	return;
 }
 
@@ -104,48 +122,45 @@ async function handleNewHodSubmit() {
 return (
 	<div>
 		<br />
-		<Typography align="center" className={gClasses.title}>{header}</Typography>
-		<br />
-		<Typography align="center" className={gClasses.title}>Select relation</Typography>
-		<br />
-		<Grid key="SPLIT3" className={gClasses.noPadding} container  alignItems="flex-start" >
-			<Grid item xs={8} sm={8} md={8} lg={8} >
-				<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
-			</Grid>	
-			<Grid item xs={4} sm={4} md={4} lg={4} >
-				<Typography className={gClasses.titleOrange}>{"Relation"}</Typography>
-			</Grid>
-		</Grid>
-		{memberList.map( (m, index) => {
-			var tmpRelation = relation[index];
-			if (m.mid === props.selectedMid)
-				tmpRelation = "Self";
-			else if (tmpRelation = "Self")
-				tmpRelation = (m.gender === "Male") ? "Brother" : "Sister";
-		
-			// Select relation list based on Gender
-			var tmpRelationList = RELATION;
-			if (tmpRelation === "Self")
-				tmpRelationList = SELFRELATION;
-			else if (m.gender === "Male")
-				tmpRelationList = GENTSRELATION;
-			else if (m.gender === "Female")
-				tmpRelationList = LADIESRELATION;
-			else
-				tmpRelationList = RELATION;
+		{(props.humadRec) &&
+		<div align="center" >
+			<Typography className={gClasses.title}>Humad Upgade of</Typography>
+			<Typography className={gClasses.title}>{getMemberName(props.memberRec, false, false)}</Typography>
+			<Typography className={gClasses.title}>{`Current membership ${props.humadRec.membershipNumber}`}</Typography>
+		</div>
+		}
+		{(!props.humadRec) &&
+		<div align="center" >
+			<Typography className={gClasses.title}>New Humad membership of</Typography>
+			<Typography className={gClasses.title}>{getMemberName(props.memberRec, false, false)}</Typography>
+		</div>
+		}		<br />
+		{upgradeArray.map( (u, index) => {
 			return (
-				<Grid key={"SPLITARRAY3"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
-				<Grid style={{marginTop: "10px"}}  item xs={7} sm={7} md={7} lg={7} >
-					<Typography style={{marginLeft: "10px", marginTop: "10px" }} className={gClasses.title}>{getMemberName(m, false, false)}</Typography>
-				</Grid>	
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} 
-					options={tmpRelationList} value={tmpRelation} onChange={(event) => { handleNewRelation(event.target.value, index); }} />
-				</Grid>
-				</Grid>	
+			<Grid key={"BALMEM"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
+			<Grid style={{marginTop: "10px"}}  item xs={6} sm={6} md={6} lg={6} >
+				<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{u.desc}</Typography>
+			</Grid>	
+			<Grid item xs={2} sm={2} md={2} lg={2} >
+				<VsRadio checked={u.desc == newUpgrade} onClick={() => setNewUpgrade(u.desc)}  />
+			</Grid>
+			</Grid>	
+
 			)}
-		)}			
-		<br />
+		)}
+		<br />	
+		<Grid key={"HUMREMARKS"} className={gClasses.noPadding} container  alignItems="flex-start" >
+		<Grid style={{marginTop: "10px"}}  item xs={6} sm={6} md={6} lg={6} >
+			<Typography style={{marginLeft: "10px"}} className={gClasses.title}>Remarks</Typography>
+		</Grid>	
+		<Grid item xs={5} sm={5} md={5} lg={5} >
+			<TextField id="outlined-required" label={props.inputName}
+				value={remarks}  autoFocus
+				onChange={(event) => { setRemarks(event.target.value); }}
+			/>			
+		</Grid>
+		</Grid>			
+		<br />	
 		<VsButton align="center" name="Submit" onClick={handleNewHodSubmit} />
 		<br />
 	</div>
