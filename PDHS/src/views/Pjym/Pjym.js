@@ -101,6 +101,7 @@ var inputName="";
 
 const InitialContextParams = {show: false, x: 0, y: 0};
 
+var currentPage = 0;
 
 export default function Pjym() {
 	//var memberMasterArray;
@@ -120,6 +121,8 @@ export default function Pjym() {
 	const [memberArray, setMemberArray] = useState([]);
 	const [memberMasterArray, setMemberMasterArray] = useState([]);
 
+	const [pjymCount, setPjymCount] = useState(0);
+	
 	const [currSort, setCurrSort] = useState({dir: "ASC", name: "NAME"});
 	const [currentAlphabet, setCurrentAlphabet] = useState("A");
 	const [modalRegister, setModalRegister] = useState(0);
@@ -145,7 +148,7 @@ export default function Pjym() {
 	
   useEffect(() => {	
 	
-		async function getPjymList() {
+		async function orggetPjymList() {
 			try {
 				let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/pjym/listwithnames`;
 				let axiosResp = await axios.get(myUrl);
@@ -159,6 +162,28 @@ export default function Pjym() {
 				console.log(e);
 				alert.error(`Error fetching PJYM details`);
 			}	
+		}
+
+		async function getPjymList() {
+			if (process.env.REACT_APP_BACKENDFILTER === "true") {
+					await getPjymPage([], 0);
+			}
+			else {			
+				try {
+					let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/pjym/listwithnames`;
+					let axiosResp = await axios.get(myUrl);
+					//console.log(axiosResp.data.pjym);
+					setPjymArray(axiosResp.data.pjym);
+					//console.log(new Date());
+					setMemberMasterArray(axiosResp.data.member);
+					setMemberArray(axiosResp.data.member);
+					//console.log(new Date());
+				} 
+				catch (e) {
+					console.log(e);
+					alert.error(`Error fetching PJYM details`);
+				}	
+			}
 		}
 
 		async function getAllCities() {
@@ -201,7 +226,33 @@ export default function Pjym() {
 		return new Date(xxx);
 	}
 	
+	async function getPjymPage(filterList, pageNumber)  {
+		var myData = encodeURIComponent(JSON.stringify({
+			pageNumber: pageNumber,
+			pageSize:	ROWSPERPAGE,
+			filterData: filterList
+		}));
 
+		try {
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/pjym/filterdata/${myData}`;
+			//console.log(myUrl);
+			let resp = await axios.get(myUrl);
+			//console.log(resp.data.member.length);
+			//console.log(resp.data);
+			currentPage = (process.env.REACT_APP_BACKENDFILTER === "true") ? 0 : pageNumber;
+			setPjymCount(resp.data.count);
+			setMemberArray(resp.data.member);
+			setMemberMasterArray(resp.data.member);
+			setPjymArray(resp.data.pjym);
+			//console.log(resp.data.pjym);
+		} catch (e) {
+			console.log("Error fetching filter member data");
+			showError(`Error fetching member data of page ${pageNumber}`);
+		}
+		
+	}
+	
+	
 	function ModalResisterStatus() {
     // console.log(`Status is ${modalRegister}`);
 		let regerr = true;
@@ -293,27 +344,12 @@ export default function Pjym() {
 	function DisplayAllPjym() {
 		return (
 		<div>
-		{memberArray.slice(page*ROWSPERPAGE, (page+1)*ROWSPERPAGE).map( (m, index) => {
-			//console.log(m);
-			//console.log(pjymArray);
+		{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
 			let p = pjymArray.find(x => x.mid === m.mid);
+			//console.log("PJYM", p);
 			var memberCity = getMyCity(m.hid);
 			let myClass = gClasses.patientInfo2;
-			
-			//console.log(p);
-			//let ageGender = dispAge(m.dob, m.gender);			
-			//let domStr = dateString(m.dateOfMarriage);		
-			//let memDateStr = dateString(p.membershipDate);	
 
-			/*let myInfo = getMemberName(m);
-      myInfo += "<br />" +  "Age: " + ageGender;
-      myInfo += "<br />" +  "Mem.Id. : " + m.mid;
-			myInfo += "<br />" +  "Mem.No. : " +  p.membershipNumber;
-			let ttt = dateString(p.membershipDate);
-			if (ttt !== "") myInfo += "<br />" + "Mem.Date: " + ttt;
-      //myInfo += "<br />" + "Mem.Id: " + m.mid;
-     // myInfo += "<br />" + "Mem.No.: " + p.membershipNumber; */
-		 
 			return (
 			<Box  key={"MEMBOX"+index} className={((index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd } borderColor="black" borderRadius={30} border={1} >
 			<Grid key={"MEMGRID"+index} className={gClasses.noPadding} key={"SYM"+index} container align="center" alignItems="center" >
@@ -335,7 +371,7 @@ export default function Pjym() {
         }
         {((dispType != "xs") && (dispType != "sm"))  &&
           <Grid align="center" item md={2} lg={2} >
-            <Typography className={myClass}>{p.membershipNumber}</Typography>
+            <Typography className={myClass}>{(p) ? p.membershipNumber : ""}</Typography>
           </Grid>
         }
         <Grid align="left" item xs={1} sm={1} md={1} lg={1} >
@@ -367,6 +403,9 @@ export default function Pjym() {
 	
 	// pagination function 
 	const handleChangePage = (event, newPage) => {
+		if (process.env.REACT_APP_BACKENDFILTER === "true") {
+			getPjymPage(filterList, newPage);
+		}
     setPage(newPage);
   };
 
@@ -666,13 +705,13 @@ export default function Pjym() {
 		cancelClick={() => { setInputFilterMode(false); setLastFilter(""); } }
 	/>
   <DisplayAllPjym />
-	{(memberArray.length > ROWSPERPAGE) &&
+	{(pjymCount > ROWSPERPAGE) &&
 		<TablePagination
 			align="right"
 			rowsPerPageOptions={[ROWSPERPAGE]}
 			component="div"
 			labelRowsPerPage="Pjym Members per page"
-			count={memberArray.length}
+			count={pjymCount}
 			rowsPerPage={ROWSPERPAGE}
 			page={page}
 			onPageChange={handleChangePage}

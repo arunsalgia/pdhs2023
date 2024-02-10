@@ -1,12 +1,14 @@
-const {  akshuGetUser, GroupMemberCount,  
+const {  
+	encrypt, decrypt, dbencrypt, dbToSvrText, svrToDbText, dbdecrypt,
+	akshuGetUser, GroupMemberCount,  
 	numberDate,
-	dbToSvrText, svrToDbText, 
 	getMemberName
 } = require('./functions'); 
 const {
 	memberGetAll,
 	memberAddOne, memberAddMany,
 	memberUpdateOne, memberUpdateMany,
+	memberGetAllPjym, memberGetPjymCount,
 } = require('./dbfunctions');
 
 var router = express.Router();
@@ -77,6 +79,86 @@ router.get('/listwithnames', async function (req, res) {
 	
 	sendok(res, {pjym: allPjym, member: allNames});
 });
+
+
+router.get('/filterdata/:filterInfo', async function (req, res) {
+  setHeader(res);
+  var {filterInfo } = req.params;
+	filterInfo = JSON.parse(filterInfo);
+	
+
+	let myData = await memberGetAllPjym();
+ 	var clonedArray = _.cloneDeep(myData);
+	myData = clonedArray.filter(x => !x.ceased);
+	for (var i=0; i< filterInfo.filterData.length; ++i) {
+		var fItem = filterInfo.filterData[i];
+		switch (fItem.item) {
+			case "FirstName": 
+				myData = myData.filter(x => x.firstName.toUpperCase().includes(fItem.value.toUpperCase()) );
+				break;
+			case "MiddleName":
+				myData = myData.filter(x => x.middleName.toUpperCase().includes(fItem.value.toUpperCase()) );
+				break;
+			case "LastName":
+				myData = myData.filter(x => x.lastName.toUpperCase().includes(fItem.value.toUpperCase()) );
+				break;
+			case "Marital Status":
+				if (fItem.value.toUpperCase() === "MARRIED")
+					myData = myData.filter(x => !x.emsStatus.toUpperCase().includes("UNMARRIED"));
+				else
+					myData = myData.filter(x => x.emsStatus.toUpperCase().includes("UNMARRIED"));
+				break;
+			case "Gender":
+				myData = myData.filter(x => x.gender.toUpperCase().startsWith(fItem.value.toUpperCase()) );
+				break;
+			case "Blood Group":
+				myData = myData.filter(x => x.bloodGroup.toUpperCase().includes(fItem.value.toUpperCase()) );
+				break;	
+			case "City":
+				console.log(fItem.value);
+				var cityArray = await getHodCityList();
+				var xxx = cityArray.find( x => x.city === fItem.value);
+				//console.log(xxx);
+				myData = myData.filter(x => xxx.hidList.includes(x.hid)  );
+				break;	
+			case "Age greater than":
+			case "Age less than":
+				// calculate dot based on age criteria
+				var d = new Date();
+				d.setFullYear(d.getFullYear() - fItem.value);
+				// exclude all members whose dob is not available
+				myData = myData.filter(x => x.dob.getFullYear() != 1900 );
+				// now do the comparison
+				if (fItem.item === "Age greater than")
+					myData = myData.filter( x => x.dob.getTime() <= d.getTime() );
+				else
+					myData = myData.filter( x => x.dob.getTime() >= d.getTime() );
+				break;
+		}
+	}
+	
+	//console.log(myData.length);
+	myData = myData.slice(filterInfo.pageNumber* filterInfo.pageSize, (filterInfo.pageNumber+1)* filterInfo.pageSize);
+	//console.log(myData.length);
+
+	for (var i=0; i< myData.length; ++i) {
+		var tmp = dbdecrypt(myData[i].email);
+		tmp = encrypt(tmp);
+		myData[i].email = tmp;		//dbToSvrText(myData[i].email);
+		tmp = dbdecrypt(myData[i].email1);
+		tmp = encrypt(tmp);
+		myData[i].email1 = tmp;		//dbToSvrText(myData[i].email1);
+	}
+	
+	var myPjym = await M_Pjym.find( {mid: {$in: _.map(myData, 'mid')}, active: true } );
+	console.log(_.map(myData, 'mid'));
+	console.log(_.map(myPjym, 'mid'));
+
+	var totalPjym = await memberGetPjymCount();  
+	
+	sendok(res, {pjym: myPjym, member: myData, count: totalPjym} );
+});		
+
 
 router.get('/listbyalphabet/:chrStr', async function (req, res) {
   setHeader(res);

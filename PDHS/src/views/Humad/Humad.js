@@ -50,7 +50,7 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 const BlankMemberData = {firstName: "", middleName: "", lastName: ""};
 
-var currentPage = 0;
+
 
 import {
 	BlankArea, DisplayPageHeader,
@@ -104,6 +104,8 @@ function setMenuMember(p) { menuMember = p; }
 //const ROWSPERPAGE = isMobile() ? 7 : 12;
 
 const InitialContextParams = {show: false, x: 0, y: 0};
+
+var currentPage = 0;
 
 export default function Humad() {
 	const adminInfo = getAdminInfo();

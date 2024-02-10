@@ -137,6 +137,11 @@ async function memberGetAllPjym() {
 	return allMemberlist.filter(x => x.pjymMember);
 }
 
+async function memberGetPjymCount() {
+	if (allMemberlist.length === 0) memberGetAll();
+	return allMemberlist.filter(x => x.pjymMember).length;
+}
+
 module.exports = {
 	memberGetAll, memberGetHodMembers,
 	memberAddOne, memberAddMany,
@@ -147,6 +152,6 @@ module.exports = {
 	memberGetAlive,
 	memberGetAllHumad, memberGetHumadCount,
 	memberGetAllPjym,
-	getHodCityList,
+	getHodCityList, memberGetPjymCount,
 }; 
 
