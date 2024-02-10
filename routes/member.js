@@ -10,6 +10,7 @@ const {
 	memberGetCount,
 	memberGetAlive,
 	getHodCityList,
+	memberGetAllHumad, memberGetHumadCount,
 	
 } = require('./dbfunctions');
 
@@ -153,6 +154,12 @@ router.get('/filterdata/:filterInfo', async function (req, res) {
 	sendok(res, {data: myData, count: totalCount} );
 });		
 
+router.get('/humadcount', async function (req, res) {
+  setHeader(res);
+  var myCount = await memberGetHumadCount();
+	console.log("Humad count " + myCount);
+	sendok(res, myCount.toString());
+});		
 
 
 router.get('/hod/all', async function (req, res) {

@@ -55,7 +55,7 @@ const currencyChar = '₹';
 
 import {setTab, setDisplayPage } from "CustomComponents/CricDreamTabs.js"
 
-
+/*
 const modelStyles = {
   content : {
     top                   : '50%',
@@ -152,8 +152,8 @@ const useDashStyles = makeStyles((theme) => ({
     opacity: 0.8,
     // background: rgb(26, 31, 41) url("your picture") no-repeat fixed top;
     // background-blend-mode: luminosity;
-    /* also change the blend mode to what suits you, from darken, to other 
-    many options as you deem fit*/
+    // also change the blend mode to what suits you, from darken, to other 
+    // many options as you deem fit
     // background-size: cover;
     // top: 0;
     // left: 0;
@@ -177,6 +177,7 @@ const useDashStyles = makeStyles((theme) => ({
     margin: theme.spacing(2, 2, 2),
   },
 })); 
+*/
 
 import { 
 	dateString,
@@ -190,30 +191,26 @@ let first =  true;
 
 export default function Dashboard() {
   const gClasses = globalStyles();
-  const classes = useStyles();
-  const dashClasses = useDashStyles();
+  //const classes = useStyles();
+  //const dashClasses = useDashStyles();
 
-  const [countInfo, setCountInfo] = useState({prws: 0, pjym: 0,  humad: 0,  family: 0, application:  0});
+  const [countInfo, setCountInfoLocal] = useState({prws: 0, pjym: 0,  humad: 0,  family: 0, application:  0});
 	const [loginUserRec, setLoginUserRec] = useState(JSON.parse(sessionStorage.getItem("memberRec")));
 	const [applMsg, setApplMsg] = useState("");
 	const adminRec = getAdminRec();
 	
   useEffect(() => {
-		
-		async function getCount() {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/count/all/${sessionStorage.getItem("mid")}`;
-			let resp = await axios.get(myUrl);
-			setCountInfo(resp.data);
-			console.log(resp.data.application);
-			setApplMsg(resp.data.application + " application" + ((resp.data.application > 1) ? "s" : ""));
-
-		}
-		
-		getCount();
-		
+		getCount();	
 	}, []);
 
-
+	async function getCount() {
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/count/all/${sessionStorage.getItem("mid")}`;
+		const resp = await axios.get(myUrl);
+		setCountInfoLocal(resp.data);
+		//console.log(resp.data.application);
+		setApplMsg(resp.data.application + " application" + ((resp.data.application > 1) ? "s" : ""));
+	}
+	
 	function jumpToPrws() {
 		setTab(process.env.REACT_APP_PRWS);
 	}
@@ -257,7 +254,7 @@ export default function Dashboard() {
               </CardIcon>
 							<div>
               <button className={gClasses.dashText} >PRWS</button>
-							<h5 align="right" color="blue"  className={classes.cardTitle} >{`${countInfo.prws} members`}</h5>
+							<h5 align="right" color="blue"  className={gClasses.cardTitle} >{`${countInfo.prws} members`}</h5>
 							</div>
             </CardHeader>
             <CardFooter key="db_cftr_ub1" stats>
@@ -272,7 +269,7 @@ export default function Dashboard() {
 							<img src={process.env.PUBLIC_URL + 'image/PJYM.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 
               </CardIcon>
               <button className={gClasses.dashText} >PJYM</button>
-							<h5 color="blue"  className={classes.cardTitle} >{`${countInfo.pjym} members`}</h5>
+							<h5 color="blue"  className={gClasses.cardTitle} >{`${countInfo.pjym} members`}</h5>
             </CardHeader>
             <CardFooter key="db_cftr_ub2" stats> 
 							<Typography className={gClasses.patientInfo2Blue} >Pratapgarh Jain Yuva Manch</Typography>
@@ -286,7 +283,7 @@ export default function Dashboard() {
 								<img src={process.env.PUBLIC_URL + 'image/HUMAD.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 
               </CardIcon>
               <button className={gClasses.dashText} >Humad</button>
-							<h5 align="right" color="blue"  className={classes.cardTitle} >{`${countInfo.humad} members`}</h5>
+							<h5 align="right" color="blue"  className={gClasses.cardTitle} >{`${countInfo.humad} members`}</h5>
             </CardHeader>
             <CardFooter key="db_cftr_ub3" stats>
 							<Typography className={gClasses.patientInfo2Blue} >Humad Jain Samaj</Typography>
@@ -301,7 +298,7 @@ export default function Dashboard() {
 							<img src={process.env.PUBLIC_URL + 'image/FAMILY.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 							
               </CardIcon>
               <button className={gClasses.dashText} >Family</button>
-							<h5 align="right" color="blue"  className={classes.cardTitle} >{`${countInfo.family} family members`}</h5>
+							<h5 align="right" color="blue"  className={gClasses.cardTitle} >{`${countInfo.family} family members`}</h5>
             </CardHeader>
             <CardFooter key="db_cftr_ub4" stats>
 							<Typography className={gClasses.patientInfo2Blue} >{`Family of ${getMemberName(loginUserRec, false, false)}`}</Typography>
@@ -315,7 +312,7 @@ export default function Dashboard() {
 							<img src={process.env.PUBLIC_URL + 'image/APPLICATION.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 							
               </CardIcon>
               <button className={gClasses.dashText} >Application</button>
-							<h5 align="right" color="blue"  className={classes.cardTitle} >{applMsg}</h5>
+							<h5 align="right" color="blue"  className={gClasses.cardTitle} >{applMsg}</h5>
             </CardHeader>
             <CardFooter key="db_cftr_ub5" stats>
 							<Typography className={gClasses.patientInfo2Blue} >{`Pending applications`}</Typography>
@@ -330,7 +327,7 @@ export default function Dashboard() {
 							<img src={process.env.PUBLIC_URL + 'image/GOTRA.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 							
               </CardIcon>
               <button className={gClasses.dashText} >Gotra</button>
-							<h5 align="right" color="blue"  className={classes.cardTitle} ></h5>
+							<h5 align="right" color="blue"  className={gClasses.cardTitle} ></h5>
             </CardHeader>
             <CardFooter key="gotra_footer" stats>
 							<Typography className={gClasses.patientInfo2Blue} >{`Configured Gotras`}</Typography>
@@ -346,7 +343,7 @@ export default function Dashboard() {
 							<img src={process.env.PUBLIC_URL + 'image/CITY.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 							
               </CardIcon>
               <button className={gClasses.dashText} >City</button>
-							<h5 align="right" color="blue"  className={classes.cardTitle} ></h5>
+							<h5 align="right" color="blue"  className={gClasses.cardTitle} ></h5>
             </CardHeader>
             <CardFooter key="city_footer" stats>
 							<Typography className={gClasses.patientInfo2Blue} >{`Configured Cities`}</Typography>
@@ -362,7 +359,7 @@ export default function Dashboard() {
 							<img src={process.env.PUBLIC_URL + 'image/ADMIN.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 							
               </CardIcon>
              <button className={gClasses.dashText} >Admins</button>
-							<h5 align="right" color="blue"  className={classes.cardTitle} ></h5>
+							<h5 align="right" color="blue"  className={gClasses.cardTitle} ></h5>
             </CardHeader>
             <CardFooter key="admin_footer" stats>
 							<Typography className={gClasses.patientInfo2Blue} >{`Configured Admins`}</Typography>

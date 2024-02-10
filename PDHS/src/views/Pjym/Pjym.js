@@ -126,10 +126,10 @@ export default function Pjym() {
 
 	// pagination
 	const [page, setPage] = useState(0);	
-	const [currentChar, setCurrentChar] = useState('A');
+	//const [currentChar, setCurrentChar] = useState('A');
 
 	// --- start of filter variables
-	const	[lastFilter, setLastFilter] = useState("None");
+	const	[lastFilter, setLastFilter] = useState("");
 	const [inputFilterMode, setInputFilterMode] = useState(false);
 	const [inputValue, setInputValue] = useState("");
 	const [inputInfo, setInputInfo] = useState({});

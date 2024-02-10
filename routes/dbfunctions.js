@@ -122,6 +122,21 @@ async function memberGetCount() {
 	return allMemberlist.length;
 }
 
+async function memberGetAllHumad() {
+	if (allMemberlist.length === 0) memberGetAll();
+	return allMemberlist.filter(x => x.humadMember);
+}
+
+async function memberGetHumadCount() {
+	if (allMemberlist.length === 0) memberGetAll();
+	return allMemberlist.filter(x => x.humadMember).length;
+}
+
+async function memberGetAllPjym() {
+	if (allMemberlist.length === 0) memberGetAll();
+	return allMemberlist.filter(x => x.pjymMember);
+}
+
 module.exports = {
 	memberGetAll, memberGetHodMembers,
 	memberAddOne, memberAddMany,
@@ -130,6 +145,8 @@ module.exports = {
 	memberGetByHidMany,
 	memberGetCount,
 	memberGetAlive,
+	memberGetAllHumad, memberGetHumadCount,
+	memberGetAllPjym,
 	getHodCityList,
 }; 
 

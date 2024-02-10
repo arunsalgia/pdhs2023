@@ -50,8 +50,6 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 const BlankMemberData = {firstName: "", middleName: "", lastName: ""};
 
-var currentPage = 0;
-
 import {
 	BlankArea, DisplayPageHeader,
 	DisplayPrwsFilter,
@@ -123,9 +121,6 @@ export default function Humad() {
 	const [memberArray, setMemberArray] = useState([])
 	const [memberMasterArray, setMemberMasterArray] = useState([]);
 
-
-	const [humadCount, setHumadCount] = useState(0);
-	
 	const [currentHumad, setCurrentHumad] = useState(null);
 	
 	const [upgradeCount, setUpgradeCount] = useState(-1);
@@ -171,7 +166,7 @@ export default function Humad() {
       setDispType(displayType(myDim.width));
 		}
 			
-		async function org_getAllHumad() {
+		async function getAllHumad() {
 			try {
 				//console.log('in humad fetch', chrStr )
 				let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/humad/listwithnames`;
@@ -188,32 +183,6 @@ export default function Humad() {
 				setMemberArray([]);
 				setHumadArray([]);
 			}	
-		}
-
-			
-		async function getAllHumad() {
-			if (process.env.REACT_APP_BACKENDFILTER === "true") {
-					await getHumadPage([], 0);
-			}
-			else {
-				try {
-				//console.log('in humad fetch', chrStr )
-					let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/humad/listwithnames`;
-					let resp = await axios.get(myUrl);
-					
-					setHumadArray(resp.data.humad);
-					setMemberArray(resp.data.member);
-					setMemberMasterArray(resp.data.member);
-					
-					//setCurrentChar(chrStr);
-				} 
-				catch (e) {
-					console.log(e);
-					alert.error(`Error fetching Humad details`);
-					setMemberArray([]);
-					setHumadArray([]);
-				}	
-			}
 		}
 
 		async function getAllCities() {
@@ -234,8 +203,6 @@ export default function Humad() {
 
   }, []);
 	
-
-	
 	async function getHumad(chrStr) {
 		try {
 			//console.log('in humad fetch', chrStr )
@@ -254,31 +221,6 @@ export default function Humad() {
 		}	
 	}
 
-	async function getHumadPage(filterList, pageNumber)  {
-		var myData = encodeURIComponent(JSON.stringify({
-			pageNumber: pageNumber,
-			pageSize:	ROWSPERPAGE,
-			filterData: filterList
-		}));
-
-		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/humad/filterdata/${myData}`;
-			//console.log(myUrl);
-			let resp = await axios.get(myUrl);
-			console.log(resp.data.member.length);
-			currentPage = (process.env.REACT_APP_BACKENDFILTER === "true") ? 0 : pageNumber;
-			setMemberArray(resp.data.member);
-			setMemberMasterArray(resp.data.member);
-			setHumadArray(resp.data.humad);
-			setHumadCount(resp.data.count);
-		} catch (e) {
-			console.log("Error fetching filter member data");
-			showError(`Error fetching member data of page ${pageNumber}`);
-		}
-		
-	}
-	
-	
 
 	function ModalResisterStatus() {
     // console.log(`Status is ${modalRegister}`);
@@ -314,9 +256,6 @@ export default function Humad() {
 	
 	// pagination function 
 	const handleChangePage = (event, newPage) => {
-		if (process.env.REACT_APP_BACKENDFILTER === "true") {
-			getHumadPage(filterList, newPage);
-		}
     setPage(newPage);
   };
 
@@ -394,7 +333,7 @@ export default function Humad() {
 	}
 	
 	
-	function JunkDisplayAllHumad() {
+	function OrgDisplayAllHumad() {
 		if (memberArray.length === 0) return null;
 		return (
 		<div>
@@ -462,7 +401,7 @@ export default function Humad() {
 		</div>	
 		)}
 	
-	function JunkDisplayMobileHumad() {
+	function DisplayMobileHumad() {
 		if (memberArray.length === 0) return null;
 		return (
 		<div>
@@ -598,7 +537,7 @@ export default function Humad() {
 		</Grid>
 		</Grid>
 		</Box>
-		{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
+		{memberArray.slice(page*ROWSPERPAGE, (page+1)*ROWSPERPAGE).map( (m, index) => {
 			var memberCity = getMyCity(m.hid);
 			let h = humadArray.find(x => x.mid === m.mid);
 			if (!h) return null;
@@ -805,13 +744,13 @@ export default function Humad() {
 		cancelClick={() => { setInputFilterMode(false); setLastFilter(""); } }
 	/>
 	<DisplayAllHumad />
-	{(humadCount > ROWSPERPAGE) &&
+	{(memberArray.length > ROWSPERPAGE) &&
 		<TablePagination
 			align="right"
 			rowsPerPageOptions={[ROWSPERPAGE]}
 			component="div"
 			labelRowsPerPage="Members per page"
-			count={humadCount}
+			count={memberArray.length}
 			rowsPerPage={ROWSPERPAGE}
 			page={page}
 			onPageChange={handleChangePage}

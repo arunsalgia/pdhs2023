@@ -675,7 +675,7 @@ export default function Prws() {
 </Box>*/}
 		<PersonalHeader dispType={dispType} />
 		{/* display members here */}
-		{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
+			{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
 			if (m.ceased) return null;		
 			//var cityRec = cityArray.find( x => x.hid === m.hid ); // get City record
 			var memberCity = getMyCity(m.hid);
