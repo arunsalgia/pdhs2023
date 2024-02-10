@@ -10,7 +10,7 @@ const {
 	memberGetCount,
 	memberGetAlive,
 	getHodCityList,
-	memberGetAllHumad, memberGetHumadCount,
+	memberGetAllHumad, memberGetHumadCount, memberGetPjymCount,
 	
 } = require('./dbfunctions');
 
@@ -36,8 +36,8 @@ router.get('/count/all/:mid', async function (req, res) {
   var { mid } = req.params;
 	
 	var prwsCount = await memberGetCount();
-  var pjymCount = await M_Pjym.countDocuments({active: true});
-	var humadCount = await M_Humad.countDocuments({active: true});
+  var pjymCount = await memberGetPjymCount();		// M_Pjym.countDocuments({active: true});
+	var humadCount = await memberGetHumadCount();		//M_Humad.countDocuments({active: true});
 	//console.log(Math.floor (Number(mid) / FAMILYMF));
 	var familyRecs = await memberGetByHidMany(Math.floor (Number(mid) / FAMILYMF));
 	//console.log(familyRecs);
@@ -47,12 +47,15 @@ router.get('/count/all/:mid', async function (req, res) {
 	var adminRec = await M_Admin.findOne({mid: mid});
 	var applCount = 0;	
 	if (adminRec) {
+		var ownerList = [];
 		if (adminRec.prwsAdmin || adminRec.superAdmin)
-			applCount += await M_Application.countDocuments({owner: "PRWS", status: APPLICATIONSTATUS.pending});
+			ownerList.push("PRWS");
 		if (adminRec.pjymAdmin || adminRec.superAdmin)
-			applCount += await M_Application.countDocuments({owner: "PJYM", status: APPLICATIONSTATUS.pending});
+			ownerList.push("PJYM");
 		if (adminRec.humadAdmin || adminRec.superAdmin)
-			applCount += await M_Application.countDocuments({owner: "HUMAD", status: APPLICATIONSTATUS.pending});
+			ownerList.push("HUMAD");
+		
+		applCount += await M_Application.countDocuments({owner: {$in: ownerList }, status: APPLICATIONSTATUS.pending});
 	}
 	else {
 		applCount = await M_Application.countDocuments({mid: mid, status: APPLICATIONSTATUS.pending});
