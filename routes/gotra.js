@@ -4,7 +4,7 @@ const {
 } = require('./functions'); 
 
 async function updateGotraInHod(oldGotra, newGotra) {
-	let allHods = await M_Hod.find({gotra: oldGotra}); 
+	let allHods = await M_Hod.find({active: true, gotra: oldGotra}); 
 	for(let i=0; i<allHods.length; ++i) {
 		//console.log(allHods[i].hid, allHods[i].gotra);
 		allHods[i].gotra = newGotra;
@@ -33,7 +33,7 @@ router.get('/list', async function(req, res, next) {
 router.get('/listfromhod', async function(req, res, next) {
   setHeader(res);
 
-  var tmp = await M_Hod.find({gotra: {$ne: ''} }, {_id: 0, gotra: 1}).sort({gotra: 1}).sort({gotra: 1});
+  var tmp = await M_Hod.find({active: true, gotra: {$ne: ''} }, {_id: 0, gotra: 1}).sort({gotra: 1}).sort({gotra: 1});
 	tmp = _.uniqBy(tmp, 'gotra');
 	sendok(res, tmp);
 });
@@ -113,7 +113,7 @@ router.get('/delete/:delGotra', async function(req, res, next) {
 	let dName = getDisplayName(delGotra);
 	console.log(dName);
 	// confirm if HOS is not using this gotra
-	let temp = await M_Hod.find({gotra: dName});
+	let temp = await M_Hod.find({active: true, gotra: dName});
 	if (temp.length > 0) return senderr(res, 601, "In use");
 
 	console.log("this gotra is not in use");

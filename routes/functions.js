@@ -10,7 +10,7 @@ let debugTest = true;
 // for sending email
 const send = require('gmail-send')();
 var mailOptions =  {
-  user: 'doctorviraag@gmail.com',
+  user: process.env.EMAILID,
   pass: process.env.EMAILPASSWORD,
   to:   '',
   subject: ''
@@ -89,6 +89,7 @@ const dbToSvrText = (text) => {
 	xxx = encrypt(xxx);
     return xxx;
   }
+
 
 
 

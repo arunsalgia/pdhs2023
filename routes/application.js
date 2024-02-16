@@ -184,6 +184,45 @@ router.get('/ceased/:editor_mid/:appData', async function (req, res) {
 	sendok(res, aRec);
 });
 
+router.get('/transfermember/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
+  setHeader(res);
+	var {editor_mid, editor_hodmid, appData } = req.params;
+	console.log(appData);
+	let justNow = new Date();
+
+	var editorRec = await memberGetByMidOne(Number(editor_mid));
+	var editorHodRec = await memberGetByMidOne(Number(editor_hodmid));
+	console.log(editor_hodmid, editorHodRec);
+	
+	let aRec = new M_Application();
+	aRec.date = justNow;
+	aRec.owner = "PRWS";
+	aRec.hid = 0;
+	aRec.desc = "Transfer members";
+
+	aRec.hodMid = editorHodRec.mid
+	aRec.hodName = getMemberName(editorHodRec, false);
+
+	aRec.mid = editorRec.mid;
+	aRec.name = getMemberName(editorRec, false);
+
+	aRec.isMember = true;
+	aRec.data = appData;
+	aRec.status = APPLICATIONSTATUS.pending;
+
+	aRec.adminName = '';
+	aRec.comments = '';
+	
+	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
+	console.log(baseid);
+	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
+	
+	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
+	await aRec.save();
+	console.log(aRec);
+	
+	sendok(res, aRec);
+});
 
 
 router.get('/reject/:id/:adminMid/:comments', async function (req, res) {

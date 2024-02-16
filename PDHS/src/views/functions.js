@@ -922,15 +922,34 @@ export function base64ToString(base64string) {
 	return norString;
 }
 
-export function handleLogout() {
-	window.sessionStorage.setItem("uid", "")
-	window.sessionStorage.setItem("cid", "");
-	window.sessionStorage.setItem("userName", "");
-	window.sessionStorage.setItem("firstName", "");
-	window.sessionStorage.setItem("userType", "");
-	window.sessionStorage.setItem("currentLogin", "");
-  window.sessionStorage.setItem("prwsLogin", "");
-	cdRefresh();  
+export async function handleLogout() {
+	
+	var myAdminRec = JSON.parse(sessionStorage.getItem("adminRec"));
+	var myData = {
+		mid: Number(sessionStorage.getItem("mid")),
+		name: sessionStorage.getItem("userName"),
+		isAdmin: ((myAdminRec._id) ? true : false),
+		mobile: sessionStorage.getItem("prwsLogin")
+	};
+	myData = encodeURIComponent(JSON.stringify(myData))
+	try {
+    await axios.get(`${process.env.REACT_APP_AXIOS_BASEPATH}/user/logout/${myData}`);
+	
+		window.sessionStorage.setItem("uid", "")
+		window.sessionStorage.setItem("cid", "");
+		window.sessionStorage.setItem("userName", "");
+		window.sessionStorage.setItem("firstName", "");
+		window.sessionStorage.setItem("userType", "");
+		window.sessionStorage.setItem("currentLogin", "");
+		window.sessionStorage.setItem("prwsLogin", "");
+		cdRefresh();    
+	} 
+	catch(err)  {
+    console.log("---------logout error");
+    console.log(err);
+  }
+
+	
 };
 
 export function compareDate(d1, d2) {

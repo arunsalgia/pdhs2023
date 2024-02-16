@@ -269,6 +269,11 @@ const globalStyles = makeStyles((theme) => ({
 		marginTop: '10px',
 		backgroundColor: 'transparent'
 	},
+  font10Blue: {
+		fontSize: theme.typography.pxToRem(10),
+		//fontWeight: theme.typography.fontWeightBold,
+		color: 'blue',
+	},
 	patientInfo: {
 		//marginLeft: theme.spacing(3),
 		fontSize: theme.typography.pxToRem(14),

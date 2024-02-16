@@ -323,7 +323,7 @@ router.get('/split/:newFamilyData', async function (req, res) {
   var {newFamilyData } = req.params;
 	newFamilyData = JSON.parse(newFamilyData);
 	let hid = Math.trunc(newFamilyData.hod / FAMILYMF);
-	let tmpRec = await M_Hod.find({}).limit(1).sort({hid: -1});
+	let tmpRec = await M_Hod.find({active: true}).limit(1).sort({hid: -1});
 	let newHid = tmpRec[0].hid + 1;
 
 	let hidRec = await M_Hod.findOne({hid: hid});

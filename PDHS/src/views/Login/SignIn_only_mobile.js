@@ -14,11 +14,29 @@ import Container from '@material-ui/core/Container';
 //import { UserContext } from "../../UserContext";
 import axios from "axios";
 //import { DesktopWindows } from '@material-ui/icons';
-import { isMobile, encrypt, getMemberName} from "views/functions.js"
-import {setTab} from "CustomComponents/CricDreamTabs.js"
+
+import {setTab, setDisplayPage } from "CustomComponents/CricDreamTabs.js"
 import { VsLogo, ValidComp } from 'CustomComponents/CustomComponents.js'; 
 
 import VsButton from "CustomComponents/VsButton";
+
+import {
+	isMobile, encrypt, getMemberName, capitalizeFirstLetter,
+} from "views/functions";
+
+
+import {
+	PAGELIST,
+} from "views/globals.js";
+
+import lodashCloneDeep from 'lodash/cloneDeep';
+import lodashUniqBy from "lodash/uniqBy";
+import lodashMap from "lodash/map";
+
+
+import {
+	readAllMembers,
+} from "views/clientdbfunctions";
 
 
 //let deviceIsMobile=isMobile();
@@ -26,13 +44,24 @@ import VsButton from "CustomComponents/VsButton";
 export default function SignIn() {
   const gClasses = globalStyles();
 
-  const [userName, setUserName] = useState();
-  const [password, setPassword] = useState();
+  const [userName, setUserName] = useState("");
+  const [password, setPassword] = useState("");
   const [stage, setStage] = useState("MOBILE");
   const [ errorMessage, setErrorMessage ] = useState({msg: "", isError: false });
 
-
+	async function getMemberList() {
+		await readAllMembers();
+	}
+	
   useEffect(() => {
+		async function getData() {
+			getMemberList();
+			console.log("Got it");			
+		}
+		
+		if (process.env.REACT_APP_PRWS_DB === "true") {
+			getData();
+		}
     if (window.localStorage.getItem("logout")) {
       localStorage.clear();
     }
@@ -42,34 +71,47 @@ export default function SignIn() {
     } else {
       // setShowPage(true)
     }
-  });
+  }, []);
 
   function setError(msg, isError) {
     setErrorMessage({msg: msg, isError: isError});
   }
 
 
-	async function handleSubmit(e) {
+	async function handleSubmitCapta(e) {
   e.preventDefault();
 
 	try { 
 		let enPassword = password;			//encrypt(password);
 		let response = await axios.get(`${process.env.REACT_APP_AXIOS_BASEPATH}/user/padmavatimata/${userName}/${enPassword}`); 
 		setError("", false);
+    console.log(response.data);
 		let userData = response.data.user;
-    console.log(userData);
-		window.sessionStorage.setItem("hid", userData.hid)
-		window.sessionStorage.setItem("mid", userData.mid)
-		window.sessionStorage.setItem("memberRec", JSON.stringify(userData));
+		if (userData) {
+			window.sessionStorage.setItem("hid", userData.hid)
+			window.sessionStorage.setItem("mid", userData.mid)
+			window.sessionStorage.setItem("memberRec", JSON.stringify(userData));
+			window.sessionStorage.setItem("userName", getMemberName(userData, false, false));
+			window.sessionStorage.setItem("firstName", userData.firstName );	
+		}
+		else {
+			window.sessionStorage.setItem("hid", "0")
+			window.sessionStorage.setItem("mid", "0")
+			window.sessionStorage.setItem("memberRec", "{}");
+			window.sessionStorage.setItem("userName", "Guest");
+			window.sessionStorage.setItem("firstName","Guest");				
+		}
+		window.sessionStorage.setItem("prwsLogin", userName);
+		window.sessionStorage.setItem("isMember", response.data.isMember);
 		window.sessionStorage.setItem("adminRec", JSON.stringify(response.data.admin));
-    window.sessionStorage.setItem("userName", getMemberName(userData));
-		window.sessionStorage.setItem("firstName", userData.firstName );
-    window.sessionStorage.setItem("prwsLogin", userName);
-		sessionStorage.setItem("menuHid", 0);	
-		sessionStorage.setItem("menuMid", 0);	
-		sessionStorage.setItem("menuCurrentSelection", "PRWS");	
-
-		setTab(process.env.REACT_APP_HOME);
+		
+		//sessionStorage.setItem("menuHid", 0);	
+		//sessionStorage.setItem("menuMid", 0);	
+		//sessionStorage.setItem("menuCurrentSelection", "PRWS");	
+		//setTab(process.env.REACT_APP_HOME);
+		//setDisplayPage(PAGELIST.PRWS, 0, 0);
+		//setDisplayPage(PAGELIST.DASHBOARD, 0, 0);
+		setTab(process.env.REACT_APP_DASH);
 	} catch (err) {
 		setError("Invalid Captcha", true);
 	}
@@ -120,7 +162,7 @@ async function handleSubmitMobile(e) {
     </ValidatorForm>	
   }
   {(stage === "CAPTCHA") &&
-    <ValidatorForm align="center" className={gClasses.form} onSubmit={handleSubmit}>
+    <ValidatorForm align="center" className={gClasses.form} onSubmit={handleSubmitCapta}>
     <Typography className={gClasses.title}>Enter OPT sent on {userName}</Typography>
     <TextValidator fullWidth  variant="outlined" required className={gClasses.vgSpacing}
       label="OTP" type="text"

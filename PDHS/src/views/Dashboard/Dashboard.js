@@ -204,6 +204,7 @@ export default function Dashboard() {
 	}, []);
 
 	async function getCount() {
+		//console.log(
 		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/count/all/${sessionStorage.getItem("mid")}`;
 		const resp = await axios.get(myUrl);
 		setCountInfoLocal(resp.data);

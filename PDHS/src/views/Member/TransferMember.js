@@ -71,12 +71,13 @@ const MERGECREATEARRAY = [
 const MERGEINDEX = 0;
 const CREATEINDEX = 1;
 
+const header = "Apply to transfer member(s)";
 
 export default function TransferMember(props) {
 	//const classes = useStyles();
 	const gClasses = globalStyles();
 	
-	const [header, setHeader] = useState("");
+	//const [header, setHeader] = useState("");
 	const [stage, setStage] = useState("PREFINALSTAGE");
 	
 	const [cbArray, setCbArray] = useState(Array(25).fill(""));
@@ -132,7 +133,8 @@ export default function TransferMember(props) {
 		}	
 	}		
 
-		setHeader((hasPRWSpermission()) ? "Transfer member(s)" : "Apply to transfer member(s)" );
+		//setHeader((hasPRWSpermission()) ? "Transfer member(s)" : "Apply to transfer member(s)" );
+		
 		var tmp = [].concat(props.memberList);
 		var tmpRelation = [];
 		for(var i=0; i<tmp.length; ++i) {
@@ -261,15 +263,16 @@ function handleMergeOrCreate(newValue) {
 }
 
 
-function junkpreFinalStage() {	
+function preFinalStage() {	
 	if (mergedOrCreate === "MERGE") {
 		setMsg1(`Transfer members to family of`);
 		setMsg2(`${familyHod}`);
 	}
 	else {
-		setMsg1('Transfer members to new family with');
-		var tmp = memberList.find(x => x.mid === newHod);
-		setMsg2(`${tmp.mergedName} as hod`);
+		setMsg1('Transfer members to new family');
+		//var tmp = memberList.find(x => x.mid === newHod);
+		//setMsg2(`${tmp.mergedName} as hod`);
+		setMsg2("");
 	}
 }
 
@@ -424,8 +427,28 @@ function handleSelectHodSubmit() {
 
 
 
-function handleFinalStageSubmit() {
-	props.onReturn.call(this, {status: STATUS_INFO.ERROR,  msg: `Error Transferring members`});
+async function handleFinalStageSubmit() {
+	var myData = {
+		hid: props.memberList[0].hid,
+		transferMidList: cbArray.filter(x => x !== 0),
+		newFamilyMode:  mergedOrCreate
+	}
+	
+	let myMsg = '';
+	let myStatus;
+	let tmp = encodeURIComponent(JSON.stringify(myData));
+		try {
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/transfermember/${props.hodMid}/${sessionStorage.getItem('mid')}/${tmp}`;
+
+			let resp = await axios.get(myUrl);
+			myMsg = `Successfully applied for Gotra, Caste change. Application reference ${resp.data.id}.`;
+			myStatus = STATUS_INFO.SUCCESS;
+		} catch (e) {
+			console.log(e);
+			myMsg = `Error Transferring members`;
+			myStatus = STATUS_INFO.ERROR;
+		}
+		props.onReturn.call(this, {status: myStatus,  msg: myMsg});
 }
 
 function junkhandleFinalStageBack() {
@@ -791,9 +814,11 @@ return (
 		<br />
 		{memberList.map( (m, index) => {
 			if (!cbArray.includes(m.mid)) return;
-			if (m.mid === newHod) return;
+			//if (m.mid === newHod) return;
+			var myRelation = ((m.mid === newHod) &&  (mergedOrCreate === "CREATE")) ? 'Self' : relation[index];
+			//
 			return (
-				<Typography key={"MEMREL"+index} style={{marginLeft: "10px", marginTop: "10px" }} className={gClasses.title}>{`${m.mergedName} as ${relation[index]}`}</Typography>
+				<Typography key={"MEMREL"+index} style={{marginLeft: "10px", marginTop: "10px" }} className={gClasses.title}>{`${m.mergedName} as ${myRelation}`}</Typography>
 			)}
 		)}			
 		<br />
@@ -810,7 +835,6 @@ return (
 		<br />
 	</div>
 	}
-
 	<ToastContainer />
 	</div>
 	)

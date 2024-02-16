@@ -4,7 +4,7 @@ const {
 } = require('./functions'); 
 
 async function updateCityInHod(oldCity, newCity) {
-	let allHods = await M_Hod.find({gotra: oldCity}); 
+	let allHods = await M_Hod.find({active: true, gotra: oldCity}); 
 	for(let i=0; i<allHods.length; ++i) {
 		//console.log(allHods[i].hid, allHods[i].gotra);
 		allHods[i].city = newCity;
@@ -30,7 +30,7 @@ router.get('/list', async function(req, res, next) {
 router.get('/listfromhod', async function(req, res, next) {
   setHeader(res);
 
-  var tmp = await M_Hod.find({city: {$ne: ''} }, {_id: 0, city: 1}).sort({city: 1}).sort({city: 1});
+  var tmp = await M_Hod.find({active: true, city: {$ne: ''} }, {_id: 0, city: 1}).sort({city: 1}).sort({city: 1});
 	tmp = _.uniqBy(tmp, 'city');
 	sendok(res, tmp);
 });
@@ -108,7 +108,7 @@ router.get('/delete/:delCity', async function(req, res, next) {
 	console.log(dName);
 	
 	// confirm if HOD is not using this city
-	let temp = await M_Hod.find({city: dName});
+	let temp = await M_Hod.find({active: true, city: dName});
 	if (temp.length > 0) return senderr(res, 601, "In use");
 
 	console.log("this city is not in use");
@@ -121,7 +121,7 @@ router.get('/delete/:delCity', async function(req, res, next) {
 router.get('/test', async function(req, res, next) {
   setHeader(res);
 	
-	var allRec = await M_Hod.find({});
+	var allRec = await M_Hod.find({active: true});
 	var cityList = _.map(allRec, 'city');
 	cityList = _.uniqBy(cityList);
 	for (var i=0; i<cityList.length; ++i) {
@@ -141,7 +141,7 @@ router.get('/sethod/:oldCity/:newCity', async function(req, res, next) {
 	var { oldCity, newCity } = req.params;
 	
 	
-	var allRec = await M_Hod.find({city: oldCity});
+	var allRec = await M_Hod.find({active: true, city: oldCity});
 	for (var i=0; i<allRec.length; ++i) {
 		allRec[i].id = newCity;
 		allRec[i].city = newCity;

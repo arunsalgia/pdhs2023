@@ -34,7 +34,7 @@ router.get('/hodname/:hid', async function(req, res, next) {
   var {hid} = req.params;
 	
 	if (hid === 'all') {
-		var tmp = await M_Hod.find({});
+		var tmp = await M_Hod.find({active: true});
 		let midList = _.map(tmp, 'mid');
 	
 		let allHodNames = await M_Member.find({mid: {$in: midList}});
@@ -52,14 +52,14 @@ router.get('/hodname/:hid', async function(req, res, next) {
 router.get('/list', async function(req, res, next) {
   setHeader(res);
   
-  var tmp = await M_Hod.find({});
+  var tmp = await M_Hod.find({active: true});
 	sendok(res, tmp);
 });
 
 
 router.get('/mumbailist', async function(req, res, next) {
   setHeader(res);
-	let myQuery = {$or: MUMBAIREGION };
+	let myQuery = {active: true, $or: MUMBAIREGION };
 	//console.log(myQuery);
   var tmp = await M_Hod.find(myQuery);
 	sendok(res, tmp);

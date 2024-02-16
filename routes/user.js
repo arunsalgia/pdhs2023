@@ -4,17 +4,26 @@ const { encrypt, decrypt, dbencrypt, dbdecrypt, dbToSvrText,
   akshuGetGroup, akshuUpdGroup, akshuGetGroupMembers,
   akshuGetAuction, akshuGetTournament,
   getTournamentType,
-  svrToDbText, getLoginName, getDisplayName, 
+  svrToDbText, getLoginName, getDisplayName, getMemberName, 
 	sendCricMail, sendCricHtmlMail,
   akshuGetUser, akshuUpdUser,
   getMaster, setMaster,
 } = require('./functions'); 
 
+const {
+	memberGetAll, memberGetHodMembers,
+	memberAddOne, memberAddMany,
+	memberUpdateOne, memberUpdateMany,
+	memberGetByMidOne, memberGetByMidMany, memberGetByMobileOne, memberGetByEmailOne,
+	
+} = require('./dbfunctions');
 
-const is_Captain = true;
-const is_ViceCaptain = false;
-const WITH_CVC  = 1;
-const WITHOUT_CVC = 2;
+const SENDCAPTAOVEREMAIL = false;
+
+//const is_Captain = true;
+//const is_ViceCaptain = false;
+//const WITH_CVC  = 1;
+//const WITHOUT_CVC = 2;
 
 var _group;
  
@@ -92,38 +101,80 @@ const validNumbers = [
 	];
 	
 	
-router.get('/jaijinendra/:uMobile', async function (req, res, next) {
+router.get('/jaijinendra/:myData', async function (req, res, next) {
   setHeader(res);
-  var {uMobile } = req.params;
+  var {myData } = req.params;
   var isValid = false;
-  uMobile = Number(uMobile);
   
-
-  let myCaptha = await M_Password.findOne({mobile: uMobile});
- 
+	var myData = JSON.parse(myData);
+	var userName = decrypt(myData.userName);
+	console.log(userName);
+	
+	var myRec;
+	var myEmail = "";
+	var myMobile = "";
+	if (myData.isMobile) {
+		myRec = await memberGetByMobileOne( userName )
+		if (myRec) myEmail = dbdecrypt(myRec.email);
+		myMobile = userName;
+	} 
+	else {
+		myRec = await memberGetByEmailOne ( userName );
+		myEmail = userName;
+		if (myRec) myMobile = (myRec.mobile.length === 10) ? myRec.mobile : "";
+	}
+	console.log(myEmail, myMobile);
+	
+  let myCaptha = await M_Password.findOne({mobile: userName});
   if (!myCaptha) {
     myCaptha = new M_Password();
-    myCaptha.mobile = uMobile;
+    myCaptha.mobile = userName;
     myCaptha.captcha = otpGenerator.generate(8, { specialChars: false });
 	  console.log(`New captha ${myCaptha.captcha}`);
 	  myCaptha.save();
   }
 
-  console.log('3', myCaptha);
-  //console.log(`Password is ${myCaptha.captcha}`);
-  return sendok(res, myCaptha);
-
-    
+	var emailMsg = "";
+	var mobMsg = "";
+	if (myEmail !== "") {
+		var tmpValidTimeOffset = Number(process.env.PASSWORDLINKVALIDTIME);
+		let htmlText = `<div style="background-image: url('https://i.pinimg.com/originals/29/9c/a1/299ca187762b51cb637f29cf7472e574.png');">
+			<h4 style="text-align: left;">&nbsp;</h4>
+			<h4 style="text-align: left;"><strong>Dear Member,</strong></h4>
+			<p>Greetings from Pratapgarh Rajasthan Welfare Samiti</p>
+			<p>Login with Captha ${myCaptha.captcha} &nbsp;</p>
+			<p>Kindly note that this captcha is valid only for ${process.env.PASSWORDLINKVALIDTIME} minutes.</p>
+			<p>&nbsp;</p>
+			<p><span style="text-align: left;"><strong>Regards,</strong></span><br /><span style="text-align: left;"><strong>for Pratapgarh Rajasthan Welfare Samiti</strong></span></p>
+			</div>`
+		
+		if (SENDCAPTAOVEREMAIL) {
+			let resp = await sendCricHtmlMail(myEmail, PRWSMAILHEADER.login, htmlText);
+		}
+		
+		var tmp = myEmail.split("@");
+		console.log(tmp[0]);
+		var emailMsg = ((tmp[0].length > 4) ? ("******" + tmp[0].substring(tmp[0].length - 4)) : "" ) + "@" + tmp[1];
+	}
+	
+	if (myMobile) {
+		// Send OPT over email
+		var mobMsg = "******" + myMobile.substring(6);
+	}
+	console.log(emailMsg, mobMsg);
+	var tmp = "OTP sent over " + mobMsg + (((mobMsg !== "") && (emailMsg !== "")) ? " and " : "") + emailMsg;
+	
+  sendok(res, {captcha: myCaptha.captcha, msg: tmp });
+	
 
 });
 
-var directLogin = [8080820084, 9867100677, 9867061850, 9819804128, 1234567890];
+var directLogin = ['8080820084', '9867100677', '9867061850', '9819804128', '1234567890'];
 
 router.get('/padmavatimata/:uMobile/:uPassword', async function (req, res, next) {
   setHeader(res);
   var {uMobile, uPassword } = req.params;
-  uMobile = Number(uMobile);
-  //uPassword = decrypt(uPassword);
+  //uMobile = Number(uMobile);
 
 	if (!directLogin.includes(uMobile)) {
 		// verify captcha
@@ -132,7 +183,6 @@ router.get('/padmavatimata/:uMobile/:uPassword', async function (req, res, next)
 		if (!myCaptha) return senderr(res, 601, "Invalid password");
 		console.log(myCaptha);
 		if (myCaptha.captcha !== uPassword) return senderr(res, 601, "Invalid password");
-		console.log("All fine");
 	}
  
 	let myAdmin = {
@@ -142,7 +192,10 @@ router.get('/padmavatimata/:uMobile/:uPassword', async function (req, res, next)
 		pmmAdmin: false
 	};
 	var isMember = false;
-  let myMem = await M_Member.findOne({$or :[{mobile: uMobile}, {mobile1: uMobile}] });
+	var isAdmin = false;
+  //let myMem = await M_Member.findOne({$or :[{mobile: uMobile}, {mobile1: uMobile}] });
+	let myMem = await memberGetByMobileOne(uMobile);
+	
   if (myMem) {
 		isMember = true;
 		myAdmin = await M_Admin.findOne({mid: myMem.mid});
@@ -154,9 +207,62 @@ router.get('/padmavatimata/:uMobile/:uPassword', async function (req, res, next)
 				pmmAdmin: false
 			};
 		}
+		else {
+			isAdmin = true;
+		}
 	}
-	console.log(myAdmin);
+	//console.log(myAdmin);
+
   sendok(res, {user: myMem, admin: myAdmin, isMember: isMember});
+
+	// Make logger entry of use login.
+	let myLogRec = new M_PrwsLog();
+	myLogRec.date = new Date();
+	if (myMem) {
+		myLogRec.mid = myMem.mid;
+		myLogRec.name = getMemberName(myMem);
+		myLogRec.desc = `Login by ${getMemberName(myMem)}`;
+	}
+	else {
+		myLogRec.mid = 0;
+		myLogRec.name = `Guest with mobile number ${uMobile}`;
+		myLogRec.desc = `Login by ${uMobile}`;
+	}
+	myLogRec.isAdmin = isAdmin;
+	myLogRec.action = PRWSACTION.login;
+	myLogRec.data = '';
+	myLogRec.status = true;
+	await myLogRec.save();
+	
+});
+
+router.get('/logout/:myData', async function (req, res, next) {
+  setHeader(res);
+  var { myData } = req.params;
+	console.log(myData);
+	
+	sendok(res, "Done");			// First confirm to client for logout
+	
+	myData = JSON.parse(myData);
+	// Make logger entry of use login.
+	let myLogRec = new M_PrwsLog();
+	myLogRec.date = new Date();
+	if (myData.mid > 0) {
+		myLogRec.mid = myData.mid;
+		myLogRec.name = myData.name;
+		myLogRec.desc = `Logout by ${myData.name}`;
+	}
+	else {
+		myLogRec.mid = 0;
+		myLogRec.name = `Guest with mobile number ${myData.mobile}`;
+		myLogRec.desc = `Logout by ${myData.mobile}`;
+	}
+	myLogRec.isAdmin = myData.isAdmin;
+	myLogRec.action = PRWSACTION.logout;
+	myLogRec.data = '';
+	myLogRec.status = true;
+	await myLogRec.save();
+	//console.log(myLogRec);
 });
 
 

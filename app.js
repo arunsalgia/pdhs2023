@@ -39,17 +39,16 @@ WEB=(process.env.WEB.toUpperCase() === "TRUE");
 console.log("Prod", PRODUCTION);
 console.log("Web", WEB);
 
-PASSWORDLINKVALIDTIME=10			// Password link valid time in minutes
+//PASSWORDLINKVALIDTIME=10			// Password link valid time in minutes
 
 
 //
 BASELINK='http://localhost:3000';
 if (PRODUCTION) {
-	console.log("Using cloud  base  link");
+	//console.log("Using cloud  base  link");
   BASELINK='https://pdhsamaj.herokuapp.com';
 } else {
-	console.log("Using local base  link");
-  BASELINK='http://localhost:3000';
+	//console.log("Using local base  link");
 }
 console.log(BASELINK);
 ARCHIVEDIR= (PRODUCTION) ? "public/" : "public/" ;       // binary will be stored here
@@ -127,7 +126,7 @@ app.use('/apply', applicationRouter);
 //Schema
 
 PasswordSchema = mongoose.Schema({
-	mobile: Number,
+	mobile: String,
 	captcha: String
 }, {timestamps: true});
 PasswordSchema.index({createdAt: 1},{expireAfterSeconds: 300});
@@ -194,7 +193,8 @@ HodSchema = mongoose.Schema({
 	district: String,
 	state: String,
 	resPhone1: String,
-	resPhone2: String
+	resPhone2: String,
+	active:  Boolean
 });
 HodSchema.index({hid: 1});
 
@@ -294,6 +294,18 @@ HumadSchema = mongoose.Schema({
 HumadSchema.index({mid: 1});
 HumadSchema.index({active: 1});
 
+PrwsLogSchema = mongoose.Schema({
+	date: 		Date,
+	mid:  		Number,			// MID of member who has has taken action (-1 if not a member
+	name: 		String,			// Name of the member
+	isAdmin:	String,			// Apply or Approved or Reject
+	desc:			String,
+	action:		String,
+	data:			String,
+	status: 	Boolean
+	
+});
+
 
 PinCodeSchema = mongoose.Schema({
 	pinCode: Number,
@@ -334,6 +346,7 @@ M_City  = mongoose.model('city', CitySchema);
 M_Password = mongoose.model('password', PasswordSchema);
 M_PinCode = mongoose.model('pincode', PinCodeSchema);
 M_Application = mongoose.model('application', ApplicationSchema);
+M_PrwsLog = mongoose.model('prwslog', PrwsLogSchema);
 
 router = express.Router();
 
@@ -521,4 +534,14 @@ APPLICATIONSTATUS = {
 	approved:  "Approved",
 	rejected: "Rejected",
 	pending: "Pending"
+};
+
+PRWSACTION = {
+	login:  "Login",
+	logout: "Logout",
+};
+
+PRWSMAILHEADER = {
+	login:  'PRWS login captcha',
+	logout: "PRWS logout",
 };

@@ -1,3 +1,8 @@
+const { 
+	encrypt, decrypt, dbencrypt, dbdecrypt, dbToSvrText, 
+  svrToDbText, getMemberName, 
+	sendCricMail, sendCricHtmlMail,
+} = require('./functions'); 
 
 
 var allMemberlist = [];
@@ -27,7 +32,7 @@ async function memberGetAll() {
 async function memberGetHodMembers() {
 	if (allMemberlist.length === 0) await memberGetAll();
 	// Now get hod mid
-	var hodList = await M_Hod.find({}, {_id: 0, mid: 1});
+	var hodList = await M_Hod.find({active: true}, {_id: 0, mid: 1});
 	hodList = _.map(hodList, 'mid');
 	var hodMembers = allMemberlist.filter( x => hodList.includes(x.mid) )
 	return _.cloneDeep(hodMembers);
@@ -71,6 +76,30 @@ async function memberGetByMidOne(mid) {
 	return _.cloneDeep(memberRec);
 }
 
+async function memberGetByMobileOne(mobile) {
+	if (allMemberlist.length === 0) await memberGetAll();
+	//console.log(allMemberlist.length);
+	//console.log(mobile);
+	
+	var memberRec = allMemberlist.find( x => (x.mobile === mobile) || (x.mobile1 === mobile)  );
+	//console.log(memberRec);
+	
+	return _.cloneDeep(memberRec);
+}
+
+
+async function memberGetByEmailOne(email) {
+	email = dbencrypt(email);
+	if (allMemberlist.length === 0) await memberGetAll();
+	
+	var memberRec = allMemberlist.find( x => (x.email === email) || (x.email1 === email)  );
+	//console.log(memberRec);
+	
+	return _.cloneDeep(memberRec);
+}
+
+
+
 async function memberGetByMidMany(midList) {
 	if (allMemberlist.length === 0) await memberGetAll();
 
@@ -95,7 +124,7 @@ async function memberGetAlive() {
 
 async function readHodCityList() {
 	console.log("Reading city list from database");
-	let myData = await M_Hod.find({city: {"$ne": ""} },{hid: 1, city:1,_id:0}).sort({city: 1,});
+	let myData = await M_Hod.find({active: true, city: {"$ne": ""} },{hid: 1, city:1,_id:0}).sort({city: 1,});
 	// Now get all the cities
 	var allCity = _.map(myData, 'city');
 	allCity = _.uniqBy(allCity);
@@ -146,7 +175,7 @@ module.exports = {
 	memberGetAll, memberGetHodMembers,
 	memberAddOne, memberAddMany,
 	memberUpdateOne, memberUpdateMany,
-	memberGetByMidOne, memberGetByMidMany,
+	memberGetByMidOne, memberGetByMidMany, memberGetByMobileOne, memberGetByEmailOne,
 	memberGetByHidMany,
 	memberGetCount,
 	memberGetAlive,

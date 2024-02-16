@@ -93,7 +93,7 @@ router.get('/member', async function (req, res) {
 	console.log(filePath);
 
 	if (!fs.existsSync(filePath))  return senderr(res, 601, "Member file not found");
-	let allHods = await M_Hod.find({});
+	let allHods = await M_Hod.find({active: true});
 	// File path.
 	await M_Member.deleteMany({});
 	readXlsxFile(filePath).then((rows) => {
@@ -251,7 +251,7 @@ router.get('/humadorder1', async function (req, res) {
 
 router.get('/order', async function (req, res) {
 	setHeader(res); 
-	let allHods = await M_Hod.find({});
+	let allHods = await M_Hod.find({active: true});
 	for(let i = 1; i < allHods.length; ++i) {
 		let myHod = allHods[i];
 		let myData = await M_Member.find({hid: myHod.hid}).sort({mid: 1});
@@ -286,7 +286,7 @@ router.get('/emailencrypt', async function (req, res) {
 router.get('/gotra', async function (req, res) {
 	setHeader(res);
 	let gList = [];
-	let allHods = await M_Hod.find({});
+	let allHods = await M_Hod.find({active: true});
 	for(let i=0; i<allHods.length; ++i) {
 		let myGotra = getLoginName(allHods[i].gotra);
 		var dname = getDisplayName(allHods[i].gotra);
@@ -333,7 +333,7 @@ router.get('/listhod/:hid', async function (req, res) {
 
 router.get('/caste', async function (req, res) {
 	setHeader(res);
-	let allHods = await M_Hod.find({});
+	let allHods = await M_Hod.find({active: true});
 	for(let i = 0; i<allHods.length; ++i) {
 		console.log("Record "+i);
 		allHods[i].caste = 'Humad';
@@ -345,7 +345,7 @@ router.get('/caste', async function (req, res) {
 
 router.get('/updatepindetails', async function (req, res) {
 	setHeader(res);
-	let allHods = await M_Hod.find({});
+	let allHods = await M_Hod.find({active: true});
 	let allPins = await M_PinCode.find({});
 	console.log(allHods.length, allPins.length);
 	for(let i = 0; i<allHods.length; ++i) {
@@ -366,7 +366,7 @@ router.get('/updatepindetails', async function (req, res) {
 router.get('/pincode', async function (req, res) {
 	setHeader(res);
 	console.log("Starting PICCODE fetch");
-	let allHods = await M_Hod.find({});
+	let allHods = await M_Hod.find({active: true});
 	let allPins = _.map(allHods, 'pinCode');
 	allPins = _.uniqBy(allPins);
 	allPins = _.sortBy(allPins);
@@ -394,7 +394,7 @@ router.get('/pincode', async function (req, res) {
 router.get('/testpin', async function (req, res) {
 	setHeader(res);
 	console.log("Starting PICCODE fetch");
-	let allHods = await M_Hod.find({});
+	let allHods = await M_Hod.find({active: true});
 	let allPins = _.map(allHods, 'pinCode');
 	allPins = _.uniqBy(allPins);
 	allPins = _.sortBy(allPins);
@@ -467,7 +467,7 @@ router.get('/temp', async function (req, res) {
 router.get('/matchmaking', async function (req, res) {
 	setHeader(res);
 
-	let allHods = await M_Hod.find({}).sort({hid: 1});
+	let allHods = await M_Hod.find({active: true}).sort({hid: 1});
 	for (let h=0; h<allHods.length; ++h) {
 		let allMembers = await M_Member.find({ hid: allHods[h].hid, emsStatus: 'Married',  ceased: false });
 		if (allMembers.length === 0) continue;

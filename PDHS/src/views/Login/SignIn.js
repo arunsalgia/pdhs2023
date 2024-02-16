@@ -19,6 +19,7 @@ import {setTab, setDisplayPage } from "CustomComponents/CricDreamTabs.js"
 import { VsLogo, ValidComp } from 'CustomComponents/CustomComponents.js'; 
 
 import VsButton from "CustomComponents/VsButton";
+import VsRadio from "CustomComponents/VsRadio";
 
 import {
 	isMobile, encrypt, getMemberName, capitalizeFirstLetter,
@@ -41,10 +42,19 @@ import {
 
 //let deviceIsMobile=isMobile();
 
+const LOGINOPTION = {
+		mobile:		"Mobile",
+		email:		"Email"
+};
+
 export default function SignIn() {
   const gClasses = globalStyles();
 
-  const [userName, setUserName] = useState("");
+	const [loginMode, setLoginMode] = useState(LOGINOPTION.mobile);
+  const [userMobile, setUserMobile] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+	const [whereCaptcha, setWhereCaptcha] = useState("");
+	
   const [password, setPassword] = useState("");
   const [stage, setStage] = useState("MOBILE");
   const [ errorMessage, setErrorMessage ] = useState({msg: "", isError: false });
@@ -83,7 +93,7 @@ export default function SignIn() {
 
 	try { 
 		let enPassword = password;			//encrypt(password);
-		let response = await axios.get(`${process.env.REACT_APP_AXIOS_BASEPATH}/user/padmavatimata/${userName}/${enPassword}`); 
+		let response = await axios.get(`${process.env.REACT_APP_AXIOS_BASEPATH}/user/padmavatimata/${userMobile}/${enPassword}`); 
 		setError("", false);
     console.log(response.data);
 		let userData = response.data.user;
@@ -91,17 +101,17 @@ export default function SignIn() {
 			window.sessionStorage.setItem("hid", userData.hid)
 			window.sessionStorage.setItem("mid", userData.mid)
 			window.sessionStorage.setItem("memberRec", JSON.stringify(userData));
-			window.sessionStorage.setItem("userName", getMemberName(userData));
+			window.sessionStorage.setItem("userMobile", getMemberName(userData, false, false));
 			window.sessionStorage.setItem("firstName", userData.firstName );	
 		}
 		else {
 			window.sessionStorage.setItem("hid", "0")
 			window.sessionStorage.setItem("mid", "0")
 			window.sessionStorage.setItem("memberRec", "{}");
-			window.sessionStorage.setItem("userName", "Guest");
+			window.sessionStorage.setItem("userMobile", "Guest");
 			window.sessionStorage.setItem("firstName","Guest");				
 		}
-		window.sessionStorage.setItem("prwsLogin", userName);
+		window.sessionStorage.setItem("prwsLogin", userMobile);
 		window.sessionStorage.setItem("isMember", response.data.isMember);
 		window.sessionStorage.setItem("adminRec", JSON.stringify(response.data.admin));
 		
@@ -119,10 +129,17 @@ export default function SignIn() {
 
 
 async function handleSubmitMobile(e) {
+	console.log(userMobile, userEmail);
   e.preventDefault();
+	var myData = {
+		isMobile:  (loginMode === LOGINOPTION.mobile),
+		userName:	 encrypt((loginMode === LOGINOPTION.mobile) ? userMobile : userEmail)
+	};
+  myData = encodeURIComponent(JSON.stringify(myData));
 	try { 
-		let response = await axios.get(`${process.env.REACT_APP_AXIOS_BASEPATH}/user/jaijinendra/${userName}`); 
+		let response = await axios.get(`${process.env.REACT_APP_AXIOS_BASEPATH}/user/jaijinendra/${myData}`); 
 		setError("", false);
+		setWhereCaptcha(response.data.msg);
     setPassword("");
     setStage("CAPTCHA");
   } catch (err) {
@@ -143,14 +160,34 @@ async function handleSubmitMobile(e) {
   <br />
   {(stage === "MOBILE") &&
   	<ValidatorForm align="center" className={gClasses.form} onSubmit={handleSubmitMobile}>
-    <Typography className={gClasses.title}>Enter your registered mobile number</Typography>
+		<Grid className={gClasses.noPadding} key="LOGINOPTION" container align="center">
+		<Grid item xs={4} sm={4} md={4} lg={4} >
+			<Typography style={{marginTop: "10px"  }} className={gClasses.title}>Sign In using</Typography>
+		</Grid>
+		<Grid item xs={4} sm={4} md={4} lg={4} >
+			<VsRadio align="center" label={LOGINOPTION.mobile} checked={loginMode === LOGINOPTION.mobile} onClick={() => setLoginMode(LOGINOPTION.mobile) } />
+		</Grid>
+		<Grid item xs={4} sm={4} md={4} lg={4} >
+			<VsRadio align="center" label={LOGINOPTION.email} checked={loginMode === LOGINOPTION.email} onClick={() => setLoginMode(LOGINOPTION.email) } />
+		</Grid>
+		</Grid>	
+		<br />
+		{(loginMode === LOGINOPTION.mobile) &&
     <TextValidator fullWidth  variant="outlined" required className={gClasses.vgSpacing}
       label="Mobile" type="text"
-      value={userName} 
-      onChange={(event) => { setUserName(event.target.value) }}
+      value={userMobile} 
+      onChange={(event) => { setUserMobile(event.target.value) }}
       validators={['minNumber:1000000000', 'maxNumber:9999999999']}
-      errorMessages={['Invalid mobile number', 'Invalid mobile number']}
+      errorMessages={['Only Indian mobile number supported', 'Only Indian mobile number supported']}
     />
+		}
+		{(loginMode !== LOGINOPTION.mobile) &&
+    <TextValidator fullWidth  variant="outlined" required className={gClasses.vgSpacing}
+      label="Email" type="email"
+      value={userEmail} 
+      onChange={(event) => { setUserEmail(event.target.value) }}
+    />
+		}
 		<Grid className={gClasses.noPadding} key="SUBMITMOBILE" container align="center">
 		<Grid item xs={2} sm={2} md={4} lg={4} />	
 		<Grid item xs={8} sm={8} md={4} lg={4} >	
@@ -163,7 +200,7 @@ async function handleSubmitMobile(e) {
   }
   {(stage === "CAPTCHA") &&
     <ValidatorForm align="center" className={gClasses.form} onSubmit={handleSubmitCapta}>
-    <Typography className={gClasses.title}>Enter OPT sent on {userName}</Typography>
+    <Typography align="left" className={gClasses.title}>{whereCaptcha}</Typography>
     <TextValidator fullWidth  variant="outlined" required className={gClasses.vgSpacing}
       label="OTP" type="text"
       value={password} 
@@ -183,6 +220,7 @@ async function handleSubmitMobile(e) {
     <VsButton name="Back" onClick={() => setStage("MOBILE") } />
 		</Grid>
 		</Grid>	
+		<ValidComp />
     </ValidatorForm>	
   }
   </Container>
