@@ -154,7 +154,7 @@ router.get('/jaijinendra/:myData', async function (req, res, next) {
 		
 		var tmp = myEmail.split("@");
 		console.log(tmp[0]);
-		var emailMsg = ((tmp[0].length > 4) ? ("******" + tmp[0].substring(tmp[0].length - 4)) : "" ) + "@" + tmp[1];
+		var emailMsg = ((tmp[0].length > 4) ? ("******" + tmp[0].substring(tmp[0].length - 4)) : "****" ) + "@" + tmp[1];
 	}
 	
 	if (myMobile) {
