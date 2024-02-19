@@ -37,6 +37,7 @@ import globalStyles from "assets/globalStyles";
 import {
 	BlankArea,
 	DisplayMemberHeader,
+	DisplayPageHeader,
 } from "CustomComponents/CustomComponents.js"
 
 
@@ -121,6 +122,7 @@ export default function Member(props) {
 			isMember = (sessionStorage.getItem("isMember") === "true");
 			await getHod(memberHid);
 			await getHodMembers(memberHid, memberMid);
+			//ver tmpFamilyHeadRec = 
 			setSelection("Personal");
 			//console.log("setting personal");
 		}
@@ -184,6 +186,7 @@ export default function Member(props) {
 	
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
+	<DisplayPageHeader headerName={"Family details"} />
 	<DisplayFunctionHeader />
 	{(currentSelection === "General") &&
 		<MemberGeneral  isMember={isMember}  />

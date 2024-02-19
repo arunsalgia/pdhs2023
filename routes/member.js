@@ -143,7 +143,11 @@ router.get('/filterdata/:filterInfo', async function (req, res) {
 	}
 	
 	var totalCount = myData.length;
-	myData = myData.slice(filterInfo.pageNumber* filterInfo.pageSize, (filterInfo.pageNumber+1)* filterInfo.pageSize);
+	
+	// If page number is -ve then full list is to be sent. Else give it only for page.
+	if (filterInfo.pageNumber >= 0)
+		myData = myData.slice(filterInfo.pageNumber* filterInfo.pageSize, (filterInfo.pageNumber+1)* filterInfo.pageSize);
+	
 	for (var i=0; i< myData.length; ++i) {
 		var tmp = dbdecrypt(myData[i].email);
 		tmp = encrypt(tmp);

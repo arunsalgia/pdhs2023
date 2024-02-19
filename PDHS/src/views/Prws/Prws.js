@@ -20,7 +20,6 @@ import lodashSortBy from "lodash/sortBy";
 import lodashMap from "lodash/map";
 import loadahUniqBy from "lodash/uniqBy";
 
-//import IconButton from '@material-ui/core/IconButton';
 
 import VsButton from "CustomComponents/VsButton";
 import VsCancel from "CustomComponents/VsCancel";
@@ -50,11 +49,13 @@ import {setTab, setDisplayPage } from "CustomComponents/CricDreamTabs.js"
 import globalStyles from "assets/globalStyles";
 
 //icons
+import IconButton from '@material-ui/core/IconButton';
 import MoveUp    from '@material-ui/icons/ArrowUpwardRounded';
 import MoveDown  from '@material-ui/icons/ArrowDownwardRounded';
 import InfoIcon  from 	'@material-ui/icons/Info';
 import CancelIcon from '@material-ui/icons/Cancel';
 import SearchIcon from '@material-ui/icons/Search';
+import ArrowDropDownCircle from '@material-ui/icons/ArrowDropDownCircle';
 
 import {
 	BlankArea, DisplayPageHeader,
@@ -258,7 +259,8 @@ export default function Prws() {
 		setInputFilterMode(true);
 	}
 
-	async function getMemeberPage(filterList, pageNumber)  {
+	async function getMemeberPage(filterList, pageNumber, save=true)  {
+		console.log(save);
 		var myData = encodeURIComponent(JSON.stringify({
 			pageNumber: pageNumber,
 			pageSize:	ROWSPERPAGE,
@@ -269,10 +271,15 @@ export default function Prws() {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/filterdata/${myData}`;
 			let resp = await axios.get(myUrl);
 			//console.log(resp.data);
-			currentPage = (process.env.REACT_APP_BACKENDFILTER === "true") ? 0 : pageNumber;
-			setMemberCount(resp.data.count);
-			setMemberArray(resp.data.data);
-			setMemberMasterArray(resp.data.data);
+			if (save) {
+				currentPage = (process.env.REACT_APP_BACKENDFILTER === "true") ? 0 : pageNumber;
+				setMemberCount(resp.data.count);
+				setMemberArray(resp.data.data);
+				setMemberMasterArray(resp.data.data);
+			} 
+			else {
+				return (resp.data.data);
+			}
 		} catch (e) {
 			console.log("Error fetching filter member data");
 			showError(`Error fetching member data of page ${pageNumber}`);
@@ -452,13 +459,23 @@ export default function Prws() {
   };
 
 	function downloadPrwsData() {
-	handlePrwsContextMenuClose();
-	 setGrpAnchorEl(null);
-	 var memData = "Name,Age,Gender,Mobile1,Mobile2,Email1,Email2\n";
-	 var tmp = ""
-	 for (var i=0; i<memberArray.length; ++i) {
-			var m = memberArray[i];
-			tmp = getMemberName(m) + ",";
+		handlePrwsContextMenuClose();
+		setGrpAnchorEl(null);
+		vsDialog("Download filtered list", "Are you sure you want to download filtered list?",
+				{label: "Yes", onClick: () => downloadPrwsDataConfirm() },
+				{label: "No" }
+			);		
+	}
+	
+	async function downloadPrwsDataConfirm() {
+		
+		var myList = await getMemeberPage(filterList, -1, false);
+		console.log(myList.length);
+		var memData = "Name,Age,Gender,Mobile1,Mobile2,Email1,Email2\n";
+		var csvFileName = "prws.csv";
+		for (var i=0; i<myList.length; ++i) {
+			var m = myList[i];
+			var tmp = getMemberName(m) + ",";
 			tmp += getAge(m.dob) + ",";
 			tmp += capitalizeFirstLetter(m.gender) + ",";
 			tmp += m.mobile + ",";
@@ -468,15 +485,8 @@ export default function Prws() {
 			tmp += "\n";
 			memData += tmp;
 	 }
-	 downloadTextFile("prws.csv", memData);
-	 /*
-   const element = document.createElement("a");
-   const file = new Blob([memData], {type: 'text/plain;charset=utf-8'});
-   element.href = URL.createObjectURL(file);
-   element.download = "prws.csv";
-   document.body.appendChild(element);
-   element.click();
-	 */
+		downloadTextFile(csvFileName, memData);
+		showInfo(`Successfully downloaded generated filtered list as csv file ${csvFileName}.`);
  }
  
  const handlePrwsContextMenu = (e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) => {
@@ -536,13 +546,13 @@ export default function Prws() {
 		<MenuItem disabled={tmp.humadMember} onClick={jumpHumad}>
 			<Typography>Humad Membership</Typography>
 		</MenuItem>
-		<Divider />
-		{/*<MenuItem onClick={jumpGotra}>
+		{/*<Divider />
+		<MenuItem onClick={jumpGotra}>
 			<Typography>Gotra</Typography>
-		</MenuItem>*/}
+		</MenuItem>
 		<MenuItem onClick={downloadPrwsData}>
 			<Typography>Export</Typography>
-		</MenuItem>
+		</MenuItem>*/}
 	</Menu>	
 	</div>
 	)}
@@ -572,9 +582,9 @@ export default function Prws() {
 		<MenuItem onClick={jumpGotra}>
 			<Typography>Gotra</Typography>
 		</MenuItem>
-		<MenuItem onClick={downloadPrwsData}>
+		{/*<MenuItem onClick={downloadPrwsData}>
 			<Typography>Export</Typography>
-		</MenuItem>
+		</MenuItem>*/}
 	</Menu>	
 	</div>
 	)}
@@ -605,11 +615,13 @@ export default function Prws() {
 	
 	// If filter at back-end then we have only 1 page data
 	currentPage =(process.env.REACT_APP_BACKENDFILTER === "true") ? 0 : page;
-	
 	return (
 	<div key="PRWS" className={gClasses.webPage} align="center" key="main">
 		{/*<DisplayPersonalButtons />*/}
-		{/*<DisplayPageHeader headerName="Prws Members" groupName="" tournament=""/>*/}
+		<DisplayPageHeader headerName="Pratapgarh Rajasthan Welfare Samiti" button1={
+			<Typography style={{marginTop: "5px", marginRight: "10px" }} className={gClasses.message16Blue} onClick={downloadPrwsData} >Export</Typography>
+			}
+		/>
 		<DisplayPrwsFilter 
 			inputFilterMode={inputFilterMode} 
 			inputName={inputName}

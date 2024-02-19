@@ -422,8 +422,8 @@ export default function Application(props) {
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
 	<CssBaseline />
-	<DisplayFunctionHeader />
 	<DisplayPageHeader headerName={"Application Status" } groupName="" tournament=""/>
+	<DisplayFunctionHeader />
 	<DisplayAllApplication />
 	<DisplayAllToolTips />
 	<Drawer style={{ width: "100%"}} anchor="top" variant="temporary" open={isDrawerOpened != ""} >

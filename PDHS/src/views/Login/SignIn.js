@@ -200,7 +200,7 @@ async function handleSubmitMobile(e) {
   }
   {(stage === "CAPTCHA") &&
     <ValidatorForm align="center" className={gClasses.form} onSubmit={handleSubmitCapta}>
-    <Typography align="left" className={gClasses.title}>{whereCaptcha}</Typography>
+    <Typography align="left" className={gClasses.message16Blue}>{whereCaptcha}</Typography>
     <TextValidator fullWidth  variant="outlined" required className={gClasses.vgSpacing}
       label="OTP" type="text"
       value={password} 

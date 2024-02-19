@@ -688,7 +688,7 @@ export default function Pjym() {
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
 	<CssBaseline />
-	{/*<DisplayPageHeader headerName="PJYM Members" groupName="" tournament=""/>*/}
+	<DisplayPageHeader headerName="Pratapgarh Jain Yuva Manch" />
 	<DisplayPrwsFilter 
 		inputFilterMode={inputFilterMode} 
 		inputName={inputName}

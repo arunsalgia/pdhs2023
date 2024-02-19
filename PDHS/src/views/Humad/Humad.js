@@ -790,7 +790,7 @@ export default function Humad() {
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
 	<CssBaseline />
-	{/*<DisplayPageHeader headerName="Humad Members" groupName="" tournament=""/>*/}
+	<DisplayPageHeader headerName="Humad Samaj" />
 	<DisplayPrwsFilter 
 		inputFilterMode={inputFilterMode} 
 		inputName={inputName}
