@@ -101,9 +101,7 @@ export default function SignIn() {
 		//let enPassword = password;			//encrypt(password);
 		//let response = await axios.get(`${process.env.REACT_APP_AXIOS_BASEPATH}/user/padmavatimata/${userMobile}/${enPassword}`); 
 		let response = await axios.get(`${process.env.REACT_APP_AXIOS_BASEPATH}/user/padmavatimata/${myData}`); 
-    console.log(response.data);
 		setError("", false);
-    console.log(response.data);
 		let userData = response.data.user;
 		if (userData) {
 			window.sessionStorage.setItem("hid", userData.hid)
@@ -119,16 +117,13 @@ export default function SignIn() {
 			window.sessionStorage.setItem("userMobile", "Guest");
 			window.sessionStorage.setItem("firstName","Guest");				
 		}
-		window.sessionStorage.setItem("prwsLogin", userData.mobile);
+		window.sessionStorage.setItem("prwsLogin", response.data.userName);
 		window.sessionStorage.setItem("isMember", response.data.isMember);
-		window.sessionStorage.setItem("adminRec", JSON.stringify(response.data.admin));
-		
-		//sessionStorage.setItem("menuHid", 0);	
-		//sessionStorage.setItem("menuMid", 0);	
-		//sessionStorage.setItem("menuCurrentSelection", "PRWS");	
-		//setTab(process.env.REACT_APP_HOME);
-		//setDisplayPage(PAGELIST.PRWS, 0, 0);
-		//setDisplayPage(PAGELIST.DASHBOARD, 0, 0);
+		if (response.data.admin)
+			window.sessionStorage.setItem("adminRec", JSON.stringify(response.data.admin));
+		else
+			window.sessionStorage.setItem("adminRec", "");
+
 		setTab(process.env.REACT_APP_DASH);
 	} catch (err) {
 		setError("Invalid Captcha", true);

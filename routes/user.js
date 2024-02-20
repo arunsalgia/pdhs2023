@@ -285,7 +285,7 @@ router.get('/padmavatimata/:myData', async function (req, res, next) {
 	}
 	//console.log(myAdmin);
 
-  sendok(res, {user: myMem, admin: myAdmin, isMember: isMember});
+  sendok(res, {user: myMem, admin: myAdmin, isMember: isMember, userName: userName});
 
 	// Make logger entry of use login.
 	let myLogRec = new M_PrwsLog();
@@ -297,8 +297,8 @@ router.get('/padmavatimata/:myData', async function (req, res, next) {
 	}
 	else {
 		myLogRec.mid = 0;
-		myLogRec.name = `Guest with mobile number ${uMobile}`;
-		myLogRec.desc = `Login by ${uMobile}`;
+		myLogRec.name = `Guest with mobile/mobile ${userName}`;
+		myLogRec.desc = `Login by ${userName}`;
 	}
 	myLogRec.isAdmin = isAdmin;
 	myLogRec.action = PRWSACTION.login;
