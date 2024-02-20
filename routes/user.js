@@ -129,7 +129,7 @@ router.get('/jaijinendra/:myData', async function (req, res, next) {
   if (!myCaptha) {
     myCaptha = new M_Password();
     myCaptha.mobile = userName;
-    myCaptha.captcha = otpGenerator.generate(8, { specialChars: false });
+    myCaptha.captcha = otpGenerator.generate(8, { specialChars: false, lowerCaseAlphabets: false, upperCaseAlphabets: false });
 	  console.log(`New captha ${myCaptha.captcha}`);
 	  myCaptha.save();
   }
@@ -171,7 +171,7 @@ router.get('/jaijinendra/:myData', async function (req, res, next) {
 
 var directLogin = ['8080820084', '9867100677', '9867061850', '9819804128', '1234567890'];
 
-router.get('/padmavatimata/:uMobile/:uPassword', async function (req, res, next) {
+router.get('/orgpadmavatimata/:uMobile/:uPassword', async function (req, res, next) {
   setHeader(res);
   var {uMobile, uPassword } = req.params;
   //uMobile = Number(uMobile);
@@ -195,6 +195,78 @@ router.get('/padmavatimata/:uMobile/:uPassword', async function (req, res, next)
 	var isAdmin = false;
   //let myMem = await M_Member.findOne({$or :[{mobile: uMobile}, {mobile1: uMobile}] });
 	let myMem = await memberGetByMobileOne(uMobile);
+	
+  if (myMem) {
+		isMember = true;
+		myAdmin = await M_Admin.findOne({mid: myMem.mid});
+		if (!myAdmin) {
+			myAdmin = {
+				mid: myMem.mid, 
+				superAdmin: false, humadAdmin: false, 
+				pjymAdmin: false, prwsAdmin: false, 
+				pmmAdmin: false
+			};
+		}
+		else {
+			isAdmin = true;
+		}
+	}
+	//console.log(myAdmin);
+
+  sendok(res, {user: myMem, admin: myAdmin, isMember: isMember});
+
+	// Make logger entry of use login.
+	let myLogRec = new M_PrwsLog();
+	myLogRec.date = new Date();
+	if (myMem) {
+		myLogRec.mid = myMem.mid;
+		myLogRec.name = getMemberName(myMem);
+		myLogRec.desc = `Login by ${getMemberName(myMem)}`;
+	}
+	else {
+		myLogRec.mid = 0;
+		myLogRec.name = `Guest with mobile number ${uMobile}`;
+		myLogRec.desc = `Login by ${uMobile}`;
+	}
+	myLogRec.isAdmin = isAdmin;
+	myLogRec.action = PRWSACTION.login;
+	myLogRec.data = '';
+	myLogRec.status = true;
+	await myLogRec.save();
+	
+});
+
+router.get('/padmavatimata/:myData', async function (req, res, next) {
+  setHeader(res);
+	var {myData } = req.params;
+  var isValid = false;
+  
+	var myData = JSON.parse(myData);
+	var userName = decrypt(myData.userName);
+	console.log(userName);
+	
+
+	if (!directLogin.includes(userName)) {
+		// verify captcha
+		//console.log(uMobile, uPassword);
+		let myCaptha = await M_Password.findOne({mobile: userName});
+		if (!myCaptha) return senderr(res, 601, "Invalid password");
+		console.log(myCaptha);
+		if (myCaptha.captcha !== myData.password) return senderr(res, 601, "Invalid password");
+	}
+ 
+	let myAdmin = {
+		mid: 0, 
+		superAdmin: false, humadAdmin: false, 
+		pjymAdmin: false, prwsAdmin: false, 
+		pmmAdmin: false
+	};
+	var isMember = false;
+	var isAdmin = false;
+  //let myMem = await M_Member.findOne({$or :[{mobile: uMobile}, {mobile1: uMobile}] });
+	let myMem = (myData.isMobile) ?
+		await memberGetByMobileOne(userName) :
+		await memberGetByEmailOne(userName);
 	
   if (myMem) {
 		isMember = true;

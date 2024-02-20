@@ -92,8 +92,16 @@ export default function SignIn() {
   e.preventDefault();
 
 	try { 
-		let enPassword = password;			//encrypt(password);
-		let response = await axios.get(`${process.env.REACT_APP_AXIOS_BASEPATH}/user/padmavatimata/${userMobile}/${enPassword}`); 
+		var myData = {
+			isMobile:  (loginMode === LOGINOPTION.mobile),
+			userName:	 encrypt((loginMode === LOGINOPTION.mobile) ? userMobile : userEmail),
+			password:	 password
+		};
+		myData = encodeURIComponent(JSON.stringify(myData));
+		//let enPassword = password;			//encrypt(password);
+		//let response = await axios.get(`${process.env.REACT_APP_AXIOS_BASEPATH}/user/padmavatimata/${userMobile}/${enPassword}`); 
+		let response = await axios.get(`${process.env.REACT_APP_AXIOS_BASEPATH}/user/padmavatimata/${myData}`); 
+    console.log(response.data);
 		setError("", false);
     console.log(response.data);
 		let userData = response.data.user;
@@ -111,7 +119,7 @@ export default function SignIn() {
 			window.sessionStorage.setItem("userMobile", "Guest");
 			window.sessionStorage.setItem("firstName","Guest");				
 		}
-		window.sessionStorage.setItem("prwsLogin", userMobile);
+		window.sessionStorage.setItem("prwsLogin", userData.mobile);
 		window.sessionStorage.setItem("isMember", response.data.isMember);
 		window.sessionStorage.setItem("adminRec", JSON.stringify(response.data.admin));
 		
