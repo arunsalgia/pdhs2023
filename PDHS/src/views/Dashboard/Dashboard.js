@@ -48,6 +48,8 @@ import { NoGroup, BlankArea } from 'CustomComponents/CustomComponents.js';
 import { blue, orange, deepOrange}  from '@material-ui/core/colors';
 import { getTsBuildInfoEmitOutputFilePath } from "typescript";
 
+import VsButton from "CustomComponents/VsButton";
+
 import Modal from 'react-modal';
 
 const CardColor = "#ff9800";
@@ -244,6 +246,7 @@ export default function Dashboard() {
 		setDisplayPage(process.env.REACT_APP_ADMIN, 0, 0);
 	}
 	
+	//console.log(loginUserRec);
 	return (
 	<div style={{padding: "10px"}} >
       <GridContainer key="db_gc_ub">
@@ -255,6 +258,8 @@ export default function Dashboard() {
               </CardIcon>
 							<div>
               <button className={gClasses.dashText} >PRWS</button>
+								{/*<br />
+								<VsButton align="right" name="  PRWS  " onClick={jumpToPrws} />*/}
 							<h5 align="right" color="blue"  className={gClasses.cardTitle} >{`${countInfo.prws} members`}</h5>
 							</div>
             </CardHeader>
@@ -302,7 +307,7 @@ export default function Dashboard() {
 							<h5 align="right" color="blue"  className={gClasses.cardTitle} >{`${countInfo.family} family members`}</h5>
             </CardHeader>
             <CardFooter key="db_cftr_ub4" stats>
-							<Typography className={gClasses.patientInfo2Blue} >{`Family of ${getMemberName(loginUserRec, false, false)}`}</Typography>
+							<Typography className={gClasses.patientInfo2Blue} >{(loginUserRec.mid) ? `Family of ${getMemberName(loginUserRec, false, false)}` : 'No info of family'}</Typography>
             </CardFooter>
           </Card>
         </GridItem>

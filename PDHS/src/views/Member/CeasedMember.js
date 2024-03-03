@@ -195,9 +195,9 @@ function handleStage2() {
 	setStage("STAGE3");
 }
 
-function handleStage3() {
-	handleCeasedSubmit();
-}
+//function handleStage3() {
+//	handleCeasedSubmit();
+//}
 
 async function handleCeasedSubmit() {
 	var midList = lodashMap(memberList, 'mid');
@@ -216,27 +216,21 @@ async function handleCeasedSubmit() {
 	}
 	console.log(myInfo);
 	myInfo = encodeURIComponent(JSON.stringify(myInfo));
+	//${process.env.REACT_APP_AXIOS_BASEPATH}/apply/updategotra/${currentHod.mid}/${loginMid}/${tmp}`;
 	try {
-		// if admin then update else apply
-		//let myUrl = "";
-		//let mode = "";
-		
-		let myUrl = (hasPRWSpermission()) 
-			? `${process.env.REACT_APP_AXIOS_BASEPATH}/member/ceased/${myInfo}`
-			: `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/ceased/${sessionStorage.getItem("mid")}/${myInfo}`;
+ 		// apply for both admin and member
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/ceased/${props.hodMid}/${sessionStorage.getItem("mid")}/${myInfo}`;
 		var resp = await axios.get(myUrl);
 		
 		props.onReturn.call(this, {
-			status: (hasPRWSpermission() ? STATUS_INFO.SUCCESS : STATUS_INFO.INFO),
+			status: STATUS_INFO.SUCCESS,
 			data: resp.data,
-			msg: (hasPRWSpermission() ? `Successfully set ${ceasedName} as ceased.` : `Successfully applied for ${ceasedName} as ceased. Your application id ref. ${resp.data.id}`)
+			msg: `Successfully applied for ${ceasedName} as ceased. Your application id ref. ${resp.data.id}`
 		});
 	} catch (e) {
 		console.log(e);
 		props.onReturn.call(this, {status: STATUS_INFO.ERROR,  msg: `Error setting ${ceasedName} as ceased.`});
 	}	
-	
-	//props.onReturn.call(this, {status: STATUS_INFO.ERROR, msg: `Error ceased member`});
 	return;
 }
 
@@ -390,7 +384,7 @@ return (
 		<br />
 		</div>
 		}
-		<VsButton align="center" name="Submit" onClick={handleStage3} />
+		<VsButton align="center" name="Apply" onClick={handleCeasedSubmit} />
 		<br />
 		<ToastContainer />
 	</div>

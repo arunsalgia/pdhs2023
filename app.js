@@ -522,26 +522,35 @@ FAMILYMF = 1000;
 
 
 APPLICATIONTYPES = {
-	editGotra:  "Edit Gotra",
-	addMember: "Add Member",
-	splitFamily: "Split Family",
-	memberCeased: "Member Ceased",
-	spouseDetails: "Spouse Details",
-	memberHOD: "New HOD",
+	editGotra:  			"Edit Gotra",
+	addMember: 				"Add Member",
+	//splitFamily: 			"Split Family",
+	memberCeased: 		"Member Ceased",
+	spouseDetails: 		"Spouse Details",
+	memberHOD: 				"New HOD",
+	transferMember:		"Transfer members",
 };
 
 APPLICATIONSTATUS = {
-	approved:  "Approved",
-	rejected: "Rejected",
-	pending: "Pending"
+	approved:  	"Approved",
+	rejected: 	"Rejected",
+	pending: 		"Pending"
 };
 
 PRWSACTION = {
-	login:  "Login",
-	logout: "Logout",
+	login:  				"Login",
+	logout: 				"Logout",
+	memberCeased: 	"Member Ceased",
 };
 
 PRWSMAILHEADER = {
-	login:  'PRWS login captcha',
-	logout: "PRWS logout",
+	login:  	'PRWS login OTP',
+	logout: 	"PRWS logout",
+};
+
+OWNER = {
+	prws:   "PRWS",
+	pjym:		"PJYM",
+	humad:	"Humad",
+	pmm:		"PMM"
 };

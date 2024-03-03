@@ -320,14 +320,17 @@ INFO: 2,
 };
 
 
+
 export const APPLICATIONTYPES = {
-	editGotra:  "Edit Gotra",
-	addMember: "Add Member",
-	//splitFamily: "Split Family",
-	memberCeased: "Member Ceased",
-	spouseDetails: "Spouse Details",
-	memberHOD: "New HOD",
+	editGotra:  			"Edit Gotra",
+	addMember: 				"Add Member",
+	//splitFamily: 			"Split Family",
+	memberCeased: 		"Member Ceased",
+	spouseDetails: 		"Spouse Details",
+	memberHOD: 				"New HOD",
+	transferMember:		"Transfer members",
 };
+
 
 export const APPLICATIONSTATUS = {
 	approved: "Approved",

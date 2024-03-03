@@ -125,9 +125,9 @@ router.get('/updategotra/:editor_hodmid/:editor_mid/:appData', async function (r
 	
 	let aRec = new M_Application();
 	aRec.date = justNow;
-	aRec.owner = "PRWS";
+	aRec.owner = OWNER.prws;
 	aRec.hid = 0;
-	aRec.desc = "Edit Gotra";
+	aRec.desc = APPLICATIONTYPES.editGotra;
 
 	aRec.hodMid = editorHodRec.mid
 	aRec.hodName = getMemberName(editorHodRec, false);
@@ -153,35 +153,45 @@ router.get('/updategotra/:editor_hodmid/:editor_mid/:appData', async function (r
 	sendok(res, aRec);
 });
 
-router.get('/ceased/:editor_mid/:appData', async function (req, res) {
+router.get('/ceased/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
   setHeader(res);
-	var {editor_mid, appData } = req.params;
+	var {editor_hodmid, editor_mid, appData } = req.params;
 	console.log(appData);
+	let justNow = new Date();
 
 	var editorRec = await memberGetByMidOne(Number(editor_mid));
+	var editorHodRec = await memberGetByMidOne(Number(editor_hodmid));
+	console.log(editor_hodmid, editorHodRec);
 	
 	let aRec = new M_Application();
-	aRec.owner = "PRWS";
-	aRec.desc = "Ceased";
-	aRec.name = getMemberName(editorRec);
+	aRec.date = justNow;
+	aRec.owner = OWNER.prws;
+	aRec.hid = 0;
+	aRec.desc = APPLICATIONTYPES.memberCeased;
+
+	aRec.hodMid = editorHodRec.mid
+	aRec.hodName = getMemberName(editorHodRec, false);
+
 	aRec.mid = editorRec.mid;
+	aRec.name = getMemberName(editorRec, false);
+
 	aRec.isMember = true;
 	aRec.data = appData;
-	aRec.status = 'Pending';
+	aRec.status = APPLICATIONSTATUS.pending;
+
 	aRec.adminName = '';
 	aRec.comments = '';
 	
-	let justNow = new Date();
 	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
 	console.log(baseid);
 	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
 	
-	aRec.date = justNow;
 	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
+
+	sendok(res, aRec);
+
 	await aRec.save();
 	console.log(aRec);
-	
-	sendok(res, aRec);
 });
 
 router.get('/transfermember/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
@@ -196,9 +206,9 @@ router.get('/transfermember/:editor_hodmid/:editor_mid/:appData', async function
 	
 	let aRec = new M_Application();
 	aRec.date = justNow;
-	aRec.owner = "PRWS";
+	aRec.owner = OWNET.prws;
 	aRec.hid = 0;
-	aRec.desc = "Transfer members";
+	aRec.desc = APPLICATIONTYPES.transferMember;
 
 	aRec.hodMid = editorHodRec.mid
 	aRec.hodName = getMemberName(editorHodRec, false);

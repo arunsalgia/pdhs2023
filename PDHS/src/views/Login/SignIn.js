@@ -126,7 +126,7 @@ export default function SignIn() {
 
 		setTab(process.env.REACT_APP_DASH);
 	} catch (err) {
-		setError("Invalid Captcha", true);
+		setError("Invalid OPT", true);
 	}
 };
 

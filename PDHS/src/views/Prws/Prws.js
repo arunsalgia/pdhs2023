@@ -612,15 +612,18 @@ export default function Prws() {
 	</div>
 	);
 	
-	
+	/*
+	<Typography style={{marginTop: "5px", marginRight: "10px" }} 
+				className={gClasses.message16Blue} 
+				onClick={downloadPrwsData} >Export</Typography>
+	*/
 	// If filter at back-end then we have only 1 page data
 	currentPage =(process.env.REACT_APP_BACKENDFILTER === "true") ? 0 : page;
 	return (
 	<div key="PRWS" className={gClasses.webPage} align="center" key="main">
 		{/*<DisplayPersonalButtons />*/}
-		<DisplayPageHeader headerName="Pratapgarh Rajasthan Welfare Samiti" button1={
-			<Typography style={{marginTop: "5px", marginRight: "10px" }} className={gClasses.message16Blue} onClick={downloadPrwsData} >Export</Typography>
-			}
+		<DisplayPageHeader headerName="Pratapgarh Rajasthan Welfare Samiti" 
+			button1={<VsButton style={{marginRight: "10px" }}  name="Export to CSV" onClick={downloadPrwsData} />}
 		/>
 		<DisplayPrwsFilter 
 			inputFilterMode={inputFilterMode} 

@@ -22,6 +22,8 @@ import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
 import Drawer from '@material-ui/core/Drawer';
 import { useAlert } from 'react-alert'
 
+//import VsRadioGroup from "CustomComponents/VsRadioGroup";
+
 import lodashSortBy from 'lodash/sortBy';
 import lodashReverse from 'lodash/reverse';
 // icons
@@ -32,7 +34,9 @@ import InfoIcon   from 	'@material-ui/icons/Info';
 // styles
 import globalStyles from "assets/globalStyles";
 
+
 import ApplicationEditGotra from "views/Application/ApplicationEditGotra";
+import ApplicationmemberCeased from "views/Application/ApplicationmemberCeased";
 
 import {
 	ADMIN, APPLICATIONSTATUS, APPLICATIONTYPES, SELECTSTYLE, STATUS_INFO,
@@ -60,6 +64,8 @@ import { getMemberName, dateString } from 'views/functions';
 
 const DEFAULTOWNER="PRWS";
 const applOption = ["Application Approved", "Application Rejected"];
+const RadioList = ["All", "Pending", "Approved","Rejected"];
+ 
 
 export default function Application(props) {
 	const loginHid = parseInt(sessionStorage.getItem("hid"), 10);
@@ -79,6 +85,8 @@ export default function Application(props) {
 	
 	const [editApplRec, setEditApplRec] = useState(null);
 	const [approve, setApprove] = useState("Application Rejected");
+	
+	const [radOpts, setRadOpts] = useState("All");
 	
 	const [isDrawerOpened, setIsDrawerOpened] = useState("");
 	const [emurRemarks, setEmurRemarks] = useState("");
@@ -116,7 +124,8 @@ export default function Application(props) {
 			let resp = await axios.get(myUrl);
 			//console.log(resp.data);
 			setApplicationMasterArray(resp.data);
-			setApplicationArray(resp.data);	
+			//setApplicationArray(resp.data);	
+			setSelection(resp.data, "PRWS", "All");
 		} catch (e) {
 			console.log(e);
 		}	
@@ -127,7 +136,7 @@ export default function Application(props) {
 		let itemName = props.item;
 		return (
 		<Grid key={"BUT"+itemName} item xs={6} sm={3} md={2} lg={2} >	
-		<Typography onClick={() => setSelection(itemName)}>
+		<Typography onClick={() => setSelection(applicationMasterArray, itemName, radOpts)}>
 			<span 
 				className={(itemName === currentSelection) ? gClasses.functionSelected : gClasses.functionUnselected}>
 			{itemName}
@@ -136,20 +145,19 @@ export default function Application(props) {
 		</Grid>
 		)}
 	
-	function filterArray(myArray, item) {
-		let tmpArray = (item === "All") ?
-			myArray :
-			myArray.filter(x => x.owner === item);
-
-		if (onlyPending)
-			tmpArray = tmpArray.filter(x => x.status === APPLICATIONSTATUS.pending);
+	function filterArray(myArray, item, radOpts) {
+		let tmpArray = myArray.filter(x => x.owner === item);
+		if (radOpts !== "All")
+			tmpArray = tmpArray.filter(x => x.status === radOpts);
+		//if (onlyPending)
+		//	tmpArray = tmpArray.filter(x => x.status === APPLICATIONSTATUS.pending);
 		
 		return tmpArray;
 	}
 	
 	
-	async function setSelection(item) {
-		let tmpArray = filterArray(applicationMasterArray, item);
+	async function setSelection(myArray, item, radOpts) {
+		let tmpArray = filterArray(myArray, item, radOpts);
 		//console.log(tmpArray);
 		setApplicationArray(tmpArray);
 		setCurrentSelection(item);
@@ -419,11 +427,18 @@ export default function Application(props) {
 		setIsDrawerOpened("");
 	}
 	
+	function submitChangeOpt(opt) {
+		setSelection(applicationMasterArray, currentSelection, opt)
+		setRadOpts(opt);
+	}
+	
+	
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
 	<CssBaseline />
 	<DisplayPageHeader headerName={"Application Status" } groupName="" tournament=""/>
 	<DisplayFunctionHeader />
+	<VsRadioGroup radioList={RadioList} value={radOpts} onChange={() => submitChangeOpt(event.target.value) } />
 	<DisplayAllApplication />
 	<DisplayAllToolTips />
 	<Drawer style={{ width: "100%"}} anchor="top" variant="temporary" open={isDrawerOpened != ""} >
@@ -498,6 +513,9 @@ export default function Application(props) {
 	}*/}
 	{(isDrawerOpened === APPLICATIONTYPES.editGotra) &&
 		<ApplicationEditGotra applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
+	}
+	{(isDrawerOpened === APPLICATIONTYPES.memberCeased) &&
+		<ApplicationmemberCeased applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
 	}
 	</Box>
 	</Container>
