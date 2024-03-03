@@ -251,6 +251,7 @@ export default function Dashboard() {
 	<div style={{padding: "10px"}} >
       <GridContainer key="db_gc_ub">
         <GridItem key="db_gi_ub1" xs={12} sm={6} md={4} lg={3}>
+					<a href='/' > 
           <Card key="db_card_ub1" onClick={jumpToPrws} >
             <CardHeader key="db_chdr_ub1" color="warning" stats icon>
               <CardIcon color="warning">
@@ -267,8 +268,10 @@ export default function Dashboard() {
 							<Typography className={gClasses.patientInfo2Blue} >Pratapgarh Rajasthan Welfare Samiti</Typography>
             </CardFooter>
           </Card>
+					</a>
         </GridItem>
         <GridItem key="db_gi_ub2" xs={12} sm={6} md={4} lg={3}>
+					<a href='/' > 
           <Card key="db_card_ub2" onClick={jumpToPjym} >
             <CardHeader key="db_chdr_ub2" color="success" stats icon>
               <CardIcon color="success">
@@ -281,8 +284,10 @@ export default function Dashboard() {
 							<Typography className={gClasses.patientInfo2Blue} >Pratapgarh Jain Yuva Manch</Typography>
             </CardFooter>
           </Card>
+					</a>
         </GridItem>
         <GridItem key="db_gi_ub3" xs={12} sm={6} md={4} lg={3} >
+					<a href='/' > 
           <Card key="db_card_ub3" onClick={jumpToHumad} >
             <CardHeader key="db_chdr_ub3" color="info" stats icon>
               <CardIcon color="info">
@@ -295,8 +300,10 @@ export default function Dashboard() {
 							<Typography className={gClasses.patientInfo2Blue} >Humad Jain Samaj</Typography>
             </CardFooter>
           </Card>
+					</a>
         </GridItem>
         <GridItem key="db_gi_ub4" xs={12} sm={6} md={4} lg={3} >
+					<a href='/' > 
           <Card key="db_card_ub4" onClick={jumpToFamily} >
             <CardHeader key="db_chdr_ub4" color="info" stats icon>
               <CardIcon color="info">
@@ -310,8 +317,10 @@ export default function Dashboard() {
 							<Typography className={gClasses.patientInfo2Blue} >{(loginUserRec.mid) ? `Family of ${getMemberName(loginUserRec, false, false)}` : 'No info of family'}</Typography>
             </CardFooter>
           </Card>
+					</a>
         </GridItem>
         <GridItem key="db_gi_ub5" xs={12} sm={6} md={4} lg={3} >
+					<a href='/' > 
           <Card key="db_card_ub5" onClick={jumpToApplication}>
             <CardHeader key="db_chdr_ub5" color="primary" stats icon>
               <CardIcon color="primary">
@@ -324,9 +333,11 @@ export default function Dashboard() {
 							<Typography className={gClasses.patientInfo2Blue} >{`Pending applications`}</Typography>
             </CardFooter>
           </Card>
+					</a>
         </GridItem>
 				{(adminRec.superAdmin || adminRec.prwsAdmin) &&
         <GridItem key="gotra_item" xs={12} sm={6} md={4} lg={3} >
+					<a href='/' > 
           <Card key="gotra_card" onClick={jumpToGotra}>
             <CardHeader key="gotra_header" color="warning" stats icon>
               <CardIcon color="warning">
@@ -339,10 +350,12 @@ export default function Dashboard() {
 							<Typography className={gClasses.patientInfo2Blue} >{`Configured Gotras`}</Typography>
             </CardFooter>
           </Card>
+					</a>
         </GridItem>
 				}
 				{(adminRec.superAdmin || adminRec.prwsAdmin) &&
         <GridItem key="city_item" xs={12} sm={6} md={4} lg={3} >
+					<a href='/' > 
           <Card key="city_card" onClick={jumpToCity}>
             <CardHeader key="city_header" color="warning" stats icon>
               <CardIcon color="warning">
@@ -355,10 +368,12 @@ export default function Dashboard() {
 							<Typography className={gClasses.patientInfo2Blue} >{`Configured Cities`}</Typography>
             </CardFooter>
           </Card>
-        </GridItem>
+					</a>
+				</GridItem>
 				}
 				{(adminRec.superAdmin ) &&
         <GridItem key="admin_item" xs={12} sm={6} md={4} lg={3} >
+					<a href='/' > 
           <Card key="admin_card" onClick={jumpToAdmin}>
             <CardHeader key="admin_header" color="info" stats icon>
               <CardIcon color="info">
@@ -371,6 +386,7 @@ export default function Dashboard() {
 							<Typography className={gClasses.patientInfo2Blue} >{`Configured Admins`}</Typography>
             </CardFooter>
           </Card>
+					</a>
         </GridItem>
 				}
       </GridContainer>  
