@@ -927,10 +927,14 @@ export async function handleLogout() {
 	var myAdminRec = JSON.parse(sessionStorage.getItem("adminRec"));
 	var myData = {
 		mid: Number(sessionStorage.getItem("mid")),
-		name: sessionStorage.getItem("userName"),
+		name: sessionStorage.getItem("userMobile"),
 		isAdmin: ((myAdminRec._id) ? true : false),
 		mobile: sessionStorage.getItem("prwsLogin")
 	};
+	if (myData.mid === 0) {
+		// Guest
+		myData.name = `${myData.name} ( ${sessionStorage.getItem("prwsLogin")} )`;
+	}
 	myData = encodeURIComponent(JSON.stringify(myData))
 	try {
     await axios.get(`${process.env.REACT_APP_AXIOS_BASEPATH}/user/logout/${myData}`);

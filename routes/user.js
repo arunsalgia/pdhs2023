@@ -297,8 +297,8 @@ router.get('/padmavatimata/:myData', async function (req, res, next) {
 	}
 	else {
 		myLogRec.mid = 0;
-		myLogRec.name = `Guest with mobile/mobile ${userName}`;
-		myLogRec.desc = `Login by ${userName}`;
+		myLogRec.name = `Guest ( ${userName} )`;
+		myLogRec.desc = `Login by Guest ( ${userName} )`;
 	}
 	myLogRec.isAdmin = isAdmin;
 	myLogRec.action = PRWSACTION.login;
@@ -326,8 +326,8 @@ router.get('/logout/:myData', async function (req, res, next) {
 	}
 	else {
 		myLogRec.mid = 0;
-		myLogRec.name = `Guest with mobile number ${myData.mobile}`;
-		myLogRec.desc = `Logout by ${myData.mobile}`;
+		myLogRec.name = myData.name;
+		myLogRec.desc = `Logout by ${myData.name}`;
 	}
 	myLogRec.isAdmin = myData.isAdmin;
 	myLogRec.action = PRWSACTION.logout;

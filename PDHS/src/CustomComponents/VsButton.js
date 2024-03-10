@@ -17,6 +17,7 @@ var bSTyle = {padding: "5px 10px", margin: "4px 2px", color: 'white', fontSize:'
 
 bSTyle.backgroundColor = (props.color) ? props.color: 'blue';
 let handler=disabled;
+var _type = (props.type) ? props.type : "submit";
 if (props.disabled) {
 	// job done
 	bSTyle.backgroundColor = '#9E9E9E';
@@ -27,11 +28,11 @@ if (props.disabled) {
 }
 
 if (props.align == null)
-	return(<button style={bSTyle} onClick={handler} >{props.name}</button>);
+	return(<button type={_type}  style={bSTyle} onClick={handler} >{props.name}</button>);
 else
 	return (
 	<div align={props.align}>
-		<button style={bSTyle} onClick={handler} >{props.name}</button>
+		<button type={_type} style={bSTyle} onClick={handler} >{props.name}</button>
 	</div>
 	)
 }

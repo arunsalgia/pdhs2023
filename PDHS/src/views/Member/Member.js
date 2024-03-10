@@ -6,7 +6,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 //import Avatar from '@material-ui/core/Avatar';
-
+import ArrowLeftRoundedIcon from '@material-ui/icons/ArrowLeftRounded';
+import ArrowRightRoundedIcon from '@material-ui/icons/ArrowRightRounded';
 
 //import lodashCloneDeep from 'lodash/cloneDeep';
 import lodashSortBy from "lodash/sortBy";
@@ -25,6 +26,7 @@ import { useAlert } from 'react-alert'
 import Grid from "@material-ui/core/Grid";
 import Typography from '@material-ui/core/Typography';
 
+import VsButton from "CustomComponents/VsButton";
 
 // styles
 import globalStyles from "assets/globalStyles";
@@ -50,6 +52,10 @@ import {
 	readAllMembers, memberGetByHidMany,
 } from "views/clientdbfunctions";
 
+import {
+	VALUEDIRECTION,
+} from "views/globals.js";
+
 
 var isMember = false;
 
@@ -70,70 +76,97 @@ export default function Member(props) {
 	
 
 
-
   useEffect(() => {	
 		//console.log("In Member");
 		
-		async function getHod(hid) {
-			try {
-				let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/hod/get/${hid}`
-				let resp = await axios.get(myUrl);
-				setCurrentHod(resp.data);
-				setCurrentCity(resp.data.city);
-				sessionStorage.removeItem("member_hod");
-				sessionStorage.setItem("member_hod", JSON.stringify(resp.data));
-			} catch (e) {
-				console.log(e);
-				showError(`Error fetching HOD details of ${hid}`);
-				setCurrentHod({});
-			}	
-		}
-
-		async function getHodMembers(hid, mid) {
-			try {
-				var myData = [];
-				if (process.env.REACT_APP_PRWS_DB === "true") {
-					myData = memberGetByHidMany(hid);		
-					/*JSON.parse(localStorage.getItem("prwsMemberList"));
-					myData = myData.filter(x => x.hid === hid);*/
-				}
-				else {
-					let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/hod/${hid}`;
-					let resp = await axios.get(myUrl);
-					myData = resp.data;
-					myData = lodashSortBy(myData, 'order');
-				}
-				setMemberArray(myData);
-				//console.log(tmpList);
-				sessionStorage.removeItem("member_members");
-				sessionStorage.setItem("member_members", JSON.stringify(myData));
-				let tmp = (mid > 0) ? myData.find(x => x.mid === mid) : myData[0];
-				setCurrentMemberData((tmp) ? tmp : null);
-			} catch (e) {
-				console.log(e);
-				showError(`Error fetching Member details of HOD ${hid}`);
-				setMemberArray([]);
-			}	
-		}
-
-		const getDetails = async () => {
-			var memberHid = (props.hid !== 0) ? props.hid : loginHid;
-			var memberMid = (props.hid !== 0) ? props.mid : loginMid;			
-			isMember = (sessionStorage.getItem("isMember") === "true");
-			await getHod(memberHid);
-			await getHodMembers(memberHid, memberMid);
-			//ver tmpFamilyHeadRec = 
-			setSelection("Personal");
-			//console.log("setting personal");
-		}
-		
 		if (sessionStorage.getItem("isMember") === "true") {
-			getDetails();
+			getDetails((props.hid !== 0) ? props.hid : loginHid, (props.hid !== 0) ? props.mid : loginMid);
 		}
 		
   }, []);
 
+	async function getHod(hid, direction=VALUEDIRECTION.current) {
+		var subcmd = '';
+		switch (direction) {
+			case VALUEDIRECTION.previous :
+				subcmd = 'getprevious';
+				break;
+			case VALUEDIRECTION.next :
+				subcmd = 'getnext';
+				break;
+			default:
+				subcmd = 'get';
+				break
+		}
+		
+		var retVal = null;
+		try {
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/hod/${subcmd}/${hid}`
+			let resp = await axios.get(myUrl);
+			retVal = resp.data
+		} catch (e) {
+			console.log(e);
+			showError(`Error fetching HOD details of ${hid}`);
+			//setCurrentHod({});
+		}	
+		return retVal;
+	}
 
+	async function getHodMembers(hid, mid) {
+		var myData = [];
+		try {
+			if (process.env.REACT_APP_PRWS_DB === "true") {
+				myData = memberGetByHidMany(hid);		
+			}
+			else {
+				let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/hod/${hid}`;
+				let resp = await axios.get(myUrl);
+				myData = resp.data;
+				myData = lodashSortBy(myData, 'order');
+			}
+		} catch (e) {
+			console.log(e);
+			showError(`Error fetching Member details of HOD ${hid}`);
+			//setMemberArray([]);
+		}
+		return myData;
+	}
+
+	async function getDetails(memberHid, memberMid, direction = VALUEDIRECTION.exact) {
+		//var memberHid = (props.hid !== 0) ? props.hid : loginHid;
+		//var memberMid = (props.hid !== 0) ? props.mid : loginMid;			
+		isMember = (sessionStorage.getItem("isMember") === "true");
+		var hidData = await getHod(memberHid, direction);
+		if (hidData) {
+			setCurrentHod(hidData);
+			setCurrentCity(hidData.city);
+			sessionStorage.removeItem("member_hod");
+			sessionStorage.setItem("member_hod", JSON.stringify(hidData));
+			// get correct HID
+			memberHid = hidData.hid;
+
+			// now get members
+			var myData = await getHodMembers(memberHid, memberMid);
+			if (myData.length > 0) {
+				setMemberArray(myData);
+				//console.log(tmpList);
+				sessionStorage.removeItem("member_members");
+				sessionStorage.setItem("member_members", JSON.stringify(myData));
+				let tmp = (memberMid > 0) ? myData.find(x => x.mid === memberMid) : myData[0];
+				setCurrentMemberData((tmp) ? tmp : null);
+				setSelection("");
+				setSelection("Personal");
+				//console.log("setting personal");
+			}
+			else {
+				
+			}
+		}
+		else {
+			
+		}
+	}
+	
 
 	function DisplayFunctionItem(props) {
 		let itemName = props.item;
@@ -148,6 +181,11 @@ export default function Member(props) {
 		</Grid>
 	)}
 	
+	async function getNewFamily(direction) {
+		getDetails(currentHod.hid, 0, direction);
+	}
+	
+	
 	async function setSelection(item) {
 		//setRadioRecord(0);
 		//sessionStorage.setItem("hod", JSON.stringify(currentHod));
@@ -161,10 +199,16 @@ export default function Member(props) {
 	function DisplayFunctionHeader() {
 		return (
 		<Grid className={gClasses.noPadding} key="AllPatients" container align="center">
+			<Grid  item xs={6} sm={3} md={2} lg={2} >	
+				<VsButton align="center" name="Prev. Family"  onClick={() => getNewFamily(VALUEDIRECTION.previous) } />
+			</Grid>
 			<DisplayFunctionItem item="General" />
 			<DisplayFunctionItem item="Personal" />
 			<DisplayFunctionItem item="Office" />
 			<DisplayFunctionItem item="Spouse" />
+			<Grid  item xs={6} sm={3} md={2} lg={2} >	
+				<VsButton align="center" name="Next. Family"  onClick={() => getNewFamily(VALUEDIRECTION.next) } />
+			</Grid>
 		</Grid>	
 	)}
 	
@@ -186,7 +230,7 @@ export default function Member(props) {
 	
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
-	<DisplayPageHeader headerName={"Family details"} />
+	<DisplayPageHeader headerName={"Family details of " + currentHod.hid} />
 	<DisplayFunctionHeader />
 	{(currentSelection === "General") &&
 		<MemberGeneral  isMember={isMember}  />

@@ -524,7 +524,7 @@ FAMILYMF = 1000;
 APPLICATIONTYPES = {
 	editGotra:  			"Edit Gotra",
 	addMember: 				"Add Member",
-	//splitFamily: 			"Split Family",
+	editMember: 			"Edit Member",
 	memberCeased: 		"Member Ceased",
 	spouseDetails: 		"Spouse Details",
 	memberHOD: 				"New HOD",

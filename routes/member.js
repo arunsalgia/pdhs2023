@@ -86,6 +86,26 @@ router.get('/list/all', async function (req, res) {
 	sendok(res, myData);
 });		
 
+router.get('/mid/:mid', async function (req, res) {
+  setHeader(res);
+  var { mid  } = req.params;
+ 
+	var clonedData = null;
+	let myData = await memberGetByMidOne(Number(mid));
+	if (myData) {
+		clonedData = _.cloneDeep(myData);
+		// encrypt email
+		var tmp = dbdecrypt(clonedData.email);
+		tmp = encrypt(tmp);
+		clonedData.email = tmp;		//dbToSvrText(myData[i].email);
+		// encrypt email1
+		tmp = dbdecrypt(clonedData.email1);
+		tmp = encrypt(tmp);
+		clonedData.email1 = tmp;		//dbToSvrText(myData[i].email1);
+	}
+	sendok(res, clonedData);
+});		
+
 router.get('/filterdata/:filterInfo', async function (req, res) {
   setHeader(res);
   var {filterInfo } = req.params;

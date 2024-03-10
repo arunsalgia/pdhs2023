@@ -297,7 +297,7 @@ export default function Dashboard() {
 							<h5 align="right" color="blue"  className={gClasses.cardTitle} >{`${countInfo.humad} members`}</h5>
             </CardHeader>
             <CardFooter key="db_cftr_ub3" stats>
-							<Typography className={gClasses.patientInfo2Blue} >Humad Jain Samaj</Typography>
+							<Typography className={gClasses.patientInfo2Blue} >Humad Jain Samaj (Mumbai)</Typography>
             </CardFooter>
           </Card>
 					</a>

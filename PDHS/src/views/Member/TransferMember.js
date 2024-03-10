@@ -186,10 +186,10 @@ function DisplayRegisterStatus() {
         myMsg = `Minimum 1 member has to be selected`;
         break;
       case 1002:
-        myMsg = `Unknown HOD update error`;
+        myMsg = `Unknown F.Head update error`;
         break;
 			case 2001:
-				myMsg = `No HOD selected for new family`;
+				myMsg = `No F.Head selected for new family`;
 				break;
 			case 2002:
 				myMsg = `No member(s) selected for new family`;
@@ -271,7 +271,7 @@ function preFinalStage() {
 	else {
 		setMsg1('Transfer members to new family');
 		//var tmp = memberList.find(x => x.mid === newHod);
-		//setMsg2(`${tmp.mergedName} as hod`);
+		//setMsg2(`${tmp.mergedName} as F.Head`);
 		setMsg2("");
 	}
 }
@@ -570,7 +570,7 @@ return (
 			<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
 		</Grid>	
 		<Grid item xs={2} sm={2} md={2} lg={2} >
-			<Typography className={gClasses.titleOrange}>{"HOD"}</Typography>
+			<Typography className={gClasses.titleOrange}>{"F.Head"}</Typography>
 		</Grid>
 		<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 	</Grid>	
@@ -689,7 +689,7 @@ return (
 			<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
 		</Grid>	
 		<Grid item xs={2} sm={2} md={2} lg={2} >
-			<Typography className={gClasses.titleOrange}>{"HOD"}</Typography>
+			<Typography className={gClasses.titleOrange}>{"F.Head"}</Typography>
 		</Grid>
 		<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 	</Grid>	
@@ -765,7 +765,7 @@ return (
 		<Accordion expanded={expandedPanel === "select_hod_for_new_family"} onChange={handleAccordionChange("select_hod_for_new_family")}>
 		<Box align="right" className={(expandedPanel === "select_hod_for_new_family") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
-			<Typography align="left">{"New family HOD " + getHodName(newHod)}</Typography>
+			<Typography align="left">{"New family F.Head " + getHodName(newHod)}</Typography>
 		</AccordionSummary>
 		</Box>
 		<Display_select_hod_for_new_family />
@@ -785,7 +785,7 @@ return (
 		<Accordion expanded={expandedPanel === "hodTransfer"} onChange={handleAccordionChange("hodTransfer")}>
 		<Box align="right" className={(expandedPanel === "hodTransfer") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
-			<Typography align="left">{"Balance family HOD " + getHodName(balanceHod)}</Typography>
+			<Typography align="left">{"Balance family F.Head " + getHodName(balanceHod)}</Typography>
 		</AccordionSummary>
 		</Box>
 		<Display_select_hod_for_balance_family />

@@ -23,8 +23,34 @@ router.get('/get/:hid', async function(req, res, next) {
   
   var {hid } = req.params;
 	
+	
   var tmp = await M_Hod.findOne({hid: Number(hid)});
 	if (tmp)	sendok(res, tmp);
+	else			senderr(res, 601, {hid: 0});
+});
+
+router.get('/getprevious/:hid', async function(req, res, next) {
+  setHeader(res);
+  
+  var {hid } = req.params;
+	hid = Number(hid);
+	
+	console.log("PREV HOD", hid);
+  var tmp = await M_Hod.find({ hid: {$lt: hid} }).sort({hid: -1}).limit(1);
+	if (tmp.length > 0) sendok(res, tmp[0]);
+	else			senderr(res, 601, {hid: 0});
+});
+
+
+router.get('/getnext/:hid', async function(req, res, next) {
+  setHeader(res);
+  
+  var {hid } = req.params;
+	hid = Number(hid);
+	
+	console.log("NEXT HOD", hid);
+  var tmp = await M_Hod.find({ hid: {$gt: hid} }).sort({hid: 1}).limit(1);
+	if (tmp.length > 0) sendok(res, tmp[0]);
 	else			senderr(res, 601, {hid: 0});
 });
 

@@ -37,6 +37,7 @@ import globalStyles from "assets/globalStyles";
 
 import ApplicationEditGotra from "views/Application/ApplicationEditGotra";
 import ApplicationmemberCeased from "views/Application/ApplicationmemberCeased";
+import ApplicationAddEditMember from "views/Application/ApplicationAddEditMember";
 
 import {
 	ADMIN, APPLICATIONSTATUS, APPLICATIONTYPES, SELECTSTYLE, STATUS_INFO,
@@ -432,7 +433,9 @@ export default function Application(props) {
 		setRadOpts(opt);
 	}
 	
-	
+	//console.log(isDrawerOpened)
+	//console.log(APPLICATIONTYPES.editMember);
+
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
 	<CssBaseline />
@@ -517,6 +520,9 @@ export default function Application(props) {
 	{(isDrawerOpened === APPLICATIONTYPES.memberCeased) &&
 		<ApplicationmemberCeased applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
 	}
+	{(isDrawerOpened === APPLICATIONTYPES.editMember) &&
+		<ApplicationAddEditMember applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
+	}	
 	</Box>
 	</Container>
 	</Drawer>

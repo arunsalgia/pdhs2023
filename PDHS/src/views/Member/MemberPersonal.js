@@ -171,7 +171,7 @@ export default function MemberPersonal(props) {
 			var myMemArray = JSON.parse(sessionStorage.getItem("member_members"));
 			setMemberArray(myMemArray);
 			var ccc = myMemArray.find(x => x.mid === myHodRec.mid);
-			if (!ccc) showError(`Hod of family ${myHodRec.hid} not in list. May be ceased`);
+			if (!ccc) showError(`F.Head of family ${myHodRec.hid} not in list. May be ceased`);
 		}
 
 		getDetails();
@@ -204,10 +204,10 @@ export default function MemberPersonal(props) {
         myMsg = `Invalid Pin Code`;
         break;
       case 1002:
-        myMsg = `Unknown HOD update error`;
+        myMsg = `Unknown F.Head update error`;
         break;
 			case 2001:
-				myMsg = `No HOD selected for new family`;
+				myMsg = `No F.Head selected for new family`;
 				break;
 			case 2002:
 				myMsg = `No member(s) selected for new family`;
@@ -322,10 +322,13 @@ function DisplayPersonalInformation() {
 			<Typography>Scroll Down</Typography>
 		</MenuItem>	
 		<MenuItem disabled={(!isFamilyMember && !admin)} onClick={() => { handleMemPerContextMenuClose(); handlePersonalTransfer(memberRecord) } }>
-			<Typography>Transfer</Typography>
+			<Typography>Move</Typography>
+		</MenuItem>
+		<MenuItem disabled={!isFamilyMember && !admin} onClick={() => {handleMemPerContextMenuClose(); handleMarriage(memberRecord); } } >
+			<Typography>Marriage</Typography>
 		</MenuItem>
 		<MenuItem disabled={(myIndex == 0) || (!isFamilyMember && !admin)} onClick={() => { handleMemPerContextMenuClose(); newHOD(memberRecord) } }>
-			<Typography>New Hod</Typography>
+			<Typography>New F.Head</Typography>
 		</MenuItem>
 		<MenuItem disabled={!isFamilyMember && !admin} onClick={() => {handleMemPerContextMenuClose(); ceasedMember(memberRecord); } } >
 			<Typography>Ceased</Typography>
@@ -359,6 +362,10 @@ function DisplayPersonalInformation() {
 		)}
 		</div>
 	)}
+	
+	function handleMarriage(memRec) {
+		showInfo("Marriage setting facility yet to be implemented");
+	}
 	
 
 	// Ceased Member
@@ -396,7 +403,7 @@ function DisplayPersonalInformation() {
 	// --- New Hod
 	
 	function newHOD(rec) {
-		vsDialog("New HOD", `Are you sure you want to set ${getMemberName(rec)} as Hod?`,
+		vsDialog("New F.Head", `Are you sure you want to set ${getMemberName(rec)} as F.Head?`,
 		{label: "Yes", onClick: () => newHODConfirm(rec) },
 		{label: "No" }
 		);

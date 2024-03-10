@@ -123,7 +123,7 @@ export const RELATION = [
 	"Brother in law",
 	"Daughter",
 	"Daughter in law",
-	"Family",
+	//"Family",
 	"Father",
 	"Father in law",
 	"Gr. grand daughter",
@@ -158,7 +158,7 @@ export const RELATION = [
 export const GENTSRELATION = [
 	"Brother",
 	"Brother in law",
-	"Family",
+	//"Family",
 	"Father",
 	"Father in law",
 	"Gr. grand father",
@@ -179,7 +179,7 @@ export const LADIESRELATION = [
 	"Aunt",
 	"Daughter",
 	"Daughter in law",
-	"Family",
+	//"Family",
 	"Gr. grand daughter",
 	"Gr. grand DIL",
 	"Gr. grand mother",
@@ -204,7 +204,7 @@ export const JUNKED_COMPACTRELATION = [
 	"Brother in law",
 	"Daughter",
 	"DIL",
-	"Family",
+	//"Family",
 	"Father",
 	"Father in law",
 	"Gr. grand daughter",
@@ -324,7 +324,7 @@ INFO: 2,
 export const APPLICATIONTYPES = {
 	editGotra:  			"Edit Gotra",
 	addMember: 				"Add Member",
-	//splitFamily: 			"Split Family",
+	editMember: 			"Edit Member",
 	memberCeased: 		"Member Ceased",
 	spouseDetails: 		"Spouse Details",
 	memberHOD: 				"New HOD",
@@ -336,4 +336,10 @@ export const APPLICATIONSTATUS = {
 	approved: "Approved",
 	rejected: "Rejected",
 	pending:  "Pending"
+};
+
+export const VALUEDIRECTION = {
+	previous: -1,
+	next: 1,
+	current: 0
 };
