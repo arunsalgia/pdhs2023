@@ -113,7 +113,12 @@ export default function MemberAddEdit(props) {
 	const [emurAddr11, setEmurAddr11] = useState("");
 	const [emurAddr12, setEmurAddr12] = useState("");
 	const [emurAddr13, setEmurAddr13] = useState("");
+	// Office data
+	const [education, setEducation] = useState("");
+	const [company, setCompany] = useState("");
+	const [officePhone, setOfficePhone] = useState("");
 
+	
 	const [memberArray, setMemberArray] = useState([]);
 	const	[emurSpouseRec, setEmurSpouseRec] = useState(0);
 	const [selectSpouse, setSelectSpouse] = useState(false);
@@ -167,14 +172,20 @@ export default function MemberAddEdit(props) {
 			setEmurAddr7(props.memberRec.gender)
 			setEmurAddr8(props.memberRec.emsStatus)
 			setEmurAddr9(props.memberRec.bloodGroup);
-			setEmurAddr10(props.memberRec.occupation);
 			setEmurAddr11(props.memberRec.mobile);
 			setEmurAddr12(props.memberRec.mobile1);
-			setEmurAddr13(decrypt(props.memberRec.email));
+			var xxx = decrypt(props.memberRec.email);
+			if (xxx === "-") xxx = "";
+			setEmurAddr13(xxx);
 			setEmurDate1(moment(props.memberRec.dob));
 			setEmurDate2(moment(props.memberRec.dateOfMarriage));
 			setIsMemberHod(props.memberRec.mid === props.hodMid);
-
+			// Office details
+			setEmurAddr10(props.memberRec.occupation);
+			setEducation(props.memberRec.education);
+			setCompany(props.memberRec.officeName);
+			setOfficePhone(props.memberRec.officePhone);
+			
 			
 			getAllMembers(props.memberRec.hid, props.memberRec.spouseMid);
 			//console.log(props.memberRec.dob);
@@ -253,35 +264,44 @@ async function handleMemberAddEditSubmit() {
 		tmpRec["relation"] = emurAddr6;
 	if (props.memberRec.gender !== emurAddr7)
 		tmpRec["gender"] = emurAddr7;
-	if (props.memberRec.emsStatus !== emurAddr8)
-		tmpRec["emsStatus"] = emurAddr8;
+	/*if (props.memberRec.emsStatus !== emurAddr8)
+		tmpRec["emsStatus"] = emurAddr8;*/
 	if (props.memberRec.bloodGroup !== emurAddr9)
 		tmpRec["bloodGroup"] = emurAddr9;
-	if (props.memberRec.occupation !== emurAddr10)
-		tmpRec["occupation"] = emurAddr10;
 	// other details
 	if (props.memberRec.mobile !== emurAddr11)
 		tmpRec["mobile"] = emurAddr11;
 	if (props.memberRec.mobile1 !== emurAddr12)
 		tmpRec["mobile1"] = emurAddr12;
 	// encrypt email
-	var xxxtmp = encrypt(emurAddr13);
+	var xxxtmp = (emurAddr13 !== "") ? emurAddr13 : "-";
+	xxxtmp = encrypt(xxxtmp);
 	if (props.memberRec.email !== xxxtmp)
 		tmpRec["email"] = xxxtmp;
 	// Now dates 
 	xxxtmp = emurDate1.toDate();
 	if (new Date(props.memberRec.dob).getTime() !== xxxtmp.getTime())
 		tmpRec["dob"] = xxxtmp;
-	xxxtmp = emurDate2.toDate();
+	/*xxxtmp = emurDate2.toDate();
 	if (new Date(props.memberRec.dateOfMarriage).getTime() !== xxxtmp.getTime())
-		tmpRec["dateOfMarriage"] = xxxtmp;	
+		tmpRec["dateOfMarriage"] = xxxtmp;	*/
 
 	// Spouse
-	xxxtmp = (emurSpouseRec) ? emurSpouseRec.mid : 0;
+/*	xxxtmp = (emurSpouseRec) ? emurSpouseRec.mid : 0;
 	if (props.memberRec.spouseMid !== xxxtmp) {
 		tmpRec["spouseMid"] = xxxtmp;
 		tmpRec["spouseName"] = (xxxtmp !=  0) ? getMemberName(emurSpouseRec, false, false) : "";
-	}
+	}*/
+	// Office 
+	if (props.memberRec.occupation !== emurAddr10)
+		tmpRec["occupation"] = emurAddr10;
+	if (props.memberRec.education !== education)
+		tmpRec["education"] = education;
+	if (props.memberRec.officePhone !== officePhone)
+		tmpRec["officePhone"] = officePhone;
+	if (props.memberRec.officeName !== company)
+		tmpRec["officeName"] = company;
+	
 	console.log(tmpRec);
 	
 	// Now send the details to server
@@ -332,29 +352,29 @@ return (
 				</Grid>
 				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Last Name</Typography>
+					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Last Name</Typography>
 				</Grid>
 				<Grid item xs={7} sm={7} md={7} lg={7} >
 					<TextValidator required style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing} inputProps={{className: gClasses.dateTimeNormal}}
-					label="Last Name" type="text" value={emurAddr2} onChange={(event) => { setEmurAddr2(event.target.value) }} />
+					type="text" value={emurAddr2} onChange={(event) => { setEmurAddr2(event.target.value) }} />
 				</Grid>
 				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >First Name</Typography>
+					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >First Name</Typography>
 				</Grid>
 				<Grid item xs={7} sm={7} md={7} lg={7} >
 					<TextValidator required style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing}
-						inputProps={{className: gClasses.dateTimeNormal}} label="First Name" type="text" value={emurAddr3}
+						inputProps={{className: gClasses.dateTimeNormal}} type="text" value={emurAddr3}
 						onChange={(event) => { setEmurAddr3(event.target.value) }}			
 					/>	
 				</Grid>
 				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Middle Name</Typography>
+					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Middle Name</Typography>
 				</Grid>
 				<Grid item xs={7} sm={7} md={7} lg={7} >
 					<TextValidator required style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing}
-						inputProps={{className: gClasses.dateTimeNormal}} label="Middle Name" type="text" value={emurAddr4}
+						inputProps={{className: gClasses.dateTimeNormal}} type="text" value={emurAddr4}
 						onChange={(event) => { setEmurAddr4(event.target.value) }}			
 					/>	
 				</Grid>
@@ -370,7 +390,7 @@ return (
 			</Box>
 			<Grid key="PERDETAILS" className={gClasses.noPadding} container  alignItems="flex-start" >
 				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Relation</Typography>
+					<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Relation with F.Head</Typography>
 				</Grid>
 				<Grid item xs={7} sm={7} md={7} lg={7} >
 					<VsSelect size="small" align="left"  style={{paddingLeft: "10px", paddingRight: "10px" }}
@@ -384,7 +404,7 @@ return (
 				</Grid>
 				<Grid item xs={7} sm={7} md={7} lg={7} >
 					<VsSelect size="small" align="left"  style={{paddingLeft: "10px", paddingRight: "10px" }}
-						inputProps={{className: gClasses.dateTimeNormal}} label="Gender" options={GENDER} 
+						inputProps={{className: gClasses.dateTimeNormal}} options={GENDER} 
 						value={emurAddr7} onChange={(event) => { setEmurAddr7(event.target.value); }} 
 					/>
 				</Grid>
@@ -411,15 +431,44 @@ return (
 				</Grid>
 				<Grid item xs={7} sm={7} md={7} lg={7} >
 					<VsSelect size="small" align="left"  style={{paddingLeft: "10px", paddingRight: "10px" }}
-						inputProps={{className: gClasses.dateTimeNormal}} label="BldGrp" options={BLOODGROUP} 
+						inputProps={{className: gClasses.dateTimeNormal}} options={BLOODGROUP} 
 						value={emurAddr9} onChange={(event) => { setEmurAddr9(event.target.value); }} 
 					/>
+				</Grid>
+				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+				<Grid item xs={5} sm={5} md={5} lg={5} >
+					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Mobile 1</Typography>
+				</Grid>
+				<Grid item xs={7} sm={7} md={7} lg={7} >
+					<TextValidator className={gClasses.vgSpacing}
+						inputProps={{className: gClasses.dateTimeNormal}} type="text" value={emurAddr11}
+						onChange={(event) => { setEmurAddr11(event.target.value) }}			
+					/>
+				</Grid>
+				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+				<Grid item xs={5} sm={5} md={5} lg={5} >
+					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Mobile 2</Typography>
+				</Grid>
+				<Grid item xs={7} sm={7} md={7} lg={7} >
+					<TextValidator className={gClasses.vgSpacing} type="text" value={emurAddr12}
+						onChange={(event) => { setEmurAddr12(event.target.value) }}			
+					/>
+				</Grid>
+				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+				<Grid item xs={5} sm={5} md={5} lg={5} >
+					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Email</Typography>
+				</Grid>
+				<Grid item xs={7} sm={7} md={7} lg={7} >
+					<TextValidator className={gClasses.vgSpacing}
+						inputProps={{className: gClasses.dateTimeNormal}} type="email" value={emurAddr13}
+						onChange={(event) => { setEmurAddr13(event.target.value) }}			
+					/>	
 				</Grid>
 			</Grid>
 			<br />
 		</Accordion>
 		<br />
-		<Accordion expanded={expandedPanel === "SPOUSEDETAILS"} onChange={handleAccordionChange("SPOUSEDETAILS")}>
+		{/*<Accordion expanded={expandedPanel === "SPOUSEDETAILS"} onChange={handleAccordionChange("SPOUSEDETAILS")}>
 			<Box align="right" className={(expandedPanel === "SPOUSEDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 			<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
 				<Typography align="left" >{"Marital Details"}</Typography>
@@ -505,60 +554,53 @@ return (
 			}
 			<br />
 		</Accordion>
-		<br />
+		<br />*/}
 		<Accordion expanded={expandedPanel === "OTHERDETAILS"} onChange={handleAccordionChange("OTHERDETAILS")}>
 			<Box align="right" className={(expandedPanel === "OTHERDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 			<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
-				<Typography align="left" >{"Other Details"}</Typography>
+				<Typography align="left" >{"Office Details"}</Typography>
 			</AccordionSummary>
 			</Box>
 			<Grid key="OTHERDETAILS" className={gClasses.noPadding} container  alignItems="flex-start" >
+				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Occupation</Typography>
+					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Occupation</Typography>
 				</Grid>
 				<Grid item xs={7} sm={7} md={7} lg={7} >
-					<TextValidator required className={gClasses.vgSpacing}
-						inputProps={{className: gClasses.dateTimeNormal}}
-						label="Occupation" type="text"
-						value={emurAddr10}
+					<TextValidator className={gClasses.vgSpacing}
+						inputProps={{className: gClasses.dateTimeNormal}} type="text" value={emurAddr10}
 						onChange={(event) => { setEmurAddr10(event.target.value) }}			
 					/>			
 				</Grid>
 				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Mobile 1</Typography>
+					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Education</Typography>
 				</Grid>
 				<Grid item xs={7} sm={7} md={7} lg={7} >
 					<TextValidator className={gClasses.vgSpacing}
-						inputProps={{className: gClasses.dateTimeNormal}}
-						label="Mobile 1" type="text"
-						value={emurAddr11}
-						onChange={(event) => { setEmurAddr11(event.target.value) }}			
-					/>
+						inputProps={{className: gClasses.dateTimeNormal}} type="text" value={education}
+						onChange={(event) => { setEducation(event.target.value) }}			
+					/>			
 				</Grid>
 				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Mobile 2</Typography>
+					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Company</Typography>
 				</Grid>
 				<Grid item xs={7} sm={7} md={7} lg={7} >
 					<TextValidator className={gClasses.vgSpacing}
-						inputProps={{className: gClasses.dateTimeNormal}}
-						label="Mobile 2" type="text"
-						value={emurAddr12}
-						onChange={(event) => { setEmurAddr12(event.target.value) }}			
-					/>
+						inputProps={{className: gClasses.dateTimeNormal}} type="text" value={company}
+						onChange={(event) => { setCompany(event.target.value) }}			
+					/>			
 				</Grid>
 				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Email</Typography>
+					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Office Phone</Typography>
 				</Grid>
 				<Grid item xs={7} sm={7} md={7} lg={7} >
 					<TextValidator className={gClasses.vgSpacing}
-						inputProps={{className: gClasses.dateTimeNormal}}
-						label="Email" type="email"
-						value={emurAddr13}
-						onChange={(event) => { setEmurAddr13(event.target.value) }}			
-					/>	
+						inputProps={{className: gClasses.dateTimeNormal}} type="text" value={officePhone}
+						onChange={(event) => { setOfficePhone(event.target.value) }}			
+					/>			
 				</Grid>
 			</Grid>
 			<br />

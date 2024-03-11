@@ -71,7 +71,7 @@ const MERGECREATEARRAY = [
 const MERGEINDEX = 0;
 const CREATEINDEX = 1;
 
-const header = "Apply to transfer member(s)";
+const header = "Apply to move member(s)";
 
 export default function TransferMember(props) {
 	//const classes = useStyles();
@@ -605,11 +605,22 @@ return (
 	{memberList.map( (m, index) => {
 			//console.log(m.mid);
 			if (!cbArray.includes(m.mid)) return;
-			var tmpRelation = ((mergedOrCreate === "CREATE") && (m.mid === newHod)) ? "Self" : relation[index];
+			var tmpRelation = "";
+			
+			if (mergedOrCreate === "CREATE") {
+				tmpRelation = (m.mid === newHod) ? "Self" : relation[index];
+			}
+			else { // for merge family		
+				if (relation[index] === "Self") { 
+					tmpRelation = (m.gender === "Male") ? "Brother" : "Sister";
+				}
+				else
+					tmpRelation = relation[index];
+			}
 			
 			// Select relation list based on Gender
 			var tmpRelationList = RELATION;
-			if (tmpRelation === "Self")
+			if (tmpRelation === "Self")        
 				tmpRelationList = SELFRELATION;
 			else if (m.gender === "Male")
 				tmpRelationList = GENTSRELATION;
@@ -735,7 +746,7 @@ return (
 		<Accordion expanded={expandedPanel === "members_to_transfer"} onChange={handleAccordionChange("members_to_transfer")}>
 			<Box align="right" className={(expandedPanel === "members_to_transfer") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 			<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
-				<Typography align="left" >{"Transfer " + getTransferMembers()}</Typography>
+				<Typography align="left" >{"Move " + getTransferMembers()}</Typography>
 			</AccordionSummary>
 			</Box>
 			<Display_select_to_transfer />

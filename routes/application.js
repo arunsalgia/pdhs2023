@@ -1,10 +1,13 @@
-const {  akshuGetUser, GroupMemberCount,  
+const {
+	encrypt, decrypt, dbencrypt, dbToSvrText, svrToDbText, dbdecrypt,
+  akshuGetUser, GroupMemberCount,  
 	numberDate, 
 	getMemberName
 } = require('./functions'); 
 
 const { 
-	memberGetByMidOne,
+	memberGetByMidOne, memberUpdateOne,
+	memberGetByHidMany,memberUpdateMany,
 } = require('./dbfunctions'); 
 
 var router = express.Router();
@@ -279,6 +282,7 @@ router.get('/addeditpersonal/:editor_hodmid/:editor_mid/:appData', async functio
 });
 
 
+
 router.get('/reject/:id/:adminMid/:comments', async function (req, res) {
   setHeader(res);
 	var {id, adminMid,comments } = req.params;
@@ -297,7 +301,161 @@ router.get('/reject/:id/:adminMid/:comments', async function (req, res) {
 	sendok(res, aRec);
 });
 
+router.get('/approve/:id/:adminMid/:comments', async function (req, res) {
+  setHeader(res);
+	var {id, adminMid,comments } = req.params;
+	
+	console.log(id, comments, adminMid);
 
+	let aRec = await M_Application.findOne({id: id});
+	if (!aRec) return senderr(res, 601, 'Application not found');
+	
+	var myStatus = {status: false, record: null};
+	switch (aRec.desc) {
+		case APPLICATIONTYPES.editMember:
+			retObject = await approve_editMember(aRec);
+			break;
+		case APPLICATIONTYPES.memberCeased:
+			retObject = await approve_memberCeased(aRec);
+			break;
+		default:
+			return senderr(res, 602, 'Invalid application type');
+	}
+	
+	if (!retObject.status) return senderr(res, 603, 'Error approving data');
+
+	// Update application record
+	var adminRec = await memberGetByMidOne(Number(adminMid));	
+	
+	aRec.status = APPLICATIONSTATUS.approved;
+	aRec.adminMid = adminRec.mid;
+	aRec.adminName = getMemberName(adminRec, false);
+	aRec.comments = comments;
+	sendok(res, aRec);
+		
+	console.log(aRec);
+	await aRec.save();	
+});
+
+// Approval functions
+
+async function approve_editMember(aRec) {
+	var myData = JSON.parse(aRec.data);
+	console.log(myData);
+	var myRec = await memberGetByMidOne(myData.oldMemberRec.mid);
+	// Update Name details
+	if (myData.memberRec.title) {
+		myRec.title = myData.memberRec.title;
+	}
+	if (myData.memberRec.firstName) {
+		myRec.firstName = myData.memberRec.firstName;
+	}
+	if (myData.memberRec.lastName) {
+		myRec.lastName = myData.memberRec.lastName;
+	}	
+	if (myData.memberRec.middleName) {
+		myRec.middleName = myData.memberRec.middleName;
+	}		
+	if (myData.memberRec.alias) {
+		myRec.alias = myData.memberRec.alias;
+	}			
+	// Update personal details
+	if (myData.memberRec.relation) {
+		myRec.relation = myData.memberRec.relation;
+	}			
+	if (myData.memberRec.gender) {
+		myRec.gender = myData.memberRec.gender;
+	}			
+	if (myData.memberRec.dob) {
+		myRec.dob = myData.memberRec.dob;
+	}			
+	if (myData.memberRec.bloodGroup) {
+		myRec.bloodGroup = myData.memberRec.bloodGroup;
+	}			
+	// Update Marital status
+		// to be implemented
+	// Update other details
+	if (myData.memberRec.mobile) {
+		myRec.mobile = myData.memberRec.mobile;
+	}	
+	if (myData.memberRec.mobile1) {
+		myRec.mobile1 = myData.memberRec.mobile1;
+	}	
+	if (myData.memberRec.email) {
+		myRec.email = svrToDbText(myData.memberRec.email);
+	}	
+	// Office details
+	if (myData.memberRec.occupation) {
+		myRec.occupation = myData.memberRec.occupation;
+	}			
+	if (myData.memberRec.education) {
+		myRec.education = myData.memberRec.education;
+	}			
+	if (myData.memberRec.officeName) {
+		myRec.officeName = myData.memberRec.officeName;
+	}			
+	if (myData.memberRec.officePhone) {
+		myRec.officePhone = myData.memberRec.officePhone;
+	}			
+
+	console.log(myRec);
+	await memberUpdateOne(myRec);
+	return {status: true, record: myRec};
+}
+
+// Member ceased approve
+async function approve_memberCeased(aRec) {
+	var myData = JSON.parse(aRec.data);
+	console.log(myData);
+	// Get all the members of the family
+	var otherMembers = await memberGetByHidMany(myData.hid);
+	// ceased record and othe member record
+	var ceasedRec = otherMembers.find(x => x.mid === myData.ceasedMid);
+	otherMembers = _.sortBy(otherMembers.filter(x => x.mid !== myData.ceasedMid), 'order');
+	// if new Hod, then bring it to the top
+	if (myData.newHodMid !== 0) {
+		var tmp = otherMembers.find(x => x.mid === myData.newHodMid);
+		otherMembers = [tmp].concat(otherMembers.filter(x => x.mid !== myData.newHodMid));
+	}
+	
+	// first ceasedRec Update
+	ceasedRec.ceased = true;
+	await memberUpdateOne(ceasedRec);
+	
+	// Now set the relation. HOd is always "Self"
+	for (var i = 0; i<myData.midList.length; ++i) {
+		var tmpRec = otherMembers.find(x => x.mid === myData.midList[i]);
+		if (tmpRec.mid === myData.newHodMid)
+			tmpRec.relation = "Self";
+		else
+			tmpRec.relation = myData.relationList[i];
+	}
+	
+	// set order for balance Family
+	for(var i=0; i<otherMembers.length; ++i) {
+		otherMembers[i].order = i;
+	}
+	
+	// UPdate spouseMid & emsStatus if required
+	if (ceasedRec.spouseMid !== 0) {
+		var tmp = otherMembers.find(x => x.mid === ceasedRec.spouseMid);
+		tmp.spouseMid = 0;		// SPouse not alive
+		tmp.emsStatus = (tmp.gender === "Female") ? "Widow" : "Widower";
+	}
+
+	// update all members data
+	await memberUpdateMany(otherMembers);
+	
+	// If new hod then update HOD record
+	if (myData.newHodMid !== 0) {
+		var hodRec = await M_Hod.findOne({hid: myData.hid});
+		hodRec.mid = myData.newHodMid;
+		await hodRec.save();
+	}
+	// All done
+
+	return {status: true, record: ceasedRec};
+}
 
 router.get('/test', async function (req, res) {
   setHeader(res);

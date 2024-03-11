@@ -158,6 +158,13 @@ const globalStyles = makeStyles((theme) => ({
 		fontWeight: theme.typography.fontWeightBold,
 		color: "blue",
 	},
+  textAreaFixed: {
+		display: "flex-root",
+    width: "100%",
+    fontSize: theme.typography.pxToRem(16),
+		fontWeight: theme.typography.fontWeightBold,
+    resize: 'none',
+	},
 	functionUnselected: {
 		fontSize: theme.typography.pxToRem(16),
 		fontWeight: theme.typography.fontWeightBold,

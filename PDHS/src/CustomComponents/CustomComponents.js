@@ -1294,10 +1294,16 @@ return (
 	<div>
 	<Typography align="center"  className={gClasses.pdhs_title} >{props.header}</Typography>
 	<br />
+	<DisplayApplicationNameValue name="Appl. Id." value={props.applicationRec.id} style={{paddingTop: "5px" }}  />
 	<DisplayApplicationNameValue name="Appl. Date" value={dateString(props.applicationRec.date)} style={{paddingTop: "5px" }}  />
 	<DisplayApplicationNameValue name="Appl. Status" value={props.applicationRec.status} style={{paddingTop: "5px" }}  />
 	<DisplayApplicationNameValue name="Applicant" value={props.applicationRec.name} style={{paddingTop: "5px" }}  />
 	<DisplayApplicationNameValue name="Family Head" value={props.applicationRec.hodName} style={{paddingTop: "5px" }}  />
+	{(props.applicationRec.status !== "Pending") &&
+	<DisplayApplicationNameValue name="Remarks" value={props.applicationRec.comments} style={{paddingTop: "5px" }}  />	
+	}
+	<br />
 	<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
+	
 	</div>
 )}

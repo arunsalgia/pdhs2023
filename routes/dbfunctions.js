@@ -40,7 +40,9 @@ async function memberGetHodMembers() {
 
 async function memberUpdateOne(memberRec) {
 	if (allMemberlist.length === 0) await memberGetAll();
-	var newList = allMemberlist.filter(x => x.mid !== memberRec.mid).concat([memberRec])
+	var newList = allMemberlist.filter(x => x.mid !== memberRec.mid);
+	if (!memberRec.ceased) 
+		newList = newList.concat([memberRec])
 	allMemberlist = _.sortBy(newList, [ 'lastName', 'middleName', 'firstName' ] );	
 	await memberRec.save();
 }
@@ -48,11 +50,13 @@ async function memberUpdateOne(memberRec) {
 async function memberUpdateMany(memberRecArray) {
 	if (allMemberlist.length === 0) await memberGetAll();
 	var midList = _.map(memberRecArray, 'mid');
-	var newList = allMemberlist.filter( x => !midList.includes(x.mid) ).concat(memberRecArray);
-	allMemberlist = _.sortBy(newList, [ 'lastName', 'middleName', 'firstName' ] );	
+	var newList = allMemberlist.filter( x => !midList.includes(x.mid) );
 	for(var i = 0; i < memberRecArray.length; ++i) {
 		await memberRecArray[i].save();
+		if (!memberRecArray[i].ceased)
+			newList = newList.concat([memberRecArray[i]]);
 	}
+	allMemberlist = _.sortBy(newList, [ 'lastName', 'middleName', 'firstName' ] );	
 }
 
 async function memberAddOne(memberRec) {

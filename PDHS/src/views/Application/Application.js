@@ -36,7 +36,7 @@ import globalStyles from "assets/globalStyles";
 
 
 import ApplicationEditGotra from "views/Application/ApplicationEditGotra";
-import ApplicationmemberCeased from "views/Application/ApplicationmemberCeased";
+import ApplicationMemberCeased from "views/Application/ApplicationMemberCeased";
 import ApplicationAddEditMember from "views/Application/ApplicationAddEditMember";
 
 import {
@@ -318,16 +318,16 @@ export default function Application(props) {
 	async function editApplication(appRec) {
 		setApplicationRec(appRec);
 		setIsDrawerOpened(appRec.desc);
-		console.log(new Date(), appRec.desc);
+		//console.log(new Date(), appRec.desc);
 	}
 	
 	function handleApplictionEditBack(sts) {
-		console.log(sts);
+		//console.log(sts);
 		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
 		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
 		
 		if (sts.status == STATUS_INFO.SUCCESS) {
-			console.log(sts.applicationRec);
+			//console.log(sts.applicationRec);
 			var tmp = [sts.applicationRec].concat(applicationArray.filter(x => x.id !== applicationRec.id));
 			setApplicationArray(lodashReverse(lodashSortBy(tmp, 'id')));
 		}
@@ -518,7 +518,7 @@ export default function Application(props) {
 		<ApplicationEditGotra applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
 	}
 	{(isDrawerOpened === APPLICATIONTYPES.memberCeased) &&
-		<ApplicationmemberCeased applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
+		<ApplicationMemberCeased applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
 	}
 	{(isDrawerOpened === APPLICATIONTYPES.editMember) &&
 		<ApplicationAddEditMember applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>

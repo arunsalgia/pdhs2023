@@ -97,7 +97,7 @@ export default function SplitFamily(props) {
 
 	useEffect(() => {
 		let memRec = props.memberList.find(x => x.mid === props.selectedMid);
-		setCeasedName(getMemberName(memRec));
+		setCeasedName(getMemberName(memRec, false, false));
 		setHeader("Apply for ceased " + getMemberName(memRec, false, false) );
 		if ((props.selectedMid === props.hodMid) && (props.memberList.length > 1)) {
 			setStage2Ref(true);
@@ -124,10 +124,10 @@ function DisplayRegisterStatus() {
         myMsg = `Invalid Pin Code`;
         break;
       case 1002:
-        myMsg = `Unknown HOD update error`;
+        myMsg = `Unknown F.Head update error`;
         break;
 			case 2001:
-				myMsg = `No HOD selected for new family`;
+				myMsg = `No F.Head selected for new family`;
 				break;
 			case 2002:
 				myMsg = `No member(s) selected for new family`;
@@ -200,21 +200,40 @@ function handleStage2() {
 //}
 
 async function handleCeasedSubmit() {
-	var midList = lodashMap(memberList, 'mid');
 	var myInfo = {
 		hid:  props.memberList[0].hid,
 		ceasedMid: props.selectedMid,
+		ceasedName: ceasedName,
 		ceasedDate: emurDate1.toDate(),
-		newHod: 0,
+		newHodMid: 0,
+		newHodName: "",
 		midList: [],
+		nameList: [],
+		oldRelationList: [],
 		relationList: []
 	}
+	
+	//console.log(midList);
+	//console.log(relation);
+
 	if (props.hodMid === props.selectedMid) {
-		myInfo.newHod = newHod;
-		myInfo.midList = midList;
+		var nameList = [];
+		for(var i=0; i<memberList.length; ++i) {
+			nameList.push(getMemberName(memberList[i], false, false));
+			// If new HOD then save the same also
+			if (memberList[i].mid === newHod)
+				myInfo.newHodName = getMemberName(memberList[i], false, false);
+		}
+
+		myInfo.newHodMid = newHod;
+		myInfo.midList = lodashMap(memberList, 'mid');;
+		myInfo.nameList = nameList;
+		myInfo.oldRelationList = lodashMap(memberList, 'relation');
 		myInfo.relationList = relation;
 	}
 	console.log(myInfo);
+	//return;
+	
 	myInfo = encodeURIComponent(JSON.stringify(myInfo));
 	//${process.env.REACT_APP_AXIOS_BASEPATH}/apply/updategotra/${currentHod.mid}/${loginMid}/${tmp}`;
 	try {
@@ -270,7 +289,7 @@ return (
 			<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
 		</Grid>	
 		<Grid item xs={2} sm={2} md={2} lg={2} >
-			<Typography className={gClasses.titleOrange}>{"HOD"}</Typography>
+			<Typography className={gClasses.titleOrange}>{"F.Head"}</Typography>
 		</Grid>
 		<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 	</Grid>	
@@ -367,7 +386,7 @@ return (
 		<Accordion expanded={expandedPanel === "new_hod"} onChange={handleAccordionChange("new_hod")}>
 			<Box align="right" className={(expandedPanel === "new_hod") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 			<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
-				<Typography align="left" >{"New Hod " + getMemberName(memberList.find(x => x.mid === newHod), false, false)}</Typography>
+				<Typography align="left" >{"New F.Head " + getMemberName(memberList.find(x => x.mid === newHod), false, false)}</Typography>
 			</AccordionSummary>
 			</Box>
 			<Display_select_new_hod />

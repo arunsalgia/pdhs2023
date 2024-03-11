@@ -364,7 +364,8 @@ function DisplayPersonalInformation() {
 	)}
 	
 	function handleMarriage(memRec) {
-		showInfo("Marriage setting facility yet to be implemented");
+		console.log("In marriage option");
+		showInfo("Marriage setting to be shifted to Spouse page");
 	}
 	
 

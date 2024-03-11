@@ -343,3 +343,5 @@ export const VALUEDIRECTION = {
 	next: 1,
 	current: 0
 };
+
+export const MAXDISPLAYTEXTROWS=10;
