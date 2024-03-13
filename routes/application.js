@@ -338,7 +338,7 @@ router.get('/reject/:id/:adminMid/:comments', async function (req, res) {
 	aRec.adminName = getMemberName(adminRec, false);
 	aRec.comments = comments;
 	await aRec.save();
-	console.log(aRec);
+	//console.log(aRec);
 	
 	sendok(res, aRec);
 });

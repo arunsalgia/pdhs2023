@@ -13,6 +13,9 @@ import lodashCloneDeep from 'lodash/cloneDeep';
 import lodashSortBy from "lodash/sortBy";
 import lodashMap from "lodash/map";
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import InfoIcon  from 	'@material-ui/icons/Info';
 
 import VsButton from "CustomComponents/VsButton";
@@ -41,7 +44,8 @@ import moment from "moment";
 import globalStyles from "assets/globalStyles";
 //import modalStyles from "assets/modalStyles";
 
-
+ import MemberAddEdit from "views/Member/MemberAddEdit";
+ 
 
 //const BlankMemberData = {firstName: "", middleName: "", lastName: ""};
 
@@ -58,6 +62,7 @@ import {
 	MEMBERTITLE, RELATION, SELFRELATION, GENDER, BLOODGROUP, MARITALSTATUS,
 	DATESTR, MONTHNUMBERSTR,
 	CASTE, HUMADSUBCASTRE,
+	STATUS_INFO,
 } from "views/globals.js";
 
 
@@ -68,7 +73,8 @@ import {
 	getImageName,
 	vsDialog,
 	getMemberName, getMemberTip, getOfficeTip,
-	dispAge,
+	dispAge, 
+	showSuccess, showError, showInfo,
 } from "views/functions.js";
 
 import { 
@@ -115,6 +121,8 @@ export default function MemberOffice(props) {
 	const [emurBrideArray, setEmurBrideArray] = useState([]);
 	const [emurDomArray, setEmurDomArray] = useState([]);
 
+	const [selMember, setSelMember] = useState({mid: 0});
+	const [hodRec, setHodRec] = useState({});
 
 	const [hodRadio, setHodRadio] = useState(1);
 	const [cbList, setCbList] = useState([]);
@@ -157,6 +165,8 @@ export default function MemberOffice(props) {
       setDispType(displayType(myDim.width));
 		}
 		const getDetails = async () => {	
+			var myHodRec = JSON.parse(sessionStorage.getItem("member_hod"));
+			setHodRec(myHodRec);		
 			setMemberArray(JSON.parse(sessionStorage.getItem("member_members")));
 		}
 		getDetails();
@@ -198,7 +208,18 @@ export default function MemberOffice(props) {
     )
   }
 
-
+	function handlePersonalTransferBack(sts) {
+		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
+		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
+		
+		if (sts.status == STATUS_INFO.SUCCESS) {
+		}
+		else {
+			console.log("Yaha kaise aaya");
+		}
+		setIsDrawerOpened("");
+	}
+	
 	function DisplayOfficeButtons() {
 		//console.log("Curent", radioRecord);
 		if (memberArray.length === 0) return null;
@@ -211,7 +232,7 @@ export default function MemberOffice(props) {
 	</div>
 	)}
 
-	function handleOfficeEdit() {
+	function old_handleOfficeEdit() {
 		handleOfficeContextMenuClose()
 		let m = memberArray.find(x => x.order === radioRecord);
 		//console.log(m);
@@ -219,9 +240,41 @@ export default function MemberOffice(props) {
 		setEmurAddr2(m.officeName)
 		setEmurAddr3(m.officePhone)
 		setEmurAddr4(getMemberName(m));
-		setIsDrawerOpened("EDITOFFICE");
+		
+		
+		setIsDrawerOpened("EDIT");
 	}
 
+	function handleOfficeEdit() {
+		handleOfficeContextMenuClose()
+		let m = memberArray.find(x => x.order === radioRecord);
+		setSelMember(m);
+		
+		//console.log(m);
+/*
+		setEmurAddr1(m.education);
+		setEmurAddr2(m.officeName)
+		setEmurAddr3(m.officePhone)
+		setEmurAddr4(getMemberName(m));
+		setIsDrawerOpened("EDITOFFICE");			// "EDITOFFICE" is old. TO be finally discarded
+*/
+
+		setIsDrawerOpened("EDIT");
+	}
+
+	function handleAddEditBack(sts) {
+		console.log(sts);
+		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
+		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
+		
+		if (sts.status == STATUS_INFO.SUCCESS) {
+		}
+		else {
+			console.log("Yaha kaise aaya");
+		}
+		setIsDrawerOpened("");
+	}
+	
 	function handleEditOfficeSubmit() {
 		let m = memberArray.find(x => x.order === radioRecord);
 		m.education = emurAddr1;
@@ -352,11 +405,10 @@ export default function MemberOffice(props) {
 		{/*<DisplayOfficeButtons />*/}
 	<DisplayOfficeInformation />
 	<DisplayAllToolTips />
-	<Drawer 
-		anchor="top"
-		variant="temporary"
-		open={isDrawerOpened != ""}
-	>
+	<Drawer style={{ width: "100%"}} anchor="top" variant="temporary" open={isDrawerOpened != ""} >
+	<Container component="main" maxWidth="xs">	
+	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
+	<VsCancel align="right" onClick={() => { setIsDrawerOpened("")}} />
 	{(isDrawerOpened === "EDITOFFICE") &&
 		<Container component="main" maxWidth="xs">	
 		<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
@@ -409,7 +461,13 @@ export default function MemberOffice(props) {
 		</Box>
 		</Container>
 	}	
+	{((isDrawerOpened === "ADD") || (isDrawerOpened === "EDIT")) &&
+		<MemberAddEdit mode={isDrawerOpened} hodMid={hodRec.mid} memberRec={selMember} onReturn={handleAddEditBack}/>
+	}
+	</Box>
+	</Container>
 	</Drawer>
+	<ToastContainer />	
   </div>
   );    
 }

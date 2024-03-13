@@ -98,16 +98,17 @@ async function handleApplicationApprove() {
 }
 
 function handleRemarksDone() {
+	var myRemarks = (remarks !== "") ? remarks : "-";
 	if (action === "Approve")
-		handleApplicationApproveConfirm();
+		handleApplicationApproveConfirm(myRemarks);
 	else
-		handleApplicationRejectConfirm();
+		handleApplicationRejectConfirm(myRemarks);
 }
 
 
-async function  handleApplicationApproveConfirm() {
+async function  handleApplicationApproveConfirm(myRemarks) {
 	try {
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${props.applicationRec.id}/${sessionStorage.getItem("mid")}/${remarks}`;
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${props.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
 		let resp = await axios.get(myUrl);
 		props.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application approved by Admin`});
 	} catch (e) {
@@ -116,9 +117,9 @@ async function  handleApplicationApproveConfirm() {
 	}
 }
 
-async function  handleApplicationRejectConfirm() {
+async function  handleApplicationRejectConfirm(myRemarks) {
 	try {
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/reject/${props.applicationRec.id}/${sessionStorage.getItem("mid")}/${remarks}`;
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/reject/${props.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
 		let resp = await axios.get(myUrl);
 		props.onReturn.call(this, {status: STATUS_INFO.ERROR, applicationRec: resp.data, msg: `Application rejected by Admin`});
 		
@@ -136,7 +137,7 @@ async function  handleApplicationRejectConfirm() {
 	
 return (
 	<div>
-	<ApplicationHeader applicationRec={props.applicationRec} header={`Application for member ceased`} />
+	<ApplicationHeader applicationRec={props.applicationRec} header={`Application for new F.Head`} />
 	{(stage === "INITIAL") &&
 	<div>
 	<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.pdhs_title} >Application data</Typography>

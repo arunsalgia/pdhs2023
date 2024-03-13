@@ -98,16 +98,17 @@ async function handleApplicationApprove() {
 }
 
 function handleRemarksDone() {
+	var myRemarks = (remarks !== "") ? remarks : "-";
 	if (action === "Approve")
-		handleApplicationApproveConfirm();
+		handleApplicationApproveConfirm(myRemarks);
 	else
-		handleApplicationRejectConfirm();
+		handleApplicationRejectConfirm(myRemarks);
 }
 
 
-async function  handleApplicationApproveConfirm() {
+async function  handleApplicationApproveConfirm(myRemarks) {
 	try {
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${props.applicationRec.id}/${sessionStorage.getItem("mid")}/${remarks}`;
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${props.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
 		let resp = await axios.get(myUrl);
 		props.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application approved by Admin`});
 		
@@ -117,9 +118,9 @@ async function  handleApplicationApproveConfirm() {
 	}
 }
 
-async function  handleApplicationRejectConfirm() {
+async function  handleApplicationRejectConfirm(myRemarks) {
 	try {
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/reject/${props.applicationRec.id}/${sessionStorage.getItem("mid")}/${remarks}`;
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/reject/${props.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
 		let resp = await axios.get(myUrl);
 		props.onReturn.call(this, {status: STATUS_INFO.ERROR, applicationRec: resp.data, msg: `Application rejected by Admin`});
 		
@@ -226,6 +227,30 @@ return (
 			<br />
 			</div>
 		}
+		{(appData.memberRec.mobile) &&
+			<div>
+			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
+			<DisplayApplicationNameValue name="Old Mobile" value={appData.oldMemberRec.mobile} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name="New Mobile" value={appData.memberRec.mobile} style={{paddingTop: "5px" }}  />
+			<br />
+			</div>
+		}
+		{(appData.memberRec.mobile1) &&
+			<div>
+			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
+			<DisplayApplicationNameValue name="Old Mobile 2" value={appData.oldMemberRec.mobile1} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name="New Mobile 2" value={appData.memberRec.mobile1} style={{paddingTop: "5px" }}  />
+			<br />
+			</div>
+		}
+		{(appData.memberRec.email) &&
+			<div>
+			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
+			<DisplayApplicationNameValue name="Old EMail" value={decrypt(appData.oldMemberRec.email)} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name="New Email" value={decrypt(appData.memberRec.email)} style={{paddingTop: "5px" }}  />
+			<br />
+			</div>
+		}
 		<br />
 	</Accordion>
 	}
@@ -263,37 +288,13 @@ return (
 		<br />
 	</Accordion>
 	}
-	{(stage === "INITIAL") &&
+	{((stage === "INITIAL") && false) &&
 	<Accordion expanded={expandedPanel === "OTHERDETAILS"} onChange={handleAccordionChange("OTHERDETAILS")}>
 		<Box align="right" className={(expandedPanel === "OTHERDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
 			<Typography align="left" >{"Other Details"}</Typography>
 		</AccordionSummary>
 		</Box>
-		{(appData.memberRec.mobile) &&
-			<div>
-			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
-			<DisplayApplicationNameValue name="Old Mobile" value={appData.oldMemberRec.mobile} style={{paddingTop: "5px" }}  />
-			<DisplayApplicationNameValue name="New Mobile" value={appData.memberRec.mobile} style={{paddingTop: "5px" }}  />
-			<br />
-			</div>
-		}
-		{(appData.memberRec.mobile1) &&
-			<div>
-			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
-			<DisplayApplicationNameValue name="Old Mobile 2" value={appData.oldMemberRec.mobile1} style={{paddingTop: "5px" }}  />
-			<DisplayApplicationNameValue name="New Mobile 2" value={appData.memberRec.mobile1} style={{paddingTop: "5px" }}  />
-			<br />
-			</div>
-		}
-		{(appData.memberRec.email) &&
-			<div>
-			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
-			<DisplayApplicationNameValue name="Old EMail" value={decrypt(appData.oldMemberRec.email)} style={{paddingTop: "5px" }}  />
-			<DisplayApplicationNameValue name="New Email" value={decrypt(appData.memberRec.email)} style={{paddingTop: "5px" }}  />
-			<br />
-			</div>
-		}
 		<br />
 	</Accordion>
 	}

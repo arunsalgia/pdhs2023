@@ -329,7 +329,7 @@ export default function Application(props) {
 		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
 		
 		if (sts.status == STATUS_INFO.SUCCESS) {
-			//console.log(sts.applicationRec);
+			console.log(sts.applicationRec);
 			var tmp = [sts.applicationRec].concat(applicationArray.filter(x => x.id !== applicationRec.id));
 			setApplicationArray(lodashReverse(lodashSortBy(tmp, 'id')));
 		}
