@@ -72,12 +72,12 @@ export default function NewHod(props) {
 	const gClasses = globalStyles();
 	
 	const [header, setHeader] = useState("");
-	const [newHodRec, setNewHodRec] = useState({});
-	const [oldHodRec, setOldHodRec] = useState({});
-	const [relation, setRelation] = useState([]);
-	const [memberList, setMemberList] = useState([]);
+	const [stage, setStage] = useState("STAGE1");
 
-	
+	const [newHodRec, setNewHodRec] = useState({});
+	const [otherArray, setOtherArray] = useState([]);
+	const [relation, setRelation] = useState([]);
+		
 	// show in accordion
 	const [expandedPanel, setExpandedPanel] = useState("");
 	const handleAccordionChange = (panel) => (event, isExpanded) => {
@@ -87,22 +87,52 @@ export default function NewHod(props) {
 
 
 	useEffect(() => {
-		// get new HOD record
-		let memRec = props.memberList.find(x => x.mid === props.selectedMid);
-		setHeader("Apply for new F.Head " + getMemberName(memRec, false, false) );
-		setNewHodRec(memRec);
-
-		// get current HOD record
-		memRec = props.memberList.find(x => x.mid === props.hodMid);
-		setOldHodRec(memRec);
-		// Change the relation from "Self" to Brother/Sister"
-		memRec.relation = (memRec.gender === "Female") ? "Sister" : "Brother";
 		
-		// balance members and relation
-		var tmpArray = props.memberList.filter(x => x.mid !== props.selectedMid);
-		setRelation(lodashMap(tmpArray, 'relation'));
-		setMemberList(tmpArray);
-	}, [])
+		setNewHodRec(props.memberList.find(x => x.mid === props.selectedMid));
+		var tmp = props.memberList.filter(x => x.mid !== props.selectedMid);
+		setRelation(lodashMap(tmp, 'relation'));
+		setOtherArray(tmp);
+		
+		//setHeader();
+	}, []);
+
+
+
+
+async function handleNewHodSubmit() {
+	var myInfo = {
+		hid:  props.memberList[0].hid,
+		newHodMid: newHodRec.mid,
+		newHodName: getMemberName(newHodRec, false, false),
+		midList: lodashMap(otherArray, 'mid'),
+		nameList: [],
+		relationList: relation
+	}
+	
+	var nameList = [];
+	for(var i=0; i<otherArray.length; ++i) {
+		nameList.push(getMemberName(otherArray[i], false, false));
+	}
+
+	console.log(myInfo);
+	
+	myInfo = encodeURIComponent(JSON.stringify(myInfo));
+	try {
+ 		// apply for both admin and member
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/newhod/${props.hodMid}/${sessionStorage.getItem("mid")}/${myInfo}`;
+		var resp = await axios.get(myUrl);
+		
+		props.onReturn.call(this, {
+			status: STATUS_INFO.SUCCESS,
+			data: resp.data,
+			msg: `Successfully applied for ${getMemberName(newHodRec, false, false)} as new F.Head. Your application id ref. ${resp.data.id}`
+		});
+	} catch (e) {
+		console.log(e);
+		props.onReturn.call(this, {status: STATUS_INFO.ERROR,  msg: `Error setting ${getMemberName(newHodRec, false, false)} as new F.Head.`});
+	}	
+	return;
+}
 
 
 function handleNewRelation(rel, idx) {
@@ -112,75 +142,46 @@ function handleNewRelation(rel, idx) {
 	setRelation(tmp);
 }
 
-
-async function handleNewHodSubmit() {
-	var myInfo = {
-		hid:  props.memberList[0].hid,
-		newHodMid: newHodRec.mid,
-		newHodName: getMemberName(newHodRec, false, false),
-		oldHodName: getMemberName(oldHodRec, false, false),		
-		midList: lodashMap(memberList, 'mid'),
-		nameList: [],
-		oldRelationList: lodashMap(props.memberList.filter(x => x.mid !== props.selectedMid), 'relation'),
-		relationList: relation
-	}
-	
-	var nameList = [];
-	for(var i=0; i<memberList.length; ++i) {
-		nameList.push(getMemberName(memberList[i], false, false));
-	}
-	myInfo.nameList = nameList;
-	//console.log(myInfo);
-	myInfo = encodeURIComponent(JSON.stringify(myInfo));
-	//return;
-	
-
-	try {
- 		// apply for both admin and member
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/newhod/${props.hodMid}/${sessionStorage.getItem("mid")}/${myInfo}`;
-		var resp = await axios.get(myUrl);
-		
-		props.onReturn.call(this, {
-			status: STATUS_INFO.SUCCESS,
-			data: resp.data,
-			msg: `Successfully applied for ${getMemberName(newHodRec)} as new F.Head. Your application id ref. ${resp.data.id}`
-		});
-	} catch (e) {
-		console.log(e);
-		props.onReturn.call(this, {status: STATUS_INFO.ERROR,  msg: `Error setting ${getMemberName(newHodRec)} as new F.Head.`});
-	}	
-	return;
-}
-
-	
 return (
 	<div>
 		<br />
-		<Typography align="center" className={gClasses.title}>{header}</Typography>
+		<Typography align="center" className={gClasses.title}>{"Apply for F.Head " + getMemberName(newHodRec, false, false) }</Typography>
 		<br />
-		<Typography align="center" className={gClasses.pdhs_title}>{`Relation of members with new F.Head`}</Typography>
+		<Typography align="center" className={gClasses.title}>{"Relation with new F. Head"}</Typography>
 		<br />
-		{memberList.map( (m, index) => {
-			//var tmpRelation = relation[index];
+		{otherArray.map( (m, index) => {
+			
+			var tmpRelation = ""
+			if (m.mid === newHodRec.mid)
+			 tmpRelation = "Self";
+			else if (relation[index] === "Self")			// Old HOD
+				tmpRelation = (m.gender) ? "Brother" : "Sister";
+			else 
+				tmpRelation = relation[index];
+		
 			// Select relation list based on Gender
 			var tmpRelationList = RELATION;
-			if (m.gender === "Male")
+			if (tmpRelation === "Self")
+				tmpRelationList = SELFRELATION;
+			else if (m.gender === "Male")
 				tmpRelationList = GENTSRELATION;
 			else if (m.gender === "Female")
 				tmpRelationList = LADIESRELATION;
-		
-			return (
-			<Grid key={"NEWHODRELATION"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
+			else
+				tmpRelationList = RELATION;
+
+		return (
+			<Grid key={"SPLITARRAY3"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
 			<Grid style={{marginTop: "10px"}}  item xs={7} sm={7} md={7} lg={7} >
 				<Typography style={{marginLeft: "10px", marginTop: "10px" }} className={gClasses.title}>{getMemberName(m, false, false)}</Typography>
 			</Grid>	
 			<Grid item xs={5} sm={5} md={5} lg={5} >
 				<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} 
-				options={tmpRelationList} value={relation[index]} onChange={(event) => { handleNewRelation(event.target.value, index); }} />
+				options={tmpRelationList} value={tmpRelation} onChange={(event) => { handleNewRelation(event.target.value, index); }} />
 			</Grid>
 			</Grid>	
-			)}
 		)}
+	)}			
 		<br />
 		<VsButton align="center" name="Apply" onClick={handleNewHodSubmit} />
 		<br />

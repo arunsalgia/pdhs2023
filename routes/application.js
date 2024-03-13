@@ -197,6 +197,48 @@ router.get('/ceased/:editor_hodmid/:editor_mid/:appData', async function (req, r
 	console.log(aRec);
 });
 
+
+router.get('/newhod/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
+  setHeader(res);
+	var {editor_hodmid, editor_mid, appData } = req.params;
+	console.log(appData);
+	let justNow = new Date();
+
+	var editorRec = await memberGetByMidOne(Number(editor_mid));
+	var editorHodRec = await memberGetByMidOne(Number(editor_hodmid));
+	console.log(editor_hodmid, editorHodRec);
+	
+	let aRec = new M_Application();
+	aRec.date = justNow;
+	aRec.owner = OWNER.prws;
+	aRec.hid = 0;
+	aRec.desc = APPLICATIONTYPES.newHod;
+
+	aRec.hodMid = editorHodRec.mid
+	aRec.hodName = getMemberName(editorHodRec, false);
+
+	aRec.mid = editorRec.mid;
+	aRec.name = getMemberName(editorRec, false);
+
+	aRec.isMember = true;
+	aRec.data = appData;
+	aRec.status = APPLICATIONSTATUS.pending;
+
+	aRec.adminName = '';
+	aRec.comments = '';
+	
+	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
+	console.log(baseid);
+	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
+	
+	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
+
+	sendok(res, aRec);
+
+	await aRec.save();
+	console.log(aRec);
+});
+
 router.get('/transfermember/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
   setHeader(res);
 	var {editor_mid, editor_hodmid, appData } = req.params;
@@ -318,6 +360,9 @@ router.get('/approve/:id/:adminMid/:comments', async function (req, res) {
 		case APPLICATIONTYPES.memberCeased:
 			retObject = await approve_memberCeased(aRec);
 			break;
+		case APPLICATIONTYPES.newHod:
+			retObject = await approve_newHod(aRec);
+			break;
 		default:
 			return senderr(res, 602, 'Invalid application type');
 	}
@@ -409,7 +454,7 @@ async function approve_memberCeased(aRec) {
 	console.log(myData);
 	// Get all the members of the family
 	var otherMembers = await memberGetByHidMany(myData.hid);
-	// ceased record and othe member record
+	// ceased record and other member record
 	var ceasedRec = otherMembers.find(x => x.mid === myData.ceasedMid);
 	otherMembers = _.sortBy(otherMembers.filter(x => x.mid !== myData.ceasedMid), 'order');
 	// if new Hod, then bring it to the top
@@ -456,6 +501,45 @@ async function approve_memberCeased(aRec) {
 
 	return {status: true, record: ceasedRec};
 }
+
+// Member new Hod approve
+async function approve_newHod(aRec) {
+	var myData = JSON.parse(aRec.data);
+	console.log(myData);
+	// Get all the members of the family
+	var otherMembers = await memberGetByHidMany(myData.hid);
+	// ceased record and other member record
+	var newHodRec = otherMembers.find(x => x.mid === myData.newHodMid);
+	otherMembers = _.sortBy(otherMembers.filter(x => x.mid !== myData.newHodMid), 'order');
+
+	// HOD is Self and has order 0 (at top)
+	newHodRec.relation = 'Self';
+	newHodRec.order = 0;
+
+	// Now set the relation of others
+	for (var i = 0; i<myData.midList.length; ++i) {
+		var tmpRec = otherMembers.find(x => x.mid === myData.midList[i]);
+		tmpRec.relation = myData.relationList[i];
+	}
+
+	// set order for balance Family
+	for(var i=0; i<otherMembers.length; ++i) {
+		otherMembers[i].order = i+1;
+	}
+
+	// update all members data
+	await memberUpdateOne(newHodRec);
+	await memberUpdateMany(otherMembers);
+	
+	// Update new hod in HOD record
+	var hodRec = await M_Hod.findOne({hid: myData.hid});
+	hodRec.mid = myData.newHodMid;
+	await hodRec.save();
+
+	// All done
+	return {status: true, record: newHodRec};
+}
+
 
 router.get('/test', async function (req, res) {
   setHeader(res);

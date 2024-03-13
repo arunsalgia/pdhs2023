@@ -416,7 +416,7 @@ function DisplayPersonalInformation() {
 	}
 
 	function handleNewHodBack(sts) {
-		console.log(sts);
+		//console.log(sts);
 		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
 		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
 		

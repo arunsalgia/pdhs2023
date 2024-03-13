@@ -57,7 +57,7 @@ import {
 } from 'views/functions';
 
 
-export default function ApplicationMemberCeased(props) {
+export default function ApplicationNewHod(props) {
 	const gClasses = globalStyles();
 	
 	//const [registerStatus, setRegisterStatus] = useState(0);
@@ -82,7 +82,7 @@ export default function ApplicationMemberCeased(props) {
 	}, [])
 
 
-async function handleMemberAddEditSubmit() {
+async function handleNewHodSubmit() {
 	props.onReturn.call(this, {status: STATUS_INFO.ERROR, msg: `Error Add/Edit gotra`});
 	return;
 }
@@ -110,7 +110,6 @@ async function  handleApplicationApproveConfirm() {
 		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${props.applicationRec.id}/${sessionStorage.getItem("mid")}/${remarks}`;
 		let resp = await axios.get(myUrl);
 		props.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application approved by Admin`});
-		
 	} catch (e) {
 		console.log(e);
 		showError(`Error approving ceased member`);
@@ -124,8 +123,7 @@ async function  handleApplicationRejectConfirm() {
 		props.onReturn.call(this, {status: STATUS_INFO.ERROR, applicationRec: resp.data, msg: `Application rejected by Admin`});
 		
 	} catch (e) {
-		console.log(e);
-		showError(`Error rejecting ceased member`);
+		showError(`Error rejecting new Hod member by Admin`);
 	}
 }
 
@@ -147,27 +145,15 @@ return (
 	{(stage === "INITIAL") &&
 		<div>
 		<br />
-		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Ceased member ${appData.ceasedName}`}</Typography>
-		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Ceased date ${dateString(appData.ceasedDate)}`}</Typography>
-		{(appData.newHodName !== "") &&
-		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`New F.Head ${appData.newHodName}`}</Typography>
-		}
+		<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Current F.Head ${appData.oldHodName}`}</Typography>
+		<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`New F.Head ${appData.newHodName}`}</Typography>
+		<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Relation with new F.Head`}</Typography>
 		<br />
-		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
-		<br />
-		{(appData.midList.length > 0) &&
-			<div>
-			<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.pdhs_title} >{`Relation of members with ${appData.newHodName}`}</Typography>
-			<br />
-			</div>
-		}
 		{appData.nameList.map( (memberName, index) => {
-			if (appData.midList[index] === appData.newHodMid) return;
-			//var oldRelation = appData.oldRelationList[index];
 			var newRelation = appData.relationList[index];
 			return (
-				<div key={memberName} >
-					<Typography className={gClasses.patientInfo2Blue} >{`${memberName} ( ${newRelation} )`}</Typography>
+				<div key={memberName}>
+				<DisplayApplicationNameValue name={memberName} value={appData.relationList[index]} style={{paddingTop: "5px" }}  />
 				</div>
 			)}
 		)}			

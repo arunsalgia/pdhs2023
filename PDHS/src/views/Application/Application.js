@@ -38,6 +38,8 @@ import globalStyles from "assets/globalStyles";
 import ApplicationEditGotra from "views/Application/ApplicationEditGotra";
 import ApplicationMemberCeased from "views/Application/ApplicationMemberCeased";
 import ApplicationAddEditMember from "views/Application/ApplicationAddEditMember";
+import ApplicationNewHod from "views/Application/ApplicationNewHod";
+
 
 import {
 	ADMIN, APPLICATIONSTATUS, APPLICATIONTYPES, SELECTSTYLE, STATUS_INFO,
@@ -522,6 +524,9 @@ export default function Application(props) {
 	}
 	{(isDrawerOpened === APPLICATIONTYPES.editMember) &&
 		<ApplicationAddEditMember applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
+	}	
+	{(isDrawerOpened === APPLICATIONTYPES.newHod) &&
+		<ApplicationNewHod applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
 	}	
 	</Box>
 	</Container>

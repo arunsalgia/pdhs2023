@@ -527,7 +527,7 @@ APPLICATIONTYPES = {
 	editMember: 			"Edit Member",
 	memberCeased: 		"Member Ceased",
 	spouseDetails: 		"Spouse Details",
-	memberHOD: 				"New HOD",
+	newHod: 					"New F.Head",
 	transferMember:		"Transfer members",
 };
 
