@@ -124,10 +124,10 @@ function DisplayRegisterStatus() {
         myMsg = `Invalid Pin Code`;
         break;
       case 1002:
-        myMsg = `Unknown F.Head update error`;
+        myMsg = `Unknown Family Head update error`;
         break;
 			case 2001:
-				myMsg = `No F.Head selected for new family`;
+				myMsg = `No Family Head selected for new family`;
 				break;
 			case 2002:
 				myMsg = `No member(s) selected for new family`;
@@ -289,7 +289,7 @@ return (
 			<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
 		</Grid>	
 		<Grid item xs={2} sm={2} md={2} lg={2} >
-			<Typography className={gClasses.titleOrange}>{"F.Head"}</Typography>
+			<Typography className={gClasses.titleOrange}>{"Family Head"}</Typography>
 		</Grid>
 		<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 	</Grid>	
@@ -386,7 +386,7 @@ return (
 		<Accordion expanded={expandedPanel === "new_hod"} onChange={handleAccordionChange("new_hod")}>
 			<Box align="right" className={(expandedPanel === "new_hod") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 			<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
-				<Typography align="left" >{"New F.Head " + getMemberName(memberList.find(x => x.mid === newHod), false, false)}</Typography>
+				<Typography align="left" >{"New Family Head " + getMemberName(memberList.find(x => x.mid === newHod), false, false)}</Typography>
 			</AccordionSummary>
 			</Box>
 			<Display_select_new_hod />

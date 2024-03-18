@@ -703,8 +703,8 @@ export function callYesNo(openfunc, id, title, message, yesBtn, noBtn, isError) 
 
 
 // disable future dates
-const today = moment();
-const yesterday = moment().subtract(1, 'day');
+export const today = moment();
+export const yesterday = moment().subtract(1, 'day');
 
 // disable past dates
 
@@ -1154,3 +1154,7 @@ export function hasAnyAdminPermission() {
 	return (tmp.superAdmin || tmp.prwsAdmin || tmp.pjymAdmin || tmp.humadAdmin || tmp.pmmAdmin);
 };
 
+
+export function isEligibleForMarriage(memRec) {
+	return ((getAge(memRec.dob) >= 18) && (memRec.emsStatus !== "Married"))
+}

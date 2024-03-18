@@ -30,7 +30,7 @@ router.get('/list', async function (req, res) {
   setHeader(res);
 
 	let myData = await M_Application.find({}).sort({id: -1});
-	console.log(myData);
+	//console.log(myData);
 	sendok(res, myData);
 });		
 
@@ -58,17 +58,17 @@ router.get('/add/:appData', async function (req, res) {
 	aRec.status = 'Pending';
 	aRec.adminName = '';
 	aRec.comments = '';
-	console.log(appData.data);
+	//console.log(appData.data);
 	
 	let justNow = new Date();
 	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
-	console.log(baseid);
+	//console.log(baseid);
 	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
 	
 	aRec.date = justNow;
 	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
 	await aRec.save();
-	console.log(aRec);
+	//console.log(aRec);
 	
 	sendok(res, aRec);
 });
@@ -101,17 +101,17 @@ router.get('/editfamilydetails/:editor_mid/:appData', async function (req, res) 
 	aRec.status = 'Pending';
 	aRec.adminName = '';
 	aRec.comments = '';
-	console.log(appData.data);
+	//console.log(appData.data);
 	
 	let justNow = new Date();
 	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
-	console.log(baseid);
+	//console.log(baseid);
 	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
 	
 	aRec.date = justNow;
 	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
 	await aRec.save();
-	console.log(aRec);
+	//console.log(aRec);
 	
 	sendok(res, aRec);
 });
@@ -119,12 +119,12 @@ router.get('/editfamilydetails/:editor_mid/:appData', async function (req, res) 
 router.get('/updategotra/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
   setHeader(res);
 	var {editor_mid, editor_hodmid, appData } = req.params;
-	console.log(appData);
+	//console.log(appData);
 	let justNow = new Date();
 
 	var editorRec = await memberGetByMidOne(Number(editor_mid));
 	var editorHodRec = await memberGetByMidOne(Number(editor_hodmid));
-	console.log(editor_hodmid, editorHodRec);
+	//console.log(editor_hodmid, editorHodRec);
 	
 	let aRec = new M_Application();
 	aRec.date = justNow;
@@ -146,12 +146,12 @@ router.get('/updategotra/:editor_hodmid/:editor_mid/:appData', async function (r
 	aRec.comments = '';
 	
 	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
-	console.log(baseid);
+	//console.log(baseid);
 	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
 	
 	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
-	await aRec.save();
-	console.log(aRec);
+	//await aRec.save();
+	//console.log(aRec);
 	
 	sendok(res, aRec);
 });
@@ -159,12 +159,12 @@ router.get('/updategotra/:editor_hodmid/:editor_mid/:appData', async function (r
 router.get('/ceased/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
   setHeader(res);
 	var {editor_hodmid, editor_mid, appData } = req.params;
-	console.log(appData);
+	//console.log(appData);
 	let justNow = new Date();
 
 	var editorRec = await memberGetByMidOne(Number(editor_mid));
 	var editorHodRec = await memberGetByMidOne(Number(editor_hodmid));
-	console.log(editor_hodmid, editorHodRec);
+	//console.log(editor_hodmid, editorHodRec);
 	
 	let aRec = new M_Application();
 	aRec.date = justNow;
@@ -186,7 +186,7 @@ router.get('/ceased/:editor_hodmid/:editor_mid/:appData', async function (req, r
 	aRec.comments = '';
 	
 	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
-	console.log(baseid);
+	//console.log(baseid);
 	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
 	
 	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
@@ -194,19 +194,19 @@ router.get('/ceased/:editor_hodmid/:editor_mid/:appData', async function (req, r
 	sendok(res, aRec);
 
 	await aRec.save();
-	console.log(aRec);
+	//console.log(aRec);
 });
 
 
 router.get('/newhod/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
   setHeader(res);
 	var {editor_hodmid, editor_mid, appData } = req.params;
-	console.log(appData);
+	//console.log(appData);
 	let justNow = new Date();
 
 	var editorRec = await memberGetByMidOne(Number(editor_mid));
 	var editorHodRec = await memberGetByMidOne(Number(editor_hodmid));
-	console.log(editor_hodmid, editorHodRec);
+	//console.log(editor_hodmid, editorHodRec);
 	
 	let aRec = new M_Application();
 	aRec.date = justNow;
@@ -228,7 +228,7 @@ router.get('/newhod/:editor_hodmid/:editor_mid/:appData', async function (req, r
 	aRec.comments = '';
 	
 	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
-	console.log(baseid);
+	//console.log(baseid);
 	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
 	
 	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
@@ -236,22 +236,22 @@ router.get('/newhod/:editor_hodmid/:editor_mid/:appData', async function (req, r
 	sendok(res, aRec);
 
 	await aRec.save();
-	console.log(aRec);
+	//console.log(aRec);
 });
 
-router.get('/transfermember/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
+router.get('/movemember/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
   setHeader(res);
 	var {editor_mid, editor_hodmid, appData } = req.params;
-	console.log(appData);
+	//console.log(appData);
 	let justNow = new Date();
 
 	var editorRec = await memberGetByMidOne(Number(editor_mid));
 	var editorHodRec = await memberGetByMidOne(Number(editor_hodmid));
-	console.log(editor_hodmid, editorHodRec);
+	//console.log(editor_hodmid, editorHodRec);
 	
 	let aRec = new M_Application();
 	aRec.date = justNow;
-	aRec.owner = OWNET.prws;
+	aRec.owner = OWNER.prws;
 	aRec.hid = 0;
 	aRec.desc = APPLICATIONTYPES.transferMember;
 
@@ -269,12 +269,12 @@ router.get('/transfermember/:editor_hodmid/:editor_mid/:appData', async function
 	aRec.comments = '';
 	
 	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
-	console.log(baseid);
+	//console.log(baseid);
 	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
 	
 	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
 	await aRec.save();
-	console.log(aRec);
+	//console.log(aRec);
 	
 	sendok(res, aRec);
 });
@@ -283,14 +283,14 @@ router.get('/transfermember/:editor_hodmid/:editor_mid/:appData', async function
 router.get('/addeditpersonal/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
   setHeader(res);
 	var {editor_hodmid, editor_mid, appData } = req.params;
-	console.log(appData);
+	//console.log(appData);
 	var xxx = JSON.parse(appData);
 	
 	let justNow = new Date();
 
 	var editorRec = await memberGetByMidOne(Number(editor_mid));
 	var editorHodRec = await memberGetByMidOne(Number(editor_hodmid));
-	console.log(editor_hodmid, editorHodRec);
+	//console.log(editor_hodmid, editorHodRec);
 	
 	let aRec = new M_Application();
 	aRec.date = justNow;
@@ -312,7 +312,7 @@ router.get('/addeditpersonal/:editor_hodmid/:editor_mid/:appData', async functio
 	aRec.comments = '';
 	
 	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
-	console.log(baseid);
+	//console.log(baseid);
 	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
 	
 	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
@@ -320,7 +320,7 @@ router.get('/addeditpersonal/:editor_hodmid/:editor_mid/:appData', async functio
 	sendok(res, aRec);
 
 	await aRec.save();
-	console.log(aRec);
+	//console.log(aRec);
 });
 
 
@@ -329,7 +329,7 @@ router.get('/reject/:id/:adminMid/:comments', async function (req, res) {
   setHeader(res);
 	var {id, adminMid,comments } = req.params;
 	
-	console.log(id, comments, adminMid);
+	//console.log(id, comments, adminMid);
 	var adminRec = await memberGetByMidOne(Number(adminMid));
 	
 	let aRec = await M_Application.findOne({id: id});
@@ -347,7 +347,7 @@ router.get('/approve/:id/:adminMid/:comments', async function (req, res) {
   setHeader(res);
 	var {id, adminMid,comments } = req.params;
 	
-	console.log(id, comments, adminMid);
+	//console.log(id, comments, adminMid);
 
 	let aRec = await M_Application.findOne({id: id});
 	if (!aRec) return senderr(res, 601, 'Application not found');
@@ -378,7 +378,7 @@ router.get('/approve/:id/:adminMid/:comments', async function (req, res) {
 	aRec.comments = comments;
 	sendok(res, aRec);
 		
-	console.log(aRec);
+	//console.log(aRec);
 	await aRec.save();	
 });
 
@@ -386,7 +386,7 @@ router.get('/approve/:id/:adminMid/:comments', async function (req, res) {
 
 async function approve_editMember(aRec) {
 	var myData = JSON.parse(aRec.data);
-	console.log(myData);
+	//console.log(myData);
 	var myRec = await memberGetByMidOne(myData.oldMemberRec.mid);
 	// Update Name details
 	if (myData.memberRec.title) {
@@ -443,7 +443,7 @@ async function approve_editMember(aRec) {
 		myRec.officePhone = myData.memberRec.officePhone;
 	}			
 
-	console.log(myRec);
+	//console.log(myRec);
 	await memberUpdateOne(myRec);
 	return {status: true, record: myRec};
 }
@@ -451,7 +451,7 @@ async function approve_editMember(aRec) {
 // Member ceased approve
 async function approve_memberCeased(aRec) {
 	var myData = JSON.parse(aRec.data);
-	console.log(myData);
+	//console.log(myData);
 	// Get all the members of the family
 	var otherMembers = await memberGetByHidMany(myData.hid);
 	// ceased record and other member record
@@ -505,7 +505,7 @@ async function approve_memberCeased(aRec) {
 // Member new Hod approve
 async function approve_newHod(aRec) {
 	var myData = JSON.parse(aRec.data);
-	console.log(myData);
+	//console.log(myData);
 	// Get all the members of the family
 	var otherMembers = await memberGetByHidMany(myData.hid);
 	// ceased record and other member record
@@ -548,7 +548,7 @@ router.get('/test', async function (req, res) {
 	let allRec = await M_Application.find({});
 	for(var i=0; i<allRec.length; ++i) {
 		var memRec = await memberGetByMidOne(allRec[i].mid);
-		console.log(memRec);
+		//console.log(memRec);
 		allRec[i].name = getMemberName(memRec);
 		await allRec[i].save();
 	}

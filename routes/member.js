@@ -5,7 +5,7 @@ const {
 	memberGetAll, memberGetHodMembers,
 	memberAddOne, memberAddMany,
 	memberUpdateOne, memberUpdateMany,
-	memberGetByMidOne, memberGetByMidMany,
+	memberGetByMidOne, memberGetByMidMany, memberGetByEligibleMany,
 	memberGetByHidMany,
 	memberGetCount,
 	memberGetAlive,
@@ -263,6 +263,19 @@ router.get('/hod/:hid', async function (req, res) {
 	}
 	sendok(res, myData);
 });		
+
+router.get('/eligible/:gender', async function (req, res) {
+  setHeader(res);
+  var { gender } = req.params;
+	
+	let myData = await memberGetByEligibleMany(gender);
+	myData = _.cloneDeep(myData);
+	for(let i=0; i<myData.length; ++i) {
+		myData[i].email = dbToSvrText(myData[i].email);
+		myData[i].email1 = dbToSvrText(myData[i].email1);
+	}
+	sendok(res, myData);
+});	
 
 router.post('/sethod/:mid', async function (req, res) {
   setHeader(res);

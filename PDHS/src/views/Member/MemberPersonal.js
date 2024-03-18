@@ -67,12 +67,12 @@ import {
 	dateString,
 	getImageName,
 	vsDialog, vsInfo,
-	getMemberName,
+	getMemberName, isEligibleForMarriage,
 	getRelation, dispAge, capitalizeFirstLetter,
 	getMemberTip,
 	getAdminInfo,
 	applicationSuccess,
-	showSuccess, showError,
+	showSuccess, showError, showInfo,
 } from "views/functions.js";
 
 import SplitFamily from "views/Member/SplitFamily";
@@ -80,6 +80,8 @@ import CeasedMember from "views/Member/CeasedMember";
 import TransferMember from "views/Member/TransferMember";
 import NewHod from "views/Member/NewHod";
 import MemberAddEdit from "views/Member/MemberAddEdit";
+import MemberMarriage from "views/Member/MemberMarriage";
+
 
 import {
 	readAllMembers, memberGetByHidMany, memberUpdateMany,
@@ -171,7 +173,7 @@ export default function MemberPersonal(props) {
 			var myMemArray = JSON.parse(sessionStorage.getItem("member_members"));
 			setMemberArray(myMemArray);
 			var ccc = myMemArray.find(x => x.mid === myHodRec.mid);
-			if (!ccc) showError(`F.Head of family ${myHodRec.hid} not in list. May be ceased`);
+			if (!ccc) showError(`Family Head of family ${myHodRec.hid} not in list. May be ceased`);
 		}
 
 		getDetails();
@@ -204,10 +206,10 @@ export default function MemberPersonal(props) {
         myMsg = `Invalid Pin Code`;
         break;
       case 1002:
-        myMsg = `Unknown F.Head update error`;
+        myMsg = `Unknown Family Head update error`;
         break;
 			case 2001:
-				myMsg = `No F.Head selected for new family`;
+				myMsg = `No Family Head selected for new family`;
 				break;
 			case 2002:
 				myMsg = `No member(s) selected for new family`;
@@ -273,8 +275,8 @@ function DisplayPersonalInformation() {
 	{memberArray.map( (m, index) => {
 		if (m.ceased) return null;
 		return (
-			<PersonalMember key={"MEMBER"+index} m={m} dispType={dispType}  index={index} 
-					onClick={(event) => { radioMid = m.mid; handleMemberPersonalContextMenu(event); }}
+			<PersonalMember  key={"PERSONALMEMBER"+index} m={m} dispType={dispType}  index={index} id={"PERSONALMEMBER"+index}
+					onClick={(event) => { radioMid = m.mid; handleMemberPersonalContextMenu(event,`PERSONALMEMBER${index}`); }}
 					datatip={getMemberTip(m, dispType, props.city)} />
 		)}
 	)}
@@ -292,11 +294,16 @@ function DisplayPersonalInformation() {
 		var myIndex = memberArray.findIndex(x => x.mid === radioMid);
 		//console.log(myIndex);
 		let isFamilyMember = (memberArray[0].hid === loginHid);
-		let admin = ((adminInfo & (ADMIN.superAdmin | ADMIN.prwsAdmin)) !== 0); 
+		let admin = ((adminInfo & (ADMIN.superAdmin | ADMIN.prwsAdmin)) !== 0);
+		let isEligible = isEligibleForMarriage(memberRecord);
+		console.log(isEligible, isFamilyMember, admin);
+		console.log(!isEligible);
+		console.log(!(isFamilyMember || admin));
+		console.log(!(isEligible && (isFamilyMember || admin)));
 	return(
-	<div ref={menuRef} className='absolute z-20' style={myStyle}>
+	<div ref={menuRef}   className='absolute z-20' style={myStyle}>
 	<Menu
-		id="memberpersonal-menu"
+		id="memberpersonal-menu1"
 		anchorEl={grpAnchorEl}
 		anchorOrigin={{
 			vertical: 'top',
@@ -324,23 +331,20 @@ function DisplayPersonalInformation() {
 		<MenuItem disabled={(!isFamilyMember && !admin)} onClick={() => { handleMemPerContextMenuClose(); handlePersonalTransfer(memberRecord) } }>
 			<Typography>Move</Typography>
 		</MenuItem>
-		<MenuItem disabled={!isFamilyMember && !admin} onClick={() => {handleMemPerContextMenuClose(); handleMarriage(memberRecord); } } >
+		<MenuItem disabled={!(isEligible && (isFamilyMember || admin))} onClick={() => {handleMemPerContextMenuClose(); handleMarriage(memberRecord); } } >
 			<Typography>Marriage</Typography>
 		</MenuItem>
-		<MenuItem disabled={(myIndex == 0) || (!isFamilyMember && !admin)} onClick={() => { handleMemPerContextMenuClose(); newHOD(memberRecord) } }>
-			<Typography>New F.Head</Typography>
+		<MenuItem disabled={!isFamilyMember && !admin} onClick={() => { handleMemPerContextMenuClose(); newHOD(memberRecord) } }>
+			<Typography>New Family Head</Typography>
 		</MenuItem>
 		<MenuItem disabled={!isFamilyMember && !admin} onClick={() => {handleMemPerContextMenuClose(); ceasedMember(memberRecord); } } >
 			<Typography>Ceased</Typography>
-		</MenuItem>
-		{/*<MenuItem disabled={(myIndex == 0) || (!isFamilyMember && !admin) } onClick={() => {handleMemPerContextMenuClose(); handleSplitFamily("APPLYSPLIT", memberRecord) } } >
-			<Typography>Split family</Typography>
-		</MenuItem>*/}
+	</MenuItem>
 	</Menu>	
 	</div>
 	)}
 	
-	const handleMemberPersonalContextMenu = (e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) => {
+	const handleMemberPersonalContextMenu = (e,id) => {
 		//console.log("In handleMemberPersonalContextMenu");
 		e.preventDefault();
 		setGrpAnchorEl(e.currentTarget);
@@ -364,10 +368,26 @@ function DisplayPersonalInformation() {
 	)}
 	
 	function handleMarriage(memRec) {
-		console.log("In marriage option");
-		showInfo("Marriage setting to be shifted to Spouse page");
+		setSelMember(memRec);
+		setIsDrawerOpened("MARRIAGE");
 	}
 	
+	function handleMarriageBack(sts) {
+		if (sts.status === STATUS_INFO.ERROR) 
+			showError(sts.msg); 
+		else if (sts.status === STATUS_INFO.SUCCESS) {
+			showSuccess(sts.msg); 
+			// update member list
+		}
+		else if (sts.status === STATUS_INFO.INFO) {
+			console.log("In info");
+			vsInfo("Applied for ceased", sts.msg,
+				{label: "Okay"}
+			);
+		}
+		setIsDrawerOpened("");
+	}
+				
 
 	// Ceased Member
 	function ceasedMember(memRec) {
@@ -404,7 +424,7 @@ function DisplayPersonalInformation() {
 	// --- New Hod
 	
 	function newHOD(rec) {
-		vsDialog("New F.Head", `Are you sure you want to set ${getMemberName(rec)} as F.Head?`,
+		vsDialog("New Family Head", `Are you sure you want to set ${getMemberName(rec)} as Family Head?`,
 		{label: "Yes", onClick: () => newHODConfirm(rec) },
 		{label: "No" }
 		);
@@ -494,6 +514,9 @@ function DisplayPersonalInformation() {
 	}
 	{((isDrawerOpened === "ADD") || (isDrawerOpened === "EDIT")) &&
 		<MemberAddEdit mode={isDrawerOpened} hodMid={hodRec.mid} memberRec={selMember} onReturn={handleAddEditBack}/>
+	}
+	{(isDrawerOpened === "MARRIAGE") &&
+		<MemberMarriage hodRec={hodRec} memberRec={selMember} onReturn={handleMarriageBack}/>
 	}
 	</Box>
 	</Container>

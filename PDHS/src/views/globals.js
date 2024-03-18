@@ -199,6 +199,17 @@ export const LADIESRELATION = [
 	"Spouse"
 ];
 
+
+export const LADIES_INLAW_RELATION = [
+	"Daughter in law",
+	"Gr. grand DIL",
+	"Gr. grand SIL",
+	"Grand DIL",
+	"Grand SIL",
+	"Sister in law",
+	"Spouse"
+];
+
 export const JUNKED_COMPACTRELATION = [
 	"Brother",
 	"Brother in law",
@@ -328,7 +339,7 @@ export const APPLICATIONTYPES = {
 	memberCeased: 		"Member Ceased",
 	spouseDetails: 		"Spouse Details",
 	newHod: 					"New F.Head",
-	transferMember:		"Transfer members",
+	transferMember:		"Move members",
 };
 
 
@@ -345,3 +356,5 @@ export const VALUEDIRECTION = {
 };
 
 export const MAXDISPLAYTEXTROWS=10;
+
+export const ELIGIBLEMARRIAGEYEARS = 21;

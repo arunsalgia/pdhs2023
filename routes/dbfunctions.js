@@ -13,10 +13,12 @@ let debugTest = true;
 
 
 async function memberGetAll() {
+	
+	console.log(allMemberlist.length);
 	if (allMemberlist.length === 0) {
 		console.log("Reading member data from mongoose");
 		allMemberlist = await M_Member.find({ceased: false}).sort({lastName: 1, firstName: 1, middleName: 1});
-		var tmp = allMemberlist.slice(0, 10);
+		//var tmp = allMemberlist.slice(0, 10);
 		//for(var i=0; i<10; ++i) {
 		//	console.log(allMemberlist[i].lastName, allMemberlist[i].middleName, allMemberlist[i].firstName);
 		//}
@@ -90,6 +92,34 @@ async function memberGetByMobileOne(mobile) {
 	
 	return _.cloneDeep(memberRec);
 }
+
+async function memberGetByEligibleMany(gender="all") {
+	if (allMemberlist.length === 0) await memberGetAll();
+
+	switch (gender.toLowerCase()) {
+		case "female":  gender = "Female"; break;
+		case "male":    gender = "Male"; break;
+		default:				gender = "All"; break;
+	};
+	
+	var validDate = new Date();
+	validDate.setFullYear(validDate.getFullYear() - ELIGIBLEMARRIAGEYEARS);
+	var validTime = validDate.getTime();
+	
+	console.log(allMemberlist.length);
+	var myMembers = allMemberlist.filter(x => (x.emsStatus !== "") &&  (x.emsStatus !== "Married") ); 
+	console.log(myMembers.length);
+	
+	if (gender !== "All") 
+		myMembers = myMembers.filter(x => x.gender === gender);
+	console.log(myMembers.length);
+
+	myMembers = myMembers.filter(x => x.dob.getTime() <  validTime);
+	console.log("Fileter over");
+	
+	return myMembers;
+}
+
 
 
 async function memberGetByEmailOne(email) {
@@ -180,7 +210,7 @@ module.exports = {
 	memberAddOne, memberAddMany,
 	memberUpdateOne, memberUpdateMany,
 	memberGetByMidOne, memberGetByMidMany, memberGetByMobileOne, memberGetByEmailOne,
-	memberGetByHidMany,
+	memberGetByHidMany, memberGetByEligibleMany,
 	memberGetCount,
 	memberGetAlive,
 	memberGetAllHumad, memberGetHumadCount,

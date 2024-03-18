@@ -39,6 +39,7 @@ import ApplicationEditGotra from "views/Application/ApplicationEditGotra";
 import ApplicationMemberCeased from "views/Application/ApplicationMemberCeased";
 import ApplicationAddEditMember from "views/Application/ApplicationAddEditMember";
 import ApplicationNewHod from "views/Application/ApplicationNewHod";
+import ApplicationTransferMember from "views/Application/ApplicationTransferMember";
 
 
 import {
@@ -217,13 +218,6 @@ export default function Application(props) {
 			<Grid align="center"  item xs={4} sm={4} md={2} lg={2} >
 				<Typography className={gClasses.patientInfo2}>
 					<span>{dateString(a.date)}</span>
-						{/*<span align="left"
-						data-for={"APP"+a.id}
-						data-tip={myInfo}
-						data-iscapture="true"
-					>
-						<InfoIcon color="primary" size="small"/>
-						</span>*/}
 				</Typography>
 			</Grid>
 			<Grid align="center" item xs={4} sm={4} md={2} lg={2} >
@@ -265,7 +259,7 @@ export default function Application(props) {
 	}
 	
 	async function deleteApplicationConfirm(appRec) {
-		console.log(appRec);
+		//console.log(appRec);
 		try {
 			let myUrl =  `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/delete/${appRec.id}`;
 			let resp = await axios.get(myUrl);
@@ -300,15 +294,6 @@ export default function Application(props) {
 			setEmurData3(data.subCaste);
 		} 
 		else if (appRec.desc === APPLICATIONTYPES.splitFamily) {
-			//let myList = await getFamilyMembers(data[0].hid);
-			//
-			//let myNames = [];
-			//for(var i=0; i<data.length; ++i) {
-			//	let tmp = myList.find(x => x.mid === data[i].mid);
-			//	let tmpName = `${i+1}) ${getMemberName(tmp)} ${(data[i].ishod) ? ' ( New HOD )' : ''}`;
-			//	//console.log(tmpName);
-			//	myNames.push(tmpName);
-			//}
 			setMemberNames(data);
 		}
 		console.log(appRec);
@@ -320,7 +305,7 @@ export default function Application(props) {
 	async function editApplication(appRec) {
 		setApplicationRec(appRec);
 		setIsDrawerOpened(appRec.desc);
-		//console.log(new Date(), appRec.desc);
+		console.log(new Date(), appRec.id, appRec.desc);
 	}
 	
 	function handleApplictionEditBack(sts) {
@@ -450,72 +435,6 @@ export default function Application(props) {
 	<Container component="main" maxWidth="xs">	
 	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
 	<VsCancel align="right" onClick={() => { setIsDrawerOpened("")}} />
-		{/*{(isDrawerOpened !== "") &&
-		<div>
-		<ApplHeader appl={editApplRec} hodName={hodName} />
-		<Box sx={AppDataStyle} >
-		{(editApplRec.desc === APPLICATIONTYPES.editGotra) &&
-		<ValidatorForm align="left" className={gClasses.form} onSubmit={handleEditApplyGotra} >
-			<VsSelect inputProps={{className: gClasses.dateTimeNormal}} style={SELECTSTYLE} 
-				disabled={userType === 'user'}
-				label="Gotra" options={gotraArray} field="name" value={emurData1} onChange={(event) => { setEmurData1(event.target.value); }} />
-			{(emurData1 === "Other") &&
-				<TextValidator required fullWidth className={gClasses.vgSpacing}
-					inputProps={{className: gClasses.dateTimeNormal}}
-					label="Other Gotra" type="text"
-					value={emurData11}
-					disabled={userType === 'user'}
-					onChange={(event) => { setEmurData11(event.target.value) }}			
-				/>	
-			}
-			<VsSelect inputProps={{className: gClasses.dateTimeNormal}} style={SELECTSTYLE} 
-				disabled={userType === 'user'}
-				label="Caste" options={CASTE} value={emurData2} onChange={(event) => { setEmurData2(event.target.value); }} />
-
-			{(emurData2 === "Humad") &&
-				<VsSelect inputProps={{className: gClasses.dateTimeNormal}} style={SELECTSTYLE} 
-					disabled={userType === 'user'}
-					label="SubCaste" options={HUMADSUBCASTRE} value={emurData3} onChange={(event) => { setEmurData3(event.target.value); }} />	
-			}
-			<TextValidator required fullWidth className={gClasses.vgSpacing}
-				disabled={userType === 'user'}
-				label="Admin Remarks" type="text"
-				value={emurRemarks}
-				inputProps={{className: gClasses.dateTimeNormal}}
-				onChange={(event) => { setEmurRemarks(event.target.value) }}			
-			/>
-			<VsSelect inputProps={{className: gClasses.dateTimeNormal}} style={SELECTSTYLE} 
-				disabled={userType === 'user'}
-				label="Status" options={applOption} value={approve} onChange={(event) => { setApprove(event.target.value); }} />		
-			{(userType !== 'user') &&
-			<VsButton align="center" name="Update" type="submit" />
-			}
-		</ValidatorForm>
-		}
-		{(editApplRec.desc === APPLICATIONTYPES.splitFamily) &&
-			<ValidatorForm align="left" className={gClasses.form} onSubmit={handleEditApplySplitFamily}  >
-			<Typography className={gClasses.patientInfo2Brown}>New Family List</Typography>
-			<br />
-			{memberNames.map( (m, index) => 
-				<Typography className={gClasses.patientInfo2Blue}>{(index+1).toString() + ') ' + m.name+((m.hod)  ? ' ( New HOD )' : '')}</Typography>
-			)}
-			<TextValidator required fullWidth className={gClasses.vgSpacing}
-				disabled={userType === 'user'}
-				label="Admin Remarks" type="text"
-				value={emurRemarks}
-				onChange={(event) => { setEmurRemarks(event.target.value) }}			
-			/>
-			<VsSelect inputProps={{className: gClasses.dateTimeNormal}} style={SELECTSTYLE} 
-				disabled={userType === 'user'}
-				label="Status" options={applOption} value={approve} onChange={(event) => { setApprove(event.target.value); }} />			
-			{(userType !== 'user') &&
-			<VsButton align="center" name="Update" type="submit" />
-			}
-		</ValidatorForm>
-		}
-		</Box>
-		</div>
-	}*/}
 	{(isDrawerOpened === APPLICATIONTYPES.editGotra) &&
 		<ApplicationEditGotra applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
 	}
@@ -528,7 +447,9 @@ export default function Application(props) {
 	{(isDrawerOpened === APPLICATIONTYPES.newHod) &&
 		<ApplicationNewHod applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
 	}	
-	</Box>
+	{(isDrawerOpened === APPLICATIONTYPES.transferMember) &&
+		<ApplicationTransferMember applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
+	}		</Box>
 	</Container>
 	</Drawer>
 	<ToastContainer />

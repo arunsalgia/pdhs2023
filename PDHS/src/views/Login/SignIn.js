@@ -5,6 +5,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 // import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Grid from "@material-ui/core/Grid";
+import { Switch } from '@material-ui/core';
 
 //import { makeStyles } from '@material-ui/core/styles';
 import globalStyles from "assets/globalStyles";
@@ -150,6 +151,13 @@ async function handleSubmitMobile(e) {
 	}
 };
 
+function switchHandler() {
+	if (loginMode === LOGINOPTION.mobile)
+		setLoginMode(LOGINOPTION.email);
+	else
+		setLoginMode(LOGINOPTION.mobile);
+}
+
 
   return (
 	<div style={{backgroundColor: '#FFFFFF'}} >
@@ -164,14 +172,14 @@ async function handleSubmitMobile(e) {
   {(stage === "MOBILE") &&
   	<ValidatorForm align="center" className={gClasses.form} onSubmit={handleSubmitMobile}>
 		<Grid className={gClasses.noPadding} key="LOGINOPTION" container align="center">
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<Typography style={{marginTop: "10px"  }} className={gClasses.title}>Sign In using</Typography>
+		<Grid item xs={5} sm={5} md={5} lg={5} >
+			<Typography style={{marginTop: "10px"  }} className={gClasses.title}>{`Sign In using Email`}</Typography>
 		</Grid>
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<VsRadio align="center" label={LOGINOPTION.mobile} checked={loginMode === LOGINOPTION.mobile} onClick={() => setLoginMode(LOGINOPTION.mobile) } />
+		<Grid item xs={2} sm={2} md={2} lg={2} >
+			<Switch color="primary" checked={loginMode === LOGINOPTION.mobile} onChange={switchHandler} />
 		</Grid>
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<VsRadio align="center" label={LOGINOPTION.email} checked={loginMode === LOGINOPTION.email} onClick={() => setLoginMode(LOGINOPTION.email) } />
+		<Grid item xs={5} sm={5} md={5} lg={5} >
+			<Typography style={{marginTop: "10px"  }} className={gClasses.title}>{`Sign In using Mobile`}</Typography>
 		</Grid>
 		</Grid>	
 		<br />

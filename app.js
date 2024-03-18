@@ -528,7 +528,7 @@ APPLICATIONTYPES = {
 	memberCeased: 		"Member Ceased",
 	spouseDetails: 		"Spouse Details",
 	newHod: 					"New F.Head",
-	transferMember:		"Transfer members",
+	transferMember:		"Move members",
 };
 
 APPLICATIONSTATUS = {
@@ -554,3 +554,6 @@ OWNER = {
 	humad:	"Humad",
 	pmm:		"PMM"
 };
+
+
+ELIGIBLEMARRIAGEYEARS = 21;

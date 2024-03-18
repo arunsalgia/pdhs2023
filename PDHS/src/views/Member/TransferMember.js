@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from "axios";
 import { makeStyles } from '@material-ui/core/styles';
+import { TextField, InputAdornment } from "@material-ui/core";
+import { Switch } from '@material-ui/core';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 
 import { ValidatorForm, TextValidator, TextValidatorcvariant} from 'react-material-ui-form-validator';
 import Drawer from '@material-ui/core/Drawer';
@@ -11,6 +14,7 @@ import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 
+import Container from '@material-ui/core/Container';
 import Box from '@material-ui/core/Box';
 import Grid from "@material-ui/core/Grid";
 import Divider from '@material-ui/core/Divider';
@@ -29,6 +33,14 @@ import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
 import moment from "moment";
 
+import VsButton from "CustomComponents/VsButton"; 
+import VsSelect from "CustomComponents/VsSelect";
+import VsRadio from "CustomComponents/VsRadio";
+import VsCheckBox from "CustomComponents/VsCheckBox";
+import VsCancel from "CustomComponents/VsCancel";
+import VsTextFilter from "CustomComponents/VsTextFilter";
+
+
 import IconButton from '@material-ui/core/IconButton';
 import InfoIcon from '@material-ui/icons/Info';
 import EditIcon from '@material-ui/icons/Edit';
@@ -36,6 +48,8 @@ import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import IndeterminateCheckBoxIcon from '@material-ui/icons/IndeterminateCheckBox';
 import CancelIcon from '@material-ui/icons/Cancel';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import SearchIcon from '@material-ui/icons/Search';
+
 
 //import { NoGroup, JumpButton, DisplayPageHeader, MessageToUser } from 'CustomComponents/CustomComponents.js';
 import { 
@@ -47,10 +61,7 @@ import globalStyles from "assets/globalStyles";
 
 import {setTab} from "CustomComponents/CricDreamTabs.js"
 
-import VsButton from "CustomComponents/VsButton"; 
-import VsSelect from "CustomComponents/VsSelect";
-import VsRadio from "CustomComponents/VsRadio";
-import VsCheckBox from "CustomComponents/VsCheckBox";
+
 //import VsRadioGroup from "CustomComponents/VsRadioGroup";
 
 
@@ -84,10 +95,12 @@ export default function TransferMember(props) {
 	const [memberList, setMemberList] = useState([]);
 	const [transferMemberList, setTransferMemberList] = useState([]);
 	const [balanceMemberList, setBalanceMemberList] = useState([]);
-	const [hodMemberList, setHodmemberList] = useState([]);
+	const [hodMemberList, setHodMemberList] = useState([]);
+	//const [onlyHodNameList, setOnlyHodNameList] = useState([]);
 	
 	const [hodTransfer, setHodTransfer] = useState(false);
-	const [familyHod, setFamilyHod] = useState("");
+	const [familyHodjunked, setFamilyHodjunked] = useState("");
+	const [familyHodRec, setFamilyHodRec] = useState(null);
 	const [mergedOrCreate, setMergeOrCreate] = useState(MERGECREATEARRAY[1].value);
 	const [relation, setRelation] = useState([]);
 
@@ -101,6 +114,8 @@ export default function TransferMember(props) {
 	const [msg2,  setMsg2] = useState("");
 	const [registerStatus, setRegisterStatus] = useState(0);
 	
+	const [textInput, setTextInput] = useState("xxxx");
+	
 	// show in accordion
 	const [expandedPanel, setExpandedPanel] = useState("");
 	const handleAccordionChange = (panel) => (event, isExpanded) => {
@@ -108,6 +123,7 @@ export default function TransferMember(props) {
     setRegisterStatus(0);
   };
 
+	const [isDrawerOpened, setIsDrawerOpened] = useState("");
 
 	useEffect(() => {
 		async function fetchFamilyHodNames() {
@@ -116,16 +132,19 @@ export default function TransferMember(props) {
 			if (hodMemberList.length === 0) {
 				let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/hod/all`;
 				var resp = await axios.get(myUrl);
-				var tmpList = [].concat(resp.data);
+				var tmpList = [].concat(resp.data.filter(x => x.hid !== props.memberList[0].hid));
 				for (var i=0; i<tmpList.length; ++i) {
 					tmpList[i]["mergedName"] = getMemberName(tmpList[i], false, false);
 				}
-				tmpList = lodashSortBy(tmpList, 'mergedName');
-				setHodmemberList(tmpList);
-				setFamilyHod(tmpList[0].mergedName);
+				//tmpList = lodashSortBy(tmpList, 'mergedName');
+				//setOnlyHodNameList(lodashMap(tmpList, 'mergedName'));
+				//setHodMasterMemberList(tmpList);
+				
+				setHodMemberList(tmpList);
+				//setFamilyHod(tmpList[0].mergedName);
 			}
 			else {
-				setFamilyHod(hodMemberList[0].mergedName);
+				//setFamilyHod(hodMemberList[0].mergedName);
 			}
 		} catch (e) {
 			console.log(e);
@@ -248,7 +267,23 @@ function handleSelectMemberCb(idx) {
 		setMergeOrCreate("MERGE");		// All the members selected. Has to be merge only
 }
 
-function handleMergeOrCreate(newValue) {
+function orghandleMergeOrCreate(newValue) {
+	if ((balanceMemberList.length === 0) && (newValue === "CREATE")) {
+		showInfo("Create new family not permitted if all members selected for transfer");
+	}
+	else {
+		if (newValue === "CREATE") {
+			var tmp = cbArray.find(x => x !== 0);
+			//console.log(tmp);
+			setNewHod(tmp);
+		}
+		setMergeOrCreate(newValue);
+	}
+}
+
+function handleMergeOrCreate() {
+	var newValue = (mergedOrCreate === "CREATE") ? "MERGE" : "CREATE";
+	
 	if ((balanceMemberList.length === 0) && (newValue === "CREATE")) {
 		showInfo("Create new family not permitted if all members selected for transfer");
 	}
@@ -266,7 +301,7 @@ function handleMergeOrCreate(newValue) {
 function preFinalStage() {	
 	if (mergedOrCreate === "MERGE") {
 		setMsg1(`Transfer members to family of`);
-		setMsg2(`${familyHod}`);
+		setMsg2(`${(familyHodRec) ? familyHodRec.mergedName : ""}`);
 	}
 	else {
 		setMsg1('Transfer members to new family');
@@ -278,77 +313,13 @@ function preFinalStage() {
 
 
 function handleSubmit() {
+	if ((mergedOrCreate === "MERGE") && (!familyHodRec)) {
+		showInfo("Family not selected");
+		return;
+	}
+	
 	preFinalStage();
 	setStage("FINALSTAGE");
-}
-
-
-// old functions
-function junkhandleNewHod(index) {
-		setNewHod(memberList[index].mid);
-}
-
-function junkhandleStage2() {
-	// Members selected. Now get the relation of members wrt HOD
-	var newHodRec = memberList.find(x => x.mid === newHod);
-	var otherArray = [];
-	var tmpRelations = ["Self"]
-	for (var i=0; i<memberList.length; ++i) {
-		if (memberList[i].mid !== newHod) {
-			otherArray.push(memberList[i]);
-			tmpRelations.push(memberList[i].relation);
-			console.log(memberList[i].mid, memberList[i].relation);
-		}
-	}
-	
-	setSelectedMemberList([newHodRec].concat(otherArray));
-	setRelation(tmpRelations);	
-	setStage("STAGE3");
-}
-
-function junkhandleStage3() {
-	handleCeasedSubmit();
-}
-
-async function junkhandleCeasedSubmit() {
-	var midList = lodashMap(memberList, 'mid');
-	var myInfo = {
-		hid:  props.memberList[0].hid,
-		ceasedMid: props.selectedMid,
-		ceasedDate: emurDate1.toDate(),
-		newHod: 0,
-		midList: [],
-		relationList: []
-	}
-	if (props.hodMid === props.selectedMid) {
-		myInfo.newHod = newHod;
-		myInfo.midList = midList;
-		myInfo.relationList = relation;
-	}
-	console.log(myInfo);
-	myInfo = encodeURIComponent(JSON.stringify(myInfo));
-	try {
-		// if admin then update else apply
-		//let myUrl = "";
-		//let mode = "";
-		
-		let myUrl = (hasPRWSpermission()) 
-			? `${process.env.REACT_APP_AXIOS_BASEPATH}/member/ceased/${myInfo}`
-			: `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/ceased/${sessionStorage.getItem("mid")}/${myInfo}`;
-		var resp = await axios.get(myUrl);
-		
-		props.onReturn.call(this, {
-			status: (hasPRWSpermission() ? STATUS_INFO.SUCCESS : STATUS_INFO.INFO),
-			data: resp.data,
-			msg: (hasPRWSpermission() ? `Successfully set ${ceasedName} as ceased.` : `Successfully applied for ${ceasedName} as ceased. Your application id ref. ${resp.data.id}`)
-		});
-	} catch (e) {
-		console.log(e);
-		props.onReturn.call(this, {status: STATUS_INFO.ERROR,  msg: `Error setting ${ceasedName} as ceased.`});
-	}	
-	
-	//props.onReturn.call(this, {status: STATUS_INFO.ERROR, msg: `Error ceased member`});
-	return;
 }
 
 // Transfer functions
@@ -415,10 +386,10 @@ function handleSelectRelationBack() {
 	setStage("SELECTFAMILY");
 }
 
-function handleSelectHodSubmit() {
+function JUnkedhandleSelectHodSubmit() {
 	var tmpRelation = [];
 	for(var i=0; i<transferMemberList.length; ++i) {
-		tmpRelation.push((transferMemberList[i].mid === familyHod) ? "Self" : transferMemberList[i].relation)
+		tmpRelation.push((transferMemberList[i].mid === familyHodjunked) ? "Self" : transferMemberList[i].relation)
 	}
 	setRelation(tmpRelation);
 	setStage("NEWRELATION");
@@ -428,35 +399,83 @@ function handleSelectHodSubmit() {
 
 
 async function handleFinalStageSubmit() {
+	
 	var myData = {
 		hid: props.memberList[0].hid,
-		transferMidList: cbArray.filter(x => x !== 0),
-		newFamilyMode:  mergedOrCreate
+		transferMidList: [],
+		transferNameList: [],
+		transferRelation: [],
+		createNewFamily:  (mergedOrCreate === "CREATE"),
+		// Required if CREATE
+		newHodMid: 0,						
+		newHodName: "",
+		// Required if MERGED		
+		mergedFamilyHid: 0, 	
+		mergedFamilyHeadName: "",
+		// Required if HOD also transfer
+		balanceFamilyHodMid: 0,
+		balanceFamilyHodName: "",
+		balanceFamilyMid: [],
+		balanceFamilyName: [],
+		balanceFamilyRelation: []
+	};
+	
+	for(var i=0; i< cbArray.length; ++i) {
+		if (cbArray[i] !== 0) {
+			var tmpRec = props.memberList.find(x => x.mid === cbArray[i]);
+			myData.transferMidList.push(tmpRec.mid);
+			myData.transferNameList.push(getMemberName(tmpRec, false, false));
+			myData.transferRelation.push(((mergedOrCreate === "CREATE") && (tmpRec.mid === newHod)) ? "Self" : relation[i]);
+		}
 	}
 	
+	if (myData.createNewFamily) {
+		myData.newHodMid = newHod;
+		var tmpRec = props.memberList.find(x => x.mid === newHod);
+		myData.newHodName = getMemberName(tmpRec, false, false);
+	}
+	else {
+		//var tmpRec = hodMemberList.find(x => x.mergedName === familyHod);
+		//myData.mergedFamilyHid = tmpRec.hid;
+		myData.mergedFamilyHeadName = familyHodRec.mergedName;		
+	}
+	
+	if (cbArray.includes(newHod)) {
+		// if HOD is also getting transferred then
+		myData.balanceFamilyHodMid = balanceHod;
+		var tmpRec = props.memberList.find(x => x.mid === balanceHod);
+		myData.balanceFamilyHodName = getMemberName(tmpRec, false, false);
+		//console.log(memberList);
+		//console.log(balanceHod, tmpRec);
+		for(var i=0; i<memberList.length; ++i) {
+			if (!cbArray.includes(memberList[i].mid)) {
+				myData.balanceFamilyMid.push(memberList[i].mid);
+				myData.balanceFamilyName.push(memberList[i].mergedName);
+				myData.balanceFamilyRelation.push((memberList[i].mid === balanceHod) ? "Self" : relation[i]);
+				
+			}
+		}
+		
+	}
+	console.log(myData);
+
 	let myMsg = '';
 	let myStatus;
 	let tmp = encodeURIComponent(JSON.stringify(myData));
 		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/transfermember/${props.hodMid}/${sessionStorage.getItem('mid')}/${tmp}`;
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/movemember/${props.hodMid}/${sessionStorage.getItem('mid')}/${tmp}`;
 
 			let resp = await axios.get(myUrl);
-			myMsg = `Successfully applied for Gotra, Caste change. Application reference ${resp.data.id}.`;
+			myMsg = `Successfully applied moving members. Application reference ${resp.data.id}.`;
 			myStatus = STATUS_INFO.SUCCESS;
 		} catch (e) {
 			console.log(e);
-			myMsg = `Error Transferring members`;
+			myMsg = `Error Moving members`;
 			myStatus = STATUS_INFO.ERROR;
 		}
 		props.onReturn.call(this, {status: myStatus,  msg: myMsg});
 }
 
-function junkhandleFinalStageBack() {
-	if (mergedOrCreate === "MERGE")
-		setStage("SELECTRELATION");
-	else
-		setStage("NEWRELATION");
-}
 
 function Display_select_to_transfer() {
 return (	
@@ -491,6 +510,7 @@ return (
 function Display_merge_or_create() {
 return (
 <div>
+{/*
 	{MERGECREATEARRAY.map( (m, index) => {
 		return (
 			<Grid key={"MERGEORCREATEITEM"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
@@ -503,48 +523,24 @@ return (
 			</Grid>	
 		)}
 	)}
+*/}
+	<Grid style={{marginTop: "5px", marginBottom: "5px" }} className={gClasses.noPadding} key="LOGINOPTION" container align="center">
+		<Grid item xs={5} sm={5} md={5} lg={5} >
+			<Typography style={{marginTop: "10px"  }} className={gClasses.title}>{`Merge with family`}</Typography>
+		</Grid>
+		<Grid item xs={2} sm={2} md={2} lg={2} >
+			<Switch color="primary" checked={mergedOrCreate === "CREATE"} onChange={handleMergeOrCreate} />
+		</Grid>
+		<Grid item xs={5} sm={5} md={5} lg={5} >
+			<Typography style={{marginTop: "10px"  }} className={gClasses.title}>{`Create new family`}</Typography>
+		</Grid>
+	</Grid>	
+
 </div>	
 )}
 
 /*
-		<Typography align="center" className={gClasses.title}>{`Select relation with ${familyHod}`}</Typography>
-		<br />
-		<Grid key="SPLIT3" className={gClasses.noPadding} container  alignItems="flex-start" >
-			<Grid item xs={8} sm={8} md={8} lg={8} >
-				<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
-			</Grid>	
-			<Grid item xs={4} sm={4} md={4} lg={4} >
-				<Typography className={gClasses.titleOrange}>{"Relation"}</Typography>
-			</Grid>
-		</Grid>				
-		{memberList.map( (m, index) => {
-			if (!cbArray.includes(m.mid)) return;
-
-			var tmpRelationList = RELATION;
-			if (relation[index] === "Self")
-				tmpRelationList = SELFRELATION;
-			else if (m.gender === "Male")
-				tmpRelationList = GENTSRELATION;
-			else if (m.gender === "Female")
-				tmpRelationList = LADIESRELATION;
-			else
-				tmpRelationList = RELATION;
-			return (
-				<Grid key={"SPLITARRAY3"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
-				<Grid style={{marginTop: "10px"}}  item xs={7} sm={7} md={7} lg={7} >
-					<Typography style={{marginLeft: "10px", marginTop: "10px" }} className={gClasses.title}>{getMemberName(m, false, false)}</Typography>
-				</Grid>	
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} 
-					options={tmpRelationList} value={relation[index]} onChange={(event) => { handleNewRelation(event.target.value, index); }} />
-				</Grid>
-				</Grid>	
-			)}
-		)}	
-
-*/
-
-function Display_select_merging_family() {
+function Junked_Display_select_merging_family_working() {
 return (
 <div>
 	<Typography align="center" className={gClasses.title}>Select Family</Typography>
@@ -560,8 +556,41 @@ return (
 	<br />
 </div>	
 )}
+*/
+/*
+function arun(event, values) {
+console.log(values);
+}
+*/
 
-function Display_select_hod_for_new_family() {
+function Display_select_merging_family() {
+return (
+<div>
+	<Typography align="center" className={gClasses.title}>Select Family</Typography>
+	<Grid key="SELECTFAMILY" className={gClasses.noPadding} container  alignItems="flex-start" >
+		<Grid item xs={4} sm={4} md={4} lg={4} >
+			<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Family Head</Typography>
+		</Grid>
+		<Grid item xs={8} sm={8} md={8} lg={8} >
+			<Autocomplete
+				disablePortal
+				id="HODNAME"
+				defaultValue={familyHodRec}
+				onChange={(event, values) => setFamilyHodRec(values) }
+				style={{paddingTop: "10px" }}
+				getOptionLabel={(option) => option.mergedName || ""}
+				options={hodMemberList}
+				sx={{ width: 300 }}
+				renderInput={(params) => <TextField {...params} />}
+			/>			
+		</Grid>
+	</Grid>
+	<br />
+</div>	
+)}
+
+
+function Display_select_hod_for_new_family() {	
 return (
 <div>
 	<Grid key="SELECTHODHDR" className={gClasses.noPadding} container  alignItems="flex-start" >
@@ -570,7 +599,7 @@ return (
 			<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
 		</Grid>	
 		<Grid item xs={2} sm={2} md={2} lg={2} >
-			<Typography className={gClasses.titleOrange}>{"F.Head"}</Typography>
+			<Typography className={gClasses.titleOrange}>{"FamilyHead"}</Typography>
 		</Grid>
 		<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 	</Grid>	
@@ -593,7 +622,7 @@ return (
 function Display_select_relation_with_hod() {
 return (	
 <div>
-	<Grid key="Display_select_relation_with_hod" className={gClasses.noPadding} container  alignItems="flex-start" >
+	<Grid style={{marginTop: "10px" }}key="Display_select_relation_with_hod" className={gClasses.noPadding} container  alignItems="flex-start" >
 		<Grid item xs={8} sm={8} md={8} lg={8} >
 			<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
 		</Grid>	
@@ -601,12 +630,11 @@ return (
 			<Typography className={gClasses.titleOrange}>{"Relation"}</Typography>
 		</Grid>
 	</Grid>				
-	<br />
 	{memberList.map( (m, index) => {
 			//console.log(m.mid);
 			if (!cbArray.includes(m.mid)) return;
 			var tmpRelation = "";
-			
+			//console.log(mergedOrCreate, getMemberName(m, false, false), relation[index]);
 			if (mergedOrCreate === "CREATE") {
 				tmpRelation = (m.mid === newHod) ? "Self" : relation[index];
 			}
@@ -635,8 +663,19 @@ return (
 					<Typography style={{marginLeft: "10px", marginTop: "10px" }} className={gClasses.title}>{getMemberName(m, false, false)}</Typography>
 				</Grid>	
 				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} 
+					{/*<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} 
 					options={tmpRelationList} value={tmpRelation} onChange={(event) => { handleNewRelation(event.target.value, index); }} />
+					*/}
+					<Autocomplete
+						disablePortal
+						id={"ORGFAMILYRELATIONSEL"+index}
+						defaultValue={tmpRelation}
+						onChange={(event,values) => { handleNewRelation(values, index); }}
+						style={{paddingTop: "10px" }}
+						options={tmpRelationList}
+						sx={{ width: 300 }}
+						renderInput={(params) => <TextField {...params} />}
+					/>
 				</Grid>
 				</Grid>	
 			)}
@@ -680,8 +719,19 @@ return (
 					<Typography style={{marginLeft: "10px", marginTop: "10px" }} className={gClasses.title}>{getMemberName(m, false, false)}</Typography>
 				</Grid>	
 				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} 
+					{/*<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} 
 					options={tmpRelationList} value={tmpRelation} onChange={(event) => { handleNewRelation(event.target.value, index); }} />
+					*/}
+					<Autocomplete
+						disablePortal
+						id={"NEWFAMILYRELATIONSEL"+index}
+						defaultValue={tmpRelation}
+						onChange={(event,values) => { handleNewRelation(values, index); }}
+						style={{paddingTop: "10px" }}
+						options={tmpRelationList}
+						sx={{ width: 300 }}
+						renderInput={(params) => <TextField {...params} />}
+					/>
 				</Grid>
 				</Grid>	
 			)}
@@ -700,7 +750,7 @@ return (
 			<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
 		</Grid>	
 		<Grid item xs={2} sm={2} md={2} lg={2} >
-			<Typography className={gClasses.titleOrange}>{"F.Head"}</Typography>
+			<Typography className={gClasses.titleOrange}>{"FamilyHead"}</Typography>
 		</Grid>
 		<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 	</Grid>	
@@ -737,6 +787,8 @@ function getHodName(midNumber) {
 	return  tmp;
 }
 
+
+
 return (
 <div>
 	<Typography align="center" className={gClasses.pdhs_title}>{header}</Typography>
@@ -766,7 +818,7 @@ return (
 		<Accordion expanded={expandedPanel === "merge_with_family"} onChange={handleAccordionChange("merge_with_family")}>
 		<Box align="right" className={(expandedPanel === "merge_with_family") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
-			<Typography align="left">{"Merge with family of " + familyHod}</Typography>
+			<Typography align="left">{"Merge with family of " + ((familyHodRec) ? familyHodRec.mergedName : "")}</Typography>
 		</AccordionSummary>
 		</Box>
 		<Display_select_merging_family />
@@ -786,7 +838,7 @@ return (
 		<Accordion expanded={expandedPanel === "select_relation_with_hod"} onChange={handleAccordionChange("select_relation_with_hod")}>
 		<Box align="right" className={(expandedPanel === "select_relation_with_hod") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />} >
-			<Typography align="left" >{"Relation with "+ ((mergedOrCreate === "MERGE") ? familyHod : getHodName(newHod))}</Typography>
+			<Typography align="left" >{"Relation with "+ ((mergedOrCreate === "MERGE") ? ((familyHodRec) ? familyHodRec.mergedName : "")  : getHodName(newHod))}</Typography>
 		</AccordionSummary>
 		</Box>
 		<Display_select_relation_with_hod />
@@ -835,7 +887,7 @@ return (
 		<br />
 		<Grid key={"FINALSTAGEBUTTON"} className={gClasses.noPadding} container  alignItems="flex-start" >
 			<Grid item xs={5} sm={5} md={5} lg={5} >
-				<VsButton align="right" name={(hasPRWSpermission()) ? "Submit" : "Apply"}  onClick={handleFinalStageSubmit} />
+				<VsButton align="right"  name={"Apply"}  onClick={handleFinalStageSubmit} />
 			</Grid>
 			<Grid item xs={2} sm={2} md={2} lg={2} />
 			<Grid item xs={5} sm={5} md={5} lg={5} >

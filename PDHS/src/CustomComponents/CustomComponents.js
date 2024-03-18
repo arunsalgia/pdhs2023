@@ -1120,7 +1120,7 @@ return (
 	</Grid>
 	<Grid  item xa={1} sm={1} md={1} lg={1} >
 		<Typography>
-		 <span><MoreVertIcon color="primary" size="small" onClick={props.onClick}	 /></span>
+		 <span><MoreVertIcon color="primary" size="small" onClick={props.onClick} id={props.id}	 /></span>
 		</Typography>
 	</Grid>
 </Grid>
@@ -1269,6 +1269,20 @@ return (
 			<Typography style={(props.style) ? props.style : {}} className={gClasses.pdhs_name} >{props.name}</Typography>
 		</Grid>
 		<Grid item xs={7} sm={7} md={7} lg={7} >
+			<Typography style={(props.style) ? props.style : {}} className={gClasses.pdhs_value} >{props.value}</Typography>
+		</Grid>
+	</Grid>
+)}
+
+	
+export function DisplayApplicationNameValueNameBig(props) {
+	const gClasses = globalStyles();
+return (	
+	<Grid key={"APPLLINE"+props.name} className={gClasses.noPadding} container  alignItems="flex-start" >
+		<Grid item xs={7} sm={7} md={7} lg={7} >
+			<Typography style={(props.style) ? props.style : {}} className={gClasses.pdhs_name} >{props.name}</Typography>
+		</Grid>
+		<Grid item xs={5} sm={5} md={5} lg={5} >
 			<Typography style={(props.style) ? props.style : {}} className={gClasses.pdhs_value} >{props.value}</Typography>
 		</Grid>
 	</Grid>

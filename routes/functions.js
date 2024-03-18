@@ -410,9 +410,21 @@ function getMemberName(rec) {
 	return tmp;
 }
 
+function getAge(xxx) {
+  let d = new Date(xxx);
+  let myyear = d.getFullYear();
+  //console.log(d, myyear);
+  let age = "-"
+  if (myyear > 1900) {
+    let tmp = (new Date().getTime() - d.getTime()) / 86400000;
+    age = Math.round(tmp / 365).toString();
+  }
+	//console.log(age);
+  return age;
+}	
 module.exports = {
 	ALPHABETSTR,
-  getLoginName, getDisplayName,
+  getLoginName, getDisplayName, getAge,
   encrypt, decrypt, dbencrypt, dbdecrypt,
   dbToSvrText, svrToDbText,
   sendCricMail, sendCricHtmlMail,

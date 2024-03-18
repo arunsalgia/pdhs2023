@@ -89,7 +89,7 @@ export default function NewHod(props) {
 	useEffect(() => {
 		// get new HOD record
 		let memRec = props.memberList.find(x => x.mid === props.selectedMid);
-		setHeader("Apply for new F.Head " + getMemberName(memRec, false, false) );
+		setHeader(`Apply for ${getMemberName(memRec, false, false)} as new Family Head` );
 		setNewHodRec(memRec);
 
 		// get current HOD record
@@ -158,7 +158,7 @@ return (
 		<br />
 		<Typography align="center" className={gClasses.title}>{header}</Typography>
 		<br />
-		<Typography align="center" className={gClasses.pdhs_title}>{`Relation of members with new F.Head`}</Typography>
+		<Typography align="center" className={gClasses.pdhs_title}>{`Relation of members with new Family Head`}</Typography>
 		<br />
 		{memberList.map( (m, index) => {
 			//var tmpRelation = relation[index];
