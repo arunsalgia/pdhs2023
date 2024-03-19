@@ -260,7 +260,7 @@ export default function Prws() {
 	}
 
 	async function getMemeberPage(filterList, pageNumber, save=true)  {
-		console.log(save);
+		//console.log(save);
 		var myData = encodeURIComponent(JSON.stringify({
 			pageNumber: pageNumber,
 			pageSize:	ROWSPERPAGE,
@@ -492,7 +492,7 @@ export default function Prws() {
  const handlePrwsContextMenu = (e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) => {
 	 e.preventDefault();
 	setGrpAnchorEl(e.currentTarget);
-	//console.log(e.currentTarget);
+	console.log(e.currentTarget);
 	 //console.log(radioMid);
 	 const {pageX, pageY } = e;
 	 //setAnchorEl(event.currentTarget);
@@ -513,10 +513,10 @@ export default function Prws() {
 		//console.log(contextParams);
 		var myStyle={top: `${contextParams.y}px` , left: `${contextParams.x}px` };
 		console.log(myStyle);
-		//console.log(grpAnchorEl);
+		console.log(menuRef);
 		//anchorEl={grpAnchorEl}
 	return(
-	<div ref={menuRef} className='absolute z-20' style={myStyle}>
+	<div id="PRWSMENU" ref={menuRef} className='absolute z-20' style={myStyle}>
 	<Menu
 		id="prws-menu"
 		anchorEl={grpAnchorEl}
@@ -690,9 +690,8 @@ export default function Prws() {
 </Box>*/}
 		<PersonalHeader dispType={dispType} />
 		{/* display members here */}
-			{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
+		{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
 			if (m.ceased) return null;		
-			//var cityRec = cityArray.find( x => x.hid === m.hid ); // get City record
 			var memberCity = getMyCity(m.hid);
 			//console.log(memberCity);
 			//console.log(m.email);

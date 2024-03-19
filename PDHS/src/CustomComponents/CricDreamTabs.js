@@ -345,7 +345,7 @@ export function CricDreamTabs() {
 	//const handleAdminApplication = () => { handleClose(); setMenuValue(1003);}
 	
   function DisplayCdItems() {
-		console.log("CD Value", value);
+		//console.log("CD Value", value);
     switch(value) {
       case 1: return <Prws />
 

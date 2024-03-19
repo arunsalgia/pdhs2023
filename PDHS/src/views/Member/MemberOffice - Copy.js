@@ -403,17 +403,7 @@ export default function MemberOffice(props) {
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
 		{/*<DisplayOfficeButtons />*/}
-		{/*<DisplayOfficeInformation />*/}
-		{memberArray.map( (m, index) => {
-			let myInfo = getMemberTip(m, dispType, props.city);		// + "<br />" + getOfficeTip(m, dispType);
-			return (
-			<PersonalOffice key={"Office"+m.mid} m={m} dispType={dispType}  index={index} 
-				checked={radioRecord == m.order} onClick={(event) => { setRadioRecord(m.order); handleMemberOfficeContextMenu(event); } }
-				datatip={myInfo} 
-			/>
-		)}
-	)}	
-{contextParams.show && <MemberOfficeContextMenu /> }	
+	<DisplayOfficeInformation />
 	<DisplayAllToolTips />
 	<Drawer style={{ width: "100%"}} anchor="top" variant="temporary" open={isDrawerOpened != ""} >
 	<Container component="main" maxWidth="xs">	

@@ -1171,7 +1171,6 @@ return (
 <Grid key={"MEMGRID"+props.index} className={gClasses.noPadding} container justifyContent="center" alignItems="center" >
 	<Grid align="left" item xs={8} sm={8} md={4} lg={4} >
 		<Typography>
-			{/*<span><VsRadioSa checked={props.checked}  onClick={props.onClick}  /></span>*/}
 			<span style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2Blue } >{getMemberName(m)+" ("+dispAge(m.dob, m.gender)+")"}</span>
 			<span align="left" data-for={"MEMBER"+m.mid} data-tip={props.datatip} data-iscapture="true" >
 				<InfoIcon color="primary" size="small"/>
@@ -1191,7 +1190,7 @@ return (
 	<Grid align="left" item xs={3} sm={3} md={1} lg={1} >
 		<Typography className={gClasses.patientInfo2}>{m.officePhone}</Typography>
 	</Grid>
-	<Grid align="left" item xs={1} sm={1} md={1} lg={1} >
+	<Grid align="center" item xs={1} sm={1} md={1} lg={1} >
 		<span><MoreVertIcon color="primary" size="small" onClick={props.onClick}	 /></span>
 	</Grid>
 </Grid>

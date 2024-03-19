@@ -98,14 +98,15 @@ const MasterFilterItems = [
 	];
 var inputName="";
 
-var menuMember = {};
-function setMenuMember(p) { menuMember = p; }
+
 
 //const ROWSPERPAGE = isMobile() ? 7 : 12;
 
 const InitialContextParams = {show: false, x: 0, y: 0};
 
 var currentPage = 0;
+var menuMember = null;
+function setMenuMember(p) { menuMember = p; }
 
 export default function Humad() {
 	const adminInfo = getAdminInfo();
@@ -161,7 +162,7 @@ export default function Humad() {
 	const [grpAnchorEl, setGrpAnchorEl] = React.useState(null);
 	const grpOpen = Boolean(grpAnchorEl);
 	
-	let menuRef = useRef();
+	let menuRef = useRef(null);
 	
   useEffect(() => {
     function handleResize() {
@@ -329,10 +330,6 @@ export default function Humad() {
 
   function displayMember() {
 		handleHumadMenuClose();
-		//console.log(menuMember);
-    //sessionStorage.setItem("memberHid", menuMember.hid);
-    //sessionStorage.setItem("memberMid", menuMember.mid);
-    //setTab(100);
 		setDisplayPage(PAGELIST.FAMILY, menuMember.hid, menuMember.mid);
   }
 	
@@ -395,16 +392,65 @@ export default function Humad() {
 		}			
 	}
 	
+
+	function HumadContextMenu() {
+		if (!menuMember) return;	
+		var tmpHumadRec = humadArray.find(x => x.mid === menuMember.mid);
+		var myStyle={top: `${contextParams.y}px` , left: `${contextParams.x}px` };
+		console.log(myStyle);
+	return(
+	<div id="HUMADMENUDIV" ref={menuRef} className='absolute z-20' style={myStyle}>
+	<Menu id="humad-menu1" anchorEl={grpAnchorEl} 
+		anchorOrigin={{vertical: 'top', horizontal: 'center' }}
+		// keepMounted
+		transformOrigin={{ vertical: 'top',horizontal: 'center' }}
+		open={contextParams.show} onClose={handleHumadMenuClose}
+	>
+		<Typography className={gClasses.patientInfo2Blue} style={{paddingLeft: "5px", paddingRight: "5px"}}>{getMemberName(menuMember, false, false)}</Typography>
+		<MenuItem disabled={tmpHumadRec.membershipNumber.substr(0, 1) === HUMADCATEGORY[0].short} onClick={upgradeHumad}>
+			<Typography>Upgrade</Typography>
+		</MenuItem>
+		<Divider />
+		<MenuItem onClick={displayMember}>
+			<Typography>Family</Typography>
+		</MenuItem>
+	</Menu>	
+	</div>
+	)}
 	
-	function JunkDisplayAllHumad() {
-		if (memberArray.length === 0) return null;
-		return (
-		<div>
-		<Box  key={"MEMHDRBOX"} className={gClasses.boxStyle} borderColor="black" borderRadius={30} border={1} >
-		<Grid key={"MEMHDRGRID"} className={gClasses.noPadding} container align="center" alignItems="center" >
+	const handleHumadContextMenu = (e, id) => {
+		e.preventDefault();
+		console.log(id);
+		console.log(e.currentTarget);
+		setGrpAnchorEl(e.currentTarget);
+		const {pageX, pageY } = e;
+		console.log(pageX, pageY);
+		setContextParams({show: false, x: pageX, y: pageY});
+		setContextParams({show: true, x: pageX, y: pageY});
+	}
+	 
+	function handleHumadMenuClose() { setContextParams({show: false, x: 0, y: 0}); }
+ 
+	function getMyCity(hid) {
+		var myCity = "";
+		for(var i=0; i<cityArray.length; ++i) {
+			//console.log(cityArray[i]);
+			if (cityArray[i].hidList.includes(hid)) {
+				myCity = cityArray[i].city;
+				break;
+			}
+		}
+		return myCity;
+	}
+	
+	function DisplayHumadHeader() {
+	return (
+		<Box  key={"MEMBOXHDR"} className={gClasses.boxStyleOdd} borderColor="black" borderRadius={30} border={1} >
+		<Grid key={"MEMGRIDHDR"} className={gClasses.noPadding} key={"SYMHDR"} container align="center" alignItems="center" >
 		<Grid align="left" item md={5} lg={5} >
 			<Typography className={gClasses.patientInfo2Brown}>Name</Typography>
 		</Grid>
+		
 		<Grid align="center" item md={1} lg={1} >
 			<Typography className={gClasses.patientInfo2Brown}>Mem. No.</Typography>
 		</Grid>
@@ -423,155 +469,10 @@ export default function Humad() {
 		<Grid align="center" item md={1} lg={1} >
 		</Grid>
 		</Grid>
-		</Box>
-		{memberArray.slice(page*ROWSPERPAGE, (page+1)*ROWSPERPAGE).map( (m, index) => {
-			let h = humadArray.find(x => x.mid === m.mid);
-			if (!h) return null;
-			let memDateStr = dateString(h.membershipDate);
-			return (
-			<Box  style={{paddingLeft: "5px", paddingRight: "5px" }} className={gClasses.boxStyle} borderColor="black" borderRadius={30} border={1} >
-			<Grid key={"MEMGRID"+index} className={gClasses.noPadding} container align="center" alignItems="center" >
-				<Grid align="left" item md={5} lg={5} >
-					<Typography className={gClasses.patientInfo2}>{getMemberName(m)+"(" + dispAge(m.dob, m.gender) + ")"}</Typography>
-				</Grid>
-				<Grid align="center" item md={1} lg={1} >
-					<Typography className={gClasses.patientInfo2}>{h.membershipNumber}</Typography>
-				</Grid>
-				<Grid align="center" item md={1} lg={1} >
-					<Typography className={gClasses.patientInfo2}>{m.mobile}</Typography>
-				</Grid>
-				<Grid align="center" item md={1} lg={1} >
-					<Typography className={gClasses.patientInfo2}>{m.mid}</Typography>
-				</Grid>
-				<Grid align="center" item md={1} lg={1} >
-					<Typography className={gClasses.patientInfo2}>{memDateStr}</Typography>
-				</Grid>
-				<Grid align="center" item md={2} lg={2} >
-					<Typography className={gClasses.patientInfo2}>{h.remarks}</Typography>
-				</Grid>
-				<Grid align="center" item md={1} lg={1} >
-				{((humadAdmin) && (h.membershipNumber.substr(0, 1) !== HUMADCATEGORY[0].short)) &&
-          <div>
-					<EditRoundedIcon color='primary'  onClick={() => upgradeHumad(h) } />
-					<Upgrade color='primary'  onClick={() => upgradeHumad(h) } />
-          </div>
-				}
-				</Grid>
-			</Grid>
-			</Box>
-			)}
-		)}	
-		</div>	
-		)}
+		</Box>	
+	)};
 	
-	function JunkDisplayMobileHumad() {
-		if (memberArray.length === 0) return null;
-		return (
-		<div>
-		<Box  key={"MEMHDRBOX"} className={gClasses.boxStyle} borderColor="black" borderRadius={30} border={1} >
-		<Grid key={"MEMHDRGRID"} className={gClasses.noPadding} container align="center" alignItems="center" >
-		<Grid align="left" item xs={9} sm={10} md={6} lg={6} >
-			<Typography className={gClasses.patientInfo2Brown}>Name</Typography>
-		</Grid>
-		<Grid align="center" item xs={3} sm={2} md={1} lg={1} >
-			<Typography className={gClasses.patientInfo2Brown}>Mobile</Typography>
-		</Grid>
-		</Grid>
-		</Box>
-		{memberArray.slice(page*ROWSPERPAGE, (page+1)*ROWSPERPAGE).map( (m, index) => {
-			let h = humadArray.find(x => x.mid === m.mid);
-			if (!h) return null;
-			let memDateStr = dateString(h.membershipDate);
-			let myInfo = "Mem.Id. : " + h.mid + "<br />";
-			myInfo +=    "Mem.No. : " +  h.membershipNumber + "<br />";
-			myInfo +=    "Mem.Date: " +  dateString(h.membershipDate);
-			if (h.remarks !== "")
-				myInfo +=  "<br />" + "Remarks:  " + h.remarks;
-			return (
-			<Box  key={"MEMBOX"+index} className={gClasses.boxStyle} borderColor="black" borderRadius={30} border={1} >
-			<Grid key={"MEMGRID"+index} className={gClasses.noPadding} container align="center" alignItems="center" >
-				<Grid align="left" item xs={9} sm={10}>
-					<Typography >
-					<span className={gClasses.patientInfo2}>{getMemberName(m)+"(" + dispAge(m.dob, m.gender) + ")"}</span>
-					{(humadAdmin) &&
-						<span align="left"
-							data-for={"HUMAD"+h.mid}
-							data-tip={myInfo}
-							data-iscapture="true"
-						>
-							<InfoIcon color="primary" size="small"/>
-						</span>
-					}
-					</Typography>
-				</Grid>
-				<Grid align="center" item xs={3} sm={2} >
-					<Typography className={gClasses.patientInfo2}>{m.mobile}</Typography>
-				</Grid>
-				</Grid>
-			</Box>
-			)}
-		)}	
-		</div>	
-	)}
-
-	function HumadContextMenu() {
-		console.log("in HUmadContextMenu");
-		console.log(menuMember);
-		console.log(grpAnchorEl);
-		//let family = (menuMember.hid === loginHid);
-		//let admin = ((adminInfo & (ADMIN.superAdmin | ADMIN.prwsAdmin)) !== 0);
-	
-		//var tmp = menuMember;		//memberArray.find(x => x.mid === menuMember.mid);
-		if (!menuMember) return;	
-		var tmpHumadRec = humadArray.find(x => x.mid === menuMember.mid);
-		var myStyle={top: `${contextParams.y}px` , left: `${contextParams.x}px` };
-	return(
-	<div ref={menuRef} className='absolute z-20' style={myStyle}>
-	<Menu id="pjym-menu" 
-		anchorEl={grpAnchorEl}
-		anchorOrigin={{ vertical: 'top', horizontal: 'center', }}
-		// keepMounted
-		transformOrigin={{ vertical: 'top', horizontal: 'center', }}
-		open={contextParams.show} onClose={handleHumadMenuClose}
-	>
-		<Typography className={gClasses.patientInfo2Blue} style={{paddingLeft: "5px", paddingRight: "5px"}}>{getMemberName(menuMember, false, false)}</Typography>
-		<MenuItem disabled={tmpHumadRec.membershipNumber.substr(0, 1) === HUMADCATEGORY[0].short} onClick={upgradeHumad}>
-			<Typography>Upgrade</Typography>
-		</MenuItem>
-		<Divider />
-		<MenuItem onClick={displayMember}>
-			<Typography>Family</Typography>
-		</MenuItem>
-	</Menu>	
-	</div>
-	)}
-	
-	const handleHumadContextMenu = (e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) => {
-		//console.log("In handleMemberPersonalContextMenu");
-		e.preventDefault();
-		setGrpAnchorEl(e.currentTarget);
-		//console.log(e.currentTarget);
-		//console.log(radioMid);
-		const {pageX, pageY } = e;
-		//console.log(pageX, pageY);
-		setContextParams({show: true, x: pageX, y: pageY});
-	}
-	 
-	function handleHumadMenuClose() { setContextParams({show: false, x: 0, y: 0}); }
- 
-	function getMyCity(hid) {
-		var myCity = "";
-		for(var i=0; i<cityArray.length; ++i) {
-			//console.log(cityArray[i]);
-			if (cityArray[i].hidList.includes(hid)) {
-				myCity = cityArray[i].city;
-				break;
-			}
-		}
-		return myCity;
-	}
-	
-	function DisplayAllHumad() {
+	function DisplayJunkedAllHumad() {
 		if (memberArray.length === 0) return null;
 		return (
 		<div>
@@ -788,7 +689,7 @@ export default function Humad() {
 	);
 	
 	return (
-	<div className={gClasses.webPage} align="center" key="main">
+	<div key="HUMADMAINDEV" className={gClasses.webPage} align="center" key="main">
 	<CssBaseline />
 	<DisplayPageHeader headerName="Humad Samaj" />
 	<DisplayPrwsFilter 
@@ -806,7 +707,53 @@ export default function Humad() {
 		applyClick={() => { addFilterConfirm(""); } }
 		cancelClick={() => { setInputFilterMode(false); setLastFilter(""); } }
 	/>
-	<DisplayAllHumad />
+	{/*<DisplayAllHumad /> */}
+	<DisplayHumadHeader />
+	{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
+		var memberCity = getMyCity(m.hid);
+		let h = humadArray.find(x => x.mid === m.mid);
+		if (!h) return null;
+		var menuIconIdx = "HUMADCLICK"+index;
+		let memDateStr = dateString(h.membershipDate);
+		return (
+		<Box  key={"HUMADBOX"+index} className={((index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd } borderColor="black" borderRadius={30} border={1} >
+		<Grid key={"HUMADGRID"+index} className={gClasses.noPadding} key={"HUMADSYM"+index} container align="center" alignItems="center" >
+			<Grid align="left" item md={5} lg={5} >
+				<Typography>
+					<span style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2Blue } >{getMemberName(m)+" ("+dispAge(m.dob, m.gender)+")"}</span>
+						<span align="left" data-for={"HUMAD"+m.mid} data-tip={getMemberTip(m, dispType, memberCity) } data-iscapture="true" >
+						<InfoIcon color="primary" size="small"/>
+						</span>
+				</Typography>		
+			</Grid>
+			<Grid align="center" item md={1} lg={1} >
+				<Typography className={gClasses.patientInfo2}>{h.membershipNumber}</Typography>
+			</Grid>
+			<Grid align="center" item md={1} lg={1} >
+				<Typography className={gClasses.patientInfo2}>{m.mobile}</Typography>
+			</Grid>
+			<Grid align="center" item md={1} lg={1} >
+				<Typography className={gClasses.patientInfo2}>{m.mid}</Typography>
+			</Grid>
+			<Grid align="center" item md={1} lg={1} >
+				<Typography className={gClasses.patientInfo2}>{memDateStr}</Typography>
+			</Grid>
+			<Grid align="center" item md={2} lg={2} >
+				<Typography className={gClasses.patientInfo2}>{h.remarks}</Typography>
+			</Grid>
+			<Grid  align="center" item md={1} lg={1} >
+				<Typography>
+					<MoreVertIcon id={menuIconIdx} key={menuIconIdx}  className={gClasses.blue} size="small" 
+						onClick={() => { setMenuMember(m);  handleHumadContextMenu(event); } } />
+				</Typography>
+			</Grid>
+		</Grid>
+		</Box>
+		)}
+	)}	
+	{/* Now set Menu which will be shown on selecting member */}
+	{contextParams.show && <HumadContextMenu /> }
+	{/*  Pagination if total records spans more than 1 page */}
 	{(humadCount > ROWSPERPAGE) &&
 		<TablePagination
 			align="right"

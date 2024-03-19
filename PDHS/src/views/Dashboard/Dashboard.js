@@ -185,35 +185,43 @@ import {
 	dateString,
 	getMemberName,
 	getAdminInfo, getAdminRec,
+	showSuccess, showError, showInfo,
 } from "views/functions.js";
 
 
 const IMAGESIZE = 75;
 let first =  true;
 
+var countInfo = null;
+
 export default function Dashboard() {
   const gClasses = globalStyles();
   //const classes = useStyles();
   //const dashClasses = useDashStyles();
 
-  const [countInfo, setCountInfoLocal] = useState({prws: 0, pjym: 0,  humad: 0,  family: 0, application:  0});
+  //const [countInfo, setCountInfoLocal] = useState(null);
 	const [loginUserRec, setLoginUserRec] = useState(JSON.parse(sessionStorage.getItem("memberRec")));
 	const [applMsg, setApplMsg] = useState("");
 	const adminRec = getAdminRec();
 	
   useEffect(() => {
-		getCount();	
+		async function getMemberCount() {
+			try {
+				var myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/count/all/${sessionStorage.getItem("mid")}`;
+				const resp = await axios.get(myUrl);
+				//setCountInfoLocal(resp.data);
+				countInfo = resp.data;
+				setApplMsg(resp.data.application + " application" + ((resp.data.application > 1) ? "s" : ""));
+			}
+			catch (e) {
+				showError("Unable to get member counts for Dashboard");
+			}
+		}
+		
+		getMemberCount();	
 	}, []);
 
-	async function getCount() {
-		//console.log(
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/count/all/${sessionStorage.getItem("mid")}`;
-		const resp = await axios.get(myUrl);
-		setCountInfoLocal(resp.data);
-		//console.log(resp.data.application);
-		setApplMsg(resp.data.application + " application" + ((resp.data.application > 1) ? "s" : ""));
-	}
-	
+
 	function jumpToPrws() {
 		setTab(process.env.REACT_APP_PRWS);
 	}
@@ -247,6 +255,7 @@ export default function Dashboard() {
 	}
 	
 	//console.log(loginUserRec);
+	if (!countInfo) return false;
 	return (
 	<div style={{padding: "10px"}} >
       <GridContainer key="db_gc_ub">

@@ -158,12 +158,10 @@ export default function MemberPersonal(props) {
 	const [contextParams, setContextParams] = useState(InitialContextParams);
 	const [grpAnchorEl, setGrpAnchorEl] = React.useState(null);
 	const grpOpen = Boolean(grpAnchorEl);
-	let menuRef = useRef(null);
-	let newMenuRef = useRef();
-	
+	let menuRef = useRef();
 	
   useEffect(() => {	
-		function handleResize() {
+  function handleResize() {
 			let myDim = getWindowDimensions();
       setWindowDimensions(myDim);
       //console.log(displayType(myDim.width));
@@ -282,6 +280,7 @@ function DisplayPersonalInformation() {
 					datatip={getMemberTip(m, dispType, props.city)} />
 		)}
 	)}
+	{contextParams.show && <MemberPersonalContextMenu /> }		
 	</div>	
 	)}
 
@@ -289,9 +288,7 @@ function DisplayPersonalInformation() {
  
 	function MemberPersonalContextMenu() {
 		//console.log(contextParams);
-		var myStyle={top: `${contextParams.y}px`, left: `${contextParams.x}px` };
-		//console.log(myStyle);
-		//console.log(newMenuRef);
+		var myStyle={top: `${contextParams.y}px` , left: `${contextParams.x}px` };
 		var memberRecord = memberArray.find(x => x.mid === radioMid);
 		if (!memberRecord) return;
 		var myIndex = memberArray.findIndex(x => x.mid === radioMid);
@@ -299,9 +296,12 @@ function DisplayPersonalInformation() {
 		let isFamilyMember = (memberArray[0].hid === loginHid);
 		let admin = ((adminInfo & (ADMIN.superAdmin | ADMIN.prwsAdmin)) !== 0);
 		let isEligible = isEligibleForMarriage(memberRecord);
-		//console.log(newMenuRef);
+		console.log(isEligible, isFamilyMember, admin);
+		console.log(!isEligible);
+		console.log(!(isFamilyMember || admin));
+		console.log(!(isEligible && (isFamilyMember || admin)));
 	return(
-	<div id="MEMPERSMENU" ref={newMenuRef} className='absolute z-20' style={myStyle}>
+	<div ref={menuRef}   className='absolute z-20' style={myStyle}>
 	<Menu
 		id="memberpersonal-menu1"
 		anchorEl={grpAnchorEl}
@@ -345,13 +345,14 @@ function DisplayPersonalInformation() {
 	)}
 	
 	const handleMemberPersonalContextMenu = (e,id) => {
+		//console.log("In handleMemberPersonalContextMenu");
 		e.preventDefault();
-		console.log(e.currentTarget);
 		setGrpAnchorEl(e.currentTarget);
+		//console.log(e.currentTarget);
+		//console.log(radioMid);
 		const {pageX, pageY } = e;
 		//console.log(pageX, pageY);
-		setContextParams({show: false, x: pageX, y: pageY});
-		setContextParams({x: pageX, y: pageY, show: true});
+		setContextParams({show: true, x: pageX, y: pageY});
 	}
 	
 	 
@@ -492,25 +493,11 @@ function DisplayPersonalInformation() {
 		setIsDrawerOpened("");
 	}
 	
-	
 	//console.log(isDrawerOpened);
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
 	<Typography align="right" style={{paddingRight: "10px"}}  className={gClasses.patientInfo2Blue} onClick={handlePersonalAdd} >Add Member</Typography>
-		{/*<DisplayPersonalInformation />*/}
-	<PersonalHeader dispType={dispType} />
-	{memberArray.map( (m, index) => {
-		if (m.ceased) return null;
-		var memberCity = "";		//getMyCity(m.hid);
-		return (
-			<PersonalMember  key={"PERSONALMEMBER"+index} m={m} dispType={dispType}  index={index} id={"PERSONALMEMBER"+index}
-					onClick={(event) => { radioMid = m.mid; handleMemberPersonalContextMenu(event,`PERSONALMEMBER${index}`); }}
-					datatip={getMemberTip(m, dispType, memberCity)} />
-		)}
-	)}	
-	{contextParams.show && 
-		<MemberPersonalContextMenu /> 
-	}		
+	<DisplayPersonalInformation />
 	<DisplayAllToolTips />
 	<Drawer style={{ width: "100%"}} anchor="top" variant="temporary" open={isDrawerOpened != ""} >
 	<Container component="main" maxWidth="xs">	
