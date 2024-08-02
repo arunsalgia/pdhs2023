@@ -51,6 +51,7 @@ import {
 	showError, 
 } from "views/functions.js";
 
+const SHOWMARRIAGEIMAGE = false;
 
 export default function MemberSpouse(props) {
 	//console.log("In spouse 1st line");
@@ -296,12 +297,13 @@ export default function MemberSpouse(props) {
 		<div>
 		<Grid key={"MEMGRIDHDR"} className={gClasses.noPadding} container align="center" alignItems="center" >
 		<Grid item xs={5} sm={5} md={5} lg={5} >
-			<Typography className={gClasses.patientInfo2Brown}>Groom</Typography>
+			<Typography className={gClasses.patientInfo2Brown}>Husband</Typography>
 		</Grid>
 		<Grid item xs={2} sm={2} md={2} lg={2} >
+			<Typography className={gClasses.patientInfo2Brown}>DOM</Typography>
 		</Grid>
 		<Grid item xs={5} sm={5} md={5} lg={5} >
-			<Typography className={gClasses.patientInfo2Brown}>Bride</Typography>
+			<Typography className={gClasses.patientInfo2Brown}>Wife</Typography>
 		</Grid>
 		</Grid>
 		{coupleArray.map( (c, index) => {
@@ -314,7 +316,9 @@ export default function MemberSpouse(props) {
 					<Typography className={gClasses.patientInfo2Blue}>{c.gName}</Typography>
 				</Grid>
 				<Grid item xs={2} sm={2} md={2} lg={2} >
+					{(SHOWMARRIAGEIMAGE) &&
 					<Avatar size="small" variant="circular" src={hands} />
+					}
 					<Typography className={gClasses.patientInfo2Green}>
 						{myDate}
 					</Typography>

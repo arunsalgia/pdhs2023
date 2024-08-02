@@ -91,6 +91,7 @@ import {
 	getAdminInfo,
 	applicationSuccess,
 	getHodCityList,
+	hasHumadpermission,
 } from "views/functions.js";
 
 
@@ -289,7 +290,7 @@ export default function Prws() {
 	
 	
 	function addFilterConfirm(tmpValue) {
-		//console.log("addFilterConfirm", tmpValue);
+		console.log("addFilterConfirm", tmpValue);
 		let finalFilter;
 		let userSelection = ""
 		if (tmpValue.length > 0) 
@@ -515,6 +516,9 @@ export default function Prws() {
 		console.log(myStyle);
 		console.log(menuRef);
 		//anchorEl={grpAnchorEl}
+		// if not humad member and is humad admin then allowd humad upograde
+		var humadUpgradeAllowed = !tmp.humadMember && hasHumadpermission();
+		
 	return(
 	<div id="PRWSMENU" ref={menuRef} className='absolute z-20' style={myStyle}>
 	<Menu
@@ -543,7 +547,7 @@ export default function Prws() {
 		<MenuItem disabled={tmp.pjymMember} onClick={jumpPjym}>
 			<Typography>Pjym Membership</Typography>
 		</MenuItem>
-		<MenuItem disabled={tmp.humadMember} onClick={jumpHumad}>
+		<MenuItem disabled={!humadUpgradeAllowed} onClick={jumpHumad}>
 			<Typography>Humad Membership</Typography>
 		</MenuItem>
 		{/*<Divider />
@@ -622,7 +626,7 @@ export default function Prws() {
 	return (
 	<div key="PRWS" className={gClasses.webPage} align="center" key="main">
 		{/*<DisplayPersonalButtons />*/}
-		<DisplayPageHeader headerName="Pratapgarh Rajasthan Welfare Samiti" 
+		<DisplayPageHeader headerName={(dispType === "xs") ? "PRWS" : "Pratapgarh Rajasthan Welfare Samiti"} 
 			button1={<VsButton style={{marginRight: "10px" }}  name="Export to CSV" onClick={downloadPrwsData} />}
 		/>
 		<DisplayPrwsFilter 

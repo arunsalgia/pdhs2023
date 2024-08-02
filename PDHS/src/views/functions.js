@@ -24,6 +24,7 @@ var aadhar = require('aadhaar-validator')
 
 import {
 	ADMIN, DATESTR, MONTHNUMBERSTR,
+	APPLICATIONSTATUS,
 } from "views/globals.js";
 
 export function applicationSuccess(rec) {
@@ -1157,4 +1158,27 @@ export function hasAnyAdminPermission() {
 
 export function isEligibleForMarriage(memRec) {
 	return ((getAge(memRec.dob) >= 18) && (memRec.emsStatus !== "Married"))
+}
+
+
+export function isAppEditPermitted(applicationRec) {
+	// If not application reject
+	if ( applicationRec.mid.toString() !== sessionStorage.getItem("mid") ) return false;
+	
+	// User is the applicant
+	// if application Pending or Reject then permit edit
+	if ( (applicationRec.status === APPLICATIONSTATUS.pending) ||
+			 (applicationRec.status === APPLICATIONSTATUS.rejected) )
+		return true;
+		
+	return false;
+}
+
+export function isAppApprovePermitted(applicationRec) {
+	// if application Pending or Reject then permit edit
+	if ( (applicationRec.status === APPLICATIONSTATUS.pending) ||
+			 (applicationRec.status === APPLICATIONSTATUS.rejected) )
+		return true;
+		
+	return false;
 }

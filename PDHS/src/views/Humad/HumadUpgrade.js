@@ -17,7 +17,11 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
 import BlueRadio from 'components/Radio/BlueRadio';
 import { UserContext } from "../../UserContext";
-import { JumpButton, DisplayPageHeader, ValidComp, BlankArea} from 'CustomComponents/CustomComponents.js';
+import { 
+	JumpButton, DisplayPageHeader, ValidComp, BlankArea,
+	ApplicationHeader, DisplayApplicationNameValue,
+
+} from 'CustomComponents/CustomComponents.js';
 
 import lodashSortBy from "lodash/sortBy";
 import lodashMap from "lodash/map";
@@ -84,9 +88,8 @@ export default function HumadUpgrade(props) {
 	const [newUpgrade, setNewUpgrade] = useState(props.selectedMid);
 	const [registerStatus, setRegisterStatus] = useState(0);
 	
-	
-
 	useEffect(() => {
+		
 		
 		if (props.humadRec) {
 			var myArray = HUMADCATEGORY.slice(0, HUMADCATEGORY.map(e => e.short).indexOf(props.humadRec.membershipNumber.substr(0, 1))); 
@@ -122,19 +125,20 @@ async function handleNewHodSubmit() {
 return (
 	<div>
 		<br />
+		<Typography align="center"  className={gClasses.pdhs_title} >
+			{(props.humadRec) ?
+			"Upgrade of Humad Membership" :
+			"New Humad Membership"
+			}
+		</Typography>
+		<Typography align="center"  className={gClasses.pdhs_title} >{getMemberName(props.memberRec, false, false)}</Typography>
+		<br />
 		{(props.humadRec) &&
 		<div align="center" >
-			<Typography className={gClasses.title}>Humad Upgade of</Typography>
-			<Typography className={gClasses.title}>{getMemberName(props.memberRec, false, false)}</Typography>
-			<Typography className={gClasses.title}>{`Current membership ${props.humadRec.membershipNumber}`}</Typography>
+			<DisplayApplicationNameValue name="Current membership" value={`${props.humadRec.membershipNumber}`}  />
+			<br />		
 		</div>
-		}
-		{(!props.humadRec) &&
-		<div align="center" >
-			<Typography className={gClasses.title}>New Humad membership of</Typography>
-			<Typography className={gClasses.title}>{getMemberName(props.memberRec, false, false)}</Typography>
-		</div>
-		}		<br />
+		}	
 		{upgradeArray.map( (u, index) => {
 			return (
 			<Grid key={"BALMEM"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
@@ -146,8 +150,7 @@ return (
 			</Grid>
 			</Grid>	
 
-			)}
-		)}
+		)})}
 		<br />	
 		<Grid key={"HUMREMARKS"} className={gClasses.noPadding} container  alignItems="flex-start" >
 		<Grid style={{marginTop: "10px"}}  item xs={6} sm={6} md={6} lg={6} >

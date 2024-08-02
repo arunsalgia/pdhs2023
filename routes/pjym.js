@@ -85,11 +85,12 @@ router.get('/filterdata/:filterInfo', async function (req, res) {
   setHeader(res);
   var {filterInfo } = req.params;
 	filterInfo = JSON.parse(filterInfo);
-	
-
+	//console.log(filterInfo);
 	let myData = await memberGetAllPjym();
  	var clonedArray = _.cloneDeep(myData);
 	myData = clonedArray.filter(x => !x.ceased);
+	//console.log("Initial", myData.length);
+	
 	for (var i=0; i< filterInfo.filterData.length; ++i) {
 		var fItem = filterInfo.filterData[i];
 		switch (fItem.item) {
@@ -137,10 +138,12 @@ router.get('/filterdata/:filterInfo', async function (req, res) {
 		}
 	}
 	
-	//console.log(myData.length);
+	//console.log("Before", myData.length);
+	var totalPjym = myData.length;
 	myData = myData.slice(filterInfo.pageNumber* filterInfo.pageSize, (filterInfo.pageNumber+1)* filterInfo.pageSize);
-	//console.log(myData.length);
-
+	//console.log("After", myData.length);
+	
+	
 	for (var i=0; i< myData.length; ++i) {
 		var tmp = dbdecrypt(myData[i].email);
 		tmp = encrypt(tmp);
@@ -151,10 +154,10 @@ router.get('/filterdata/:filterInfo', async function (req, res) {
 	}
 	
 	var myPjym = await M_Pjym.find( {mid: {$in: _.map(myData, 'mid')}, active: true } );
-	console.log(_.map(myData, 'mid'));
-	console.log(_.map(myPjym, 'mid'));
+	//console.log(_.map(myData, 'mid'));
+	//console.log(_.map(myPjym, 'mid'));
 
-	var totalPjym = await memberGetPjymCount();  
+	//var totalPjym = await memberGetPjymCount();  
 	
 	sendok(res, {pjym: myPjym, member: myData, count: totalPjym} );
 });		

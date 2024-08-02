@@ -68,7 +68,7 @@ import { getMemberName, dateString } from 'views/functions';
 
 const DEFAULTOWNER="PRWS";
 const applOption = ["Application Approved", "Application Rejected"];
-const RadioList = ["All", "Pending", "Approved","Rejected"];
+const RadioList = ["All", "Pending", "Approved","Rejected" ];
  
 
 export default function Application(props) {
@@ -421,8 +421,8 @@ export default function Application(props) {
 	}
 	
 	//console.log(isDrawerOpened)
-	//console.log(APPLICATIONTYPES.editMember);
-
+	//console.log(isDrawerOpened,  APPLICATIONTYPES.editMember, APPLICATIONTYPES.addMember);
+  
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
 	<CssBaseline />
@@ -441,7 +441,7 @@ export default function Application(props) {
 	{(isDrawerOpened === APPLICATIONTYPES.memberCeased) &&
 		<ApplicationMemberCeased applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
 	}
-	{(isDrawerOpened === APPLICATIONTYPES.editMember) &&
+	{( (isDrawerOpened === APPLICATIONTYPES.editMember) || (isDrawerOpened === APPLICATIONTYPES.addMember) ) &&
 		<ApplicationAddEditMember applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
 	}	
 	{(isDrawerOpened === APPLICATIONTYPES.newHod) &&

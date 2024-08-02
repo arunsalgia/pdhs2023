@@ -334,7 +334,7 @@ INFO: 2,
 
 export const APPLICATIONTYPES = {
 	editGotra:  			"Edit Gotra",
-	addMember: 				"Add Member",
+	addMember: 				"Add new Member",
 	editMember: 			"Edit Member",
 	memberCeased: 		"Member Ceased",
 	spouseDetails: 		"Spouse Details",
@@ -344,6 +344,7 @@ export const APPLICATIONTYPES = {
 
 
 export const APPLICATIONSTATUS = {
+	inEdit:   "InEdit",
 	approved: "Approved",
 	rejected: "Rejected",
 	pending:  "Pending"

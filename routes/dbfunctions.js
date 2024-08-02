@@ -14,7 +14,7 @@ let debugTest = true;
 
 async function memberGetAll() {
 	
-	console.log(allMemberlist.length);
+	//console.log(allMemberlist.length);
 	if (allMemberlist.length === 0) {
 		console.log("Reading member data from mongoose");
 		allMemberlist = await M_Member.find({ceased: false}).sort({lastName: 1, firstName: 1, middleName: 1});

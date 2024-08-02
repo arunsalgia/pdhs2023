@@ -1,7 +1,8 @@
-const algorithm = 'aes-256-ctr';
+//const algorithm = 'aes-256-ctr';
 const akshusecretKey = process.env.akshusecretKey;
 const ankitsecretKey = process.env.ankitsecretKey;
-const iv = process.env.iv;           
+const iv = process.env.iv; 
+const algorithm = 'aes-256-ctr';          
 
 
 
@@ -21,11 +22,26 @@ var mailOptions =  {
 var arun_user={};
 var arun_customer=[];
 var arun_master=[];
+const { createCipheriv, createDecipheriv }  = require('node:crypto');
+
+const org_encrypt = (text) => {
+
+    //console.log(`Text is ${text}`);
+	var encrypteddata = crypto.AES.encrypt(text, akshusecretKey).toString();
+	console.log(encrypteddata);
+	return encrypteddata;
+	
+    const cipher = crypto.createCipher(algorithm, akshusecretKey, Buffer.from(iv, 'hex'));	
+    const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
+    //myIv = iv.toString('hex');
+
+    return encrypted.toString('hex');
+};
 
 const encrypt = (text) => {
 
     //console.log(`Text is ${text}`);
-    const cipher = crypto.createCipheriv(algorithm, akshusecretKey, Buffer.from(iv, 'hex'));	
+    const cipher = createCipheriv(algorithm, akshusecretKey, Buffer.from(iv, 'hex'));	
     const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
     //myIv = iv.toString('hex');
 
@@ -34,12 +50,12 @@ const encrypt = (text) => {
 
 const decrypt = (hash) => {
 
-    const decipher = crypto.createDecipheriv(algorithm, akshusecretKey, Buffer.from(iv, 'hex'));
+    const decipher = createDecipheriv(algorithm, akshusecretKey, Buffer.from(iv, 'hex'));
     const decrpyted = Buffer.concat([decipher.update(Buffer.from(hash, 'hex')), decipher.final()]);
     return decrpyted.toString();
 };
 
-const dbencrypt = (text) => {
+const org_dbencrypt = (text) => {
 
     //console.log(`Text is ${text}`);
     const cipher = crypto.createCipheriv(algorithm, ankitsecretKey, Buffer.from(iv, 'hex'));
@@ -49,9 +65,19 @@ const dbencrypt = (text) => {
     return encrypted.toString('hex');
 };
 
+const dbencrypt = (text) => {
+
+    //console.log(`Text is ${text}`);
+    const cipher = createCipheriv(algorithm, ankitsecretKey, Buffer.from(iv, 'hex'));
+    const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
+    //myIv = iv.toString('hex');
+
+    return encrypted.toString('hex');
+};
+
 const dbdecrypt = (hash) => {
 
-    const decipher = crypto.createDecipheriv(algorithm, ankitsecretKey, Buffer.from(iv, 'hex'));
+    const decipher = createDecipheriv(algorithm, ankitsecretKey, Buffer.from(iv, 'hex'));
     const decrpyted = Buffer.concat([decipher.update(Buffer.from(hash, 'hex')), decipher.final()]);
     return decrpyted.toString();
 };

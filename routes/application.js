@@ -296,7 +296,7 @@ router.get('/addeditpersonal/:editor_hodmid/:editor_mid/:appData', async functio
 	aRec.date = justNow;
 	aRec.owner = OWNER.prws;
 	aRec.hid = 0;
-	aRec.desc = (xxx.mode === "Add") ? APPLICATIONTYPES.addMember : APPLICATIONTYPES.editMember ;
+	aRec.desc = (xxx.mode === "ADD") ? APPLICATIONTYPES.addMember : APPLICATIONTYPES.editMember ;
 
 	aRec.hodMid = editorHodRec.mid
 	aRec.hodName = getMemberName(editorHodRec, false);

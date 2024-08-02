@@ -1010,6 +1010,112 @@ export function ApplCommand(props) {
   );
 }
 
+
+export function PjymHeader(props) {
+	const gClasses = globalStyles();
+	var dispType = props.dispType;
+	return (
+	<Box  key={"MEMBOXHDR"} className={gClasses.boxStyleOdd} borderColor="black" borderRadius={30} border={1} >
+		<Grid key={"MEMGRIDHDR"} className={gClasses.noPadding} container justifyContent="center" alignItems="center" >
+			<Grid align="left" item xs={8} sm={8} md={6} lg={5} >
+				<Typography style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2Brown } >
+					Member Name
+				</Typography>		
+			</Grid>
+			<Grid align="center" item xs={3} sm={3} md={3} lg={2} >
+				<Typography style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2Brown } >
+					Mobile
+				</Typography>		
+			</Grid>
+			{((dispType != "xs") && (dispType != "sm") && (dispType != "md"))  &&
+				<Grid  item md={1} lg={1} >
+				<Typography style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2Brown } >
+					Mar. Sts 
+				</Typography>		
+				</Grid>
+			}
+			{((dispType != "xs") && (dispType != "sm") && (dispType != "md"))  &&
+				<Grid  item md={1} lg={1} >
+				<Typography style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2Brown } >
+					Blood Grp. 
+				</Typography>		
+				</Grid>
+			}
+			{((dispType != "xs") && (dispType != "sm"))  &&
+				<Grid align="center" item md={2} lg={2} >
+				<Typography style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2Brown } >
+					Membership
+				</Typography>		
+				</Grid>
+			}
+			<Grid  item xs={1} sm={1} md={1} lg={1} >
+			<Typography className={gClasses.patientInfo2Brown}></Typography>
+			</Grid>
+		</Grid>
+	</Box>
+);}
+
+/*<Box  key={"MEMBOX"+props.index} className={((props.index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} 
+	borderColor="black" borderRadius={30} border={1} 
+	onContextMenu={props.onContextMenu}	
+>*/
+
+export function PjymMember(props) {
+const gClasses = globalStyles();
+var dispType = props.dispType;
+var m = props.m;
+var p = props.p;
+var myClass = gClasses.patientInfo2;
+//console.log(dispType);
+//console.log(m.mid);
+return (
+
+<Box  key={"MEMBOX"+props.index} 
+  className={((props.index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} 
+	borderColor="black" borderRadius={30} border={1} 
+>
+<Grid key={"MEMGRID"+props.index} className={gClasses.noPadding} container justifyContent="center" alignItems="center" >
+	<Grid align="left" item xs={8} sm={8} md={6} lg={5} >
+		<Typography >
+			<span className={gClasses.patientInfo2}>{getMemberName(m) + ((dispType != "xs") ? " ("+dispAge(m.dob, m.gender)+")" : "") }</span>
+			<span align="left" data-for={"MEMBER"+m.mid} data-tip={props.datatip} data-iscapture="true" >
+				<InfoIcon color="primary" size="small"/>
+			</span>
+		</Typography>
+	</Grid>
+	<Grid align="center" item xs={3} sm={3} md={3} lg={2} >
+		<Typography className={myClass}>{m.mobile}</Typography>
+	</Grid>				
+	{((dispType != "xs") && (dispType != "sm") && (dispType != "md") && false)  &&
+		<Grid align="center" item lg={2} >
+			<Typography className={myClass}>{m.mid}</Typography>
+		</Grid>
+	}
+	{((dispType != "xs") && (dispType != "sm") && (dispType != "md"))  &&
+		<Grid  item md={1} lg={1} >
+			<Typography className={gClasses.patientInfo2}>{capitalizeFirstLetter(m.emsStatus)}</Typography>
+		</Grid>
+	}
+	{((dispType != "xs") && (dispType != "sm") && (dispType != "md"))  &&
+		<Grid  item md={1} lg={1} >
+			<Typography className={gClasses.patientInfo2}>{m.bloodGroup.toUpperCase()}</Typography>
+		</Grid>
+	}
+	{((dispType != "xs") && (dispType != "sm"))  &&
+		<Grid align="center" item md={2} lg={2} >
+			<Typography className={myClass}>{(p) ? p.membershipNumber : ""}</Typography>
+		</Grid>
+	}
+	<Grid  item xs={1} sm={1} md={1} lg={1} >
+		<Typography>
+		 <span><MoreVertIcon color="primary" size="small" onClick={props.onClick} id={props.id}	 /></span>
+		</Typography>
+	</Grid>
+</Grid>
+</Box>
+
+);}
+
 export function PersonalHeader(props) {
 	const gClasses = globalStyles();
 	var dispType = props.dispType;
@@ -1062,10 +1168,55 @@ export function PersonalHeader(props) {
 	</Box>
 );}
 
-/*<Box  key={"MEMBOX"+props.index} className={((props.index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} 
+export function HumadMember(props) {
+const gClasses = globalStyles();
+var dispType = props.dispType;
+var m = props.m;
+var h = props.h;
+let memDateStr = dateString(h.membershipDate);
+return (
+<Box  key={"MEMBOX"+props.index} 
+  className={((props.index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} 
 	borderColor="black" borderRadius={30} border={1} 
-	onContextMenu={props.onContextMenu}	
->*/
+>
+<Grid key={"MEMGRID"+props.index} className={gClasses.noPadding} container justifyContent="center" alignItems="center" >
+	<Grid align="left" item xs={8} sm={8} md={5} lg={5} >
+		<Typography>
+			<span style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2Blue } >{getMemberName(m)+" ("+dispAge(m.dob, m.gender)+")"}</span>
+			<span align="left" data-for={"MEMBER"+m.mid} data-tip={props.datatip} data-iscapture="true" >
+				<InfoIcon color="primary" size="small"/>
+			</span>
+		</Typography>		
+	</Grid>
+	{( (dispType !== "xs") && (dispType !== "sm") ) &&
+	<Grid align="center" item md={2} lg={2} >
+		<Typography className={gClasses.patientInfo2}>{m.mobile}</Typography>
+	</Grid>
+	}
+	<Grid align="center" item xs={3} sm={3} md={1} lg={1} >
+		<Typography className={gClasses.patientInfo2}>{h.membershipNumber}</Typography>
+	</Grid>
+	{( (dispType !== "xs") && (dispType !== "sm") ) &&
+	<Grid align="center" item xs={3} sm={3} md={1} lg={1} >
+		<Typography className={gClasses.patientInfo2}>{memDateStr}</Typography>
+	</Grid>
+	}
+	{( (dispType !== "xs") && (dispType !== "sm") ) &&
+	<Grid align="center" item md={2} lg={2} >
+		<Typography className={gClasses.patientInfo2}>{h.remarks}</Typography>
+	</Grid>
+	}
+	<Grid  item xs={1} sm={1} md={1} lg={1} >
+		<Typography>
+		 <span><MoreVertIcon color="primary" size="small" onClick={props.onClick} id={props.id}	 /></span>
+		</Typography>
+	</Grid>
+</Grid>
+</Box>
+
+);}
+
+
 export function PersonalMember(props) {
 const gClasses = globalStyles();
 var dispType = props.dispType;
@@ -1118,7 +1269,7 @@ return (
 			<Typography className={gClasses.patientInfo2}>{m.mobile}</Typography>
 		}
 	</Grid>
-	<Grid  item xa={1} sm={1} md={1} lg={1} >
+	<Grid  item xs={1} sm={1} md={1} lg={1} >
 		<Typography>
 		 <span><MoreVertIcon color="primary" size="small" onClick={props.onClick} id={props.id}	 /></span>
 		</Typography>
@@ -1144,7 +1295,8 @@ return (
 				<InfoIcon color="primary" size="small"/>
 			</span>
 		</Typography>		
-	</Grid>
+	</Grid>	/
+	
 	{((dispType != "xs") && (dispType != "sm"))  &&
 		<Grid align="left" item md={2} lg={2} >
 			<Typography className={gClasses.patientInfo2}>{m.education}</Typography>

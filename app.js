@@ -10,7 +10,21 @@ cors = require('cors');
 _ = require("lodash");
 cron = require('node-cron');
 nodemailer = require('nodemailer');
-crypto = require('crypto');
+try {
+//crypto = require('node:crypto');
+const {
+  scrypt,
+  randomFill,
+  //createCipheriv,
+  //createDecipheriv,
+} = require('node:crypto');
+
+console.log("Found crypto");
+}
+catch (e) {
+console.log(e);	
+}
+
 //Razorpay = require("razorpay");
 //docx = require("docx");
 fs = require('fs');
@@ -260,7 +274,8 @@ MemberSchema = mongoose.Schema({
 	pjymMember: Boolean,
 	humadMember: Boolean,
 	prwsMember: Boolean,
-	pmmMember: Boolean
+	pmmMember: Boolean,
+	lockInfo: {isLocked: Boolean, lockedBy: String, applicationId: String, remarks: String}
 })
 MemberSchema.index({mid: 1});
 MemberSchema.index({ceased: 1});
@@ -331,7 +346,8 @@ ApplicationSchema = mongoose.Schema({
 	status: String,
 	aminMid: Number,
 	adminName: String,
-	comments: String
+	comments: String,
+	lockInfo: {isLocked: Boolean, lockedBy: String, applicationId: String, remarks: String}
 });
 
 // models
@@ -523,7 +539,7 @@ FAMILYMF = 1000;
 
 APPLICATIONTYPES = {
 	editGotra:  			"Edit Gotra",
-	addMember: 				"Add Member",
+	addMember: 				"Add new Member",
 	editMember: 			"Edit Member",
 	memberCeased: 		"Member Ceased",
 	spouseDetails: 		"Spouse Details",

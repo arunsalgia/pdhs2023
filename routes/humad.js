@@ -84,7 +84,7 @@ router.get('/filterdata/:filterInfo', async function (req, res) {
   setHeader(res);
   var {filterInfo } = req.params;
 	filterInfo = JSON.parse(filterInfo);
-	
+	//console.log(filterInfo);
 
 	let myData = await memberGetAllHumad();
  	var clonedArray = _.cloneDeep(myData);
@@ -135,10 +135,14 @@ router.get('/filterdata/:filterInfo', async function (req, res) {
 				break;
 		}
 	}
+	var totalCount = myData.length;
 	
-	//console.log(myData.length);
-	myData = myData.slice(filterInfo.pageNumber* filterInfo.pageSize, (filterInfo.pageNumber+1)* filterInfo.pageSize);
-	//console.log(myData.length);
+	// If page number is -ve then full list is to be sent. Else give it only for page.
+	if (filterInfo.pageNumber >= 0) {
+		myData = myData.slice(filterInfo.pageNumber* filterInfo.pageSize, (filterInfo.pageNumber+1)* filterInfo.pageSize);
+		//myData = myData.slice(filterInfo.pageNumber* filterInfo.pageSize, (filterInfo.pageNumber+1)* filterInfo.pageSize);
+	}
+
 
 	for (var i=0; i< myData.length; ++i) {
 		var tmp = dbdecrypt(myData[i].email);
@@ -152,11 +156,11 @@ router.get('/filterdata/:filterInfo', async function (req, res) {
 	var myHumads = await M_Humad.find( {mid: {$in: _.map(myData, 'mid')}, active: true } );
 	//console.log(_.map(myData, 'mid'));
 
-	var totalHumads = await memberGetHumadCount();  //myData.length;
+	//var totalHumads = await memberGetHumadCount();  //myData.length;
 	
 	//console.log({humad: myHumads, member: myData, count: totalHumads});
 	
-	sendok(res, {humad: myHumads, member: myData, count: totalHumads} );
+	sendok(res, {humad: myHumads, member: myData, count: totalCount} );
 });		
 
 
