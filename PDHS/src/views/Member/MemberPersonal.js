@@ -73,6 +73,7 @@ import {
 	getAdminInfo,
 	applicationSuccess,
 	showSuccess, showError, showInfo,
+	callYesNo,
 } from "views/functions.js";
 
 import SplitFamily from "views/Member/SplitFamily";
@@ -295,7 +296,7 @@ function DisplayPersonalInformation() {
 		var memberRecord = memberArray.find(x => x.mid === radioMid);
 		if (!memberRecord) return;
 		//console.log(hodRec);
-		//console.log(memberRecord.mid);
+		//console.log(memberRecord);
 		var myIndex = memberArray.findIndex(x => x.mid === radioMid);
 		//console.log(myIndex);
 		let isFamilyMember = (memberArray[0].hid === loginHid);
@@ -333,9 +334,16 @@ function DisplayPersonalInformation() {
 		<MenuItem disabled={(!isFamilyMember && !admin)} onClick={() => { handleMemPerContextMenuClose(); handlePersonalTransfer(memberRecord) } }>
 			<Typography>Move</Typography>
 		</MenuItem>
+		{(memberRecord.emsStatus.toUpperCase() !== "MARRIED") &&
 		<MenuItem disabled={!(isEligible && (isFamilyMember || admin))} onClick={() => {handleMemPerContextMenuClose(); handleMarriage(memberRecord); } } >
 			<Typography>Marriage</Typography>
 		</MenuItem>
+		}
+		{(memberRecord.emsStatus.toUpperCase() === "MARRIED") &&
+		<MenuItem disabled={!(true && (isFamilyMember || admin))} onClick={() => {handleMemPerContextMenuClose(); handleUnMarriage(memberRecord); } } >
+			<Typography>Split</Typography>
+		</MenuItem>
+		}		
 		<MenuItem disabled={(!isFamilyMember && !admin) || (hodRec.mid === memberRecord.mid)} onClick={() => { handleMemPerContextMenuClose(); newHOD(memberRecord) } }>
 			<Typography>New Family Head</Typography>
 		</MenuItem>
@@ -371,6 +379,23 @@ function DisplayPersonalInformation() {
 	function handleMarriage(memRec) {
 		setSelMember(memRec);
 		setIsDrawerOpened("MARRIAGE");
+	}
+	
+	function handleUnMarriage(memRec) {
+		//console.log(memRec.spouseMid);
+		var msg = (memRec.spouseMid !== 0) ?
+			`Set ${getMemberName(memRec, false, false)} along with spouse as Unmarried?` :
+			`Set ${getMemberName(memRec, false, false)} as Unmarried?`;
+		//console.log(msg);
+		vsDialog("Split Marriage", msg,
+		{label: "Yes", onClick: () => unMarriageConfirm(memRec) },
+		{label: "No" }
+		);
+	}
+	
+	function unMarriageConfirm(memRec) {
+		//console.log(memRec);
+		showInfo("Split marriage is yet to be implemented");
 	}
 	
 	function handleMarriageBack(sts) {

@@ -140,6 +140,8 @@ export default function MemberMarriage(props) {
 
 	const [isDrawerOpened, setIsDrawerOpened] = useState("");
 
+	const [stayAtSelf, setStayAtSelf] = useState(true);
+	
 	useEffect(() => {
 		async function getEligibleList() {
 		// Now get the list of all HOD if not available with us
@@ -968,6 +970,32 @@ return (
 		</AccordionSummary>
 		</Box>
 		<Typography>TO be implemnetd</Typography>
+		<br />
+	</Accordion>
+	}	
+	{isSpouseMember && <br />}
+	{isSpouseMember &&
+	<Accordion expanded={expandedPanel === "NEWHOME"} onChange={handleAccordionChange("NEWHOME")} >
+		<Box align="right" className={(expandedPanel === "NEWHOME") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
+			<Typography align="left" >{"Couple to stay with family of"}</Typography>
+		</AccordionSummary>
+		</Box>
+		<Grid key={"SELECTSELF"} className={gClasses.noPadding} container  alignItems="flex-start" >
+		<Grid style={{marginTop: "10px"}}  item xs={10} sm={10} md={10} lg={10} >
+			<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{getMemberName(props.memberRec, false, false)}</Typography>
+		</Grid>	
+		<Grid item xs={2} sm={2} md={2} lg={2} >
+			<VsRadio checked={stayAtSelf} onClick={() => setStayAtSelf(true) }  />
+		</Grid>
+		<Grid style={{marginTop: "10px"}}  item xs={10} sm={10} md={10} lg={10} >
+			<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{(spouseMemberRec) ? getMemberName(spouseMemberRec, false, false) : ""}</Typography>
+		</Grid>	
+		<Grid item xs={2} sm={2} md={2} lg={2} >
+			<VsRadio checked={!stayAtSelf} onClick={() => setStayAtSelf(false) }  />
+		</Grid>
+		</Grid>	
+
 		<br />
 	</Accordion>
 	}	

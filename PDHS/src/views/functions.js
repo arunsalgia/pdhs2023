@@ -1159,7 +1159,11 @@ export function hasAnyAdminPermission() {
 
 
 export function isEligibleForMarriage(memRec) {
-	return ((getAge(memRec.dob) >= 18) && (memRec.emsStatus !== "Married"))
+	//console.log(memRec);
+	//console.log(getAge(memRec.dob))
+	//console.log((memRec.emsStatus !== "Married"));
+	//console.log((getAge(memRec.dob) >= 18) && (memRec.emsStatus !== "Married"));
+	return ((getAge(memRec.dob) >= 18) && (memRec.emsStatus.toUpperCase() !== "MARRIED"))
 }
 
 
