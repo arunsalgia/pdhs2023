@@ -1,0 +1,2068 @@
+[{
+  "_id": {
+    "$oid": "61c404fe0ae54f19e4664927"
+  },
+  "pinCode": 395007,
+  "found": true,
+  "district": "Surat",
+  "state": "Gujarat",
+  "division": "Surat",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4051d0ae54f19e466494d"
+  },
+  "pinCode": 400053,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405010ae54f19e466492b"
+  },
+  "pinCode": 396050,
+  "found": true,
+  "district": "Valsad",
+  "state": "Gujarat",
+  "division": "Valsad",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c404f00ae54f19e4664916"
+  },
+  "pinCode": 110008,
+  "found": true,
+  "district": "Central Delhi",
+  "state": "Delhi",
+  "division": "New Delhi Central",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405930ae54f19e46649db"
+  },
+  "pinCode": 831001,
+  "found": true,
+  "district": "East Singhbhum",
+  "state": "Jharkhand",
+  "division": "Singhbhum",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405920ae54f19e46649da"
+  },
+  "pinCode": 822101,
+  "found": true,
+  "district": "Palamau",
+  "state": "Jharkhand",
+  "division": "Palamau",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405450ae54f19e466497d"
+  },
+  "pinCode": 400605,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane Central",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405580ae54f19e4664994"
+  },
+  "pinCode": 411002,
+  "found": true,
+  "district": "Pune",
+  "state": "Maharashtra",
+  "division": "Pune City West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4056e0ae54f19e46649af"
+  },
+  "pinCode": 421103,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane Central",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405120ae54f19e466493f"
+  },
+  "pinCode": 400024,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405200ae54f19e4664950"
+  },
+  "pinCode": 400056,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405470ae54f19e466497f"
+  },
+  "pinCode": 400607,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane Central",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405860ae54f19e46649cc"
+  },
+  "pinCode": 456001,
+  "found": true,
+  "district": "Ujjain",
+  "state": "Madhya Pradesh",
+  "division": "Ujjain",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405770ae54f19e46649b9"
+  },
+  "pinCode": 422005,
+  "found": true,
+  "district": "Nashik",
+  "state": "Maharashtra",
+  "division": "Nasik",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405780ae54f19e46649bb"
+  },
+  "pinCode": 422011,
+  "found": true,
+  "district": "Nashik",
+  "state": "Maharashtra",
+  "division": "Nasik",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4050a0ae54f19e4664936"
+  },
+  "pinCode": 400010,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c404ff0ae54f19e4664929"
+  },
+  "pinCode": 395009,
+  "found": true,
+  "district": "Surat",
+  "state": "Gujarat",
+  "division": "Surat",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405430ae54f19e466497a"
+  },
+  "pinCode": 400602,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane Central",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4050e0ae54f19e466493b"
+  },
+  "pinCode": 400016,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405190ae54f19e4664948"
+  },
+  "pinCode": 400042,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405240ae54f19e4664955"
+  },
+  "pinCode": 400061,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405210ae54f19e4664952"
+  },
+  "pinCode": 400058,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4058e0ae54f19e46649d6"
+  },
+  "pinCode": 500087,
+  "found": true,
+  "district": "Hyderabad",
+  "state": "Telangana",
+  "division": "Secunderabad",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c404ef0ae54f19e4664915"
+  },
+  "pinCode": 110007,
+  "found": true,
+  "district": "North Delhi",
+  "state": "Delhi",
+  "division": "Delhi North",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c404f90ae54f19e4664921"
+  },
+  "pinCode": 326519,
+  "found": true,
+  "district": "Kota",
+  "state": "Rajasthan",
+  "division": "Kota",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4057c0ae54f19e46649c0"
+  },
+  "pinCode": 431203,
+  "found": true,
+  "district": "Jalna",
+  "state": "Maharashtra",
+  "division": "Aurangabad(Maharashtra)",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405310ae54f19e4664965"
+  },
+  "pinCode": 400081,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4058f0ae54f19e46649d7"
+  },
+  "pinCode": 560037,
+  "found": true,
+  "district": "Bangalore",
+  "state": "Karnataka",
+  "division": "Bangalore East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c404f40ae54f19e466491b"
+  },
+  "pinCode": 110092,
+  "found": true,
+  "district": "East Delhi",
+  "state": "Delhi",
+  "division": "Delhi East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4057a0ae54f19e46649bd"
+  },
+  "pinCode": 424101,
+  "found": true,
+  "district": "Jalgaon",
+  "state": "Maharashtra",
+  "division": "Jalgaon",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405130ae54f19e4664941"
+  },
+  "pinCode": 400026,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405660ae54f19e46649a5"
+  },
+  "pinCode": 411051,
+  "found": true,
+  "district": "Pune",
+  "state": "Maharashtra",
+  "division": "Pune City West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405890ae54f19e46649cf"
+  },
+  "pinCode": 458001,
+  "found": true,
+  "district": "Mandsaur",
+  "state": "Madhya Pradesh",
+  "division": "Mandsaur",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405370ae54f19e466496c"
+  },
+  "pinCode": 400091,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405900ae54f19e46649d8"
+  },
+  "pinCode": 590006,
+  "found": true,
+  "district": "Belgaum",
+  "state": "Karnataka",
+  "division": "Belgaum",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4050d0ae54f19e4664939"
+  },
+  "pinCode": 400013,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405330ae54f19e4664968"
+  },
+  "pinCode": 400086,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c404fa0ae54f19e4664922"
+  },
+  "pinCode": 327001,
+  "found": true,
+  "district": "Banswara",
+  "state": "Rajasthan",
+  "division": "Dungarpur",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405870ae54f19e46649cd"
+  },
+  "pinCode": 456006,
+  "found": true,
+  "district": "Ujjain",
+  "state": "Madhya Pradesh",
+  "division": "Ujjain",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405730ae54f19e46649b5"
+  },
+  "pinCode": 421302,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane Central",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c404f00ae54f19e4664917"
+  },
+  "pinCode": 110019,
+  "found": true,
+  "district": "South Delhi",
+  "state": "Delhi",
+  "division": "New Delhi South",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405400ae54f19e4664977"
+  },
+  "pinCode": 400104,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405600ae54f19e466499e"
+  },
+  "pinCode": 411037,
+  "found": true,
+  "district": "Pune",
+  "state": "Maharashtra",
+  "division": "Pune City East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4058a0ae54f19e46649d1"
+  },
+  "pinCode": 500004,
+  "found": true,
+  "district": "Hyderabad",
+  "state": "Telangana",
+  "division": "Hyderabad City",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405670ae54f19e46649a6"
+  },
+  "pinCode": 411057,
+  "found": true,
+  "district": "Pune",
+  "state": "Maharashtra",
+  "division": "Pune City East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405690ae54f19e46649a9"
+  },
+  "pinCode": 413001,
+  "found": true,
+  "district": "Solapur",
+  "state": "Maharashtra",
+  "division": "Solapur",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4051a0ae54f19e4664949"
+  },
+  "pinCode": 400049,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4052d0ae54f19e4664960"
+  },
+  "pinCode": 400075,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405510ae54f19e466498b"
+  },
+  "pinCode": 401202,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405480ae54f19e4664980"
+  },
+  "pinCode": 400610,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane Central",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405720ae54f19e46649b4"
+  },
+  "pinCode": 421301,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane Central",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405460ae54f19e466497e"
+  },
+  "pinCode": 400606,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane Central",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405520ae54f19e466498d"
+  },
+  "pinCode": 401209,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405560ae54f19e4664992"
+  },
+  "pinCode": 410210,
+  "found": true,
+  "district": "Raigarh(MH)",
+  "state": "Maharashtra",
+  "division": "New Mumbai",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c404fc0ae54f19e4664925"
+  },
+  "pinCode": 390009,
+  "found": true,
+  "district": "Vadodara",
+  "state": "Gujarat",
+  "division": "Vadodara East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4057b0ae54f19e46649be"
+  },
+  "pinCode": 425201,
+  "found": true,
+  "district": "Jalgaon",
+  "state": "Maharashtra",
+  "division": "Bhusaval",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405160ae54f19e4664944"
+  },
+  "pinCode": 400031,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405850ae54f19e46649cb"
+  },
+  "pinCode": 452018,
+  "found": true,
+  "district": "Indore",
+  "state": "Madhya Pradesh",
+  "division": "Indore City",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4052c0ae54f19e466495f"
+  },
+  "pinCode": 400072,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405420ae54f19e4664979"
+  },
+  "pinCode": 400601,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane Central",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405650ae54f19e46649a4"
+  },
+  "pinCode": 411046,
+  "found": true,
+  "district": "Pune",
+  "state": "Maharashtra",
+  "division": "Pune City West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c404fb0ae54f19e4664924"
+  },
+  "pinCode": 380019,
+  "found": true,
+  "district": "Ahmedabad",
+  "state": "Gujarat",
+  "division": "Ahmedabad City",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4055b0ae54f19e4664997"
+  },
+  "pinCode": 411014,
+  "found": true,
+  "district": "Pune",
+  "state": "Maharashtra",
+  "division": "Pune City East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405220ae54f19e4664953"
+  },
+  "pinCode": 400059,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405050ae54f19e4664930"
+  },
+  "pinCode": 400004,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  South",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405290ae54f19e466495b"
+  },
+  "pinCode": 400068,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4054a0ae54f19e4664983"
+  },
+  "pinCode": 400705,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "New Mumbai",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405340ae54f19e4664969"
+  },
+  "pinCode": 400088,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c404fa0ae54f19e4664923"
+  },
+  "pinCode": 380013,
+  "found": true,
+  "district": "Ahmedabad",
+  "state": "Gujarat",
+  "division": "Ahmedabad City",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4057e0ae54f19e46649c2"
+  },
+  "pinCode": 450001,
+  "found": true,
+  "district": "East Nimar",
+  "state": "Madhya Pradesh",
+  "division": "Khandwa",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405820ae54f19e46649c7"
+  },
+  "pinCode": 452005,
+  "found": true,
+  "district": "Indore",
+  "state": "Madhya Pradesh",
+  "division": "Indore City",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405180ae54f19e4664947"
+  },
+  "pinCode": 400037,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405640ae54f19e46649a3"
+  },
+  "pinCode": 411045,
+  "found": true,
+  "district": "Pune",
+  "state": "Maharashtra",
+  "division": "Pune City West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405700ae54f19e46649b1"
+  },
+  "pinCode": 421202,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane Central",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405740ae54f19e46649b6"
+  },
+  "pinCode": 421308,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane Central",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405020ae54f19e466492c"
+  },
+  "pinCode": 396445,
+  "found": true,
+  "district": "Navsari",
+  "state": "Gujarat",
+  "division": "Navsari",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4056c0ae54f19e46649ac"
+  },
+  "pinCode": 413106,
+  "found": true,
+  "district": "Pune",
+  "state": "Maharashtra",
+  "division": "Pune Moffusil",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405530ae54f19e466498e"
+  },
+  "pinCode": 401303,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c404f30ae54f19e466491a"
+  },
+  "pinCode": 110085,
+  "found": true,
+  "district": "North Delhi",
+  "state": "Delhi",
+  "division": "Delhi North",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405140ae54f19e4664942"
+  },
+  "pinCode": 400028,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405270ae54f19e4664959"
+  },
+  "pinCode": 400066,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405490ae54f19e4664982"
+  },
+  "pinCode": 400703,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "New Mumbai",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4053c0ae54f19e4664973"
+  },
+  "pinCode": 400099,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4053a0ae54f19e4664970"
+  },
+  "pinCode": 400095,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4052a0ae54f19e466495d"
+  },
+  "pinCode": 400070,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405090ae54f19e4664934"
+  },
+  "pinCode": 400008,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4056f0ae54f19e46649b0"
+  },
+  "pinCode": 421201,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane Central",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405710ae54f19e46649b2"
+  },
+  "pinCode": 421203,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane Central",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c404f60ae54f19e466491e"
+  },
+  "pinCode": 312605,
+  "found": true,
+  "district": "Chittorgarh",
+  "state": "Rajasthan",
+  "division": "Chittorgarh",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405370ae54f19e466496d"
+  },
+  "pinCode": 400092,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4053b0ae54f19e4664972"
+  },
+  "pinCode": 400098,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405720ae54f19e46649b3"
+  },
+  "pinCode": 421204,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane Central",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405800ae54f19e46649c4"
+  },
+  "pinCode": 452001,
+  "found": true,
+  "district": "Indore",
+  "state": "Madhya Pradesh",
+  "division": "Indore City",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c404f50ae54f19e466491c"
+  },
+  "pinCode": 302019,
+  "found": true,
+  "district": "Jaipur",
+  "state": "Rajasthan",
+  "division": "Jaipur City",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405030ae54f19e466492d"
+  },
+  "pinCode": 396560,
+  "found": true,
+  "district": "Navsari",
+  "state": "Gujarat",
+  "division": "Navsari",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405390ae54f19e466496f"
+  },
+  "pinCode": 400094,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4056a0ae54f19e46649aa"
+  },
+  "pinCode": 413101,
+  "found": true,
+  "district": "Solapur",
+  "state": "Maharashtra",
+  "division": "Pandharpur",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4057c0ae54f19e46649bf"
+  },
+  "pinCode": 431005,
+  "found": true,
+  "district": "Aurangabad",
+  "state": "Maharashtra",
+  "division": "Aurangabad(Maharashtra)",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4058b0ae54f19e46649d2"
+  },
+  "pinCode": 500009,
+  "found": true,
+  "district": "Hyderabad",
+  "state": "Telangana",
+  "division": "Secunderabad",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4053d0ae54f19e4664974"
+  },
+  "pinCode": 400101,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405590ae54f19e4664995"
+  },
+  "pinCode": 411004,
+  "found": true,
+  "district": "Pune",
+  "state": "Maharashtra",
+  "division": "Pune City West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405070ae54f19e4664932"
+  },
+  "pinCode": 400006,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4058c0ae54f19e46649d3"
+  },
+  "pinCode": 500012,
+  "found": true,
+  "district": "Hyderabad",
+  "state": "Telangana",
+  "division": "Hyderabad South East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405320ae54f19e4664967"
+  },
+  "pinCode": 400084,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405080ae54f19e4664933"
+  },
+  "pinCode": 400007,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4054f0ae54f19e4664989"
+  },
+  "pinCode": 401107,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4051e0ae54f19e466494e"
+  },
+  "pinCode": 400054,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405300ae54f19e4664964"
+  },
+  "pinCode": 400080,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4055c0ae54f19e4664999"
+  },
+  "pinCode": 411021,
+  "found": true,
+  "district": "Pune",
+  "state": "Maharashtra",
+  "division": "Pune City West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4058e0ae54f19e46649d5"
+  },
+  "pinCode": 500055,
+  "found": true,
+  "district": "Hyderabad",
+  "state": "Telangana",
+  "division": "Secunderabad",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4050c0ae54f19e4664938"
+  },
+  "pinCode": 400012,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405750ae54f19e46649b7"
+  },
+  "pinCode": 421501,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane Central",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405620ae54f19e46649a0"
+  },
+  "pinCode": 411040,
+  "found": true,
+  "district": "Pune",
+  "state": "Maharashtra",
+  "division": "Pune City East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4054b0ae54f19e4664984"
+  },
+  "pinCode": 400706,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "New Mumbai",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405560ae54f19e4664991"
+  },
+  "pinCode": 410206,
+  "found": true,
+  "district": "Raigarh(MH)",
+  "state": "Maharashtra",
+  "division": "New Mumbai",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4050e0ae54f19e466493a"
+  },
+  "pinCode": 400015,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405510ae54f19e466498c"
+  },
+  "pinCode": 401203,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4052d0ae54f19e4664961"
+  },
+  "pinCode": 400076,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405910ae54f19e46649d9"
+  },
+  "pinCode": 711204,
+  "found": true,
+  "district": "Howrah",
+  "state": "West Bengal",
+  "division": "Howrah",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405320ae54f19e4664966"
+  },
+  "pinCode": 400082,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4055a0ae54f19e4664996"
+  },
+  "pinCode": 411009,
+  "found": true,
+  "district": "Pune",
+  "state": "Maharashtra",
+  "division": "Pune City West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405540ae54f19e466498f"
+  },
+  "pinCode": 401601,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405800ae54f19e46649c5"
+  },
+  "pinCode": 452002,
+  "found": true,
+  "district": "Indore",
+  "state": "Madhya Pradesh",
+  "division": "Indore City",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4051b0ae54f19e466494a"
+  },
+  "pinCode": 400050,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405230ae54f19e4664954"
+  },
+  "pinCode": 400060,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405880ae54f19e46649ce"
+  },
+  "pinCode": 457001,
+  "found": true,
+  "district": "Ratlam",
+  "state": "Madhya Pradesh",
+  "division": "Ratlam",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405040ae54f19e466492e"
+  },
+  "pinCode": 400002,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  South",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405060ae54f19e4664931"
+  },
+  "pinCode": 400005,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  South",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405250ae54f19e4664957"
+  },
+  "pinCode": 400063,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405890ae54f19e46649d0"
+  },
+  "pinCode": 500003,
+  "found": true,
+  "district": "Hyderabad",
+  "state": "Telangana",
+  "division": "Secunderabad",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405760ae54f19e46649b8"
+  },
+  "pinCode": 421503,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane Central",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405770ae54f19e46649ba"
+  },
+  "pinCode": 422009,
+  "found": true,
+  "district": "Nashik",
+  "state": "Maharashtra",
+  "division": "Nasik",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405290ae54f19e466495c"
+  },
+  "pinCode": 400069,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405380ae54f19e466496e"
+  },
+  "pinCode": 400093,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c404fd0ae54f19e4664926"
+  },
+  "pinCode": 395001,
+  "found": true,
+  "district": "Surat",
+  "state": "Gujarat",
+  "division": "Surat",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4051c0ae54f19e466494b"
+  },
+  "pinCode": 400051,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c404f80ae54f19e4664920"
+  },
+  "pinCode": 325001,
+  "found": true,
+  "district": "Kota",
+  "state": "Rajasthan",
+  "division": "Kota",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4054e0ae54f19e4664988"
+  },
+  "pinCode": 401105,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405120ae54f19e4664940"
+  },
+  "pinCode": 400025,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4053f0ae54f19e4664975"
+  },
+  "pinCode": 400102,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405790ae54f19e46649bc"
+  },
+  "pinCode": 423203,
+  "found": true,
+  "district": "Nashik",
+  "state": "Maharashtra",
+  "division": "Malegaon",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4056b0ae54f19e46649ab"
+  },
+  "pinCode": 413102,
+  "found": true,
+  "district": "Pune",
+  "state": "Maharashtra",
+  "division": "Pune Moffusil",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405500ae54f19e466498a"
+  },
+  "pinCode": 401201,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4053b0ae54f19e4664971"
+  },
+  "pinCode": 400097,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c404f10ae54f19e4664918"
+  },
+  "pinCode": 110052,
+  "found": true,
+  "district": "North West Delhi",
+  "state": "Delhi",
+  "division": "Delhi North",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c404fe0ae54f19e4664928"
+  },
+  "pinCode": 395008,
+  "found": true,
+  "district": "Surat",
+  "state": "Gujarat",
+  "division": "Surat",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4050b0ae54f19e4664937"
+  },
+  "pinCode": 400011,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4056d0ae54f19e46649ad"
+  },
+  "pinCode": 415521,
+  "found": true,
+  "district": "Satara",
+  "state": "Maharashtra",
+  "division": "Satara",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4058d0ae54f19e46649d4"
+  },
+  "pinCode": 500027,
+  "found": true,
+  "district": "Hyderabad",
+  "state": "Telangana",
+  "division": "Hyderabad South East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405440ae54f19e466497b"
+  },
+  "pinCode": 400603,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane Central",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4055f0ae54f19e466499d"
+  },
+  "pinCode": 411033,
+  "found": true,
+  "district": "Pune",
+  "state": "Maharashtra",
+  "division": "Pune City East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4055b0ae54f19e4664998"
+  },
+  "pinCode": 411017,
+  "found": true,
+  "district": "Pune",
+  "state": "Maharashtra",
+  "division": "Pune City East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405810ae54f19e46649c6"
+  },
+  "pinCode": 452003,
+  "found": true,
+  "district": "Indore",
+  "state": "Madhya Pradesh",
+  "division": "Indore City",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4052b0ae54f19e466495e"
+  },
+  "pinCode": 400071,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405610ae54f19e466499f"
+  },
+  "pinCode": 411038,
+  "found": true,
+  "district": "Pune",
+  "state": "Maharashtra",
+  "division": "Pune City West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4053f0ae54f19e4664976"
+  },
+  "pinCode": 400103,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4051c0ae54f19e466494c"
+  },
+  "pinCode": 400052,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405550ae54f19e4664990"
+  },
+  "pinCode": 402107,
+  "found": true,
+  "district": "Raigarh(MH)",
+  "state": "Maharashtra",
+  "division": "Raigad",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405850ae54f19e46649ca"
+  },
+  "pinCode": 452009,
+  "found": true,
+  "district": "Indore",
+  "state": "Madhya Pradesh",
+  "division": "Indore City",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4055f0ae54f19e466499c"
+  },
+  "pinCode": 411030,
+  "found": true,
+  "district": "Pune",
+  "state": "Maharashtra",
+  "division": "Pune City West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405350ae54f19e466496a"
+  },
+  "pinCode": 400089,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405280ae54f19e466495a"
+  },
+  "pinCode": 400067,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405110ae54f19e466493e"
+  },
+  "pinCode": 400022,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405170ae54f19e4664945"
+  },
+  "pinCode": 400034,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c404f70ae54f19e466491f"
+  },
+  "pinCode": 321605,
+  "found": true,
+  "district": "Alwar",
+  "state": "Rajasthan",
+  "division": "Alwar",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405200ae54f19e4664951"
+  },
+  "pinCode": 400057,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405090ae54f19e4664935"
+  },
+  "pinCode": 400009,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405150ae54f19e4664943"
+  },
+  "pinCode": 400030,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405050ae54f19e466492f"
+  },
+  "pinCode": 400003,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c404f20ae54f19e4664919"
+  },
+  "pinCode": 110057,
+  "found": true,
+  "district": "South West Delhi",
+  "state": "Delhi",
+  "division": "New Delhi South West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405440ae54f19e466497c"
+  },
+  "pinCode": 400604,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane Central",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c404f50ae54f19e466491d"
+  },
+  "pinCode": 306401,
+  "found": true,
+  "district": "Pali",
+  "state": "Rajasthan",
+  "division": "Pali",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405260ae54f19e4664958"
+  },
+  "pinCode": 400064,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4054d0ae54f19e4664987"
+  },
+  "pinCode": 401101,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4054d0ae54f19e4664986"
+  },
+  "pinCode": 400709,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "New Mumbai",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4052f0ae54f19e4664963"
+  },
+  "pinCode": 400078,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405630ae54f19e46649a1"
+  },
+  "pinCode": 411042,
+  "found": true,
+  "district": "Pune",
+  "state": "Maharashtra",
+  "division": "Pune City West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405000ae54f19e466492a"
+  },
+  "pinCode": 395010,
+  "found": true,
+  "district": "Surat",
+  "state": "Gujarat",
+  "division": "Surat",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4051f0ae54f19e466494f"
+  },
+  "pinCode": 400055,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405480ae54f19e4664981"
+  },
+  "pinCode": 400615,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "Thane Central",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405100ae54f19e466493d"
+  },
+  "pinCode": 400019,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4056d0ae54f19e46649ae"
+  },
+  "pinCode": 416008,
+  "found": true,
+  "district": "Kolhapur",
+  "state": "Maharashtra",
+  "division": "Kolhapur",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405640ae54f19e46649a2"
+  },
+  "pinCode": 411044,
+  "found": true,
+  "district": "Pune",
+  "state": "Maharashtra",
+  "division": "Pune City East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4050f0ae54f19e466493c"
+  },
+  "pinCode": 400018,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  West",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4052e0ae54f19e4664962"
+  },
+  "pinCode": 400077,
+  "found": true,
+  "district": "Mumbai",
+  "state": "Maharashtra",
+  "division": "Mumbai  North East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4055d0ae54f19e466499a"
+  },
+  "pinCode": 411027,
+  "found": true,
+  "district": "Pune",
+  "state": "Maharashtra",
+  "division": "Pune City East",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c405830ae54f19e46649c8"
+  },
+  "pinCode": 452006,
+  "found": true,
+  "district": "Indore",
+  "state": "Madhya Pradesh",
+  "division": "Indore City",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61c4054c0ae54f19e4664985"
+  },
+  "pinCode": 400708,
+  "found": true,
+  "district": "Thane",
+  "state": "Maharashtra",
+  "division": "New Mumbai",
+  "__v": 0
+}]

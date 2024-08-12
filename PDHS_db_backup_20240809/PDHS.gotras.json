@@ -1,0 +1,495 @@
+[{
+  "_id": {
+    "$oid": "658a63114a23d647680b6c84"
+  },
+  "id": "Pakheshwar",
+  "gotra": "Pakheshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63124a23d647680b6c87"
+  },
+  "id": "Uttareshwar",
+  "gotra": "Uttareshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63124a23d647680b6c8a"
+  },
+  "id": "Kherju",
+  "gotra": "Kherju",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63134a23d647680b6c8d"
+  },
+  "id": "Ankeshwar",
+  "gotra": "Ankeshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63134a23d647680b6c8f"
+  },
+  "id": "Pankheshwar",
+  "gotra": "Pankheshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63144a23d647680b6c91"
+  },
+  "id": "Uteshwar",
+  "gotra": "Uteshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63144a23d647680b6c93"
+  },
+  "id": "Kakdeshwar",
+  "gotra": "Kakdeshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63154a23d647680b6c95"
+  },
+  "id": "Mantreshwar",
+  "gotra": "Mantreshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63164a23d647680b6c97"
+  },
+  "id": "Vajjnu",
+  "gotra": "Vajjnu",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63174a23d647680b6c99"
+  },
+  "id": "Ankleshwar",
+  "gotra": "Ankleshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63174a23d647680b6c9b"
+  },
+  "id": "Badriswar",
+  "gotra": "Badriswar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63184a23d647680b6c9d"
+  },
+  "id": "Khairja",
+  "gotra": "Khairja",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63184a23d647680b6c9f"
+  },
+  "id": "Rajiyanu",
+  "gotra": "Rajiyanu",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63184a23d647680b6ca1"
+  },
+  "id": "Anklashwar",
+  "gotra": "Anklashwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63194a23d647680b6ca3"
+  },
+  "id": "Gangeshwar",
+  "gotra": "Gangeshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63194a23d647680b6ca5"
+  },
+  "id": "Budeshwar",
+  "gotra": "Budeshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a631a4a23d647680b6ca7"
+  },
+  "id": "Sankheshwar",
+  "gotra": "Sankheshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a631a4a23d647680b6ca9"
+  },
+  "id": "Vajiyanu",
+  "gotra": "Vajiyanu",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a631b4a23d647680b6cab"
+  },
+  "id": "Bhattkeshar",
+  "gotra": "Bhattkeshar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a631c4a23d647680b6cad"
+  },
+  "id": "Uttershewar",
+  "gotra": "Uttershewar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a631c4a23d647680b6caf"
+  },
+  "id": "Antreshwar",
+  "gotra": "Antreshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a631d4a23d647680b6cb1"
+  },
+  "id": "Mateshwari",
+  "gotra": "Mateshwari",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a631d4a23d647680b6cb3"
+  },
+  "id": "Other",
+  "gotra": "Other",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a631e4a23d647680b6cb5"
+  },
+  "id": "Ateshwar",
+  "gotra": "Ateshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a631e4a23d647680b6cb7"
+  },
+  "id": "Atereshwa",
+  "gotra": "Atereshwa",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a631f4a23d647680b6cb9"
+  },
+  "id": "Matrashwar",
+  "gotra": "Matrashwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a631f4a23d647680b6cbb"
+  },
+  "id": "Bhadkeshwar",
+  "gotra": "Bhadkeshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63204a23d647680b6cbd"
+  },
+  "id": "Antrashwar",
+  "gotra": "Antrashwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63204a23d647680b6cbf"
+  },
+  "id": "Kherja",
+  "gotra": "Kherja",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63214a23d647680b6cc1"
+  },
+  "id": "Uttreshwar",
+  "gotra": "Uttreshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63214a23d647680b6cc3"
+  },
+  "id": "Rajjiyanu",
+  "gotra": "Rajjiyanu",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63224a23d647680b6cc5"
+  },
+  "id": "Kheraja",
+  "gotra": "Kheraja",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63234a23d647680b6cc7"
+  },
+  "id": "Badrishwar",
+  "gotra": "Badrishwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63234a23d647680b6cc9"
+  },
+  "id": "Utreshwar",
+  "gotra": "Utreshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63244a23d647680b6ccb"
+  },
+  "id": "Shankheshwar",
+  "gotra": "Shankheshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63244a23d647680b6ccd"
+  },
+  "id": "Pankeshwar",
+  "gotra": "Pankeshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63254a23d647680b6ccf"
+  },
+  "id": "Ambeshwar",
+  "gotra": "Ambeshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63264a23d647680b6cd1"
+  },
+  "id": "Atreshwar",
+  "gotra": "Atreshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63274a23d647680b6cd3"
+  },
+  "id": "Mantresvar",
+  "gotra": "Mantresvar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63284a23d647680b6cd5"
+  },
+  "id": "Vajyanu",
+  "gotra": "Vajyanu",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63294a23d647680b6cd7"
+  },
+  "id": "Agreshwar",
+  "gotra": "Agreshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a632a4a23d647680b6cd9"
+  },
+  "id": "Budheshwar",
+  "gotra": "Budheshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a632a4a23d647680b6cdb"
+  },
+  "id": "Matreshwar",
+  "gotra": "Matreshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a632a4a23d647680b6cdd"
+  },
+  "id": "Rajjanu",
+  "gotra": "Rajjanu",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a632b4a23d647680b6cdf"
+  },
+  "id": "Mantreshwer",
+  "gotra": "Mantreshwer",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a632b4a23d647680b6ce1"
+  },
+  "id": "Kamleshwar",
+  "gotra": "Kamleshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a632c4a23d647680b6ce3"
+  },
+  "id": "Vajjanu",
+  "gotra": "Vajjanu",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a632d4a23d647680b6ce5"
+  },
+  "id": "Vajjiyanu",
+  "gotra": "Vajjiyanu",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a632e4a23d647680b6ce7"
+  },
+  "id": "Attreshwar",
+  "gotra": "Attreshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a632e4a23d647680b6ce9"
+  },
+  "id": "Uthreshwar",
+  "gotra": "Uthreshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a632f4a23d647680b6ceb"
+  },
+  "id": "Rajayanu",
+  "gotra": "Rajayanu",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a632f4a23d647680b6ced"
+  },
+  "id": "Rajanu",
+  "gotra": "Rajanu",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a632f4a23d647680b6cef"
+  },
+  "id": "Buddheshwar",
+  "gotra": "Buddheshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63304a23d647680b6cf1"
+  },
+  "id": "Kakreshwar",
+  "gotra": "Kakreshwar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "658a63304a23d647680b6cf3"
+  },
+  "id": "Gangreshwar",
+  "gotra": "Gangreshwar",
+  "enabled": true,
+  "__v": 0
+}]

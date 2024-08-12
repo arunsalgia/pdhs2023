@@ -1,0 +1,96 @@
+[{
+  "_id": {
+    "$oid": "6686431fdf51cd0015bf3ea3"
+  },
+  "date": {
+    "$date": "2024-07-04T06:37:19.857Z"
+  },
+  "owner": "PRWS",
+  "hid": 0,
+  "desc": "Move members",
+  "hodMid": 470001,
+  "hodName": "Salgia Arun Rajendra",
+  "mid": 470001,
+  "name": "Salgia Arun Rajendra",
+  "isMember": true,
+  "data": "{\"hid\":470,\"transferMidList\":[470003,470004],\"transferNameList\":[\"Salgia Ankit Arun\",\"Salgia Krati Ankit\"],\"transferRelation\":[\"Self\",\"Spouse\"],\"createNewFamily\":true,\"newHodMid\":470003,\"newHodName\":\"Salgia Ankit Arun\",\"mergedFamilyHid\":0,\"mergedFamilyHeadName\":\"\",\"balanceFamilyHodMid\":470001,\"balanceFamilyHodName\":\"Salgia Arun Rajendra\",\"balanceFamilyMid\":[470001,470002],\"balanceFamilyName\":[\"Salgia Arun Rajendra\",\"Salgia Arpana Arun\"],\"balanceFamilyRelation\":[\"Self\",\"Spouse\"]}",
+  "status": "Rejected",
+  "adminName": "Salgia Arun Rajendra",
+  "comments": "testing",
+  "id": {
+    "$numberLong": "20240704001"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "66a77281c833a07044816668"
+  },
+  "date": {
+    "$date": "2024-07-29T10:44:17.630Z"
+  },
+  "owner": "PRWS",
+  "hid": 0,
+  "desc": "Add new Member",
+  "hodMid": 470001,
+  "hodName": "Salgia Arun Rajendra",
+  "mid": 470001,
+  "name": "Salgia Arun Rajendra",
+  "isMember": true,
+  "data": "{\"hid\":470,\"mode\":\"ADD\",\"oldMemberRec\":{\"hid\":470,\"lastName\":\"Salgia\",\"firstName\":\"\"},\"memberRec\":{\"title\":\"Shri\",\"lastName\":\"Salgia\",\"firstName\":\"Arham\",\"middleName\":\"Ankit\",\"alias\":\"\",\"relation\":\"Grand son\",\"gender\":\"Male\",\"bloodGroup\":\"O+\",\"mobile\":\"\",\"mobile1\":\"\",\"email\":\"cd\",\"dob\":\"2023-02-05T18:30:00.000Z\",\"occupation\":\"\",\"education\":\"\",\"officePhone\":\"\",\"officeName\":\"\"}}",
+  "status": "Pending",
+  "adminName": "Salgia Arun Rajendra",
+  "comments": "Not correct",
+  "id": {
+    "$numberLong": "20240729003"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "66a79364e696eb72745153b8"
+  },
+  "date": {
+    "$date": "2024-07-29T13:04:36.855Z"
+  },
+  "owner": "PRWS",
+  "hid": 0,
+  "desc": "Add new Member",
+  "hodMid": 470001,
+  "hodName": "Salgia Arun Rajendra",
+  "mid": 470001,
+  "name": "Salgia Arun Rajendra",
+  "isMember": true,
+  "data": "{\"hid\":470,\"mode\":\"ADD\",\"oldMemberRec\":{\"hid\":470,\"lastName\":\"Salgia\",\"firstName\":\"\"},\"memberRec\":{\"title\":\"Mast\",\"lastName\":\"Salgia\",\"firstName\":\"Arham\",\"middleName\":\"Ankit\",\"alias\":\"\",\"relation\":\"Grand son\",\"gender\":\"Male\",\"bloodGroup\":\"O+\",\"mobile\":\"\",\"mobile1\":\"\",\"email\":\"cd\",\"dob\":\"2023-02-05T18:30:00.000Z\",\"occupation\":\"\",\"education\":\"\",\"officePhone\":\"\",\"officeName\":\"\"}}",
+  "status": "Pending",
+  "adminName": "",
+  "comments": "",
+  "id": {
+    "$numberLong": "20240729004"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "66a7969ae696eb72745153d8"
+  },
+  "date": {
+    "$date": "2024-07-29T13:18:18.562Z"
+  },
+  "owner": "PRWS",
+  "hid": 0,
+  "desc": "Edit Member",
+  "hodMid": 470001,
+  "hodName": "Salgia Arun Rajendra",
+  "mid": 470001,
+  "name": "Salgia Arun Rajendra",
+  "isMember": true,
+  "data": "{\"hid\":470,\"mode\":\"EDIT\",\"oldMemberRec\":{\"_id\":\"61c17b95e1249c1cd041f2e5\",\"hid\":470,\"mid\":470001,\"title\":\"Shri\",\"lastName\":\"Salgia\",\"firstName\":\"Arun\",\"middleName\":\"Rajendra\",\"alias\":\"\",\"relation\":\"Self\",\"gender\":\"Male\",\"dob\":\"1961-06-07T00:00:00.000Z\",\"bloodGroup\":\"O+\",\"emsStatus\":\"Married\",\"education\":\"M.SC.(TECH)COMP. SCIENCE\",\"educationLevel\":\"Engineering\",\"educationCategory\":\"Computer Science\",\"educationField\":\"M.Sc. (Tech.)\",\"occupation\":\"Service\",\"mobile\":\"8080820084\",\"email\":\"811f3e73721c0632e4ca43f77c3dc419adb2422d\",\"officeName\":\"Chemtrols Ind. Pvt. Ltd.\",\"officeAddr1\":\"\",\"officeAddr2\":\"\",\"officePhone\":\"67151531\",\"mobile1\":\"\",\"email1\":\"cd\",\"ceased\":false,\"ceasedDate\":\"1899-12-31T18:38:50.000Z\",\"__v\":0,\"dateOfMarriage\":\"1987-07-09T00:00:00.000Z\",\"spouseMid\":470002,\"order\":0,\"officeAddr\":\"\",\"humadMember\":true,\"pjymMember\":true,\"prwsMember\":false,\"pmmMember\":false},\"memberRec\":{\"mobile\":\"9080820084\"}}",
+  "status": "Rejected",
+  "adminName": "Salgia Arun Rajendra",
+  "comments": "Incorrect mobile number",
+  "id": {
+    "$numberLong": "20240729005"
+  },
+  "__v": 0
+}]

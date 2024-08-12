@@ -851,7 +851,7 @@ return (
 		<br />
 	</Accordion>
 	}
-	{( (!isSpouseMember) && (isSpouseHumad || (memberRec.gender === "Male") ) )&&
+	{(!isSpouseMember) &&
 	<div>
 	<Accordion expanded={expandedPanel === "SPOUSEDETAILS2"} onChange={handleAccordionChange("SPOUSEDETAILS2")} >
 		<Box align="right" className={(expandedPanel === "SPOUSEDETAILS2") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
@@ -960,7 +960,7 @@ return (
 	<br />
 	</div>
 	}
-	{(!isSpouseMember) && (isSpouseHumad || (memberRec.gender === "Male") ) &&
+	{(!isSpouseMember) &&
 	<Accordion expanded={expandedPanel === "SPOUSEOFFICEDETAILS"} onChange={handleAccordionChange("SPOUSEOFFICEDETAILS")} >
 		<Box align="right" className={(expandedPanel === "SPOUSEOFFICEDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>

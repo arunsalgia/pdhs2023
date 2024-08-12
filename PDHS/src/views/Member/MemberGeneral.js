@@ -155,7 +155,7 @@ export default function MemberGeneral (props) {
 		try {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/gotra/list`
 			let resp = await axios.get(myUrl);
-			console.log(resp.data);
+			//console.log(resp.data);
 			setGotraArray(resp.data);
 			//var test = resp.data.find(
 		} catch (e) {

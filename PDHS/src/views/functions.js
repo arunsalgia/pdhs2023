@@ -762,7 +762,9 @@ export function getRelation(myRelation) {
 	myRelation = myRelation.replace("Son in law", "SIL");
 	//myRelation = myRelation.replace("Sister in law", "Sister IL");		
 	if (myRelation.includes("Gr.") && myRelation.includes(" daughter") )
-		myRelation = myRelation.replace(" daughter", "Dau.");
+		myRelation = myRelation.replace("daughter", "Dau.");
+	if (myRelation.includes("Gr.") && myRelation.includes(" son") )
+		myRelation = myRelation.replace("son", "Son");
 	return myRelation;
 }
 

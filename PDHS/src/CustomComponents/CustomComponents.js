@@ -5,6 +5,7 @@ import TextField from '@material-ui/core/TextField';
 import Tooltip from "react-tooltip";
 import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import Divider from '@material-ui/core/Divider';
 
 import Grid from '@material-ui/core/Grid';
@@ -1339,7 +1340,7 @@ return (
 			<Typography className={gClasses.patientInfo2}>{m.officeName}</Typography>
 		</Grid>
 	}
-	<Grid align="left" item xs={3} sm={3} md={1} lg={1} >
+	<Grid align="right" item xs={3} sm={3} md={1} lg={1} >
 		<Typography className={gClasses.patientInfo2}>{m.officePhone}</Typography>
 	</Grid>
 	<Grid align="center" item xs={1} sm={1} md={1} lg={1} >
@@ -1359,6 +1360,13 @@ return <Tooltip id={props.id} className={gClasses.tooltip} backgroundColor='#42E
 
 var inputFilterMode = false;
 
+/*<VsSelect 
+									inputProps={{className: gClasses.dateTimeNormal}} style={NORMALSELECTSTYLE} 
+									label={props.inputName} options={props.inputInfo.options} value={props.inputValue} 
+									onChange={props.selectClick} 
+								/>
+*/	
+								
 export 	function DisplayPrwsFilter(props) {
 	const gClasses = globalStyles();
 	return(
@@ -1385,7 +1393,7 @@ export 	function DisplayPrwsFilter(props) {
 									inputProps={{className: gClasses.dateTimeNormal}} style={NORMALSELECTSTYLE} 
 									label={props.inputName} options={props.inputInfo.options} value={props.inputValue} 
 									onChange={props.selectClick} 
-								/>				
+								/>									
 							}
 							{ (!props.inputInfo.options) &&
 								<div>

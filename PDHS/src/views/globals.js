@@ -101,7 +101,7 @@ export const dialogOptions={
 
 export const MAGICNUMBER = 99999;
 
-export const MEMBERTITLE = ["Shri", "Smt.", "Mast", "Ms."];
+export const MEMBERTITLE = ["Shri", "Smt.", "Mast", "Ms.", "Dr."];
 
 export const GENDER = ["Male", "Female", "Other"];
 

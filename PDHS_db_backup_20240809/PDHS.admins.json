@@ -1,0 +1,39 @@
+[{
+  "_id": {
+    "$oid": "61da50c6a78fdf1dc80387a0"
+  },
+  "mid": 470002,
+  "superAdmin": false,
+  "humadAdmin": true,
+  "pjymAdmin": true,
+  "prwsAdmin": false,
+  "pmmAdmin": false,
+  "superduper": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61d9767a70f7791bd0f7f5c2"
+  },
+  "mid": 470001,
+  "superAdmin": true,
+  "humadAdmin": true,
+  "pjymAdmin": true,
+  "prwsAdmin": true,
+  "pmmAdmin": true,
+  "superduper": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "61d976d370f7791bd0f7f5c3"
+  },
+  "mid": 472001,
+  "superAdmin": true,
+  "humadAdmin": false,
+  "pjymAdmin": false,
+  "prwsAdmin": false,
+  "pmmAdmin": false,
+  "superduper": false,
+  "__v": 0
+}]

@@ -1,0 +1,432 @@
+[{
+  "_id": {
+    "$oid": "659294795bd97f0d8cde57cb"
+  },
+  "id": "Mumbai",
+  "city": "Mumbai",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "659294795bd97f0d8cde57cd"
+  },
+  "id": "Thane",
+  "city": "Thane",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "659294795bd97f0d8cde57d1"
+  },
+  "id": "Palghar",
+  "city": "Palghar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "659294795bd97f0d8cde57d3"
+  },
+  "id": "Navi Mumbai",
+  "city": "Navi Mumbai",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "659294795bd97f0d8cde57d5"
+  },
+  "id": "Hyderabad",
+  "city": "Hyderabad",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "659294795bd97f0d8cde57d7"
+  },
+  "id": "Chalisgaon",
+  "city": "Chalisgaon",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "659294795bd97f0d8cde57d9"
+  },
+  "id": "Jalna",
+  "city": "Jalna",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "659294795bd97f0d8cde57db"
+  },
+  "id": "Pratapgarh",
+  "city": "Pratapgarh",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "659294795bd97f0d8cde57dd"
+  },
+  "id": "Mandsaur",
+  "city": "Mandsaur",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "659294795bd97f0d8cde57df"
+  },
+  "id": "Indore",
+  "city": "Indore",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "659294795bd97f0d8cde57e1"
+  },
+  "id": "Secunderabad",
+  "city": "Secunderabad",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "659294795bd97f0d8cde57e3"
+  },
+  "id": "Delhi",
+  "city": "Delhi",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "659294795bd97f0d8cde57e5"
+  },
+  "id": "Bangalore",
+  "city": "Bangalore",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "659294795bd97f0d8cde57e7"
+  },
+  "id": "Bhusawal",
+  "city": "Bhusawal",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "659294795bd97f0d8cde57e9"
+  },
+  "id": "Surat",
+  "city": "Surat",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde57eb"
+  },
+  "id": "Valsad",
+  "city": "Valsad",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde57ed"
+  },
+  "id": "Kolhapur",
+  "city": "Kolhapur",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde57ef"
+  },
+  "id": "Ahmedabad",
+  "city": "Ahmedabad",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde57f1"
+  },
+  "id": "Pune",
+  "city": "Pune",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde57f3"
+  },
+  "id": "Solapur",
+  "city": "Solapur",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde57f5"
+  },
+  "id": "Ujjain",
+  "city": "Ujjain",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde57f7"
+  },
+  "id": "Satara",
+  "city": "Satara",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde57f9"
+  },
+  "id": "Dahod",
+  "city": "Dahod",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde57fb"
+  },
+  "id": "Banswara",
+  "city": "Banswara",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde57fd"
+  },
+  "id": "New Delhi",
+  "city": "New Delhi",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde57ff"
+  },
+  "id": "Pali",
+  "city": "Pali",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde5801"
+  },
+  "id": "Ajmer",
+  "city": "Ajmer",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde5803"
+  },
+  "id": "Daltanganj",
+  "city": "Daltanganj",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde5805"
+  },
+  "id": "Nashik",
+  "city": "Nashik",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde5807"
+  },
+  "id": "Australia",
+  "city": "Australia",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde5809"
+  },
+  "id": "Belgaum",
+  "city": "Belgaum",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde580b"
+  },
+  "id": "Manasa",
+  "city": "Manasa",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde580d"
+  },
+  "id": "Jaipur",
+  "city": "Jaipur",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde580f"
+  },
+  "id": "Jamshedpur",
+  "city": "Jamshedpur",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde5811"
+  },
+  "id": "Malegaon",
+  "city": "Malegaon",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde5813"
+  },
+  "id": "Ramganjmandi",
+  "city": "Ramganjmandi",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde5815"
+  },
+  "id": "Navsari",
+  "city": "Navsari",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde5817"
+  },
+  "id": "Khandwa",
+  "city": "Khandwa",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde5819"
+  },
+  "id": "Ratlam",
+  "city": "Ratlam",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde581b"
+  },
+  "id": "U.S.A.",
+  "city": "U.S.A.",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde581d"
+  },
+  "id": "Udaipur",
+  "city": "Udaipur",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde581f"
+  },
+  "id": "Aurangabad",
+  "city": "Aurangabad",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde5821"
+  },
+  "id": "Panvel",
+  "city": "Panvel",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde5823"
+  },
+  "id": "Baroda",
+  "city": "Baroda",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde5825"
+  },
+  "id": "Bhavnagar",
+  "city": "Bhavnagar",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde5827"
+  },
+  "id": "Vadodara",
+  "city": "Vadodara",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde5829"
+  },
+  "id": "Indiapur",
+  "city": "Indiapur",
+  "enabled": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6592947a5bd97f0d8cde582b"
+  },
+  "id": "Dahanu",
+  "city": "Dahanu",
+  "enabled": true,
+  "__v": 0
+}]

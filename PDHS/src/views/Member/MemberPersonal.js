@@ -294,6 +294,8 @@ function DisplayPersonalInformation() {
 		//console.log(newMenuRef);
 		var memberRecord = memberArray.find(x => x.mid === radioMid);
 		if (!memberRecord) return;
+		//console.log(hodRec);
+		//console.log(memberRecord.mid);
 		var myIndex = memberArray.findIndex(x => x.mid === radioMid);
 		//console.log(myIndex);
 		let isFamilyMember = (memberArray[0].hid === loginHid);
@@ -334,7 +336,7 @@ function DisplayPersonalInformation() {
 		<MenuItem disabled={!(isEligible && (isFamilyMember || admin))} onClick={() => {handleMemPerContextMenuClose(); handleMarriage(memberRecord); } } >
 			<Typography>Marriage</Typography>
 		</MenuItem>
-		<MenuItem disabled={!isFamilyMember && !admin} onClick={() => { handleMemPerContextMenuClose(); newHOD(memberRecord) } }>
+		<MenuItem disabled={(!isFamilyMember && !admin) || (hodRec.mid === memberRecord.mid)} onClick={() => { handleMemPerContextMenuClose(); newHOD(memberRecord) } }>
 			<Typography>New Family Head</Typography>
 		</MenuItem>
 		<MenuItem disabled={!isFamilyMember && !admin} onClick={() => {handleMemPerContextMenuClose(); ceasedMember(memberRecord); } } >
@@ -346,7 +348,7 @@ function DisplayPersonalInformation() {
 	
 	const handleMemberPersonalContextMenu = (e,id) => {
 		e.preventDefault();
-		console.log(e.currentTarget);
+		//console.log(e.currentTarget);
 		setGrpAnchorEl(e.currentTarget);
 		const {pageX, pageY } = e;
 		//console.log(pageX, pageY);
