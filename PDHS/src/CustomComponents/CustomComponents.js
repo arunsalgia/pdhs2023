@@ -1369,6 +1369,7 @@ var inputFilterMode = false;
 								
 export 	function DisplayPrwsFilter(props) {
 	const gClasses = globalStyles();
+	setTimeout(function() {}, 0);
 	return(
 		<Box key="BOXPRWSFILTER" className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
 			<Grid key="GRIDPRWSFILTER" className={gClasses.noPadding} container>

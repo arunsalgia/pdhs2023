@@ -629,7 +629,7 @@ export default function Prws() {
 		<DisplayPageHeader headerName={(dispType === "xs") ? "PRWS" : "Pratapgarh Rajasthan Welfare Samiti"} 
 			button1={<VsButton style={{marginRight: "10px" }}  name="Export to CSV" onClick={downloadPrwsData} />}
 		/>
-		{/*<DisplayPrwsFilter 
+		<DisplayPrwsFilter 
 			inputFilterMode={inputFilterMode} 
 			inputName={inputName}
 			inputInfo={inputInfo}
@@ -643,9 +643,9 @@ export default function Prws() {
 			pdhsFilter={(event) => { addFilter(event.target.value); }}
 			applyClick={() => { addFilterConfirm(""); } }
 			cancelClick={() => { setInputFilterMode(false); setLastFilter(""); } }
-		/>*/}
+		/>
 
-		<Box key="BOXPRWSFILTER"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
+		{/*<Box key="BOXPRWSFILTER"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
 			<Grid key="PRWSFILTER" className={gClasses.noPadding} container>
 				<Grid align="left" item xs={10} sm={10} md={11} lg={11} >
 					<div>
@@ -691,7 +691,7 @@ export default function Prws() {
 					</div>
 				</Grid>
 			</Grid>			
-		</Box>
+</Box>*/}
 		<PersonalHeader dispType={dispType} />
 		{/* display members here */}
 		{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
