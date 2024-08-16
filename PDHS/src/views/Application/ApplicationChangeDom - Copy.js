@@ -56,16 +56,12 @@ import {
 	hasPRWSpermission, 
 } from 'views/functions';
 
-var testData = {"hid":470,"groomMid":470003,"groomName":"Salgia Ankit Arun","brideMid":470004,"brideName":"Salgia Krati Ankit","dom": new Date()}
 
-const props_applicationRec_status = "Pending";
-const props_applicationRec_id=20240816001;
-
-export default function SignIn() {
+export default function ApplicationChangeDom(props) {
 	const gClasses = globalStyles();
 	
 	//const [registerStatus, setRegisterStatus] = useState(0);
-	const [appData, setAppdata] = useState(testData);
+	const [appData, setAppdata] = useState(JSON.parse(props.applicationRec.data));
 	
 	// show in accordion
 	const [expandedPanel, setExpandedPanel] = useState("");
@@ -87,7 +83,7 @@ export default function SignIn() {
 
 
 async function handleMemberAddEditSubmit() {
-	//props.onReturn.call(this, {status: STATUS_INFO.ERROR, msg: `Error Add/Edit gotra`});
+	props.onReturn.call(this, {status: STATUS_INFO.ERROR, msg: `Error Add/Edit gotra`});
 	return;
 }
 
@@ -114,9 +110,9 @@ async function  handleApplicationApproveConfirm(myRemarks) {
 	showInfo("Change DOM approval to be implemenetd");
 	return;
 	try {
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${props_applicationRec_id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${props.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
 		let resp = await axios.get(myUrl);
-		//props.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application approved by Admin`});
+		props.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application approved by Admin`});
 		
 	} catch (e) {
 		console.log(e);
@@ -126,10 +122,9 @@ async function  handleApplicationApproveConfirm(myRemarks) {
 
 async function  handleApplicationRejectConfirm(myRemarks) {
 	try {
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/reject/${props_applicationRec_id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/reject/${props.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
 		let resp = await axios.get(myUrl);
-		//props.onReturn.call(this, {status: STATUS_INFO.ERROR, applicationRec: resp.data, msg: `Application rejected by Admin`});
-		showInfo("Rejection done");
+		props.onReturn.call(this, {status: STATUS_INFO.ERROR, applicationRec: resp.data, msg: `Application rejected by Admin`});
 	} catch (e) {
 		console.log(e);
 		showError(`Error rejecting ceased member`);
@@ -146,6 +141,7 @@ console.log("after", appData);
 
 return (
 	<div>
+	<ApplicationHeader applicationRec={props.applicationRec} header="Application for member DOM change" />
 	{(stage === "INITIAL") &&
 	<div>
 	<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.pdhs_title} >Application data</Typography>
@@ -154,16 +150,16 @@ return (
 	{(stage === "INITIAL") &&
 		<div>
 		<br />
-		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Husband: Ankit Salgia}`}</Typography>
-		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Wife:   Krati Salgia}`}</Typography>
-		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`DOM: 07/02/2016}`}</Typography>
+		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Husband: ${appData.groomName}`}</Typography>
+		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Wife:   ${(appData.brideName)}`}</Typography>
+		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`DOM: ${dateString(appData.dom)}`}</Typography>
 		<br />
 		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
 		<br />
 	</div>
 	}
 	<br />
-	{((props_applicationRec_status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
+	{((props.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
 	<Grid key={"APPLBUTTON"} className={gClasses.noPadding} container  alignItems="flex-start" >
 		<Grid item xs={2} sm={2} md={2} lg={2} />
 		<Grid item xs={4} sm={4} md={4} lg={4} >
@@ -191,7 +187,7 @@ return (
 		<Grid item xs={2} sm={2} md={2} lg={2} />
 	</Grid>
 	}
-	{((stage === "Remarks") && (props_applicationRec_status === "Pending")) &&
+	{((stage === "Remarks") && (props.applicationRec.status === "Pending")) &&
 	<div align="center">
 		<br />
 		<Typography align="center" className={gClasses.functionSelected}>{`Remarks for application ${action}`}</Typography>
@@ -203,7 +199,7 @@ return (
 			value = {remarks}   // Specifies the initial value of the text area
 			placeholder = "Add remarks"   // Specifies a short hint that describes the expected value of the textarea
 			//wrap = "soft"   // Specifies how the text in the text area should be wrapped
-			readOnly = {(props_applicationRec_status !== "Pending")}   // Specifies that the text area is read-only, meaning the user cannot modify its content
+			readOnly = {(props.applicationRec.status !== "Pending")}   // Specifies that the text area is read-only, meaning the user cannot modify its content
 			name = "Remarks"   // Specifies the name of the text area, which can be used when submitting a form
 			//disabled = {true}   //  Specifies that the text area is disabled, meaning the user cannot interact with it
 			//minLength = {150}   // Specifies the minimum number of characters required in the textarea

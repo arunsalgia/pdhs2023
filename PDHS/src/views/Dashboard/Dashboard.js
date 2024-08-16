@@ -402,6 +402,7 @@ export default function Dashboard() {
 					</a>
         </GridItem>
 				}
+				{false &&
 			<GridItem key="admin_item" xs={12} sm={6} md={4} lg={3} >
 					<a href='/' > 
           <Card key="textvalidator" onClick={jumpToTestValidator}>
@@ -418,6 +419,7 @@ export default function Dashboard() {
           </Card>
 					</a>
         </GridItem>
+				}
       </GridContainer>  
 		</div>
 );		
