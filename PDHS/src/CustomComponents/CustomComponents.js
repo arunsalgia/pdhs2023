@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 //import ReactTooltip from "react-tooltip";
-import TextField from '@material-ui/core/TextField'; 
+import TextField from '@material-ui/core/TextField';
+import Input from '@material-ui/core/Input';  
 import Tooltip from "react-tooltip";
 import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
@@ -1398,7 +1399,7 @@ export 	function DisplayPrwsFilter(props) {
 							}
 							{ (!props.inputInfo.options) &&
 								<div>
-									<TextField id="outlined-required" label={props.inputName}
+									<Input id="outlined-required" label={props.inputName}
 										value={props.inputValue} type={props.inputInfo.type}
 										onChange={(event) => { props.setInputValue(event.target.value); }}
 									/>
