@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 //import ReactTooltip from "react-tooltip";
 import TextField from '@material-ui/core/TextField';
 import Input from '@material-ui/core/Input';  
+//import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
+
 import Tooltip from "react-tooltip";
 import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
@@ -1399,12 +1401,22 @@ export 	function DisplayPrwsFilter(props) {
 							}
 							{ (!props.inputInfo.options) &&
 								<div>
-									<Input id="outlined-required" label={props.inputName}
+								{/*<Input id="outlined-required" label={props.inputName}
 										value={props.inputValue} type={props.inputInfo.type}
 										onChange={(event) => { props.setInputValue(event.target.value); }}
 									/>
 									<VsButton  name="Apply"  onClick={props.applyClick} />
-									<VsButton name="Cancel" onClick={props.cancelClick } />
+								<VsButton name="Cancel" onClick={props.cancelClick } />*/}
+								<ValidatorForm align="center" className={gClasses.form} onSubmit={props.applyClick}>
+								<TextValidator 
+									id="outlined-required" label={props.inputName} required className={gClasses.vgSpacing}
+									type={props.inputInfo.type}
+									value={props.inputValue}
+									onChange={(event) => { props.setInputValue(event.target.value); }}
+								/>
+								<VsButton  name="Apply"  type="submit" />
+								<VsButton name="Cancel"  type="button" onClick={props.cancelClick } />*/}
+								</ValidatorForm>
 								</div>
 							}
 						</div>
