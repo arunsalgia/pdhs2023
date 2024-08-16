@@ -7,16 +7,21 @@ import Grid from "@material-ui/core/Grid";
 
 import globalStyles from "assets/globalStyles";
 
-import { isMobile, encrypt, getMemberName} from "views/functions.js"
+import { isMobile, encrypt, getMemberName, getWindowDimensions} from "views/functions.js"
 import {setTab} from "CustomComponents/CricDreamTabs.js"
 import { VsLogo, ValidComp } from 'CustomComponents/CustomComponents.js'; 
 
 import VsButton from "CustomComponents/VsButton";
 
+var maxDim = 0;
 
 export default function LandingPage() {
   const gClasses = globalStyles();
-
+	const	myDim = getWindowDimensions();
+	console.log(myDim);
+  maxDim = (myDim.width < myDim.height) ? myDim.width : myDim.height;
+	console.log(maxDim);
+	
   useEffect(() => {
     if (window.sessionStorage.getItem("logout")) {
       sessionStorage.clear();
@@ -73,25 +78,40 @@ async function handleSubmitMobile(e) {
     setTab(0);
   }
   
+	if (maxDim === 0) return;
+	//var imgStyle = { max-width: "400px", max-height: "400px" };
+	//var imgSizes = `(max-width: ${maxDim}) ${maxDim}, (max-width: ${maxDim}) ${maxDim}`;
+	//console.log(imgSizes);
   return (
 	<div style={{backgroundColor: '#FFFFFF'}} >
-  <br />
-  <br />
+		<br />
+	{(myDim.width > myDim.height) &&
+		<div>
+		<br />
+		</div>
+	}
   <Grid  key="LandingPage" container align="center">
 		<Grid item xs={12} sm={12} md={6} lg={6} >	
-      <img src={`${process.env.PUBLIC_URL}/image/LANDINGPAGE.JPG`} />
+      <img width={maxDim} height={maxDim} src={`${process.env.PUBLIC_URL}/image/LANDINGPAGE.JPG`} />
     </Grid>
 		<Grid item xs={12} sm={12} md={6} lg={6} align="center" >	
-      <br />
-      <br />
+		{(myDim.width > myDim.height) &&
+		 <div>
+     <br />
+		 <br />
+		 </div>
+		}
       <br />
       <Typography component="h1" variant="h5" align="center">Pratapgarh Rajasthan Welfare Samiti</Typography>
       <br />
-      <br />
       <VsButton name="Get Started" onClick={handleGetStarted} />
+		{(myDim.width > myDim.height) &&
+			<div>
 			<br />
       <br />
 			<br />
+			</div>
+		}
       <br />
 			
     </Grid>
