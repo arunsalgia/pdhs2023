@@ -290,6 +290,7 @@ export default function Prws() {
 	
 	
 	function addFilterConfirm(tmpValue) {
+		
 		console.log("addFilterConfirm", tmpValue);
 		let finalFilter;
 		let userSelection = ""
@@ -316,6 +317,10 @@ export default function Prws() {
 			//console.log(finalFilter);
 			setFilterList(finalFilter);
 		}
+		// for testing blank on Mobile
+		if (finalFilter.length === 0) return;
+		
+		
 		setInputFilterMode(false);
 		updateFilterItems(finalFilter);
 		if (process.env.REACT_APP_BACKENDFILTER === "true") {
