@@ -254,6 +254,10 @@ export default function Dashboard() {
 		setDisplayPage(process.env.REACT_APP_ADMIN, 0, 0);
 	}
 	
+	function jumpToTestValidator() {
+		setDisplayPage(process.env.REACT_APP_VALIDATOR, 0, 0);
+	}
+	
 	//console.log(loginUserRec);
 	if (!countInfo) return false;
 	return (
@@ -398,6 +402,22 @@ export default function Dashboard() {
 					</a>
         </GridItem>
 				}
+			<GridItem key="admin_item" xs={12} sm={6} md={4} lg={3} >
+					<a href='/' > 
+          <Card key="textvalidator" onClick={jumpToTestValidator}>
+            <CardHeader key="tvheader" color="info" stats icon>
+              <CardIcon color="info">
+							<img src={process.env.PUBLIC_URL + 'image/ADMIN.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 							
+              </CardIcon>
+             <button className={gClasses.dashText} >Admins</button>
+							<h5 align="right" color="blue"  className={gClasses.cardTitle} ></h5>
+            </CardHeader>
+            <CardFooter key="admin_footer" stats>
+							<Typography className={gClasses.patientInfo2Blue} >{`Validator`}</Typography>
+            </CardFooter>
+          </Card>
+					</a>
+        </GridItem>
       </GridContainer>  
 		</div>
 );		

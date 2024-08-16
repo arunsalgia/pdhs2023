@@ -32,6 +32,9 @@ import Member from 'views/Member/Member'
 import Humad from 'views/Humad/Humad'
 import Pjym from 'views/Pjym/Pjym'
 import Prws from 'views/Prws/Prws'
+import TestValidator from 'views/Prws/TestValidator'
+
+
 import Admin from 'views/Admin/Admin'
 import Application from 'views/Application/Application'
 
@@ -337,6 +340,7 @@ export function CricDreamTabs() {
 	const handlePjym = () => { handleClose(); setMenuValue(903);}
 	const handleFamily = () => { handleClose(); setMenuValue(904);}
 	const handleApplication = () => { handleClose(); setMenuValue(905);}
+	const handleTestValidator = () => { handleClose(); setMenuValue(9999);}
 	
 	
   const handleGotra = () => { handleClose(); setMenuValue(1001);}
@@ -356,6 +360,7 @@ export function CricDreamTabs() {
 			case 903: return <Pjym />;
 			case 904: return <Member hid={Number(sessionStorage.getItem("menuHid"))} mid={Number(sessionStorage.getItem("menuMid"))} />;
 			case 905: return <Application />;
+			case 9999: return <TestValidator />;
 			case 999: return <Application userType="user" />;
 			
       case 1001: return <Gotra />;
