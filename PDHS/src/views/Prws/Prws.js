@@ -634,7 +634,7 @@ export default function Prws() {
 		<DisplayPageHeader headerName={(dispType === "xs") ? "PRWS" : "Pratapgarh Rajasthan Welfare Samiti"} 
 			button1={<VsButton style={{marginRight: "10px" }}  name="Export to CSV" onClick={downloadPrwsData} />}
 		/>
-		<DisplayPrwsFilter 
+		{/*<DisplayPrwsFilter 
 			inputFilterMode={inputFilterMode} 
 			inputName={inputName}
 			inputInfo={inputInfo}
@@ -648,9 +648,9 @@ export default function Prws() {
 			pdhsFilter={(event) => { addFilter(event.target.value); }}
 			applyClick={() => { addFilterConfirm(""); } }
 			cancelClick={() => { setInputFilterMode(false); setLastFilter(""); } }
-		/>
+		/>*/}
 
-		{/*<Box key="BOXPRWSFILTER"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
+		<Box key="BOXPRWSFILTER"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
 			<Grid key="PRWSFILTER" className={gClasses.noPadding} container>
 				<Grid align="left" item xs={10} sm={10} md={11} lg={11} >
 					<div>
@@ -677,12 +677,24 @@ export default function Prws() {
 							}
 							{ (!inputInfo.options) &&
 								<div>
-									<TextField id="outlined-required" label={inputName}
+								{/*<TextField id="outlined-required" label={inputName}
 										value={inputValue} type={inputInfo.type}
 										onChange={(event) => { setInputValue(event.target.value); }}
 									/>
 									<VsButton name="Apply"  onClick={() => { addFilterConfirm(""); } } />
 									<VsButton name="Cancel" onClick={() => { setInputFilterMode(false); setLastFilter(""); }  } />
+								*/}
+								<ValidatorForm align="left" className={gClasses.form} onSubmit={() => { addFilterConfirm(""); }}>
+								<TextValidator 
+									id="outlined-required" label={inputName} required className={gClasses.vgSpacing}
+									type={inputInfo.type}
+									value={inputValue}
+									onChange={(event) => { setInputValue(event.target.value); }}
+								/>
+								<VsButton  name="Apply"  type="submit" />
+								<VsButton name="Cancel"  type="button" onClick={() => { setInputFilterMode(false); setLastFilter(""); }  } />
+								</ValidatorForm>
+								
 								</div>
 							}
 						</div>
@@ -696,8 +708,8 @@ export default function Prws() {
 					</div>
 				</Grid>
 			</Grid>			
-</Box>*/}
-		<PersonalHeader dispType={dispType} />
+		</Box>
+		{/*<PersonalHeader dispType={dispType} />*/}
 		{/* display members here */}
 		{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
 			if (m.ceased) return null;		

@@ -1407,7 +1407,7 @@ export 	function DisplayPrwsFilter(props) {
 									/>
 									<VsButton  name="Apply"  onClick={props.applyClick} />
 								<VsButton name="Cancel" onClick={props.cancelClick } />*/}
-								<ValidatorForm align="center" className={gClasses.form} onSubmit={props.applyClick}>
+								<ValidatorForm align="left" className={gClasses.form} onSubmit={props.applyClick}>
 								<TextValidator 
 									id="outlined-required" label={props.inputName} required className={gClasses.vgSpacing}
 									type={props.inputInfo.type}
@@ -1415,7 +1415,7 @@ export 	function DisplayPrwsFilter(props) {
 									onChange={(event) => { props.setInputValue(event.target.value); }}
 								/>
 								<VsButton  name="Apply"  type="submit" />
-								<VsButton name="Cancel"  type="button" onClick={props.cancelClick } />*/}
+								<VsButton name="Cancel"  type="button" onClick={props.cancelClick } />
 								</ValidatorForm>
 								</div>
 							}
