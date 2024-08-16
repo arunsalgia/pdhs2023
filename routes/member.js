@@ -110,7 +110,7 @@ router.get('/filterdata/:filterInfo', async function (req, res) {
   setHeader(res);
   var {filterInfo } = req.params;
 	filterInfo = JSON.parse(filterInfo);
-	//console.log(filterInfo);
+	console.log(filterInfo);
 
 	let myData = await memberGetAll();
  	var clonedArray = _.cloneDeep(myData);
