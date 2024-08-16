@@ -1369,7 +1369,7 @@ var inputFilterMode = false;
 								
 export 	function DisplayPrwsFilter(props) {
 	const gClasses = globalStyles();
-	setTimeout(function() {}, 0);
+	//setTimeout(function() {}, 0);
 	return(
 		<Box key="BOXPRWSFILTER" className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
 			<Grid key="GRIDPRWSFILTER" className={gClasses.noPadding} container>
@@ -1399,7 +1399,7 @@ export 	function DisplayPrwsFilter(props) {
 							{ (!props.inputInfo.options) &&
 								<div>
 									<TextField id="outlined-required" label={props.inputName}
-										value={props.inputValue} type={props.inputInfo.type} autoFocus
+										value={props.inputValue} type={props.inputInfo.type}
 										onChange={(event) => { props.setInputValue(event.target.value); }}
 									/>
 									<VsButton  name="Apply"  onClick={props.applyClick} />

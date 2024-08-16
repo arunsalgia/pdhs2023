@@ -40,6 +40,7 @@ import ApplicationMemberCeased from "views/Application/ApplicationMemberCeased";
 import ApplicationAddEditMember from "views/Application/ApplicationAddEditMember";
 import ApplicationNewHod from "views/Application/ApplicationNewHod";
 import ApplicationTransferMember from "views/Application/ApplicationTransferMember";
+import ApplicationChangeDom from "views/Application/ApplicationChangeDom";
 
 
 import {
@@ -310,10 +311,9 @@ export default function Application(props) {
 	
 	function handleApplictionEditBack(sts) {
 		//console.log(sts);
-		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
-		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
-		
-		if (sts.status == STATUS_INFO.SUCCESS) {
+		if ( (sts.status == STATUS_INFO.SUCCESS) || (sts.status == STATUS_INFO.ERROR) ) {
+			if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
+			else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
 			console.log(sts.applicationRec);
 			var tmp = [sts.applicationRec].concat(applicationArray.filter(x => x.id !== applicationRec.id));
 			setApplicationArray(lodashReverse(lodashSortBy(tmp, 'id')));
@@ -323,6 +323,7 @@ export default function Application(props) {
 		}
 		setIsDrawerOpened("");
 	}
+	
 	var previousDrawer;
 	function rejectApplication() {
 		previousDrawer = isDrawerOpened;
@@ -449,7 +450,11 @@ export default function Application(props) {
 	}	
 	{(isDrawerOpened === APPLICATIONTYPES.transferMember) &&
 		<ApplicationTransferMember applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
-	}		</Box>
+	}		
+	{(isDrawerOpened === APPLICATIONTYPES.changeDom) &&
+		<ApplicationChangeDom applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
+	}		
+	</Box>
 	</Container>
 	</Drawer>
 	<ToastContainer />

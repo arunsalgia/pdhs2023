@@ -8,6 +8,10 @@ import Avatar from '@material-ui/core/Avatar';
 import lodashCloneDeep from 'lodash/cloneDeep';
 import lodashSortBy from "lodash/sortBy";
 import lodashMap from "lodash/map";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+import MemberEditDom from 'views/Member/MemberEditDom';
 
 import VsButton from "CustomComponents/VsButton";
 import VsCancel from "CustomComponents/VsCancel";
@@ -27,6 +31,8 @@ import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
 import moment from "moment";
 
+import MoreVertIcon from '@material-ui/icons/MoreVert';
+import EditIcon from 			'@material-ui/icons/Edit';
 // styles
 import globalStyles from "assets/globalStyles";
 
@@ -39,6 +45,7 @@ import {
 import {
 MARITALSTATUS, ADMIN, APPLICATIONTYPES,
 DATESTR, MONTHNUMBERSTR,
+STATUS_INFO,
 } from "views/globals.js";
 
 
@@ -48,7 +55,7 @@ import {
 	getMemberName,
 	dispAge, getAdminInfo, dateString,
 	decrypt, dispMobile, dispEmail, disableFutureDt, 
-	showError, 
+	showError, showSuccess,
 } from "views/functions.js";
 
 const SHOWMARRIAGEIMAGE = false;
@@ -76,8 +83,10 @@ export default function MemberSpouse(props) {
 	
 	const [isDrawerOpened, setIsDrawerOpened] = useState("");
 	const [isLeftDrawerOpened, setIsLeftDrawerOpened] = useState("");
+	const [isTopDrawerOpened, setIsTopDrawerOpened] = useState("");
 	const [registerStatus, setRegisterStatus] = useState(0);
 
+	const [coupleRec, setCoupleRec] = useState(null);
 	
 
 	
@@ -291,6 +300,12 @@ export default function MemberSpouse(props) {
 			return null;
 	}
 	
+	function handleDOM(couple) {
+		//console.log(couple.gMid, couple.bMid);
+		setCoupleRec(couple);
+		setIsTopDrawerOpened("EDITDOM");
+	}
+	
 	function DisplaySpouseInformation() {
 		let hands = getImageName("MARRIAGEHANDS");
 		return (
@@ -299,23 +314,27 @@ export default function MemberSpouse(props) {
 		<Grid item xs={5} sm={5} md={5} lg={5} >
 			<Typography className={gClasses.patientInfo2Brown}>Husband</Typography>
 		</Grid>
-		<Grid item xs={2} sm={2} md={2} lg={2} >
+		<Grid item xs={2} sm={2} md={1} lg={1} >
 			<Typography className={gClasses.patientInfo2Brown}>DOM</Typography>
 		</Grid>
 		<Grid item xs={5} sm={5} md={5} lg={5} >
 			<Typography className={gClasses.patientInfo2Brown}>Wife</Typography>
 		</Grid>
+		<Grid item xs={1} sm={1} md={1} lg={1} >
+			<Typography className={gClasses.patientInfo2Brown}></Typography>
+		</Grid>
 		</Grid>
 		{coupleArray.map( (c, index) => {
 			let myDate = dateString(c.dom);
 			if (myDate === "") myDate = "N.A.";
+			//console.log(c);
 			return (
 				<Box  key={"SPOUSE"+index} className={((index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} borderColor="black" borderRadius={7} border={1} >
 				<Grid key={"MEMGRID"+index} className={gClasses.noPadding} container align="center" alignItems="center" >
 				<Grid item xs={5} sm={5} md={5} lg={5} >
 					<Typography className={gClasses.patientInfo2Blue}>{c.gName}</Typography>
 				</Grid>
-				<Grid item xs={2} sm={2} md={2} lg={2} >
+				<Grid item xs={2} sm={2} md={1} lg={1} >
 					{(SHOWMARRIAGEIMAGE) &&
 					<Avatar size="small" variant="circular" src={hands} />
 					}
@@ -326,6 +345,12 @@ export default function MemberSpouse(props) {
 				<Grid item xs={5} sm={5} md={5} lg={5} >
 					<Typography className={gClasses.patientInfo2Blue}>{c.bName}</Typography>
 				</Grid>
+				<Grid item xs={1} sm={1} md={1} lg={1} >
+				<Typography>
+				 <span><MoreVertIcon color="primary" size="small" onClick={() => handleDOM(c) }	 /></span>
+				</Typography>
+
+				</Grid>				
 				</Grid>
 				</Box>					
 			)}
@@ -333,9 +358,26 @@ export default function MemberSpouse(props) {
 		</div>
 	)}
 
+	function handleEditDomBack(sts) {
+		if (sts.status === STATUS_INFO.ERROR) 
+			showError(sts.msg); 
+		else if (sts.status === STATUS_INFO.SUCCESS) {
+			showSuccess(sts.msg); 
+		}
+		else if (sts.status === STATUS_INFO.INFO) {
+			console.log("In info");
+			vsInfo("Applied for ceased", sts.msg,
+				{label: "Okay"}
+			);
+		}
+		setIsTopDrawerOpened("");
+	}		
+	
+	
+	
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
-	<DisplaySpouseButtons />
+	{/*<DisplaySpouseButtons />*/}
 	<DisplaySpouseInformation />
 	{(isDrawerOpened !== "") &&
 	<Drawer key="TOP" anchor="top" variant="temporary" open={isDrawerOpened != ""}>
@@ -464,6 +506,17 @@ export default function MemberSpouse(props) {
 	}
 	</Box>
 	</Drawer>
+	{(isTopDrawerOpened !== "") &&
+		<Drawer style={{ width: "100%"}} anchor="top" variant="temporary" open={isTopDrawerOpened != ""} >
+		<Container component="main" maxWidth="xs" >	
+		<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
+		<VsCancel align="right" onClick={() => { setIsTopDrawerOpened("")}} />
+		<MemberEditDom hid={memberArray[0].hid} hodMid={memberArray[0].mid} couple={coupleRec} onReturn={handleEditDomBack} />
+		</Box>
+		</Container>
+		</Drawer>
+	}
+	<ToastContainer />		
 	</div>
   );    
 }

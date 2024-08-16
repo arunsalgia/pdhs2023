@@ -340,6 +340,7 @@ export const APPLICATIONTYPES = {
 	spouseDetails: 		"Spouse Details",
 	newHod: 					"New F.Head",
 	transferMember:		"Move members",
+	changeDom: 				"Change DOM",
 };
 
 

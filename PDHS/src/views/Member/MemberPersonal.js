@@ -341,7 +341,7 @@ function DisplayPersonalInformation() {
 		}
 		{(memberRecord.emsStatus.toUpperCase() === "MARRIED") &&
 		<MenuItem disabled={!(true && (isFamilyMember || admin))} onClick={() => {handleMemPerContextMenuClose(); handleUnMarriage(memberRecord); } } >
-			<Typography>Split</Typography>
+			<Typography>Change Marital Status</Typography>
 		</MenuItem>
 		}		
 		<MenuItem disabled={(!isFamilyMember && !admin) || (hodRec.mid === memberRecord.mid)} onClick={() => { handleMemPerContextMenuClose(); newHOD(memberRecord) } }>
