@@ -81,6 +81,8 @@ const funCodeTable = [
 
 
 export default function Application(props) {
+	sessionStorage.removeItem("application_appRec");
+	
 	const loginHid = parseInt(sessionStorage.getItem("hid"), 10);
 	const loginMid = parseInt(sessionStorage.getItem("mid"), 10);
 	var adminRec = sessionStorage.getItem("adminRec");
