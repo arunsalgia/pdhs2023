@@ -153,6 +153,86 @@ function handleCancel() {
 
 return (
 	<div>
+	<VsCancel align="right" onClick={handleCancel} />
+	<ApplicationHeader applicationRec={myProps.applicationRec} header="Application for member DOM change" />
+	{(stage === "INITIAL") &&
+	<div>
+	<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.pdhs_title} >Application data</Typography>
+	</div>
+	}
+	{(stage === "INITIAL") &&
+		<div>
+		<br />
+		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Husband: ${appData.groomName}`}</Typography>
+		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Wife:   ${(appData.brideName)}`}</Typography>
+		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`DOM: ${dateString(appData.dom)}`}</Typography>
+		<br />
+		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
+		<br />
+	</div>
+	}
+	<br />
+	{((myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
+	<Grid key={"APPLBUTTON"} className={gClasses.noPadding} container  alignItems="flex-start" >
+		<Grid item xs={2} sm={2} md={2} lg={2} />
+		<Grid item xs={4} sm={4} md={4} lg={4} >
+			<VsButton align="center" name="Approve" onClick={handleApplicationApprove} />
+		</Grid>
+		<Grid item xs={4} sm={4} md={4} lg={4} >
+			<VsButton align="center" name="Reject" type="button"  onClick={handleApplicationReject} />
+		</Grid>
+		<Grid item xs={2} sm={2} md={2} lg={2} />
+	</Grid>
+	}
+	{((stage === "Approve") || (stage === "Reject")) && 
+	<Grid key={"APPLAPPROVEREHECT"} className={gClasses.noPadding} container  alignItems="flex-start" >
+		<Grid item xs={12} sm={12} md={12} lg={12} >
+			<Typography align="center" className={gClasses.functionSelected}>{`${stage} Application?`}</Typography>
+			<br />
+		</Grid>
+		<Grid item xs={2} sm={2} md={2} lg={2} />
+		<Grid item xs={4} sm={4} md={4} lg={4} >
+			<VsButton align="center" name="Yes" onClick={() => setStage("Remarks") } />
+		</Grid>
+		<Grid item xs={4} sm={4} md={4} lg={4} >
+			<VsButton align="center" name="No" onClick={() => setStage("INITIAL") } />
+		</Grid>
+		<Grid item xs={2} sm={2} md={2} lg={2} />
+	</Grid>
+	}
+	{((stage === "Remarks") && (myProps.applicationRec.status === "Pending")) &&
+	<div align="center">
+		<br />
+		<Typography align="center" className={gClasses.functionSelected}>{`Remarks for application ${action}`}</Typography>
+		<br />
+		{/*<TextareaAutosize maxRows={MAXDISPLAYTEXTROWS} className={gClasses.textAreaFixed}  value={remarks} />*/}
+		<TextField
+			id="outlined-multiline-static"
+			label="Add remarks"
+			multiline
+			rows={10}
+			variant="outlined"
+			value = {remarks}
+			onChange = {() => setRemarks(event.target.value) }
+		/>
+		<textarea
+			rows = {5}    // Specifies the number of visible text lines
+			cols = {40}    // Specifies the width of the text area in characters
+			value = {remarks}   // Specifies the initial value of the text area
+			placeholder = "Add remarks"   // Specifies a short hint that describes the expected value of the textarea
+			//wrap = "soft"   // Specifies how the text in the text area should be wrapped
+			readOnly = {(myProps.applicationRec.status !== "Pending")}   // Specifies that the text area is read-only, meaning the user cannot modify its content
+			name = "Remarks"   // Specifies the name of the text area, which can be used when submitting a form
+			//disabled = {true}   //  Specifies that the text area is disabled, meaning the user cannot interact with it
+			//minLength = {150}   // Specifies the minimum number of characters required in the textarea
+			maxLength = {200}   // Specifies the maximum number of characters allowed in the textarea
+			onChange = {() => setRemarks(event.target.value) }
+		/>
+		<br />
+			<VsButton align="center" name="Submit" onClick={handleRemarksDone} />
+		<br />
+	</div>
+	}
 	<ValidatorForm align="center" className={gClasses.form} onSubmit={handleRemarksDone}>
 	<TextValidator fullWidth  variant="outlined" required className={gClasses.vgSpacing}
 		label="Remarks" type="text"
@@ -160,6 +240,7 @@ return (
 		onChange={(event) => { setRemarks(event.target.value) }}
 	/>
 	</ValidatorForm >
+	<ToastContainer />
 	</div>
 	)
 }

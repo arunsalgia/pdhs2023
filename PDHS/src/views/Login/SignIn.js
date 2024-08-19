@@ -1,240 +1,246 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
-import Button from '@material-ui/core/Button';
-import CssBaseline from '@material-ui/core/CssBaseline';
-// import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
-import Grid from "@material-ui/core/Grid";
-import { Switch } from '@material-ui/core';
-
-//import { makeStyles } from '@material-ui/core/styles';
-import globalStyles from "assets/globalStyles";
+import React, { useEffect, useState, useContext } from 'react';
+import axios from "axios";
+import { makeStyles } from '@material-ui/core/styles';
+// import { Switch, Route, Link } from 'react-router-dom';
+import TextField from '@material-ui/core/TextField';
+import { ValidatorForm, TextValidator, TextValidatorcvariant, TextareaAutosize} from 'react-material-ui-form-validator';
+import Drawer from '@material-ui/core/Drawer';
+import Divider from '@material-ui/core/Divider';
 import Container from '@material-ui/core/Container';
 
-//import { useHistory } from "react-router-dom";
-//import { UserContext } from "../../UserContext";
-import axios from "axios";
-//import { DesktopWindows } from '@material-ui/icons';
+//import Tooltip from "react-tooltip";
+//import ReactTooltip from 'react-tooltip'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-import {setTab, setDisplayPage } from "CustomComponents/CricDreamTabs.js"
-import { VsLogo, ValidComp } from 'CustomComponents/CustomComponents.js'; 
+import Box from '@material-ui/core/Box';
+import Grid from "@material-ui/core/Grid";
 
-import VsButton from "CustomComponents/VsButton";
-import VsRadio from "CustomComponents/VsRadio";
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+
+import Typography from '@material-ui/core/Typography';
+import { UserContext } from "../../UserContext";
+
+import { 
+	JumpButton, DisplayPageHeader, ValidComp, BlankArea, 
+	ApplicationHeader, DisplayApplicationNameValue,
+} from 'CustomComponents/CustomComponents.js';
+
+import IconButton from '@material-ui/core/IconButton';
+import InfoIcon from '@material-ui/icons/Info';
+import EditIcon from '@material-ui/icons/Edit';
+import CheckBoxIcon from '@material-ui/icons/CheckBox';
+import IndeterminateCheckBoxIcon from '@material-ui/icons/IndeterminateCheckBox';
+import CancelIcon from '@material-ui/icons/Cancel';
+
+import globalStyles from "assets/globalStyles";
+
+import VsButton from "CustomComponents/VsButton"; 
+import VsCancel from "CustomComponents/VsCancel";
+
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+
 
 import {
-	isMobile, encrypt, getMemberName, capitalizeFirstLetter,
-} from "views/functions";
-
-
-import {
-	PAGELIST,
-} from "views/globals.js";
-
-import lodashCloneDeep from 'lodash/cloneDeep';
-import lodashUniqBy from "lodash/uniqBy";
-import lodashMap from "lodash/map";
-
+	ADMIN, APPLICATIONTYPES, APPLICATIONSTATUS, SELECTSTYLE, 
+  PADSTYLE,
+	MEMBERTITLE, RELATION, SELFRELATION, GENDER, BLOODGROUP, MARITALSTATUS,
+	STATUS_INFO,
+	MAXDISPLAYTEXTROWS,
+} from 'views/globals';
 
 import {
-	readAllMembers,
-} from "views/clientdbfunctions";
+	isMobile, getWindowDimensions, displayType, decrypt, encrypt,
+	vsDialog, showError, showSuccess, showInfo,
+	getMemberName,
+	dateString, disableFutureDt,
+	hasPRWSpermission, 
+} from 'views/functions';
 
+import {
+	setTab,
+} from "CustomComponents/CricDreamTabs.js"
 
-//let deviceIsMobile=isMobile();
-
-const LOGINOPTION = {
-		mobile:		"Mobile",
-		email:		"Email"
-};
-
-export default function SignIn() {
-  const gClasses = globalStyles();
-
-	const [loginMode, setLoginMode] = useState(LOGINOPTION.mobile);
-  const [userMobile, setUserMobile] = useState("");
-  const [userEmail, setUserEmail] = useState("");
-	const [whereCaptcha, setWhereCaptcha] = useState("");
+export default function SignIn(props) {
+	const gClasses = globalStyles();
+	const myProps = JSON.parse(sessionStorage.getItem("application_appRec"));
+	//const myProps = sessionStorage.getItem("application_appRec");
+	console.log(myProps);
 	
-  const [password, setPassword] = useState("");
-  const [stage, setStage] = useState("MOBILE");
-  const [ errorMessage, setErrorMessage ] = useState({msg: "", isError: false });
-
-	async function getMemberList() {
-		await readAllMembers();
-	}
+	//const [registerStatus, setRegisterStatus] = useState(0);
+	const [appData, setAppdata] = useState(JSON.parse(myProps.applicationRec.data));
 	
-  useEffect(() => {
-		async function getData() {
-			getMemberList();
-			console.log("Got it");			
-		}
-		
-		if (process.env.REACT_APP_PRWS_DB === "true") {
-			getData();
-		}
-    if (window.localStorage.getItem("logout")) {
-      localStorage.clear();
-    }
-    if (window.localStorage.getItem("uid")) {
-      // setUser({ uid: window.localStorage.getItem("uid"), admin: window.localStorage.getItem("admin") })
-      // history.push("/admin")
-    } else {
-      // setShowPage(true)
-    }
-  }, []);
-
-  function setError(msg, isError) {
-    setErrorMessage({msg: msg, isError: isError});
-  }
+	// show in accordion
+	const [expandedPanel, setExpandedPanel] = useState("");
+	const handleAccordionChange = (panel) => (event, isExpanded) => {
+    setExpandedPanel(isExpanded ? panel : false);
+    //setRegisterStatus(0);
+  };
+	
+	const [remarks, setRemarks] = useState("");
+	const [action, setAction] = useState("");
+	const [stage, setStage] = useState("INITIAL");
+	
+	
+	
+	/*useEffect(() => {
+			//console.log(myProps.applicationRec.data);
+			//setAppdata(JSON.parse(myProps.applicationRec.data));
+}, [])*/
 
 
-	async function handleSubmitCapta(e) {
-  e.preventDefault();
+async function handleMemberAddEditSubmit() {
+	myProps.onReturn.call(this, {status: STATUS_INFO.ERROR, msg: `Error Add/Edit gotra`});
+	return;
+}
 
-	try { 
-		var myData = {
-			isMobile:  (loginMode === LOGINOPTION.mobile),
-			userName:	 encrypt((loginMode === LOGINOPTION.mobile) ? userMobile : userEmail),
-			password:	 password
-		};
-		myData = encodeURIComponent(JSON.stringify(myData));
-		//let enPassword = password;			//encrypt(password);
-		//let response = await axios.get(`${process.env.REACT_APP_AXIOS_BASEPATH}/user/padmavatimata/${userMobile}/${enPassword}`); 
-		let response = await axios.get(`${process.env.REACT_APP_AXIOS_BASEPATH}/user/padmavatimata/${myData}`); 
-		setError("", false);
-		let userData = response.data.user;
-		if (userData) {
-			window.sessionStorage.setItem("hid", userData.hid)
-			window.sessionStorage.setItem("mid", userData.mid)
-			window.sessionStorage.setItem("memberRec", JSON.stringify(userData));
-			window.sessionStorage.setItem("userMobile", getMemberName(userData, false, false));
-			window.sessionStorage.setItem("firstName", userData.firstName );	
-		}
-		else {
-			window.sessionStorage.setItem("hid", "0")
-			window.sessionStorage.setItem("mid", "0")
-			window.sessionStorage.setItem("memberRec", "{}");
-			window.sessionStorage.setItem("userMobile", "Guest");
-			window.sessionStorage.setItem("firstName","Guest");				
-		}
-		window.sessionStorage.setItem("prwsLogin", response.data.userName);
-		window.sessionStorage.setItem("isMember", response.data.isMember);
-		if (response.data.admin)
-			window.sessionStorage.setItem("adminRec", JSON.stringify(response.data.admin));
-		else
-			window.sessionStorage.setItem("adminRec", "");
+async function handleApplicationReject() {
+	setAction("Reject");
+	setStage("Reject");
+}
 
-		setTab(process.env.REACT_APP_DASH);
-	} catch (err) {
-		setError("Invalid OPT", true);
-	}
-};
+async function handleApplicationApprove() {
+	setAction("Approve");
+	setStage("Approve");
+}
 
-
-async function handleSubmitMobile(e) {
-	console.log(userMobile, userEmail);
-  e.preventDefault();
-	var myData = {
-		isMobile:  (loginMode === LOGINOPTION.mobile),
-		userName:	 encrypt((loginMode === LOGINOPTION.mobile) ? userMobile : userEmail)
-	};
-  myData = encodeURIComponent(JSON.stringify(myData));
-	try { 
-		let response = await axios.get(`${process.env.REACT_APP_AXIOS_BASEPATH}/user/jaijinendra/${myData}`); 
-		setError("", false);
-		setWhereCaptcha(response.data.msg);
-    setPassword("");
-    setStage("CAPTCHA");
-  } catch (err) {
-		setError("Error generating captcha", true);
-	}
-};
-
-function switchHandler() {
-	if (loginMode === LOGINOPTION.mobile)
-		setLoginMode(LOGINOPTION.email);
+function handleRemarksDone() {
+	var myRemarks = (remarks !== "") ? remarks : "-";
+	if (action === "Approve")
+		handleApplicationApproveConfirm(myRemarks);
 	else
-		setLoginMode(LOGINOPTION.mobile);
+		handleApplicationRejectConfirm(myRemarks);
 }
 
 
-  return (
-	<div style={{backgroundColor: '#FFFFFF'}} >
-	<Container align="center" component="main" maxWidth="xs">
-	<CssBaseline />
-	<br />
-	<div align="center">
-	<VsLogo />
+async function  handleApplicationApproveConfirm(myRemarks) {
+	showInfo("Change DOM approval to be implemenetd");
+	return;
+	try {
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
+		let resp = await axios.get(myUrl);
+		myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application approved by Admin`});
+		
+	} catch (e) {
+		console.log(e);
+		showError(`Error approving ceased member`);
+	}
+}
+
+async function  handleApplicationRejectConfirm(myRemarks) {
+	try {
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/reject/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
+		let resp = await axios.get(myUrl);
+		myProps.onReturn.call(this, {status: STATUS_INFO.ERROR, applicationRec: resp.data, msg: `Application rejected by Admin`});
+	} catch (e) {
+		console.log(e);
+		showError(`Error rejecting ceased member`);
+	}
+}
+
+
+
+console.log("before",appData);
+if (!appData.groomMid) return false;
+console.log("after", appData);
+	
+function handleCancel() {
+	setTab(process.env.REACT_APP_APPLICATION);
+}
+
+
+return (
+	<div>
+	<VsCancel align="right" onClick={handleCancel} />
+	<ApplicationHeader applicationRec={myProps.applicationRec} header="Application for member DOM change" />
+	{(stage === "INITIAL") &&
+	<div>
+	<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.pdhs_title} >Application data</Typography>
 	</div>
-  <Typography component="h1" variant="h5" align="center">Sign in</Typography>
-  <br />
-  {(stage === "MOBILE") &&
-  	<ValidatorForm align="center" className={gClasses.form} onSubmit={handleSubmitMobile}>
-		<Grid className={gClasses.noPadding} key="LOGINOPTION" container align="center">
-		<Grid item xs={5} sm={5} md={5} lg={5} >
-			<Typography style={{marginTop: "10px"  }} className={gClasses.title}>{`Sign In using Email`}</Typography>
-		</Grid>
-		<Grid item xs={2} sm={2} md={2} lg={2} >
-			<Switch color="primary" checked={loginMode === LOGINOPTION.mobile} onChange={switchHandler} />
-		</Grid>
-		<Grid item xs={5} sm={5} md={5} lg={5} >
-			<Typography style={{marginTop: "10px"  }} className={gClasses.title}>{`Sign In using Mobile`}</Typography>
-		</Grid>
-		</Grid>	
+	}
+	{(stage === "INITIAL") &&
+		<div>
 		<br />
-		{(loginMode === LOGINOPTION.mobile) &&
-    <TextValidator fullWidth  variant="outlined" required className={gClasses.vgSpacing}
-      label="Mobile" type="text"
-      value={userMobile} 
-      onChange={(event) => { setUserMobile(event.target.value) }}
-      validators={['minNumber:1000000000', 'maxNumber:9999999999']}
-      errorMessages={['Only Indian mobile number supported', 'Only Indian mobile number supported']}
-    />
-		}
-		{(loginMode !== LOGINOPTION.mobile) &&
-    <TextValidator fullWidth  variant="outlined" required className={gClasses.vgSpacing}
-      label="Email" type="email"
-      value={userEmail} 
-      onChange={(event) => { setUserEmail(event.target.value) }}
-    />
-		}
-		<Grid className={gClasses.noPadding} key="SUBMITMOBILE" container align="center">
-		<Grid item xs={2} sm={2} md={4} lg={4} />	
-		<Grid item xs={8} sm={8} md={4} lg={4} >	
-      <br />
-			<VsButton type="submit" name="Continue" />
+		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Husband: ${appData.groomName}`}</Typography>
+		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Wife:   ${(appData.brideName)}`}</Typography>
+		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`DOM: ${dateString(appData.dom)}`}</Typography>
+		<br />
+		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
+		<br />
+	</div>
+	}
+	<br />
+	{((myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
+	<Grid key={"APPLBUTTON"} className={gClasses.noPadding} container  alignItems="flex-start" >
+		<Grid item xs={2} sm={2} md={2} lg={2} />
+		<Grid item xs={4} sm={4} md={4} lg={4} >
+			<VsButton align="center" name="Approve" onClick={handleApplicationApprove} />
 		</Grid>
-		<Grid item xs={2} sm={2} md={4} lg={4} />	
-		</Grid>	
-    </ValidatorForm>	
-  }
-  {(stage === "CAPTCHA") &&
-    <ValidatorForm align="center" className={gClasses.form} onSubmit={handleSubmitCapta}>
-    <Typography align="left" className={gClasses.message16Blue}>{whereCaptcha}</Typography>
-    <TextValidator fullWidth  variant="outlined" required className={gClasses.vgSpacing}
-      label="OTP" type="text"
-      value={password} 
-      onChange={(event) => { setPassword(event.target.value) }}
-      validators={['noSpecialCharacters']}
-      errorMessages={['Special characters not permitted']}
-    />
-    <Typography className={(errorMessage.isError) ? gClasses.error : gClasses.nonerror} align="left">{errorMessage.msg}</Typography>
-    <ValidComp />
-    <br />
-		<Grid className={gClasses.noPadding} key="SUBMITCAPTCHA" container align="center" alignItems="center">
-		<Grid item xs={5} sm={5} md={5} lg={5} >	
-    <VsButton type="submit" name="Login" />
+		<Grid item xs={4} sm={4} md={4} lg={4} >
+			<VsButton align="center" name="Reject" type="button"  onClick={handleApplicationReject} />
 		</Grid>
 		<Grid item xs={2} sm={2} md={2} lg={2} />
-		<Grid item xs={5} sm={5} md={5} lg={5} >	
-    <VsButton name="Back" onClick={() => setStage("MOBILE") } />
+	</Grid>
+	}
+	{((stage === "Approve") || (stage === "Reject")) && 
+	<Grid key={"APPLAPPROVEREHECT"} className={gClasses.noPadding} container  alignItems="flex-start" >
+		<Grid item xs={12} sm={12} md={12} lg={12} >
+			<Typography align="center" className={gClasses.functionSelected}>{`${stage} Application?`}</Typography>
+			<br />
 		</Grid>
-		</Grid>	
-		<ValidComp />
-    </ValidatorForm>	
-  }
-  </Container>
+		<Grid item xs={2} sm={2} md={2} lg={2} />
+		<Grid item xs={4} sm={4} md={4} lg={4} >
+			<VsButton align="center" name="Yes" onClick={() => setStage("Remarks") } />
+		</Grid>
+		<Grid item xs={4} sm={4} md={4} lg={4} >
+			<VsButton align="center" name="No" onClick={() => setStage("INITIAL") } />
+		</Grid>
+		<Grid item xs={2} sm={2} md={2} lg={2} />
+	</Grid>
+	}
+	{((stage === "Remarks") && (myProps.applicationRec.status === "Pending")) &&
+	<div align="center">
+		<br />
+		<Typography align="center" className={gClasses.functionSelected}>{`Remarks for application ${action}`}</Typography>
+		<br />
+		{/*<TextareaAutosize maxRows={MAXDISPLAYTEXTROWS} className={gClasses.textAreaFixed}  value={remarks} />*/}
+		<TextField
+			id="outlined-multiline-static"
+			label="Add remarks"
+			multiline
+			rows={10}
+			variant="outlined"
+			value = {remarks}
+			onChange = {() => setRemarks(event.target.value) }
+		/>
+		<textarea
+			rows = {5}    // Specifies the number of visible text lines
+			cols = {40}    // Specifies the width of the text area in characters
+			value = {remarks}   // Specifies the initial value of the text area
+			placeholder = "Add remarks"   // Specifies a short hint that describes the expected value of the textarea
+			//wrap = "soft"   // Specifies how the text in the text area should be wrapped
+			readOnly = {(myProps.applicationRec.status !== "Pending")}   // Specifies that the text area is read-only, meaning the user cannot modify its content
+			name = "Remarks"   // Specifies the name of the text area, which can be used when submitting a form
+			//disabled = {true}   //  Specifies that the text area is disabled, meaning the user cannot interact with it
+			//minLength = {150}   // Specifies the minimum number of characters required in the textarea
+			maxLength = {200}   // Specifies the maximum number of characters allowed in the textarea
+			onChange = {() => setRemarks(event.target.value) }
+		/>
+		<br />
+			<VsButton align="center" name="Submit" onClick={handleRemarksDone} />
+		<br />
 	</div>
-  );
+	}
+	<ValidatorForm align="center" className={gClasses.form} onSubmit={handleRemarksDone}>
+	<TextValidator fullWidth  variant="outlined" required className={gClasses.vgSpacing}
+		label="Remarks" type="text"
+		value={remarks} 
+		onChange={(event) => { setRemarks(event.target.value) }}
+	/>
+	</ValidatorForm >
+	<ToastContainer />
+	</div>
+	)
 }
