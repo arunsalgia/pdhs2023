@@ -4,19 +4,40 @@ import { Router, Route, Redirect } from "react-router-dom";
 import { useHistory } from "react-router-dom";
 import { createBrowserHistory } from "history";
 import { UserContext } from "./UserContext"; 
+import globalStyles from "assets/globalStyles";
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import Grid from "@material-ui/core/Grid";
+import Typography from '@material-ui/core/Typography';
+
+
 //import Admin from "layouts/Admin.js";
 import "assets/css/material-dashboard-react.css?v=1.9.0";
 // import { DesktopWindows } from "@material-ui/icons";
 import { CricDreamTabs, setTab } from "CustomComponents/CricDreamTabs"
+
+import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
 
 import SignIn from "views/Login/SignIn"
 import LandingPage from "views/Login/LandingPage"
 import Directory from "views/Directory/Directory"
 import ApplicationTest from "views/Application/ApplicationTest"
 
+import Dashboard from 'views/Dashboard/Dashboard'
+import Member from 'views/Member/Member'
+import Humad from 'views/Humad/Humad'
+import Pjym from 'views/Pjym/Pjym'
+import Prws from 'views/Prws/Prws'
+import Application from 'views/Application/Application'
+
+import ApplicationChangeDom from 'views/Application/ApplicationChangeDom'
+
+
+
 import IdleTimer from 'react-idle-timer'
 
 import { PinDropSharp } from "@material-ui/icons";
+
 
 import {
 	readAllMembers,
@@ -32,7 +53,8 @@ import {
 setIdle, isUserLogged,
 isMobile, cdRefresh, specialSetPos, 
 encrypt, 
-clearBackupData, downloadApk 
+clearBackupData, downloadApk,
+vsDialog, handleLogout,
 } from "views/functions.js"
 
 const hist = createBrowserHistory();
@@ -81,7 +103,8 @@ function checkResetPasswordRequest() {
 
 function AppRouter() {
   //let history={hist}
-
+	const gClasses = globalStyles();
+	
   const [user, setUser] = useState(null);
 	const [fireToken, setFireToken] = useState("");
 	
@@ -104,7 +127,18 @@ function AppRouter() {
     setIdle(true);
   }
 
+  function handleDashBoard() {
+		sessionStorage.setItem("menuValue", process.env.REACT_APP_DASH);
+		cdRefresh();
+	}
 
+	function ask_Logout_Confirm() {
+		vsDialog("Logout", `Continue Logout?`,
+		{label: "Yes", onClick: () => handleLogout() },
+		{label: "No" }
+		); 
+	  
+  }	
 
   function DispayTabs() {
     let isLogged = isUserLogged();
@@ -151,9 +185,48 @@ function AppRouter() {
       <SignIn/>
     }
     {(!showLanding && (myStatus !== "LOGIN")) &&
-			<div>
-      {/*<CricDreamTabs/>*/}
-			<ApplicationTest />
+    <div className={gClasses.root}>
+      <AppBar position="static">
+        <Toolbar className={gClasses.noSpacing}>
+        <Grid key="SUBMITMOBILE" container>
+        <Grid align="left" item xs={6} sm={6} md={6} lg={6} >	
+					<Typography>
+						<span onClick={handleDashBoard}  className={gClasses.message14} >{"PRWS"}</span>
+					</Typography>
+        </Grid>
+        <Grid align="right" item xs={6} sm={6} md={6} lg={6} >	
+          <Typography>
+						<span className={gClasses.message16} style={{paddingRight: "5px"}} >{"Welcome "+  sessionStorage.getItem("firstName")}</span>
+            <span style={{paddingTop: "10px"}} ><PowerSettingsNewIcon value={{size: 70 }}  onClick={ask_Logout_Confirm} /></span>
+          </Typography>
+        </Grid>
+        </Grid>
+			 </Toolbar>
+      </AppBar>
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_DASH) &&
+				<Dashboard />
+			}
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_PRWS) &&
+				<Prws />
+			}
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_HUMAD) &&
+				<Humad />
+			}
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_PJYM) &&
+				<Pjym />
+			}			
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_FAMILY) &&
+				<Member 
+					hid={Number(sessionStorage.getItem("menuHid"))} 
+					mid={Number(sessionStorage.getItem("menuMid"))} 
+				/>
+			}	
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_APPLICATION) &&
+				<Application />
+			}	
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_APPLICATION_DOMCHANGE) &&
+				<ApplicationChangeDom />
+			}	
 			</div>
     }
     </Router>

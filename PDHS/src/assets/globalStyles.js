@@ -466,7 +466,12 @@ const globalStyles = makeStyles((theme) => ({
     fontWeight: theme.typography.fontWeightBold,
     // color: yellow[900]
   },
-  button: {
+ message22: {
+    fontSize: theme.typography.pxToRem(22),
+    fontWeight: theme.typography.fontWeightBold,
+    // color: yellow[900]
+  },
+	button: {
     margin: theme.spacing(0, 1, 0),
   },
   error:  {
