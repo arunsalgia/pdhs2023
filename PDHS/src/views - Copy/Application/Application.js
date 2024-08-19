@@ -55,10 +55,6 @@ import {
 	ApplHeader, ApplStatus, ApplCommand,
 } from "CustomComponents/CustomComponents.js"
 
-import {
-	setTab,
-} from "CustomComponents/CricDreamTabs.js"
-
 
 import { 
 	isMobile,
@@ -75,10 +71,6 @@ const DEFAULTOWNER="PRWS";
 const applOption = ["Application Approved", "Application Rejected"];
 const RadioList = ["All", "Pending", "Approved","Rejected" ];
  
-const funCodeTable = [
-{fun: APPLICATIONTYPES.changeDom, code: process.env.REACT_APP_APPLICATION_DOMCHANGE}
-];
-
 
 export default function Application(props) {
 	const loginHid = parseInt(sessionStorage.getItem("hid"), 10);
@@ -242,7 +234,7 @@ export default function Application(props) {
 				<Typography className={gClasses.patientInfo2}>{a.status}</Typography>
 			</Grid>
 			<Grid align="center" item xs={6} sm={6} md={1} lg={1} >
-				<EditIcon size="small" color="primary" onClick={() => editApplicationPage(a)} />
+				<EditIcon size="small" color="primary" onClick={() => editApplication(a)} />
 				<CancelIcon size="small" color="secondary" onClick={() => deleteApplication(a)} />
 			</Grid>
 			</Grid>
@@ -312,30 +304,9 @@ export default function Application(props) {
 	
 	// edit application by admin
 	async function editApplication(appRec) {
-		sessionStorage.setItem("application_appRec", appRec);
 		setApplicationRec(appRec);
-		
 		setIsDrawerOpened(appRec.desc);
 		console.log(new Date(), appRec.id, appRec.desc);
-	}
-	
-	// edit application by admin
-	async function editApplicationPage(appRec) {
-		console.log("In Edit");
-		var myRec = funCodeTable.find(x => x.fun === appRec.desc);
-		console.log(myRec);
-		if (myRec) {
-			sessionStorage.setItem("application_appRec", JSON.stringify({applicationRec: appRec}));
-			setTab(myRec.code);
-			return;
-		}
-		else {
-			//sessionStorage.setItem("application_appRec", appRec);
-			setApplicationRec(appRec);
-		}
-		
-		//setIsDrawerOpened(appRec.desc);
-		//console.log(new Date(), appRec.id, appRec.desc);
 	}
 	
 	function handleApplictionEditBack(sts) {

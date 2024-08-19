@@ -5,6 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { ValidatorForm, TextValidator, TextValidatorcvariant, TextareaAutosize} from 'react-material-ui-form-validator';
 import Drawer from '@material-ui/core/Drawer';
 import Divider from '@material-ui/core/Divider';
+import Container from '@material-ui/core/Container';
 
 //import Tooltip from "react-tooltip";
 //import ReactTooltip from 'react-tooltip'
@@ -36,6 +37,7 @@ import CancelIcon from '@material-ui/icons/Cancel';
 import globalStyles from "assets/globalStyles";
 
 import VsButton from "CustomComponents/VsButton"; 
+import VsCancel from "CustomComponents/VsCancel";
 
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
@@ -56,12 +58,18 @@ import {
 	hasPRWSpermission, 
 } from 'views/functions';
 
+import {
+	setTab,
+} from "CustomComponents/CricDreamTabs.js"
 
 export default function ApplicationChangeDom(props) {
 	const gClasses = globalStyles();
+	const myProps = JSON.parse(sessionStorage.getItem("application_appRec"));
+	//const myProps = sessionStorage.getItem("application_appRec");
+	console.log(myProps);
 	
 	//const [registerStatus, setRegisterStatus] = useState(0);
-	const [appData, setAppdata] = useState(JSON.parse(props.applicationRec.data));
+	const [appData, setAppdata] = useState(JSON.parse(myProps.applicationRec.data));
 	
 	// show in accordion
 	const [expandedPanel, setExpandedPanel] = useState("");
@@ -77,13 +85,13 @@ export default function ApplicationChangeDom(props) {
 	
 	
 	/*useEffect(() => {
-			//console.log(props.applicationRec.data);
-			//setAppdata(JSON.parse(props.applicationRec.data));
+			//console.log(myProps.applicationRec.data);
+			//setAppdata(JSON.parse(myProps.applicationRec.data));
 }, [])*/
 
 
 async function handleMemberAddEditSubmit() {
-	props.onReturn.call(this, {status: STATUS_INFO.ERROR, msg: `Error Add/Edit gotra`});
+	myProps.onReturn.call(this, {status: STATUS_INFO.ERROR, msg: `Error Add/Edit gotra`});
 	return;
 }
 
@@ -110,9 +118,9 @@ async function  handleApplicationApproveConfirm(myRemarks) {
 	showInfo("Change DOM approval to be implemenetd");
 	return;
 	try {
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${props.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
 		let resp = await axios.get(myUrl);
-		props.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application approved by Admin`});
+		myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application approved by Admin`});
 		
 	} catch (e) {
 		console.log(e);
@@ -122,9 +130,9 @@ async function  handleApplicationApproveConfirm(myRemarks) {
 
 async function  handleApplicationRejectConfirm(myRemarks) {
 	try {
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/reject/${props.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/reject/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
 		let resp = await axios.get(myUrl);
-		props.onReturn.call(this, {status: STATUS_INFO.ERROR, applicationRec: resp.data, msg: `Application rejected by Admin`});
+		myProps.onReturn.call(this, {status: STATUS_INFO.ERROR, applicationRec: resp.data, msg: `Application rejected by Admin`});
 	} catch (e) {
 		console.log(e);
 		showError(`Error rejecting ceased member`);
@@ -137,11 +145,17 @@ console.log("before",appData);
 if (!appData.groomMid) return false;
 console.log("after", appData);
 	
+function handleCancel() {
+	setTab(process.env.REACT_APP_APPLICATION);
+}
 
 
 return (
 	<div>
-	<ApplicationHeader applicationRec={props.applicationRec} header="Application for member DOM change" />
+	<Container component="main" maxWidth="xs">	
+	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
+	<VsCancel align="right" onClick={handleCancel} />
+	<ApplicationHeader applicationRec={myProps.applicationRec} header="Application for member DOM change" />
 	{(stage === "INITIAL") &&
 	<div>
 	<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.pdhs_title} >Application data</Typography>
@@ -159,7 +173,7 @@ return (
 	</div>
 	}
 	<br />
-	{((props.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
+	{((myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
 	<Grid key={"APPLBUTTON"} className={gClasses.noPadding} container  alignItems="flex-start" >
 		<Grid item xs={2} sm={2} md={2} lg={2} />
 		<Grid item xs={4} sm={4} md={4} lg={4} >
@@ -187,7 +201,7 @@ return (
 		<Grid item xs={2} sm={2} md={2} lg={2} />
 	</Grid>
 	}
-	{((stage === "Remarks") && (props.applicationRec.status === "Pending")) &&
+	{((stage === "Remarks") && (myProps.applicationRec.status === "Pending")) &&
 	<div align="center">
 		<br />
 		<Typography align="center" className={gClasses.functionSelected}>{`Remarks for application ${action}`}</Typography>
@@ -199,7 +213,7 @@ return (
 			defaultValue = {remarks}   // Specifies the initial value of the text area
 			placeholder = "Add remarks"   // Specifies a short hint that describes the expected value of the textarea
 			//wrap = "soft"   // Specifies how the text in the text area should be wrapped
-			readOnly = {(props.applicationRec.status !== "Pending")}   // Specifies that the text area is read-only, meaning the user cannot modify its content
+			readOnly = {(myProps.applicationRec.status !== "Pending")}   // Specifies that the text area is read-only, meaning the user cannot modify its content
 			name = "Remarks"   // Specifies the name of the text area, which can be used when submitting a form
 			//disabled = {true}   //  Specifies that the text area is disabled, meaning the user cannot interact with it
 			//minLength = {150}   // Specifies the minimum number of characters required in the textarea
@@ -211,6 +225,8 @@ return (
 		<br />
 	</div>
 	}
+	</Box>
+	</Container>
 	<ToastContainer />
 	</div>
 	)

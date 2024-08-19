@@ -57,11 +57,11 @@ import {
 } from 'views/functions';
 
 
-export default function ApplicationChangeDom(props) {
+export default function ApplicationMemberCeased(props) {
 	const gClasses = globalStyles();
 	
 	//const [registerStatus, setRegisterStatus] = useState(0);
-	const [appData, setAppdata] = useState(JSON.parse(props.applicationRec.data));
+	const [appData, setAppdata] = useState({});
 	
 	// show in accordion
 	const [expandedPanel, setExpandedPanel] = useState("");
@@ -76,10 +76,10 @@ export default function ApplicationChangeDom(props) {
 	
 	
 	
-	/*useEffect(() => {
+	useEffect(() => {
 			//console.log(props.applicationRec.data);
-			//setAppdata(JSON.parse(props.applicationRec.data));
-}, [])*/
+			setAppdata(JSON.parse(props.applicationRec.data));
+	}, [])
 
 
 async function handleMemberAddEditSubmit() {
@@ -107,8 +107,6 @@ function handleRemarksDone() {
 
 
 async function  handleApplicationApproveConfirm(myRemarks) {
-	showInfo("Change DOM approval to be implemenetd");
-	return;
 	try {
 		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${props.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
 		let resp = await axios.get(myUrl);
@@ -125,6 +123,7 @@ async function  handleApplicationRejectConfirm(myRemarks) {
 		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/reject/${props.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
 		let resp = await axios.get(myUrl);
 		props.onReturn.call(this, {status: STATUS_INFO.ERROR, applicationRec: resp.data, msg: `Application rejected by Admin`});
+		
 	} catch (e) {
 		console.log(e);
 		showError(`Error rejecting ceased member`);
@@ -133,15 +132,14 @@ async function  handleApplicationRejectConfirm(myRemarks) {
 
 
 
-console.log("before",appData);
-if (!appData.groomMid) return false;
-console.log("after", appData);
+	//console.log(appData);
+
+	if (!appData.hid) return false;
+	//console.log(appData.oldMemberRec);
 	
-
-
 return (
 	<div>
-	<ApplicationHeader applicationRec={props.applicationRec} header="Application for member DOM change" />
+	<ApplicationHeader applicationRec={props.applicationRec} header={`Application for member ceased`} />
 	{(stage === "INITIAL") &&
 	<div>
 	<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.pdhs_title} >Application data</Typography>
@@ -150,12 +148,30 @@ return (
 	{(stage === "INITIAL") &&
 		<div>
 		<br />
-		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Husband: ${appData.groomName}`}</Typography>
-		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Wife:   ${(appData.brideName)}`}</Typography>
-		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`DOM: ${dateString(appData.dom)}`}</Typography>
+		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Ceased member ${appData.ceasedName}`}</Typography>
+		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Ceased date ${dateString(appData.ceasedDate)}`}</Typography>
+		{(appData.newHodName !== "") &&
+		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`New F.Head ${appData.newHodName}`}</Typography>
+		}
 		<br />
 		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
 		<br />
+		{(appData.midList.length > 0) &&
+			<div>
+			<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.pdhs_title} >{`Relation of members with ${appData.newHodName}`}</Typography>
+			<br />
+			</div>
+		}
+		{appData.nameList.map( (memberName, index) => {
+			if (appData.midList[index] === appData.newHodMid) return;
+			//var oldRelation = appData.oldRelationList[index];
+			var newRelation = appData.relationList[index];
+			return (
+				<div key={memberName} >
+					<Typography className={gClasses.patientInfo2Blue} >{`${memberName} ( ${newRelation} )`}</Typography>
+				</div>
+			)}
+		)}			
 	</div>
 	}
 	<br />
@@ -196,7 +212,7 @@ return (
 		<textarea
 			rows = {5}    // Specifies the number of visible text lines
 			cols = {40}    // Specifies the width of the text area in characters
-			defaultValue = {remarks}   // Specifies the initial value of the text area
+			value = {remarks}   // Specifies the initial value of the text area
 			placeholder = "Add remarks"   // Specifies a short hint that describes the expected value of the textarea
 			//wrap = "soft"   // Specifies how the text in the text area should be wrapped
 			readOnly = {(props.applicationRec.status !== "Pending")}   // Specifies that the text area is read-only, meaning the user cannot modify its content

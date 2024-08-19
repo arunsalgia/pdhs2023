@@ -37,6 +37,7 @@ import TestValidator from 'views/Prws/TestValidator'
 
 import Admin from 'views/Admin/Admin'
 import Application from 'views/Application/Application'
+import ApplicationChangeDom from 'views/Application/ApplicationChangeDom'
 
 import Profile from "views/Profile/UserProfile" 
 //import Home from "views/MED/Home.js";
@@ -366,6 +367,8 @@ export function CricDreamTabs() {
       case 1001: return <Gotra />;
       case 1002: return <City />;
 			case 951: return <Permissions />;
+			
+			case 10001: return <ApplicationChangeDom />
 
       default: return <Dashboard />;
     }

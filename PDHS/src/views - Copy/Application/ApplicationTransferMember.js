@@ -23,7 +23,7 @@ import { UserContext } from "../../UserContext";
 
 import { 
 	JumpButton, DisplayPageHeader, ValidComp, BlankArea, 
-	ApplicationHeader, DisplayApplicationNameValue,
+	ApplicationHeader, DisplayApplicationNameValue, DisplayApplicationNameValueNameBig,
 } from 'CustomComponents/CustomComponents.js';
 
 import IconButton from '@material-ui/core/IconButton';
@@ -57,11 +57,11 @@ import {
 } from 'views/functions';
 
 
-export default function ApplicationChangeDom(props) {
+export default function ApplicationTransferMember(props) {
 	const gClasses = globalStyles();
 	
 	//const [registerStatus, setRegisterStatus] = useState(0);
-	const [appData, setAppdata] = useState(JSON.parse(props.applicationRec.data));
+	const [appData, setAppdata] = useState({});
 	
 	// show in accordion
 	const [expandedPanel, setExpandedPanel] = useState("");
@@ -76,10 +76,10 @@ export default function ApplicationChangeDom(props) {
 	
 	
 	
-	/*useEffect(() => {
+	useEffect(() => {
 			//console.log(props.applicationRec.data);
-			//setAppdata(JSON.parse(props.applicationRec.data));
-}, [])*/
+			setAppdata(JSON.parse(props.applicationRec.data));
+	}, [])
 
 
 async function handleMemberAddEditSubmit() {
@@ -107,8 +107,6 @@ function handleRemarksDone() {
 
 
 async function  handleApplicationApproveConfirm(myRemarks) {
-	showInfo("Change DOM approval to be implemenetd");
-	return;
 	try {
 		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${props.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
 		let resp = await axios.get(myUrl);
@@ -125,6 +123,7 @@ async function  handleApplicationRejectConfirm(myRemarks) {
 		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/reject/${props.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
 		let resp = await axios.get(myUrl);
 		props.onReturn.call(this, {status: STATUS_INFO.ERROR, applicationRec: resp.data, msg: `Application rejected by Admin`});
+		
 	} catch (e) {
 		console.log(e);
 		showError(`Error rejecting ceased member`);
@@ -133,30 +132,66 @@ async function  handleApplicationRejectConfirm(myRemarks) {
 
 
 
-console.log("before",appData);
-if (!appData.groomMid) return false;
-console.log("after", appData);
+	//console.log(appData);
+	if (!appData.hid) 
+		return false;
+
 	
-
-
 return (
 	<div>
-	<ApplicationHeader applicationRec={props.applicationRec} header="Application for member DOM change" />
+	<ApplicationHeader applicationRec={props.applicationRec} header={`Application to move member(s)`} />
 	{(stage === "INITIAL") &&
 	<div>
 	<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.pdhs_title} >Application data</Typography>
+	<br />
 	</div>
 	}
 	{(stage === "INITIAL") &&
-		<div>
+		<Accordion expanded={expandedPanel === "TRANSFERDETAILS"} onChange={handleAccordionChange("TRANSFERDETAILS")}>
+		<Box align="right" className={(expandedPanel === "TRANSFERDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
+			<Typography align="left" >{(appData.createNewFamily) ? `Transfer members to new family` : `Transfer to family of ${appData.mergedFamilyHeadName}`}</Typography>
+		</AccordionSummary>
+		</Box>
+		{/*<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.pdhs_title} >{(appData.createNewFamily) ?  "Create new family"  :  "Merge with another family"}</Typography>*/}
 		<br />
-		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Husband: ${appData.groomName}`}</Typography>
-		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Wife:   ${(appData.brideName)}`}</Typography>
-		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`DOM: ${dateString(appData.dom)}`}</Typography>
+		<DisplayApplicationNameValue name="Family Head" value={(appData.createNewFamily) ? `${appData.newHodName}` : `${appData.mergedFamilyHeadName}`} style={{paddingTop: "5px" }}  />
+		{/*  Display list if names whar are to be moved */}
+		{appData.transferNameList.map( (memberName, index) => {
+			if (appData.transferRelation[index] === 'Self') return;
+			//var relation = (appData.transferRelation[index] === 'Self') ? "Family Head" : appData.transferRelation[index];
+			return (
+				<div key={memberName} >
+					<DisplayApplicationNameValueNameBig name={memberName} value={appData.transferRelation[index]} style={{paddingTop: "5px" }}  />
+				</div>
+			)}
+		)}
 		<br />
-		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
+	</Accordion>
+	}
+	<br />
+	{(stage === "INITIAL") &&
+		<Accordion expanded={expandedPanel === "BALANCEMEMBERS"} onChange={handleAccordionChange("BALANCEMEMBERS")}>
+		<Box align="right" className={(expandedPanel === "BALANCEMEMBERS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
+			<Typography align="left" >{"Balance member(s) Details"}</Typography>
+		</AccordionSummary>
+		</Box>
 		<br />
-	</div>
+		<DisplayApplicationNameValue name="Family Head" value={appData.balanceFamilyHodName} style={{paddingTop: "5px" }}  />
+		<br />
+		{/*  Display list if names whar are to be moved */}
+		{appData.balanceFamilyName.map( (memberName, index) => {
+			if (appData.balanceFamilyRelation[index] === 'Self') return;
+			//var relation = (appData.transferRelation[index] === 'Self') ? "Family Head" : appData.transferRelation[index];
+			return (
+				<div key={memberName} >
+					<DisplayApplicationNameValueNameBig name={memberName} value={appData.balanceFamilyRelation[index]} style={{paddingTop: "5px" }}  />
+				</div>
+			)}
+		)}
+		<br />
+	</Accordion>
 	}
 	<br />
 	{((props.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
@@ -196,7 +231,7 @@ return (
 		<textarea
 			rows = {5}    // Specifies the number of visible text lines
 			cols = {40}    // Specifies the width of the text area in characters
-			defaultValue = {remarks}   // Specifies the initial value of the text area
+			value = {remarks}   // Specifies the initial value of the text area
 			placeholder = "Add remarks"   // Specifies a short hint that describes the expected value of the textarea
 			//wrap = "soft"   // Specifies how the text in the text area should be wrapped
 			readOnly = {(props.applicationRec.status !== "Pending")}   // Specifies that the text area is read-only, meaning the user cannot modify its content
