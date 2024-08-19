@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import axios from "axios";
 import { makeStyles } from '@material-ui/core/styles';
 // import { Switch, Route, Link } from 'react-router-dom';
+import TextField from '@material-ui/core/TextField';
 import { ValidatorForm, TextValidator, TextValidatorcvariant, TextareaAutosize} from 'react-material-ui-form-validator';
 import Drawer from '@material-ui/core/Drawer';
 import Divider from '@material-ui/core/Divider';
@@ -207,6 +208,15 @@ return (
 		<Typography align="center" className={gClasses.functionSelected}>{`Remarks for application ${action}`}</Typography>
 		<br />
 		{/*<TextareaAutosize maxRows={MAXDISPLAYTEXTROWS} className={gClasses.textAreaFixed}  value={remarks} />*/}
+		<TextField
+			id="outlined-multiline-static"
+			label="Add remarks"
+			multiline
+			rows={10}
+			variant="outlined"
+			value = {remarks}
+			onChange = {() => setRemarks(event.target.value) }
+		/>
 		<textarea
 			rows = {5}    // Specifies the number of visible text lines
 			cols = {40}    // Specifies the width of the text area in characters
