@@ -233,6 +233,15 @@ return (
 		<br />
 	</div>
 	}
+	<TextField
+		id="outlined-multiline-static"
+		label="Add remarks"
+		multiline
+		rows={10}
+		variant="outlined"
+		value = {remarks}
+		onChange = {() => setRemarks(event.target.value) }
+	/>
 	<textarea
 			rows = {5}    // Specifies the number of visible text lines
 			cols = {40}    // Specifies the width of the text area in characters
