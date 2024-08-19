@@ -153,8 +153,6 @@ function handleCancel() {
 
 return (
 	<div>
-	<Container component="main" maxWidth="xs">	
-	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
 	<VsCancel align="right" onClick={handleCancel} />
 	<ApplicationHeader applicationRec={myProps.applicationRec} header="Application for member DOM change" />
 	{(stage === "INITIAL") &&
@@ -235,8 +233,6 @@ return (
 		<br />
 	</div>
 	}
-	</Box>
-	</Container>
 	<textarea
 			rows = {5}    // Specifies the number of visible text lines
 			cols = {40}    // Specifies the width of the text area in characters
