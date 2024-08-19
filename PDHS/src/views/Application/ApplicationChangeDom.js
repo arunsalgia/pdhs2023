@@ -210,7 +210,7 @@ return (
 		<textarea
 			rows = {5}    // Specifies the number of visible text lines
 			cols = {40}    // Specifies the width of the text area in characters
-			defaultValue = {remarks}   // Specifies the initial value of the text area
+			value = {remarks}   // Specifies the initial value of the text area
 			placeholder = "Add remarks"   // Specifies a short hint that describes the expected value of the textarea
 			//wrap = "soft"   // Specifies how the text in the text area should be wrapped
 			readOnly = {(myProps.applicationRec.status !== "Pending")}   // Specifies that the text area is read-only, meaning the user cannot modify its content
