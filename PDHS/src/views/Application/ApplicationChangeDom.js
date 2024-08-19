@@ -233,28 +233,13 @@ return (
 		<br />
 	</div>
 	}
-	<TextField
-		id="outlined-multiline-static"
-		label="Add remarks"
-		multiline
-		rows={10}
-		variant="outlined"
-		value = {remarks}
-		onChange = {() => setRemarks(event.target.value) }
+	<ValidatorForm align="center" className={gClasses.form} onSubmit={handleRemarksDone}>
+	<TextValidator fullWidth  variant="outlined" required className={gClasses.vgSpacing}
+		label="Remarks" type="text"
+		value={remarks} 
+		onChange={(event) => { setRemarks(event.target.value) }}
 	/>
-	<textarea
-			rows = {5}    // Specifies the number of visible text lines
-			cols = {40}    // Specifies the width of the text area in characters
-			value = {remarks}   // Specifies the initial value of the text area
-			placeholder = "Add remarks"   // Specifies a short hint that describes the expected value of the textarea
-			//wrap = "soft"   // Specifies how the text in the text area should be wrapped
-			readOnly = {(myProps.applicationRec.status !== "Pending")}   // Specifies that the text area is read-only, meaning the user cannot modify its content
-			name = "Remarks"   // Specifies the name of the text area, which can be used when submitting a form
-			//disabled = {true}   //  Specifies that the text area is disabled, meaning the user cannot interact with it
-			//minLength = {150}   // Specifies the minimum number of characters required in the textarea
-			maxLength = {200}   // Specifies the maximum number of characters allowed in the textarea
-			onChange = {() => setRemarks(event.target.value) }
-		/>
+	</ValidatorForm >
 	<ToastContainer />
 	</div>
 	)
