@@ -118,6 +118,13 @@ export default function Application(props) {
 	
   useEffect(() => {		
 		getAllApplication();
+		if ("application_returnstatus" in sessionStorage) {
+			console.log("has return status");
+			var sts = JSON.parse(sessionStorage.getItem("application_returnstatus"));
+			console.log(sts);
+			sessionStorage.removeItem("application_returnstatus");
+			handleApplictionEditBack(sts);
+		}
   }, []);
 
 	async function getHodName(hid) {
@@ -130,6 +137,7 @@ export default function Application(props) {
 			return "";
 		}	
 	}
+
 	async  function getAllApplication() {
 		try {
 			let myUrl = (hasAnyAdminPermission())
@@ -169,15 +177,13 @@ export default function Application(props) {
 		
 		return tmpArray;
 	}
-	
-	
+		
 	async function setSelection(myArray, item, radOpts) {
 		let tmpArray = filterArray(myArray, item, radOpts);
 		//console.log(tmpArray);
 		setApplicationArray(tmpArray);
 		setCurrentSelection(item);
 	}
-	
 	
 	function DisplayFunctionHeader() {
 	return (
@@ -346,8 +352,8 @@ export default function Application(props) {
 			if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
 			else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
 			console.log(sts.applicationRec);
-			var tmp = [sts.applicationRec].concat(applicationArray.filter(x => x.id !== applicationRec.id));
-			setApplicationArray(lodashReverse(lodashSortBy(tmp, 'id')));
+			//var tmp = [sts.applicationRec].concat(applicationArray.filter(x => x.id !== applicationRec.id));
+			//setApplicationArray(lodashReverse(lodashSortBy(tmp, 'id')));
 		}
 		else {
 			console.log("Yaha kaise aaya");

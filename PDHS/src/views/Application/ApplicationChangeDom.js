@@ -67,7 +67,7 @@ export default function ApplicationChangeDom(props) {
 	const gClasses = globalStyles();
 	const myProps = JSON.parse(sessionStorage.getItem("application_appRec"));
 	//const myProps = sessionStorage.getItem("application_appRec");
-	console.log(myProps);
+	//console.log(myProps);
 	
 	//const [registerStatus, setRegisterStatus] = useState(0);
 	const [appData, setAppdata] = useState(JSON.parse(myProps.applicationRec.data));
@@ -121,8 +121,13 @@ async function  handleApplicationApproveConfirm(myRemarks) {
 	try {
 		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
 		let resp = await axios.get(myUrl);
-		myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application approved by Admin`});
-		
+		var returnStatus = {
+			status: STATUS_INFO.SUCCESS, applicationRec: resp.data, 
+			msg: `Application approved by Admin`
+		};
+		sessionStorage.setItem("application_returnstatus", JSON.stringify(returnStatus));
+		setTab(process.env.REACT_APP_APPLICATION);
+		//myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application approved by Admin`});	
 	} catch (e) {
 		console.log(e);
 		showError(`Error approving ceased member`);
@@ -133,7 +138,12 @@ async function  handleApplicationRejectConfirm(myRemarks) {
 	try {
 		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/reject/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
 		let resp = await axios.get(myUrl);
-		myProps.onReturn.call(this, {status: STATUS_INFO.ERROR, applicationRec: resp.data, msg: `Application rejected by Admin`});
+		var returnStatus = 
+			{status: STATUS_INFO.ERROR, applicationRec: resp.data, 
+			msg: `Application rejected by Admin`};
+		sessionStorage.setItem("application_returnstatus", JSON.stringify(returnStatus));
+		setTab(process.env.REACT_APP_APPLICATION);
+		//myProps.onReturn.call(this, {status: STATUS_INFO.ERROR, applicationRec: resp.data, msg: `Application rejected by Admin`});
 	} catch (e) {
 		console.log(e);
 		showError(`Error rejecting ceased member`);
@@ -142,9 +152,9 @@ async function  handleApplicationRejectConfirm(myRemarks) {
 
 
 
-console.log("before",appData);
+//console.log("before",appData);
 if (!appData.groomMid) return false;
-console.log("after", appData);
+//console.log("after", appData);
 	
 function handleCancel() {
 	setTab(process.env.REACT_APP_APPLICATION);
@@ -152,7 +162,7 @@ function handleCancel() {
 
 
 return (
-	<div>
+	<div className={gClasses.webPage} >
 	<Container component="main" maxWidth="xs">	
 	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
 	<VsCancel align="right" onClick={handleCancel} />
