@@ -1,0 +1,23 @@
+import React from 'react';
+import Box from '@material-ui/core/Box';
+import globalStyles from "assets/globalStyles";
+import TextField from '@material-ui/core/TextField';
+import { InputAdornment } from '@material-ui/core';
+
+import ClearIcon from '@material-ui/icons/Clear';
+import SearchIcon from '@material-ui/icons/Search';
+
+//function arunSelect(x) { console.log("sel", x) };
+
+export default function VsTextSearch(props) {
+const gClasses = globalStyles();
+let _type = (props.type == null) ? 'text' : props.type;
+	return (
+    <Box borderRadius={7} >
+    <SearchIcon />
+		<TextField type={_type} padding={5} fullWidth label={props.label} onChange={props.onChange} value={props.value} />
+    <ClearIcon size="small" onClick={props.onClear} />
+    </Box>
+	)
+}
+

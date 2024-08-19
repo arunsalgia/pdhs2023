@@ -12,6 +12,7 @@ import { CricDreamTabs, setTab } from "CustomComponents/CricDreamTabs"
 import SignIn from "views/Login/SignIn"
 import LandingPage from "views/Login/LandingPage"
 import Directory from "views/Directory/Directory"
+import ApplicationTest from "views/Application/ApplicationTest"
 
 import IdleTimer from 'react-idle-timer'
 
@@ -150,7 +151,10 @@ function AppRouter() {
       <SignIn/>
     }
     {(!showLanding && (myStatus !== "LOGIN")) &&
-      <CricDreamTabs/>
+			<div>
+      {/*<CricDreamTabs/>*/}
+			<ApplicationTest />
+			</div>
     }
     </Router>
   );
