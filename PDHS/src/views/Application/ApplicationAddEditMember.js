@@ -11,6 +11,7 @@ import Divider from '@material-ui/core/Divider';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+import Container from '@material-ui/core/Container';
 import Box from '@material-ui/core/Box';
 import Grid from "@material-ui/core/Grid";
 
@@ -32,12 +33,13 @@ import EditIcon from '@material-ui/icons/Edit';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import IndeterminateCheckBoxIcon from '@material-ui/icons/IndeterminateCheckBox';
 import CancelIcon from '@material-ui/icons/Cancel';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import globalStyles from "assets/globalStyles";
 
 import VsButton from "CustomComponents/VsButton"; 
+import VsCancel from "CustomComponents/VsCancel";
 
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 
 import {
@@ -56,12 +58,17 @@ import {
 	hasPRWSpermission, 
 } from 'views/functions';
 
+import {
+	setTab,
+} from "CustomComponents/CricDreamTabs.js"
 
-export default function ApplicationAddEditMember(props) {
+
+export default function ApplicationAddEditMember() {
 	const gClasses = globalStyles();
+	const myProps = JSON.parse(sessionStorage.getItem("application_appRec"));
 	
 	//const [registerStatus, setRegisterStatus] = useState(0);
-	const [appData, setAppdata] = useState({});
+	const [appData, setAppdata] = useState(JSON.parse(myProps.applicationRec.data));
 	
 	// show in accordion
 	const [expandedPanel, setExpandedPanel] = useState("");
@@ -75,14 +82,14 @@ export default function ApplicationAddEditMember(props) {
 	const [stage, setStage] = useState("INITIAL");
 	
 
-	useEffect(() => {
-			console.log(props.applicationRec);
-			setAppdata(JSON.parse(props.applicationRec.data));
-	}, [])
+	//useEffect(() => {
+	//		console.log(myProps.applicationRec);
+	//		setAppdata(JSON.parse(myProps.applicationRec.data));
+	//}, [])
 
 
 async function handleMemberAddEditSubmit() {
-	props.onReturn.call(this, {status: STATUS_INFO.ERROR, msg: `Error Add/Edit gotra`});
+	myProps.onReturn.call(this, {status: STATUS_INFO.ERROR, msg: `Error Add/Edit gotra`});
 	return;
 }
 
@@ -112,9 +119,15 @@ function handleRemarksDone() {
 
 async function  handleApplicationApproveConfirm(myRemarks) {
 	try {
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${props.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
 		let resp = await axios.get(myUrl);
-		props.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application approved by Admin`});
+		var returnStatus = {
+			status: STATUS_INFO.SUCCESS, applicationRec: resp.data, 
+			msg: `Application approved by Admin`
+		};
+		sessionStorage.setItem("application_returnstatus", JSON.stringify(returnStatus));
+		setTab(process.env.REACT_APP_APPLICATION);
+		//myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application approved by Admin`});
 		
 	} catch (e) {
 		console.log(e);
@@ -124,9 +137,15 @@ async function  handleApplicationApproveConfirm(myRemarks) {
 
 async function  handleApplicationRejectConfirm(myRemarks) {
 	try {
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/reject/${props.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/reject/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
 		let resp = await axios.get(myUrl);
-		props.onReturn.call(this, {status: STATUS_INFO.ERROR, applicationRec: resp.data, msg: `Application rejected by Admin`});
+		var returnStatus = {
+			status: STATUS_INFO.ERROR, applicationRec: resp.data, 
+			msg: `Application rejected by Admin`
+		};
+		sessionStorage.setItem("application_returnstatus", JSON.stringify(returnStatus));
+		setTab(process.env.REACT_APP_APPLICATION);
+		myProps.onReturn.call(this, {status: STATUS_INFO.ERROR, applicationRec: resp.data, msg: `Application rejected by Admin`});
 		
 	} catch (e) {
 		console.log(e);
@@ -134,16 +153,22 @@ async function  handleApplicationRejectConfirm(myRemarks) {
 	}
 }
 
+function handleCancel() {
+	setTab(process.env.REACT_APP_APPLICATION);
+}
 
 
 	//console.log(appData);
 	if (!appData.hid) return false;
-	console.log(appData.memberRec);
-var newTitlePrefix = (appData.mode !== "ADD") ? "" : "New ";
+	//console.log(appData.memberRec);
+	var newTitlePrefix = (appData.mode !== "ADD") ? "" : "New ";
 
 return (
-	<div>
-	<ApplicationHeader applicationRec={props.applicationRec} header={`Application for ${appData.mode} member details`} />
+	<div className={gClasses.webPage} >
+	<Container component="main" maxWidth="xs">	
+	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
+	<VsCancel align="right" onClick={handleCancel} />
+	<ApplicationHeader applicationRec={myProps.applicationRec} header={`Application for ${appData.mode} member details`} />
 	{(stage === "INITIAL") &&
 	<div>
 	<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.pdhs_title} >Application data</Typography>
@@ -381,7 +406,7 @@ return (
 	</Accordion>
 	}
 	<br />
-	{((props.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
+	{((myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
 	<Grid key={"APPLBUTTON"} className={gClasses.noPadding} container  alignItems="flex-start" >
 		<Grid item xs={2} sm={2} md={2} lg={2} />
 		<Grid item xs={4} sm={4} md={4} lg={4} >
@@ -409,7 +434,7 @@ return (
 		<Grid item xs={2} sm={2} md={2} lg={2} />
 	</Grid>
 	}
-	{((stage === "Remarks") && (props.applicationRec.status === "Pending")) &&
+	{((stage === "Remarks") && (myProps.applicationRec.status === "Pending")) &&
 	<div align="center">
 		<br />
 		<Typography align="center" className={gClasses.functionSelected}>{`Remarks for application ${action}`}</Typography>
@@ -421,7 +446,7 @@ return (
 			value = {remarks}   // Specifies the initial value of the text area
 			placeholder = "Add remarks"   // Specifies a short hint that describes the expected value of the textarea
 			//wrap = "soft"   // Specifies how the text in the text area should be wrapped
-			readOnly = {(props.applicationRec.status !== "Pending")}   // Specifies that the text area is read-only, meaning the user cannot modify its content
+			readOnly = {(myProps.applicationRec.status !== "Pending")}   // Specifies that the text area is read-only, meaning the user cannot modify its content
 			name = "Remarks"   // Specifies the name of the text area, which can be used when submitting a form
 			//disabled = {true}   //  Specifies that the text area is disabled, meaning the user cannot interact with it
 			//minLength = {150}   // Specifies the minimum number of characters required in the textarea
@@ -434,6 +459,8 @@ return (
 	</div>
 	}
 	<ToastContainer />
+	</Box>
+	</Container>
 	</div>
 	)
 }

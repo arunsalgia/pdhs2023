@@ -31,6 +31,10 @@ import Prws from 'views/Prws/Prws'
 import Application from 'views/Application/Application'
 
 import ApplicationChangeDom from 'views/Application/ApplicationChangeDom'
+import ApplicationTransferMember from 'views/Application/ApplicationTransferMember'
+import ApplicationAddEditMember from 'views/Application/ApplicationAddEditMember'
+import ApplicationNewHod from 'views/Application/ApplicationNewHod'
+import ApplicationMemberCeased from 'views/Application/ApplicationMemberCeased'
 
 
 
@@ -226,6 +230,18 @@ function AppRouter() {
 			}	
 			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_APPLICATION_DOMCHANGE) &&
 				<ApplicationChangeDom />
+			}	
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_APPLICATION_TRANSFERMEMBER) &&
+				<ApplicationTransferMember />
+			}	
+			{( [process.env.REACT_APP_APPLICATION_ADDMEMBER, process.env.REACT_APP_APPLICATION_EDITMEMBER].includes(sessionStorage.getItem("menuValue")) ) &&
+				<ApplicationAddEditMember />
+			}				
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_APPLICATION_CEASEDMEMBER) &&
+				<ApplicationMemberCeased />
+			}	
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_APPLICATION_NEWHOD) &&
+				<ApplicationNewHod />
 			}	
 			</div>
     }

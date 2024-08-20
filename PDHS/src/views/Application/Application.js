@@ -76,7 +76,12 @@ const applOption = ["Application Approved", "Application Rejected"];
 const RadioList = ["All", "Pending", "Approved","Rejected" ];
  
 const funCodeTable = [
-{fun: APPLICATIONTYPES.changeDom, code: process.env.REACT_APP_APPLICATION_DOMCHANGE}
+{fun: APPLICATIONTYPES.changeDom, 			code: process.env.REACT_APP_APPLICATION_DOMCHANGE},
+{fun: APPLICATIONTYPES.transferMember, 	code: process.env.REACT_APP_APPLICATION_TRANSFERMEMBER},
+{fun: APPLICATIONTYPES.addMember, 			code: process.env.REACT_APP_APPLICATION_ADDMEMBER},
+{fun: APPLICATIONTYPES.editMember, 			code: process.env.REACT_APP_APPLICATION_EDITMEMBER},
+{fun: APPLICATIONTYPES.newHod, 					code: process.env.REACT_APP_APPLICATION_NEWHOD},
+{fun: APPLICATIONTYPES.memberCeased, 		code: process.env.REACT_APP_APPLICATION_CEASEDMEMBER},
 ];
 
 
@@ -329,9 +334,10 @@ export default function Application(props) {
 	
 	// edit application by admin
 	async function editApplicationPage(appRec) {
-		console.log("In Edit");
+		//console.log("In Edit");
+		//console.log(appRec);
 		var myRec = funCodeTable.find(x => x.fun === appRec.desc);
-		console.log(myRec);
+		//console.log(myRec);
 		if (myRec) {
 			sessionStorage.setItem("application_appRec", JSON.stringify({applicationRec: appRec}));
 			setTab(myRec.code);
@@ -340,9 +346,8 @@ export default function Application(props) {
 		else {
 			//sessionStorage.setItem("application_appRec", appRec);
 			setApplicationRec(appRec);
-		}
-		
-		//setIsDrawerOpened(appRec.desc);
+			setIsDrawerOpened(appRec.desc);
+		}	
 		//console.log(new Date(), appRec.id, appRec.desc);
 	}
 	
