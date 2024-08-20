@@ -36,6 +36,10 @@ import ApplicationAddEditMember from 'views/Application/ApplicationAddEditMember
 import ApplicationNewHod from 'views/Application/ApplicationNewHod'
 import ApplicationMemberCeased from 'views/Application/ApplicationMemberCeased'
 
+import NewHod from 'views/Member/NewHod'
+import MemberAddEdit from 'views/Member/MemberAddEdit'
+
+
 
 
 import IdleTimer from 'react-idle-timer'
@@ -243,6 +247,12 @@ function AppRouter() {
 			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_APPLICATION_NEWHOD) &&
 				<ApplicationNewHod />
 			}	
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_FAMILY_PERSONAL_NEWHOD) &&
+				<NewHod />
+			}	
+			{( [process.env.REACT_APP_FAMILY_PERSONAL_ADD, process.env.REACT_APP_FAMILY_PERSONAL_EDIT].includes(sessionStorage.getItem("menuValue")) ) &&
+				<MemberAddEdit />
+			}				
 			</div>
     }
     </Router>

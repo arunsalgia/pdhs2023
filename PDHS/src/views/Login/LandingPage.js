@@ -18,9 +18,9 @@ var maxDim = 0;
 export default function LandingPage() {
   const gClasses = globalStyles();
 	const	myDim = getWindowDimensions();
-	console.log(myDim);
+	//console.log(myDim);
   maxDim = (myDim.width < myDim.height) ? myDim.width : myDim.height;
-	console.log(maxDim);
+	//console.log(maxDim);
 	
   useEffect(() => {
     if (window.sessionStorage.getItem("logout")) {

@@ -88,11 +88,21 @@ import {
 	readAllMembers, memberGetByHidMany, memberUpdateMany,
 } from "views/clientdbfunctions";
 
+import {
+	setTab,
+} from "CustomComponents/CricDreamTabs.js"
+
 
 
 const InitialContextParams = {show: false, x: 0, y: 0};
 var radioMid = -1;
 //var familyCity = "";
+
+const funCodeTable = [
+{fun: APPLICATIONTYPES.newHod, 			code: process.env.REACT_APP_FAMILY_PERSONAL_NEWHOD},
+{fun: APPLICATIONTYPES.addMember, 	code: process.env.REACT_APP_FAMILY_PERSONAL_ADD},
+{fun: APPLICATIONTYPES.editMember, 	code: process.env.REACT_APP_FAMILY_PERSONAL_EDIT},
+];
 
 
 export default function MemberPersonal(props) {
@@ -458,7 +468,8 @@ function DisplayPersonalInformation() {
 
 	function newHODConfirm(rec) {	
 		setSelMember(rec);
-		setIsDrawerOpened("NEWHOD");
+		selectCaller(APPLICATIONTYPES.newHod, "NEWHOD", memberArray, hodRec, rec);
+		//setIsDrawerOpened("NEWHOD");
 	}
 
 	function handleNewHodBack(sts) {
@@ -497,14 +508,16 @@ function DisplayPersonalInformation() {
 	/// Add new member or edit member
 	function handlePersonalAdd() {
 		//setSelMember(null);
-		setSelMember({hid: memberArray[0].hid, lastName: memberArray[0].lastName, firstName: ""});
-		setIsDrawerOpened("ADD");
+		setSelMember({hid: memberArray[0].hid, mid: 0, lastName: memberArray[0].lastName, firstName: ""});
+		selectCaller(APPLICATIONTYPES.addMember, "ADD", memberArray, hodRec, {hid: memberArray[0].hid, lastName: memberArray[0].lastName, firstName: ""});
+		//setIsDrawerOpened("ADD");
 	}
 	
 	// edit personal details
 	function handlePersonalEdit(m) {
 		setSelMember(m);
-		setIsDrawerOpened("EDIT");
+		selectCaller(APPLICATIONTYPES.editMember, "EDIT", memberArray, hodRec, m);
+		//setIsDrawerOpened("EDIT");
 	}
 
 	function handleAddEditBack(sts) {
@@ -520,6 +533,25 @@ function DisplayPersonalInformation() {
 		setIsDrawerOpened("");
 	}
 	
+	function selectCaller(funCode, mode, memberList, hodRecord, memberRecord) {
+		var myFun = funCodeTable.find(x => x.fun === funCode);
+		if (myFun) {
+			var myData = JSON.stringify({
+				mode: mode,
+				memberList: memberList,
+				hodRec: hodRecord,
+				hodMid: hodRecord.mid,
+				memberRec: memberRecord,
+				selectedMid:  memberRecord.mid
+			});
+			sessionStorage.setItem("family_personal_props", myData);
+			//sessionStorage.setItem("family_currentSelection", "Personal");
+			setTab(myFun.code);
+		}
+		else {
+			setIsDrawerOpened(mode);
+		}
+	}
 	
 	//console.log(isDrawerOpened);
 	return (

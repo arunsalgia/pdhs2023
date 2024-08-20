@@ -155,7 +155,14 @@ export default function Member(props) {
 				let tmp = (memberMid > 0) ? myData.find(x => x.mid === memberMid) : myData[0];
 				setCurrentMemberData((tmp) ? tmp : null);
 				setSelection("");
-				setSelection("Personal");
+				
+				var nextSelection = "Personal";
+				if ("family_currentSelection" in sessionStorage) {
+					nextSelection = sessionStorage.getItem("family_currentSelection");
+					sessionStorage.removeItem("family_currentSelection");
+				}
+				setSelection(nextSelection);
+				//setSelection("Personal");
 				//console.log("setting personal");
 			}
 			else {

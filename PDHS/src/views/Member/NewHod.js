@@ -11,6 +11,7 @@ import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 
+import Container from '@material-ui/core/Container';
 import Box from '@material-ui/core/Box';
 import Grid from "@material-ui/core/Grid";
 
@@ -50,6 +51,7 @@ import globalStyles from "assets/globalStyles";
 import {setTab} from "CustomComponents/CricDreamTabs.js"
 
 import VsButton from "CustomComponents/VsButton"; 
+import VsCancel from "CustomComponents/VsCancel";
 import VsSelect from "CustomComponents/VsSelect";
 import VsRadio from "CustomComponents/VsRadio";
 import VsCheckBox from "CustomComponents/VsCheckBox";
@@ -67,9 +69,11 @@ import {
 } from 'views/functions';
 
 
-export default function NewHod(props) {
+export default function NewHod() {
 	//const classes = useStyles();
 	const gClasses = globalStyles();
+	const myProps = JSON.parse(sessionStorage.getItem("family_personal_props"));
+	//console.log(myProps);
 	
 	const [header, setHeader] = useState("");
 	const [newHodRec, setNewHodRec] = useState({});
@@ -88,18 +92,18 @@ export default function NewHod(props) {
 
 	useEffect(() => {
 		// get new HOD record
-		let memRec = props.memberList.find(x => x.mid === props.selectedMid);
+		let memRec = myProps.memberList.find(x => x.mid === myProps.selectedMid);
 		setHeader(`Apply for ${getMemberName(memRec, false, false)} as new Family Head` );
 		setNewHodRec(memRec);
 
 		// get current HOD record
-		memRec = props.memberList.find(x => x.mid === props.hodMid);
+		memRec = myProps.memberList.find(x => x.mid === myProps.hodMid);
 		setOldHodRec(memRec);
 		// Change the relation from "Self" to Brother/Sister"
 		memRec.relation = (memRec.gender === "Female") ? "Sister" : "Brother";
 		
 		// balance members and relation
-		var tmpArray = props.memberList.filter(x => x.mid !== props.selectedMid);
+		var tmpArray = myProps.memberList.filter(x => x.mid !== myProps.selectedMid);
 		setRelation(lodashMap(tmpArray, 'relation'));
 		setMemberList(tmpArray);
 	}, [])
@@ -115,13 +119,13 @@ function handleNewRelation(rel, idx) {
 
 async function handleNewHodSubmit() {
 	var myInfo = {
-		hid:  props.memberList[0].hid,
+		hid:  myProps.memberList[0].hid,
 		newHodMid: newHodRec.mid,
 		newHodName: getMemberName(newHodRec, false, false),
 		oldHodName: getMemberName(oldHodRec, false, false),		
 		midList: lodashMap(memberList, 'mid'),
 		nameList: [],
-		oldRelationList: lodashMap(props.memberList.filter(x => x.mid !== props.selectedMid), 'relation'),
+		oldRelationList: lodashMap(myProps.memberList.filter(x => x.mid !== myProps.selectedMid), 'relation'),
 		relationList: relation
 	}
 	
@@ -137,25 +141,33 @@ async function handleNewHodSubmit() {
 
 	try {
  		// apply for both admin and member
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/newhod/${props.hodMid}/${sessionStorage.getItem("mid")}/${myInfo}`;
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/newhod/${myProps.hodMid}/${sessionStorage.getItem("mid")}/${myInfo}`;
 		var resp = await axios.get(myUrl);
 		
-		props.onReturn.call(this, {
+		myProps.onReturn.call(this, {
 			status: STATUS_INFO.SUCCESS,
 			data: resp.data,
 			msg: `Successfully applied for ${getMemberName(newHodRec)} as new F.Head. Your application id ref. ${resp.data.id}`
 		});
 	} catch (e) {
 		console.log(e);
-		props.onReturn.call(this, {status: STATUS_INFO.ERROR,  msg: `Error setting ${getMemberName(newHodRec)} as new F.Head.`});
+		myProps.onReturn.call(this, {status: STATUS_INFO.ERROR,  msg: `Error setting ${getMemberName(newHodRec)} as new F.Head.`});
 	}	
 	return;
 }
 
+function handleCancel() {
+	sessionStorage.setItem("family_currentSelection", "Personal");
+	setTab(process.env.REACT_APP_FAMILY);
+}
+
+
 	
 return (
-	<div>
-		<br />
+	<div className={gClasses.webPage} >
+	<Container component="main" maxWidth="xs">	
+	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
+	<VsCancel align="right" onClick={handleCancel} />
 		<Typography align="center" className={gClasses.title}>{header}</Typography>
 		<br />
 		<Typography align="center" className={gClasses.pdhs_title}>{`Relation of members with new Family Head`}</Typography>
@@ -185,6 +197,8 @@ return (
 		<VsButton align="center" name="Apply" onClick={handleNewHodSubmit} />
 		<br />
 		<ToastContainer />
+		</Box>
+		</Container>
 	</div>
 	)
 }

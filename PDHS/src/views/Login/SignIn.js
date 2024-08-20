@@ -133,7 +133,7 @@ export default function SignIn() {
 
 
 async function handleSubmitMobile(e) {
-	console.log(userMobile, userEmail);
+	//console.log(userMobile, userEmail);
   e.preventDefault();
 	var myData = {
 		isMobile:  (loginMode === LOGINOPTION.mobile),

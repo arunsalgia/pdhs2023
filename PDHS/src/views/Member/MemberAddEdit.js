@@ -9,6 +9,7 @@ import Drawer from '@material-ui/core/Drawer';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+import Container from '@material-ui/core/Container';
 import Box from '@material-ui/core/Box';
 import Grid from "@material-ui/core/Grid";
 
@@ -44,8 +45,6 @@ import { isMobile, getWindowDimensions, displayType, decrypt, encrypt,
 
 import globalStyles from "assets/globalStyles";
 
-import {setTab} from "CustomComponents/CricDreamTabs.js"
-
 import VsButton from "CustomComponents/VsButton"; 
 import VsSelect from "CustomComponents/VsSelect";
 import VsRadio from "CustomComponents/VsRadio";
@@ -69,23 +68,30 @@ import {
 } from 'views/functions';
 
 import {
+	setTab,
+} from "CustomComponents/CricDreamTabs.js"
+
+
+import {
 	memberGetByMidOne,
 } from 'views/clientdbfunctions';
 	
 
-function MyInput(props) {
+function MyInput(myProps) {
 	const gClasses = globalStyles();
 return (
   <div>
 		<TextValidator required style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing} inputProps={{className: gClasses.dateTimeNormal}}
-			label={props.label} type="text" value={props.value} onChange={props.onChange} />	
+			label={myProps.label} type="text" value={myProps.value} onChange={myProps.onChange} />	
   </div>
 )};
 
-export default function MemberAddEdit(props) {
+export default function MemberAddEdit() {
 	//console.log("In add edit");
 	//const classes = useStyles();
 	const gClasses = globalStyles();
+	const myProps = JSON.parse(sessionStorage.getItem("family_personal_props"));
+	//console.log(myProps);
 	
 	const [header, setHeader] = useState("");
 	const [registerStatus, setRegisterStatus] = useState(0);
@@ -157,40 +163,40 @@ export default function MemberAddEdit(props) {
 		}
 
 		var myHeader = "";
-		if (props.mode == "ADD") {
+		if (myProps.mode == "ADD") {
 			myHeader = "Add new family member";
-			//console.log(props.memberRec);
-			setEmurAddr2(props.memberRec.lastName);
+			//console.log(myProps.memberRec);
+			setEmurAddr2(myProps.memberRec.lastName);
 		}
 		else {
-			//console.log(props);
-			myHeader = `Edit details of ${getMemberName(props.memberRec)}`;
-			setEmurAddr1(props.memberRec.title);
-			setEmurAddr2(props.memberRec.lastName);
-			setEmurAddr3(props.memberRec.firstName);
-			setEmurAddr4(props.memberRec.middleName);
-			setEmurAddr5(props.memberRec.alias)
-			setEmurAddr6(props.memberRec.relation);
-			setEmurAddr7(props.memberRec.gender)
-			setEmurAddr8(props.memberRec.emsStatus)
-			setEmurAddr9(props.memberRec.bloodGroup);
-			setEmurAddr11(props.memberRec.mobile);
-			setEmurAddr12(props.memberRec.mobile1);
-			var xxx = decrypt(props.memberRec.email);
+			//console.log(myProps);
+			myHeader = `Edit details of ${getMemberName(myProps.memberRec)}`;
+			setEmurAddr1(myProps.memberRec.title);
+			setEmurAddr2(myProps.memberRec.lastName);
+			setEmurAddr3(myProps.memberRec.firstName);
+			setEmurAddr4(myProps.memberRec.middleName);
+			setEmurAddr5(myProps.memberRec.alias)
+			setEmurAddr6(myProps.memberRec.relation);
+			setEmurAddr7(myProps.memberRec.gender)
+			setEmurAddr8(myProps.memberRec.emsStatus)
+			setEmurAddr9(myProps.memberRec.bloodGroup);
+			setEmurAddr11(myProps.memberRec.mobile);
+			setEmurAddr12(myProps.memberRec.mobile1);
+			var xxx = decrypt(myProps.memberRec.email);
 			if (xxx === "-") xxx = "";
 			setEmurAddr13(xxx);
-			setEmurDate1(moment(props.memberRec.dob));
-			setEmurDate2(moment(props.memberRec.dateOfMarriage));
-			setIsMemberHod(props.memberRec.mid === props.hodMid);
+			setEmurDate1(moment(myProps.memberRec.dob));
+			setEmurDate2(moment(myProps.memberRec.dateOfMarriage));
+			setIsMemberHod(myProps.memberRec.mid === myProps.hodMid);
 			// Office details
-			setEmurAddr10(props.memberRec.occupation);
-			setEducation(props.memberRec.education);
-			setCompany(props.memberRec.officeName);
-			setOfficePhone(props.memberRec.officePhone);
+			setEmurAddr10(myProps.memberRec.occupation);
+			setEducation(myProps.memberRec.education);
+			setCompany(myProps.memberRec.officeName);
+			setOfficePhone(myProps.memberRec.officePhone);
 			
 			
-			getAllMembers(props.memberRec.hid, props.memberRec.spouseMid);
-			//console.log(props.memberRec.dob);
+			getAllMembers(myProps.memberRec.hid, myProps.memberRec.spouseMid);
+			//console.log(myProps.memberRec.dob);
 			
 		}
 		setHeader(myHeader);
@@ -198,9 +204,9 @@ export default function MemberAddEdit(props) {
 
 function handleSpouseSelect() {
 	//console.log(memberArray);
-	var spouseGender = (props.memberRec.gender === "Male") ? "Female" : "Male";
+	var spouseGender = (myProps.memberRec.gender === "Male") ? "Female" : "Male";
 	var tmp = memberArray.filter( x => (x.gender === spouseGender) && (x.spouseMid === 0));
-	var tmpSpouse = memberArray.find(x => x.mid === props.memberRec.spouseMid); 
+	var tmpSpouse = memberArray.find(x => x.mid === myProps.memberRec.spouseMid); 
 	if (tmpSpouse) {
 		//console.log("Have Spouse");
 		tmp = [tmpSpouse].concat(tmp);
@@ -249,68 +255,68 @@ async function handleMemberAddEditSubmit() {
 	var tmpRec = {};
 	
 	console.log("in submit");
-	console.log(props.memberRec);
+	console.log(myProps.memberRec);
 	// first update if change of name
-	if (props.memberRec.title !== emurAddr1)
+	if (myProps.memberRec.title !== emurAddr1)
 		tmpRec["title"] = emurAddr1;
-	if ((props.memberRec.lastName !== emurAddr2) || (props.mode == "ADD"))
+	if ((myProps.memberRec.lastName !== emurAddr2) || (myProps.mode == "ADD"))
 		tmpRec["lastName"] = emurAddr2;
-	if (props.memberRec.firstName !== emurAddr3)
+	if (myProps.memberRec.firstName !== emurAddr3)
 		tmpRec["firstName"] = emurAddr3;
-	if (props.memberRec.middleName !== emurAddr4)
+	if (myProps.memberRec.middleName !== emurAddr4)
 		tmpRec["middleName"] = emurAddr4;
-	if (props.memberRec.alias !== emurAddr5)
+	if (myProps.memberRec.alias !== emurAddr5)
 		tmpRec["alias"] = emurAddr5;
 	// update personal details
-	if (props.memberRec.relation !== emurAddr6)
+	if (myProps.memberRec.relation !== emurAddr6)
 		tmpRec["relation"] = emurAddr6;
-	if (props.memberRec.gender !== emurAddr7)
+	if (myProps.memberRec.gender !== emurAddr7)
 		tmpRec["gender"] = emurAddr7;
-	/*if (props.memberRec.emsStatus !== emurAddr8)
+	/*if (myProps.memberRec.emsStatus !== emurAddr8)
 		tmpRec["emsStatus"] = emurAddr8;*/
-	if (props.memberRec.bloodGroup !== emurAddr9)
+	if (myProps.memberRec.bloodGroup !== emurAddr9)
 		tmpRec["bloodGroup"] = emurAddr9;
 	// other details
-	if (props.memberRec.mobile !== emurAddr11)
+	if (myProps.memberRec.mobile !== emurAddr11)
 		tmpRec["mobile"] = emurAddr11;
-	if (props.memberRec.mobile1 !== emurAddr12)
+	if (myProps.memberRec.mobile1 !== emurAddr12)
 		tmpRec["mobile1"] = emurAddr12;
 	// encrypt email
 	var xxxtmp = (emurAddr13 !== "") ? emurAddr13 : "-";
 	xxxtmp = encrypt(xxxtmp);
-	if (props.memberRec.email !== xxxtmp)
+	if (myProps.memberRec.email !== xxxtmp)
 		tmpRec["email"] = xxxtmp;
 	// Now dates 
 	xxxtmp = emurDate1.toDate();
-	if (new Date(props.memberRec.dob).getTime() !== xxxtmp.getTime())
+	if (new Date(myProps.memberRec.dob).getTime() !== xxxtmp.getTime())
 		tmpRec["dob"] = xxxtmp;
 	/*xxxtmp = emurDate2.toDate();
-	if (new Date(props.memberRec.dateOfMarriage).getTime() !== xxxtmp.getTime())
+	if (new Date(myProps.memberRec.dateOfMarriage).getTime() !== xxxtmp.getTime())
 		tmpRec["dateOfMarriage"] = xxxtmp;	*/
 
 	// Spouse
 /*	xxxtmp = (emurSpouseRec) ? emurSpouseRec.mid : 0;
-	if (props.memberRec.spouseMid !== xxxtmp) {
+	if (myProps.memberRec.spouseMid !== xxxtmp) {
 		tmpRec["spouseMid"] = xxxtmp;
 		tmpRec["spouseName"] = (xxxtmp !=  0) ? getMemberName(emurSpouseRec, false, false) : "";
 	}*/
 	// Office 
-	if (props.memberRec.occupation !== emurAddr10)
+	if (myProps.memberRec.occupation !== emurAddr10)
 		tmpRec["occupation"] = emurAddr10;
-	if (props.memberRec.education !== education)
+	if (myProps.memberRec.education !== education)
 		tmpRec["education"] = education;
-	if (props.memberRec.officePhone !== officePhone)
+	if (myProps.memberRec.officePhone !== officePhone)
 		tmpRec["officePhone"] = officePhone;
-	if (props.memberRec.officeName !== company)
+	if (myProps.memberRec.officeName !== company)
 		tmpRec["officeName"] = company;
 	
 	console.log(tmpRec);
 	
 	// Now send the details to server
 	var myData = {
-		hid: props.memberRec.hid,
-		mode: props.mode,
-		oldMemberRec: props.memberRec,
+		hid: myProps.memberRec.hid,
+		mode: myProps.mode,
+		oldMemberRec: myProps.memberRec,
 		memberRec: tmpRec
 	}
 	
@@ -318,8 +324,8 @@ async function handleMemberAddEditSubmit() {
 	let myStatus;
 	let tmp = encodeURIComponent(JSON.stringify(myData));
 		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/addeditpersonal/${props.hodMid}/${sessionStorage.getItem('mid')}/${tmp}`;
-			var submsg = (props.mode === "ADD") ? 'add member' : 'edit';
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/addeditpersonal/${myProps.hodMid}/${sessionStorage.getItem('mid')}/${tmp}`;
+			var submsg = (myProps.mode === "ADD") ? 'add member' : 'edit';
 			let resp = await axios.get(myUrl);
 			myMsg = `Successfully applied to ${submsg} member details. Application reference ${resp.data.id}.`;
 			myStatus = STATUS_INFO.SUCCESS;
@@ -328,13 +334,20 @@ async function handleMemberAddEditSubmit() {
 			myMsg = `Error applying for add/edit member personal details`;
 			myStatus = STATUS_INFO.ERROR;
 		}
-		props.onReturn.call(this, {status: myStatus,  msg: myMsg});
+		myProps.onReturn.call(this, {status: myStatus,  msg: myMsg});
 	return;
 }
 
+function handleCancel() {
+	sessionStorage.setItem("family_currentSelection", "Personal");
+	setTab(process.env.REACT_APP_FAMILY);
+}
 
 return (
-	<div>
+	<div className={gClasses.webPage} >
+	<Container component="main" maxWidth="xs">	
+	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
+	<VsCancel align="right" onClick={handleCancel} />
 	<Typography align="center" className={gClasses.title}>{header}</Typography>
 	<br />
 	<ValidatorForm align="left" className={gClasses.form} onSubmit={handleMemberAddEditSubmit}>
@@ -608,9 +621,11 @@ return (
 			<br />
 		</Accordion>
 		<br />
-		<VsButton align="center" name={(props.mode === "ADD") ? "Add" : "Update"} type="submit" />		
+		<VsButton align="center" name={(myProps.mode === "ADD") ? "Add" : "Update"} type="submit" />		
 	</ValidatorForm>
 	<ToastContainer />
+	</Box>
+	</Container>
 	</div>
 	)
 }
