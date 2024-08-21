@@ -11,6 +11,7 @@ import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 
+import Container from '@material-ui/core/Container';
 import Box from '@material-ui/core/Box';
 import Grid from "@material-ui/core/Grid";
 
@@ -50,6 +51,7 @@ import globalStyles from "assets/globalStyles";
 import {setTab} from "CustomComponents/CricDreamTabs.js"
 
 import VsButton from "CustomComponents/VsButton"; 
+import VsCancel from "CustomComponents/VsCancel";
 import VsSelect from "CustomComponents/VsSelect";
 import VsRadio from "CustomComponents/VsRadio";
 import VsCheckBox from "CustomComponents/VsCheckBox";
@@ -67,9 +69,11 @@ import {
 } from 'views/functions';
 
 
-export default function SplitFamily(props) {
+export default function CeasedMember() {
 	//const classes = useStyles();
 	const gClasses = globalStyles();
+	const myProps = JSON.parse(sessionStorage.getItem("family_personal_props"));
+	//console.log(myProps);
 	
 	const [header, setHeader] = useState("");
 	const [stage, setStage] = useState("STAGE1");
@@ -96,12 +100,12 @@ export default function SplitFamily(props) {
 
 
 	useEffect(() => {
-		let memRec = props.memberList.find(x => x.mid === props.selectedMid);
+		let memRec = myProps.memberList.find(x => x.mid === myProps.selectedMid);
 		setCeasedName(getMemberName(memRec, false, false));
 		setHeader("Apply for ceased " + getMemberName(memRec, false, false) );
-		if ((props.selectedMid === props.hodMid) && (props.memberList.length > 1)) {
+		if ((myProps.selectedMid === myProps.hodMid) && (myProps.memberList.length > 1)) {
 			setStage2Ref(true);
-			var tmp = props.memberList.filter (x => x.mid !== props.selectedMid);
+			var tmp = myProps.memberList.filter (x => x.mid !== myProps.selectedMid);
 			setMemberList(tmp);
 			setNewHod(tmp[0]);
 			setNewHod(tmp[0].mid);			
@@ -201,8 +205,8 @@ function handleStage2() {
 
 async function handleCeasedSubmit() {
 	var myInfo = {
-		hid:  props.memberList[0].hid,
-		ceasedMid: props.selectedMid,
+		hid:  myProps.memberList[0].hid,
+		ceasedMid: myProps.selectedMid,
 		ceasedName: ceasedName,
 		ceasedDate: emurDate1.toDate(),
 		newHodMid: 0,
@@ -216,7 +220,7 @@ async function handleCeasedSubmit() {
 	//console.log(midList);
 	//console.log(relation);
 
-	if (props.hodMid === props.selectedMid) {
+	if (myProps.hodMid === myProps.selectedMid) {
 		var nameList = [];
 		for(var i=0; i<memberList.length; ++i) {
 			nameList.push(getMemberName(memberList[i], false, false));
@@ -238,17 +242,32 @@ async function handleCeasedSubmit() {
 	//${process.env.REACT_APP_AXIOS_BASEPATH}/apply/updategotra/${currentHod.mid}/${loginMid}/${tmp}`;
 	try {
  		// apply for both admin and member
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/ceased/${props.hodMid}/${sessionStorage.getItem("mid")}/${myInfo}`;
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/ceased/${myProps.hodMid}/${sessionStorage.getItem("mid")}/${myInfo}`;
 		var resp = await axios.get(myUrl);
-		
-		props.onReturn.call(this, {
+		var returnStatus = {
 			status: STATUS_INFO.SUCCESS,
 			data: resp.data,
 			msg: `Successfully applied for ${ceasedName} as ceased. Your application id ref. ${resp.data.id}`
-		});
+		};
+		sessionStorage.setItem("family_personal_returnstatus", JSON.stringify(returnStatus));
+		sessionStorage.setItem("family_currentSelection", "Personal");
+		setTab(process.env.REACT_APP_FAMILY);
+		
+		//myProps.onReturn.call(this, {
+		//	status: STATUS_INFO.SUCCESS,
+		//	data: resp.data,
+		//	msg: `Successfully applied for ${ceasedName} as ceased. Your application id ref. ${resp.data.id}`
+		//});
 	} catch (e) {
 		console.log(e);
-		props.onReturn.call(this, {status: STATUS_INFO.ERROR,  msg: `Error setting ${ceasedName} as ceased.`});
+		var returnStatus = {
+			status: STATUS_INFO.ERROR,  
+			msg: `Error setting ${ceasedName} as ceased.`
+		};
+		sessionStorage.setItem("family_personal_returnstatus", JSON.stringify(returnStatus));
+		sessionStorage.setItem("family_currentSelection", "Personal");
+		setTab(process.env.REACT_APP_FAMILY);
+		//myProps.onReturn.call(this, {status: STATUS_INFO.ERROR,  msg: `Error setting ${ceasedName} as ceased.`});
 	}	
 	return;
 }
@@ -367,9 +386,18 @@ return (
 )}
 
 console.log(newHod);
+
+function handleCancel() {
+	sessionStorage.setItem("family_currentSelection", "Personal");
+	setTab(process.env.REACT_APP_FAMILY);
+}
+
+
 return (
-	<div>
-		<br />
+	<div className={gClasses.webPage} >
+	<Container component="main" maxWidth="xs">	
+	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
+	<VsCancel align="right" onClick={handleCancel} />
 		<Typography align="center" className={gClasses.title}>{header}</Typography>
 		<br />
 		<Accordion expanded={expandedPanel === "ceased_date"} onChange={handleAccordionChange("ceased_date")}>
@@ -406,6 +434,8 @@ return (
 		<VsButton align="center" name="Apply" onClick={handleCeasedSubmit} />
 		<br />
 		<ToastContainer />
+	</Box>
+	</Container>
 	</div>
 	)
 }

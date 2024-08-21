@@ -84,9 +84,11 @@ const CREATEINDEX = 1;
 
 const header = "Apply to move member(s)";
 
-export default function TransferMember(props) {
+export default function TransferMember() {
 	//const classes = useStyles();
 	const gClasses = globalStyles();
+	const myProps = JSON.parse(sessionStorage.getItem("family_personal_props"));
+	//console.log(myProps);
 	
 	//const [header, setHeader] = useState("");
 	const [stage, setStage] = useState("PREFINALSTAGE");
@@ -105,7 +107,7 @@ export default function TransferMember(props) {
 	const [relation, setRelation] = useState([]);
 
 	// If create new family
-	const [newHod, setNewHod] = useState(props.selectedMid);
+	const [newHod, setNewHod] = useState(myProps.selectedMid);
 
   const [balanceHod, setBalanceHod] = useState(0)	
 	
@@ -132,7 +134,7 @@ export default function TransferMember(props) {
 			if (hodMemberList.length === 0) {
 				let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/hod/all`;
 				var resp = await axios.get(myUrl);
-				var tmpList = [].concat(resp.data.filter(x => x.hid !== props.memberList[0].hid));
+				var tmpList = [].concat(resp.data.filter(x => x.hid !== myProps.memberList[0].hid));
 				for (var i=0; i<tmpList.length; ++i) {
 					tmpList[i]["mergedName"] = getMemberName(tmpList[i], false, false);
 				}
@@ -154,7 +156,7 @@ export default function TransferMember(props) {
 
 		//setHeader((hasPRWSpermission()) ? "Transfer member(s)" : "Apply to transfer member(s)" );
 		
-		var tmp = [].concat(props.memberList);
+		var tmp = [].concat(myProps.memberList);
 		var tmpRelation = [];
 		for(var i=0; i<tmp.length; ++i) {
 			tmp[i]["mergedName"] = getMemberName(tmp[i], false, false);	
@@ -163,13 +165,13 @@ export default function TransferMember(props) {
 		setMemberList(tmp);
 		setRelation(tmpRelation);
 		var tmpCbArray = [];
-		for(var i=0; i< props.memberList.length; ++i) {
-			tmpCbArray.push( (props.memberList[i].mid === props.selectedMid) ? props.selectedMid : 0);
+		for(var i=0; i< myProps.memberList.length; ++i) {
+			tmpCbArray.push( (myProps.memberList[i].mid === myProps.selectedMid) ? myProps.selectedMid : 0);
 		}
 		setCbArray(tmpCbArray);
 		
 		// Is HOD selected for transfer then set accordingly
-		if (props.selectedMid === props.hodMid) {
+		if (myProps.selectedMid === myProps.hodMid) {
 			setHodTransfer(true);
 			//setMergeOrCreate("MERGE");
 			//set
@@ -180,11 +182,11 @@ export default function TransferMember(props) {
 		
 		fetchFamilyHodNames();				// required for merge
 		
-		//console.log(props.selectedMid);
-		//console.log(props.memberList);
-		//console.log(props.memberList.filter(x => x.mid !== props.selectedMid));
-		setTransferMemberList(props.memberList.filter(x => x.mid === props.selectedMid));
-		var tmpBalance = props.memberList.filter(x => x.mid !== props.selectedMid);
+		//console.log(myProps.selectedMid);
+		//console.log(myProps.memberList);
+		//console.log(myProps.memberList.filter(x => x.mid !== myProps.selectedMid));
+		setTransferMemberList(myProps.memberList.filter(x => x.mid === myProps.selectedMid));
+		var tmpBalance = myProps.memberList.filter(x => x.mid !== myProps.selectedMid);
 		if (tmpBalance.length > 0) 
 			setBalanceHod(tmpBalance[0].mid);
 		setBalanceMemberList (tmpBalance);
@@ -241,7 +243,7 @@ function handleSelectMemberCb(idx) {
 	var tmpArray = [].concat(cbArray);
 	tmpArray[idx] = (tmpArray[idx] !== 0) ? 0 : memberList[idx].mid	
 	setCbArray(tmpArray);
-	if (tmpArray.includes(props.hodMid)) {
+	if (tmpArray.includes(myProps.hodMid)) {
 		setHodTransfer(true);
 		//setMergeOrCreate("MERGE");
 	}
@@ -337,7 +339,7 @@ function handleNewRelation(rel, idx) {
 function handleSelectMemberSubmit() {
 	//setTransferMemberList(memberList.filter(x => cbArray.includes(x.mid)));
 	//setBalanceMemberList (memberList.filter(x => !cbArray.includes(x.mid)));
-	if (cbArray.includes(props.hodMid)) {
+	if (cbArray.includes(myProps.hodMid)) {
 		setHodTransfer(true);
 		fetchFamilyHodNames();
 		// HOD also selected for transfer. Thus it will be merged only. Option for new family not available
@@ -401,7 +403,7 @@ function JUnkedhandleSelectHodSubmit() {
 async function handleFinalStageSubmit() {
 	
 	var myData = {
-		hid: props.memberList[0].hid,
+		hid: myProps.memberList[0].hid,
 		transferMidList: [],
 		transferNameList: [],
 		transferRelation: [],
@@ -422,7 +424,7 @@ async function handleFinalStageSubmit() {
 	
 	for(var i=0; i< cbArray.length; ++i) {
 		if (cbArray[i] !== 0) {
-			var tmpRec = props.memberList.find(x => x.mid === cbArray[i]);
+			var tmpRec = myProps.memberList.find(x => x.mid === cbArray[i]);
 			myData.transferMidList.push(tmpRec.mid);
 			myData.transferNameList.push(getMemberName(tmpRec, false, false));
 			myData.transferRelation.push(((mergedOrCreate === "CREATE") && (tmpRec.mid === newHod)) ? "Self" : relation[i]);
@@ -431,7 +433,7 @@ async function handleFinalStageSubmit() {
 	
 	if (myData.createNewFamily) {
 		myData.newHodMid = newHod;
-		var tmpRec = props.memberList.find(x => x.mid === newHod);
+		var tmpRec = myProps.memberList.find(x => x.mid === newHod);
 		myData.newHodName = getMemberName(tmpRec, false, false);
 	}
 	else {
@@ -443,7 +445,7 @@ async function handleFinalStageSubmit() {
 	if (cbArray.includes(newHod)) {
 		// if HOD is also getting transferred then
 		myData.balanceFamilyHodMid = balanceHod;
-		var tmpRec = props.memberList.find(x => x.mid === balanceHod);
+		var tmpRec = myProps.memberList.find(x => x.mid === balanceHod);
 		myData.balanceFamilyHodName = getMemberName(tmpRec, false, false);
 		//console.log(memberList);
 		//console.log(balanceHod, tmpRec);
@@ -462,18 +464,22 @@ async function handleFinalStageSubmit() {
 	let myMsg = '';
 	let myStatus;
 	let tmp = encodeURIComponent(JSON.stringify(myData));
-		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/movemember/${props.hodMid}/${sessionStorage.getItem('mid')}/${tmp}`;
+	try {
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/movemember/${myProps.hodMid}/${sessionStorage.getItem('mid')}/${tmp}`;
 
-			let resp = await axios.get(myUrl);
-			myMsg = `Successfully applied moving members. Application reference ${resp.data.id}.`;
-			myStatus = STATUS_INFO.SUCCESS;
-		} catch (e) {
-			console.log(e);
-			myMsg = `Error Moving members`;
-			myStatus = STATUS_INFO.ERROR;
-		}
-		props.onReturn.call(this, {status: myStatus,  msg: myMsg});
+		let resp = await axios.get(myUrl);
+		myMsg = `Successfully applied moving members. Application reference ${resp.data.id}.`;
+		myStatus = STATUS_INFO.SUCCESS;
+	} catch (e) {
+		console.log(e);
+		myMsg = `Error Moving members`;
+		myStatus = STATUS_INFO.ERROR;
+	}
+	var returnStatus = {status: myStatus, msg: myMsg };
+	sessionStorage.setItem("family_personal_returnstatus", JSON.stringify(returnStatus));
+	sessionStorage.setItem("family_currentSelection", "Personal");
+	setTab(process.env.REACT_APP_FAMILY);
+	//myProps.onReturn.call(this, {status: myStatus,  msg: myMsg});
 }
 
 
@@ -539,29 +545,6 @@ return (
 </div>	
 )}
 
-/*
-function Junked_Display_select_merging_family_working() {
-return (
-<div>
-	<Typography align="center" className={gClasses.title}>Select Family</Typography>
-	<Grid key="SELECTFAMILY" className={gClasses.noPadding} container  alignItems="flex-start" >
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Family Head</Typography>
-		</Grid>
-		<Grid item xs={8} sm={8} md={8} lg={8} >
-			<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} style={{paddingRight: "5px" }}
-			options={hodMemberList} field="mergedName"  value={familyHod} onChange={(event) => setFamilyHod(event.target.value) } />
-		</Grid>
-	</Grid>
-	<br />
-</div>	
-)}
-*/
-/*
-function arun(event, values) {
-console.log(values);
-}
-*/
 
 function Display_select_merging_family() {
 return (
@@ -787,10 +770,17 @@ function getHodName(midNumber) {
 	return  tmp;
 }
 
+function handleCancel() {
+	sessionStorage.setItem("family_currentSelection", "Personal");
+	setTab(process.env.REACT_APP_FAMILY);
+}
 
 
 return (
-<div>
+	<div className={gClasses.webPage} >
+	<Container component="main" maxWidth="xs">	
+	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
+	<VsCancel align="right" onClick={handleCancel} />
 	<Typography align="center" className={gClasses.pdhs_title}>{header}</Typography>
 	<br />
 	{(stage !== "FINALSTAGE") &&
@@ -899,6 +889,8 @@ return (
 	</div>
 	}
 	<ToastContainer />
+	</Box>
+	</Container>
 	</div>
 	)
 }

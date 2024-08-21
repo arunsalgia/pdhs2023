@@ -145,7 +145,7 @@ async function  handleApplicationRejectConfirm(myRemarks) {
 		};
 		sessionStorage.setItem("application_returnstatus", JSON.stringify(returnStatus));
 		setTab(process.env.REACT_APP_APPLICATION);
-		myProps.onReturn.call(this, {status: STATUS_INFO.ERROR, applicationRec: resp.data, msg: `Application rejected by Admin`});
+		//myProps.onReturn.call(this, {status: STATUS_INFO.ERROR, applicationRec: resp.data, msg: `Application rejected by Admin`});
 		
 	} catch (e) {
 		console.log(e);

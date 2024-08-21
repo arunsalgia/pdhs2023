@@ -341,6 +341,8 @@ export const APPLICATIONTYPES = {
 	newHod: 					"New F.Head",
 	transferMember:		"Move members",
 	changeDom: 				"Change DOM",
+	marriage:					"Marriage",
+	unMarriage:				"Change Mar. Sts.",
 };
 
 

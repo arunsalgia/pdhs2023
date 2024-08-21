@@ -79,12 +79,14 @@ import {
 
 
 
-export default function MemberMarriage(props) {
+export default function MemberMarriage() {
 	//const classes = useStyles();
 	const gClasses = globalStyles();
+	const myProps = JSON.parse(sessionStorage.getItem("family_personal_props"));
+	//console.log(myProps);
 	
-	const [header, setHeader] = useState(`Apply for marriage of ${getMemberName(props.memberRec, false, false)}`);
-	const [memberRec, setMemberRec] = useState(props.memberRec);
+	const [header, setHeader] = useState(`Apply for marriage of ${getMemberName(myProps.memberRec, false, false)}`);
+	const [memberRec, setMemberRec] = useState(myProps.memberRec);
 	const [spouseRec, setSpouseRec] = useState(null);
 	const [spouseArray, setSpouseArray] = useState([]);
 	const [isSpouseMember, setIsSpouseMember] = useState(true);
@@ -96,9 +98,9 @@ export default function MemberMarriage(props) {
 	const [marriageDate, setMarriageDate] = useState(moment());
 	const [spouseDob, setSpouseDob] = useState(moment().subtract(ELIGIBLEMARRIAGEYEARS, 'years'));
 	const [firstName, setFirstName] = useState("");
-	const [middleName, setMiddleName] = useState((props.memberRec.gender === "Male") ? props.memberRec.firstName : "");
-	const [lastName, setLastName] = useState((props.memberRec.gender === "Male") ? props.memberRec.lastName : "");
-	const [alias, setAlias] = useState((props.memberRec.gender === "Male") ? props.memberRec.alias : "");
+	const [middleName, setMiddleName] = useState((myProps.memberRec.gender === "Male") ? myProps.memberRec.firstName : "");
+	const [lastName, setLastName] = useState((myProps.memberRec.gender === "Male") ? myProps.memberRec.lastName : "");
+	const [alias, setAlias] = useState((myProps.memberRec.gender === "Male") ? myProps.memberRec.alias : "");
 	const [relation, setRelation] = useState("Daughter In Law");
 	const [mobile, setMobile] = useState("");
 	const [mobile1, setMobile1] = useState("");
@@ -120,7 +122,7 @@ export default function MemberMarriage(props) {
 	//const [mergedOrCreate, setMergeOrCreate] = useState(MERGECREATEARRAY[1].value);
 
 	// If create new family
-	const [newHod, setNewHod] = useState(props.selectedMid);
+	const [newHod, setNewHod] = useState(myProps.selectedMid);
 
   const [balanceHod, setBalanceHod] = useState(0)	
 	
@@ -146,7 +148,7 @@ export default function MemberMarriage(props) {
 		async function getEligibleList() {
 		// Now get the list of all HOD if not available with us
 		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/eligible/${(props.memberRec.gender === "Male") ? "Female" : "Male"}`;
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/eligible/${(myProps.memberRec.gender === "Male") ? "Female" : "Male"}`;
 			var resp = await axios.get(myUrl);
 			var tmpList = [].concat(resp.data);
 			for (var i=0; i<tmpList.length; ++i) {
@@ -213,7 +215,7 @@ function handleSelectMemberCb(idx) {
 	var tmpArray = [].concat(cbArray);
 	tmpArray[idx] = (tmpArray[idx] !== 0) ? 0 : memberList[idx].mid	
 	setCbArray(tmpArray);
-	if (tmpArray.includes(props.hodMid)) {
+	if (tmpArray.includes(myProps.hodMid)) {
 		setHodTransfer(true);
 		//setMergeOrCreate("MERGE");
 	}
@@ -307,7 +309,7 @@ function handleNewRelation(rel, idx) {
 function handleSelectMemberSubmit() {
 	//setTransferMemberList(memberList.filter(x => cbArray.includes(x.mid)));
 	//setBalanceMemberList (memberList.filter(x => !cbArray.includes(x.mid)));
-	if (cbArray.includes(props.hodMid)) {
+	if (cbArray.includes(myProps.hodMid)) {
 		setHodTransfer(true);
 		fetchFamilyHodNames();
 		// HOD also selected for transfer. Thus it will be merged only. Option for new family not available
@@ -371,7 +373,7 @@ function JUnkedhandleSelectHodSubmit() {
 async function handleFinalStageSubmit() {
 	
 	var myData = {
-		hid: props.memberList[0].hid,
+		hid: myProps.memberList[0].hid,
 		transferMidList: [],
 		transferNameList: [],
 		transferRelation: [],
@@ -392,7 +394,7 @@ async function handleFinalStageSubmit() {
 	
 	for(var i=0; i< cbArray.length; ++i) {
 		if (cbArray[i] !== 0) {
-			var tmpRec = props.memberList.find(x => x.mid === cbArray[i]);
+			var tmpRec = myProps.memberList.find(x => x.mid === cbArray[i]);
 			myData.transferMidList.push(tmpRec.mid);
 			myData.transferNameList.push(getMemberName(tmpRec, false, false));
 			myData.transferRelation.push(((mergedOrCreate === "CREATE") && (tmpRec.mid === newHod)) ? "Self" : relation[i]);
@@ -401,7 +403,7 @@ async function handleFinalStageSubmit() {
 	
 	if (myData.createNewFamily) {
 		myData.newHodMid = newHod;
-		var tmpRec = props.memberList.find(x => x.mid === newHod);
+		var tmpRec = myProps.memberList.find(x => x.mid === newHod);
 		myData.newHodName = getMemberName(tmpRec, false, false);
 	}
 	else {
@@ -413,7 +415,7 @@ async function handleFinalStageSubmit() {
 	if (cbArray.includes(newHod)) {
 		// if HOD is also getting transferred then
 		myData.balanceFamilyHodMid = balanceHod;
-		var tmpRec = props.memberList.find(x => x.mid === balanceHod);
+		var tmpRec = myProps.memberList.find(x => x.mid === balanceHod);
 		myData.balanceFamilyHodName = getMemberName(tmpRec, false, false);
 		//console.log(memberList);
 		//console.log(balanceHod, tmpRec);
@@ -433,7 +435,7 @@ async function handleFinalStageSubmit() {
 	let myStatus;
 	let tmp = encodeURIComponent(JSON.stringify(myData));
 		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/movemember/${props.hodMid}/${sessionStorage.getItem('mid')}/${tmp}`;
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/movemember/${myProps.hodMid}/${sessionStorage.getItem('mid')}/${tmp}`;
 
 			let resp = await axios.get(myUrl);
 			myMsg = `Successfully applied moving members. Application reference ${resp.data.id}.`;
@@ -443,7 +445,7 @@ async function handleFinalStageSubmit() {
 			myMsg = `Error Moving members`;
 			myStatus = STATUS_INFO.ERROR;
 		}
-		props.onReturn.call(this, {status: myStatus,  msg: myMsg});
+		myProps.onReturn.call(this, {status: myStatus,  msg: myMsg});
 }
 
 
@@ -495,29 +497,6 @@ return (
 </div>	
 )}
 
-/*
-function Junked_Display_select_merging_family_working() {
-return (
-<div>
-	<Typography align="center" className={gClasses.title}>Select Family</Typography>
-	<Grid key="SELECTFAMILY" className={gClasses.noPadding} container  alignItems="flex-start" >
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Family Head</Typography>
-		</Grid>
-		<Grid item xs={8} sm={8} md={8} lg={8} >
-			<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} style={{paddingRight: "5px" }}
-			options={hodMemberList} field="mergedName"  value={familyHod} onChange={(event) => setFamilyHod(event.target.value) } />
-		</Grid>
-	</Grid>
-	<br />
-</div>	
-)}
-*/
-/*
-function arun(event, values) {
-console.log(values);
-}
-*/
 
 function Display_select_merging_family() {
 return (
@@ -726,7 +705,7 @@ return (
 </div>
 )}
 
-function getTransferMembers() {
+function junk_getTransferMembers() {
 	var myData = [];
 	for(var i=0; i<memberList.length; ++i) {
 		if (cbArray[i] !== 0) myData.push(memberList[i].firstName);
@@ -734,7 +713,7 @@ function getTransferMembers() {
 	return myData.join(", ");
 }
 
-function getHodName(midNumber) {
+function junk_getHodName(midNumber) {
 	//console.log(midNumber);
 	var myRec = memberList.find(x => x.mid === midNumber);
 	//console.log(myRec); 
@@ -748,12 +727,21 @@ function getHodName(midNumber) {
 
 function DisplayOfficeRelation() {
 return (
-	<Typography>TO be impelmnetd</Typography>
+	<Typography>TO be impelmented</Typography>
 )};
+
+function handleCancel() {
+	sessionStorage.setItem("family_currentSelection", "Personal");
+	setTab(process.env.REACT_APP_FAMILY);
+}
 
 
 
 return (
+	<div className={gClasses.webPage} >
+	<Container component="main" maxWidth="xs">	
+	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
+	<VsCancel align="right" onClick={handleCancel} />
 	<ValidatorForm align="left" className={gClasses.form} onSubmit={handleSubmit}>
 	<Typography align="center" className={gClasses.pdhs_title}>{header}</Typography>
 	<br />
@@ -983,7 +971,7 @@ return (
 		</Box>
 		<Grid key={"SELECTSELF"} className={gClasses.noPadding} container  alignItems="flex-start" >
 		<Grid style={{marginTop: "10px"}}  item xs={10} sm={10} md={10} lg={10} >
-			<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{getMemberName(props.memberRec, false, false)}</Typography>
+			<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{getMemberName(myProps.memberRec, false, false)}</Typography>
 		</Grid>	
 		<Grid item xs={2} sm={2} md={2} lg={2} >
 			<VsRadio checked={stayAtSelf} onClick={() => setStayAtSelf(true) }  />
@@ -1003,5 +991,8 @@ return (
 	<VsButton align="center" name="Submit" />
 	<ToastContainer />
 	</ValidatorForm>
+	</Box>
+	</Container>
+	</div>
 );
 }

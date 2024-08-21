@@ -38,7 +38,9 @@ import ApplicationMemberCeased from 'views/Application/ApplicationMemberCeased'
 
 import NewHod from 'views/Member/NewHod'
 import MemberAddEdit from 'views/Member/MemberAddEdit'
-
+import TransferMember from 'views/Member/TransferMember'
+import CeasedMember from "views/Member/CeasedMember";
+import MemberMarriage from "views/Member/MemberMarriage";
 
 
 
@@ -253,7 +255,17 @@ function AppRouter() {
 			{( [process.env.REACT_APP_FAMILY_PERSONAL_ADD, process.env.REACT_APP_FAMILY_PERSONAL_EDIT].includes(sessionStorage.getItem("menuValue")) ) &&
 				<MemberAddEdit />
 			}				
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_FAMILY_PERSONAL_TRANSFER) &&
+				<TransferMember />
+			}	
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_FAMILY_PERSONAL_CEASED) &&
+				<CeasedMember />
+			}	
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_FAMILY_PERSONAL_MARRIAGE) &&
+				<MemberMarriage />
+			}	
 			</div>
+
     }
     </Router>
   );

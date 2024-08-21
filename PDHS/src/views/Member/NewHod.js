@@ -143,15 +143,30 @@ async function handleNewHodSubmit() {
  		// apply for both admin and member
 		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/newhod/${myProps.hodMid}/${sessionStorage.getItem("mid")}/${myInfo}`;
 		var resp = await axios.get(myUrl);
-		
-		myProps.onReturn.call(this, {
+		var returnStatus = {
 			status: STATUS_INFO.SUCCESS,
 			data: resp.data,
 			msg: `Successfully applied for ${getMemberName(newHodRec)} as new F.Head. Your application id ref. ${resp.data.id}`
-		});
+		};
+		sessionStorage.setItem("family_personal_returnstatus", JSON.stringify(returnStatus));
+		sessionStorage.setItem("family_currentSelection", "Personal");
+		setTab(process.env.REACT_APP_FAMILY);
+		
+		//myProps.onReturn.call(this, {
+		//	status: STATUS_INFO.SUCCESS,
+		//	data: resp.data,
+		//	msg: `Successfully applied for ${getMemberName(newHodRec)} as new F.Head. Your application id ref. ${resp.data.id}`
+		//});
 	} catch (e) {
 		console.log(e);
-		myProps.onReturn.call(this, {status: STATUS_INFO.ERROR,  msg: `Error setting ${getMemberName(newHodRec)} as new F.Head.`});
+		var returnStatus = {
+			status: STATUS_INFO.ERROR,  
+			msg: `Error setting ${getMemberName(newHodRec)} as new F.Head.`
+			};
+		sessionStorage.setItem("family_personal_returnstatus", JSON.stringify(returnStatus));
+		sessionStorage.setItem("family_currentSelection", "Personal");
+		setTab(process.env.REACT_APP_FAMILY);
+		//myProps.onReturn.call(this, {status: STATUS_INFO.ERROR,  msg: `Error setting ${getMemberName(newHodRec)} as new F.Head.`});
 	}	
 	return;
 }

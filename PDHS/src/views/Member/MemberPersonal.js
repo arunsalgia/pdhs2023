@@ -99,9 +99,13 @@ var radioMid = -1;
 //var familyCity = "";
 
 const funCodeTable = [
-{fun: APPLICATIONTYPES.newHod, 			code: process.env.REACT_APP_FAMILY_PERSONAL_NEWHOD},
-{fun: APPLICATIONTYPES.addMember, 	code: process.env.REACT_APP_FAMILY_PERSONAL_ADD},
-{fun: APPLICATIONTYPES.editMember, 	code: process.env.REACT_APP_FAMILY_PERSONAL_EDIT},
+{fun: APPLICATIONTYPES.newHod, 					code: process.env.REACT_APP_FAMILY_PERSONAL_NEWHOD},
+{fun: APPLICATIONTYPES.addMember, 			code: process.env.REACT_APP_FAMILY_PERSONAL_ADD},
+{fun: APPLICATIONTYPES.editMember, 			code: process.env.REACT_APP_FAMILY_PERSONAL_EDIT},
+{fun: APPLICATIONTYPES.transferMember, 	code: process.env.REACT_APP_FAMILY_PERSONAL_TRANSFER},
+{fun: APPLICATIONTYPES.marriage, 				code: process.env.REACT_APP_FAMILY_PERSONAL_MARRIAGE},
+{fun: APPLICATIONTYPES.unMarriage, 			code: process.env.REACT_APP_FAMILY_PERSONAL_UNMARRIAGE},
+{fun: APPLICATIONTYPES.memberCeased, 		code: process.env.REACT_APP_FAMILY_PERSONAL_CEASED},
 ];
 
 
@@ -187,6 +191,14 @@ export default function MemberPersonal(props) {
 			setMemberArray(myMemArray);
 			var ccc = myMemArray.find(x => x.mid === myHodRec.mid);
 			if (!ccc) showError(`Family Head of family ${myHodRec.hid} not in list. May be ceased`);
+		}
+
+		if ("family_personal_returnstatus" in sessionStorage) {
+			console.log("has return status");
+			var sts = JSON.parse(sessionStorage.getItem("family_personal_returnstatus"));
+			//console.log(sts);
+			sessionStorage.removeItem("family_personal_returnstatus");
+			handlePersonalReturn(sts);
 		}
 
 		getDetails();
@@ -388,7 +400,8 @@ function DisplayPersonalInformation() {
 	
 	function handleMarriage(memRec) {
 		setSelMember(memRec);
-		setIsDrawerOpened("MARRIAGE");
+		selectCaller(APPLICATIONTYPES.marriage, "MARRIAGE", memberArray, hodRec, memRec);
+		//setIsDrawerOpened("MARRIAGE");
 	}
 	
 	function handleUnMarriage(memRec) {
@@ -436,7 +449,8 @@ function DisplayPersonalInformation() {
 	
 	function ceasedMemberConfirm(m) {
 		setSelMember(m);
-		setIsDrawerOpened("CEASED");
+		selectCaller(APPLICATIONTYPES.memberCeased, "CEASED", memberArray, hodRec, m);
+		//setIsDrawerOpened("CEASED");
 	}
 
 	function handleCeasedMemberBack(sts) {
@@ -489,7 +503,8 @@ function DisplayPersonalInformation() {
 		// Transfer member(s) to another family
 	function handlePersonalTransfer(rec) {
 		setSelMember(rec);
-		setIsDrawerOpened("TRANSFER");
+		selectCaller(APPLICATIONTYPES.transferMember, "TRANSFER", memberArray, hodRec, rec);
+		//setIsDrawerOpened("TRANSFER");
 	}
 	
 	function handlePersonalTransferBack(sts) {
@@ -532,6 +547,20 @@ function DisplayPersonalInformation() {
 		}
 		setIsDrawerOpened("");
 	}
+	
+	function handlePersonalReturn(sts) {
+		console.log(sts);
+		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
+		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
+		
+		if (sts.status == STATUS_INFO.SUCCESS) {
+		}
+		else {
+			console.log("Yaha kaise aaya");
+		}
+		setIsDrawerOpened("");
+	}
+	
 	
 	function selectCaller(funCode, mode, memberList, hodRecord, memberRecord) {
 		var myFun = funCodeTable.find(x => x.fun === funCode);

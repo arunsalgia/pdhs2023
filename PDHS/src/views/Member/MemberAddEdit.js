@@ -323,18 +323,22 @@ async function handleMemberAddEditSubmit() {
 	let myMsg = '';
 	let myStatus;
 	let tmp = encodeURIComponent(JSON.stringify(myData));
-		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/addeditpersonal/${myProps.hodMid}/${sessionStorage.getItem('mid')}/${tmp}`;
-			var submsg = (myProps.mode === "ADD") ? 'add member' : 'edit';
-			let resp = await axios.get(myUrl);
-			myMsg = `Successfully applied to ${submsg} member details. Application reference ${resp.data.id}.`;
-			myStatus = STATUS_INFO.SUCCESS;
-		} catch (e) {
-			console.log(e);
-			myMsg = `Error applying for add/edit member personal details`;
-			myStatus = STATUS_INFO.ERROR;
-		}
-		myProps.onReturn.call(this, {status: myStatus,  msg: myMsg});
+	try {
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/addeditpersonal/${myProps.hodMid}/${sessionStorage.getItem('mid')}/${tmp}`;
+		var submsg = (myProps.mode === "ADD") ? 'add member' : 'edit';
+		let resp = await axios.get(myUrl);
+		myMsg = `Successfully applied to ${submsg} member details. Application reference ${resp.data.id}.`;
+		myStatus = STATUS_INFO.SUCCESS;
+	} catch (e) {
+		console.log(e);
+		myMsg = `Error applying for add/edit member personal details`;
+		myStatus = STATUS_INFO.ERROR;
+	}
+	var returnStatus = {status: myStatus,  msg: myMsg};
+	sessionStorage.setItem("family_personal_returnstatus", JSON.stringify(returnStatus));
+	sessionStorage.setItem("family_currentSelection", "Personal");
+	setTab(process.env.REACT_APP_FAMILY);
+	//myProps.onReturn.call(this, {status: myStatus,  msg: myMsg});
 	return;
 }
 
