@@ -334,6 +334,7 @@ INFO: 2,
 
 export const APPLICATIONTYPES = {
 	editGotra:  			"Edit Gotra",
+	editGeneral:			"Edit Gen. Details",
 	addMember: 				"Add new Member",
 	editMember: 			"Edit Member",
 	memberCeased: 		"Member Ceased",

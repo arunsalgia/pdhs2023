@@ -76,12 +76,13 @@ const applOption = ["Application Approved", "Application Rejected"];
 const RadioList = ["All", "Pending", "Approved","Rejected" ];
  
 const funCodeTable = [
-{fun: APPLICATIONTYPES.changeDom, 			code: process.env.REACT_APP_APPLICATION_DOMCHANGE},
-{fun: APPLICATIONTYPES.transferMember, 	code: process.env.REACT_APP_APPLICATION_TRANSFERMEMBER},
-{fun: APPLICATIONTYPES.addMember, 			code: process.env.REACT_APP_APPLICATION_ADDMEMBER},
-{fun: APPLICATIONTYPES.editMember, 			code: process.env.REACT_APP_APPLICATION_EDITMEMBER},
-{fun: APPLICATIONTYPES.newHod, 					code: process.env.REACT_APP_APPLICATION_NEWHOD},
-{fun: APPLICATIONTYPES.memberCeased, 		code: process.env.REACT_APP_APPLICATION_CEASEDMEMBER},
+	{fun: APPLICATIONTYPES.changeDom, 			code: process.env.REACT_APP_APPLICATION_DOMCHANGE},
+	{fun: APPLICATIONTYPES.transferMember, 	code: process.env.REACT_APP_APPLICATION_TRANSFERMEMBER},
+	{fun: APPLICATIONTYPES.addMember, 			code: process.env.REACT_APP_APPLICATION_ADDMEMBER},
+	{fun: APPLICATIONTYPES.editMember, 			code: process.env.REACT_APP_APPLICATION_EDITMEMBER},
+	{fun: APPLICATIONTYPES.newHod, 					code: process.env.REACT_APP_APPLICATION_NEWHOD},
+	{fun: APPLICATIONTYPES.memberCeased, 		code: process.env.REACT_APP_APPLICATION_CEASEDMEMBER},
+	{fun: APPLICATIONTYPES.editGotra, 			code: process.env.REACT_APP_APPLICATION_EDITGOTRA},
 ];
 
 

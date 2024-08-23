@@ -539,6 +539,7 @@ FAMILYMF = 1000;
 
 APPLICATIONTYPES = {
 	editGotra:  			"Edit Gotra",
+	editGeneral:			"Edit Gen. Details",
 	addMember: 				"Add new Member",
 	editMember: 			"Edit Member",
 	memberCeased: 		"Member Ceased",
@@ -546,6 +547,8 @@ APPLICATIONTYPES = {
 	newHod: 					"New F.Head",
 	transferMember:		"Move members",
 	changeDom: 				"Change DOM",
+	marriage:					"Marriage",
+	unMarriage:				"Change Mar. Sts.",
 };
 
 APPLICATIONSTATUS = {

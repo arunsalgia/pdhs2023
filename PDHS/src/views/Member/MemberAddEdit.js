@@ -336,14 +336,14 @@ async function handleMemberAddEditSubmit() {
 	}
 	var returnStatus = {status: myStatus,  msg: myMsg};
 	sessionStorage.setItem("family_personal_returnstatus", JSON.stringify(returnStatus));
-	sessionStorage.setItem("family_currentSelection", "Personal");
+	sessionStorage.setItem("family_currentSelection", myProps.calledFrom);
 	setTab(process.env.REACT_APP_FAMILY);
 	//myProps.onReturn.call(this, {status: myStatus,  msg: myMsg});
 	return;
 }
 
 function handleCancel() {
-	sessionStorage.setItem("family_currentSelection", "Personal");
+	sessionStorage.setItem("family_currentSelection", myProps.calledFrom);
 	setTab(process.env.REACT_APP_FAMILY);
 }
 

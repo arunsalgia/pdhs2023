@@ -52,6 +52,7 @@ import {
 	DATESTR, MONTHNUMBERSTR,
 	CASTE, HUMADSUBCASTRE,
 	APPLICATIONTYPES,
+	STATUS_INFO,
 } from "views/globals.js";
 
 
@@ -62,13 +63,22 @@ import {
 	getMemberName,
 	dispAge,
 	applicationSuccess,
-	showError, showSuccess,
+	showError, showSuccess, showInfo,
 } from "views/functions.js";
 
 import { 
 	decrypt, dispMobile, dispEmail, disableFutureDt,
 } from 'views/functions';
-import {  } from 'views/functions';
+//import {  } from 'views/functions';
+
+import {
+	setTab,
+} from "CustomComponents/CricDreamTabs.js"
+
+const funCodeTable = [
+{fun: APPLICATIONTYPES.editGeneral, 		code: process.env.REACT_APP_FAMILY_GENERAL_EDIT},
+{fun: APPLICATIONTYPES.editGotra, 			code: process.env.REACT_APP_FAMILY_GENERAL_CHANGEGOTRA},
+];
 
 
 export default function MemberGeneral (props) {
@@ -143,12 +153,32 @@ export default function MemberGeneral (props) {
 		//var memRec = memberArray.find(x => x.mid === currentHod.mid);
 		//setHodName(getMemberName(memrec, false));
 		
+		if ("family_personal_returnstatus" in sessionStorage) {
+			//console.log("has return status");
+			var sts = JSON.parse(sessionStorage.getItem("family_personal_returnstatus"));
+			//console.log(sts);
+			sessionStorage.removeItem("family_personal_returnstatus");
+			handleGeneralReturn(sts);
+		}
 		
 		setIsFamily(currentHod.hid === loginHid);
 		getGotraList();
 		getCityList(); 
 
   }, []);
+
+	function handleGeneralReturn(sts) {
+		//console.log(sts);
+		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
+		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
+		
+		if (sts.status == STATUS_INFO.SUCCESS) {
+		}
+		else {
+			console.log("Yaha kaise aaya");
+		}
+		setIsDrawerOpened("");
+	}
 
 	async function getGotraList() {
 		//console.log("Hi");
@@ -325,7 +355,21 @@ export default function MemberGeneral (props) {
 		
 		setEmurAddr2(currentHod.caste);
 		setEmurAddr3(currentHod.subCaste);
-		setIsDrawerOpened("GOTRA");
+
+	  //function selectCaller(funCode, mode, memberList, hodRecord, memberRecord) {
+		var myFun = funCodeTable.find(x => x.fun === APPLICATIONTYPES.editGotra);
+		var myData = JSON.stringify({
+			calledFrom: "General",
+			gotraList: gotraArray,
+			hodRec: currentHod,
+			//mode: mode,
+			//hodMid: hodRecord.mid,
+			//memberRec: memberRecord,
+			//selectedMid:  memberRecord.mid
+		});
+		sessionStorage.setItem("family_personal_props", myData);
+		setTab(myFun.code);
+		//setIsDrawerOpened("GOTRA");
 	}
 
 	async function handleEditGotraSubmit() {

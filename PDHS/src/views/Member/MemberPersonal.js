@@ -566,6 +566,7 @@ function DisplayPersonalInformation() {
 		var myFun = funCodeTable.find(x => x.fun === funCode);
 		if (myFun) {
 			var myData = JSON.stringify({
+				calledFrom: "Personal",
 				mode: mode,
 				memberList: memberList,
 				hodRec: hodRecord,
