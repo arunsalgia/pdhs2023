@@ -76,8 +76,8 @@ import {
 } from "CustomComponents/CricDreamTabs.js"
 
 const funCodeTable = [
-{fun: APPLICATIONTYPES.editGeneral, 		code: process.env.REACT_APP_FAMILY_GENERAL_EDIT},
-{fun: APPLICATIONTYPES.editGotra, 			code: process.env.REACT_APP_FAMILY_GENERAL_CHANGEGOTRA},
+{fun: APPLICATIONTYPES.editGeneral, 		code: process.env.REACT_APP_FAMILY_GENERAL_EDITDETAILS},
+{fun: APPLICATIONTYPES.editGotra, 			code: process.env.REACT_APP_FAMILY_GENERAL_EDITGOTRA},
 ];
 
 
@@ -301,7 +301,24 @@ export default function MemberGeneral (props) {
 		setEmurResPhone1(currentHod.resPhone1);
 		setEmurResPhone2(currentHod.resPhone2);
 
-		setIsDrawerOpened("GENERAL");
+	  //function selectCaller(funCode, mode, memberList, hodRecord, memberRecord) {
+		var myFun = funCodeTable.find(x => x.fun === APPLICATIONTYPES.editGeneral);
+		//console.log(myFun);
+		var myData = JSON.stringify({
+			calledFrom: "General",
+			cityList: cityArray,
+			hodRec: currentHod,
+			//mode: mode,
+			//hodMid: hodRecord.mid,
+			//memberRec: memberRecord,
+			//selectedMid:  memberRecord.mid
+		});
+		
+		sessionStorage.setItem("family_personal_props", myData);
+		
+		setTab(myFun.code);
+
+		//setIsDrawerOpened("GENERAL");
 	}
 
 	async function handleEditGeneralSubmit() {
@@ -358,6 +375,7 @@ export default function MemberGeneral (props) {
 
 	  //function selectCaller(funCode, mode, memberList, hodRecord, memberRecord) {
 		var myFun = funCodeTable.find(x => x.fun === APPLICATIONTYPES.editGotra);
+		//console.log(myFun);
 		var myData = JSON.stringify({
 			calledFrom: "General",
 			gotraList: gotraArray,
@@ -367,7 +385,9 @@ export default function MemberGeneral (props) {
 			//memberRec: memberRecord,
 			//selectedMid:  memberRecord.mid
 		});
+		
 		sessionStorage.setItem("family_personal_props", myData);
+		
 		setTab(myFun.code);
 		//setIsDrawerOpened("GOTRA");
 	}

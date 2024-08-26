@@ -83,6 +83,7 @@ const funCodeTable = [
 	{fun: APPLICATIONTYPES.newHod, 					code: process.env.REACT_APP_APPLICATION_NEWHOD},
 	{fun: APPLICATIONTYPES.memberCeased, 		code: process.env.REACT_APP_APPLICATION_CEASEDMEMBER},
 	{fun: APPLICATIONTYPES.editGotra, 			code: process.env.REACT_APP_APPLICATION_EDITGOTRA},
+	{fun: APPLICATIONTYPES.editGeneral, 		code: process.env.REACT_APP_APPLICATION_EDITDETAILS},
 ];
 
 

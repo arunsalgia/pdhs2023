@@ -788,7 +788,7 @@ return (
 		<Accordion expanded={expandedPanel === "members_to_transfer"} onChange={handleAccordionChange("members_to_transfer")}>
 			<Box align="right" className={(expandedPanel === "members_to_transfer") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 			<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
-				<Typography align="left" >{"Move " + getTransferMembers()}</Typography>
+				<Typography align="left" >{"Move members ( " + getTransferMembers() + " )"}</Typography>
 			</AccordionSummary>
 			</Box>
 			<Display_select_to_transfer />

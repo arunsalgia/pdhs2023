@@ -36,6 +36,9 @@ import ApplicationAddEditMember from 'views/Application/ApplicationAddEditMember
 import ApplicationNewHod from 'views/Application/ApplicationNewHod'
 import ApplicationMemberCeased from 'views/Application/ApplicationMemberCeased'
 import ApplicationEditGotra from 'views/Application/ApplicationEditGotra'
+import ApplicationEditGeneral from 'views/Application/ApplicationEditGeneral'
+
+
 
 
 import NewHod from 'views/Member/NewHod'
@@ -45,6 +48,7 @@ import CeasedMember from "views/Member/CeasedMember";
 import MemberMarriage from "views/Member/MemberMarriage";
 
 import MemberEditGotra from "views/Member/MemberEditGotra";
+import MemberEditGeneral from "views/Member/MemberEditGeneral";
 
 
 import IdleTimer from 'react-idle-timer'
@@ -252,6 +256,9 @@ function AppRouter() {
 			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_APPLICATION_NEWHOD) &&
 				<ApplicationNewHod />
 			}	
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_APPLICATION_EDITDETAILS) &&
+				<ApplicationEditGeneral />
+			}	
 			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_APPLICATION_EDITGOTRA) &&
 				<ApplicationEditGotra />
 			}			
@@ -270,9 +277,13 @@ function AppRouter() {
 			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_FAMILY_PERSONAL_MARRIAGE) &&
 				<MemberMarriage />
 			}	
-			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_FAMILY_GENERAL_CHANGEGOTRA) &&
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_FAMILY_GENERAL_EDITDETAILS) &&
+				<MemberEditGeneral />
+			}
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_FAMILY_GENERAL_EDITGOTRA) &&
 				<MemberEditGotra />
 			}	
+	
 			</div>
     }
     </Router>
