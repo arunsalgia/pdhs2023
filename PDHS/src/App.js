@@ -30,6 +30,10 @@ import Pjym from 'views/Pjym/Pjym'
 import Prws from 'views/Prws/Prws'
 import Application from 'views/Application/Application'
 
+import City from 'views/Admin/City'
+import Gotra from 'views/Admin/Gotra'
+import Admin from 'views/Admin/Admin'
+
 import ApplicationChangeDom from 'views/Application/ApplicationChangeDom'
 import ApplicationTransferMember from 'views/Application/ApplicationTransferMember'
 import ApplicationAddEditMember from 'views/Application/ApplicationAddEditMember'
@@ -37,6 +41,8 @@ import ApplicationNewHod from 'views/Application/ApplicationNewHod'
 import ApplicationMemberCeased from 'views/Application/ApplicationMemberCeased'
 import ApplicationEditGotra from 'views/Application/ApplicationEditGotra'
 import ApplicationEditGeneral from 'views/Application/ApplicationEditGeneral'
+import ApplicationMarriage from 'views/Application/ApplicationMarriage'
+import ApplicationUnmarriage from 'views/Application/ApplicationUnmarriage'
 
 
 
@@ -262,6 +268,12 @@ function AppRouter() {
 			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_APPLICATION_EDITGOTRA) &&
 				<ApplicationEditGotra />
 			}			
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_APPLICATION_MARRIAGE) &&
+				<ApplicationMarriage />
+			}	
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_APPLICATION_UNMARRIAGE) &&
+				<ApplicationUnmarriage />
+			}				
 			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_FAMILY_PERSONAL_NEWHOD) &&
 				<NewHod />
 			}	
@@ -283,7 +295,15 @@ function AppRouter() {
 			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_FAMILY_GENERAL_EDITGOTRA) &&
 				<MemberEditGotra />
 			}	
-	
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_CITY) &&
+				<City />
+			}
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_GOTRA) &&
+				<Gotra />
+			}
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_ADMIN) &&
+				<Admin />
+			}	
 			</div>
     }
     </Router>

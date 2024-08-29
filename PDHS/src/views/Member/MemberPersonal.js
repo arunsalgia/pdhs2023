@@ -404,21 +404,33 @@ function DisplayPersonalInformation() {
 		//setIsDrawerOpened("MARRIAGE");
 	}
 	
-	function handleUnMarriage(memRec) {
+  function handleUnMarriage(memRec) {
 		//console.log(memRec.spouseMid);
 		var msg = (memRec.spouseMid !== 0) ?
 			`Set ${getMemberName(memRec, false, false)} along with spouse as Unmarried?` :
 			`Set ${getMemberName(memRec, false, false)} as Unmarried?`;
 		//console.log(msg);
-		vsDialog("Split Marriage", msg,
+		vsDialog("Change Marital Status", msg,
 		{label: "Yes", onClick: () => unMarriageConfirm(memRec) },
 		{label: "No" }
 		);
 	}
 	
-	function unMarriageConfirm(memRec) {
+	async function unMarriageConfirm(memRec) {
 		//console.log(memRec);
-		showInfo("Split marriage is yet to be implemented");
+		let myData = {
+			memberRec: memRec,
+			spouseMemberRec: memberArray.find(x => x.mid === memRec.spouseMid)
+		}
+		let tmp = encodeURIComponent(JSON.stringify(myData));
+		try {
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/unmarriage/${hodRec.mid}/${sessionStorage.getItem('mid')}/${tmp}`;
+			let resp = await axios.get(myUrl);
+			showSuccess(`Successfully applied for marital status change. Application reference ${resp.data.id}.`);
+		} catch (e) {
+			console.log(e);
+			showError(`Error applying for for marital status change`);
+		}
 	}
 	
 	function handleMarriageBack(sts) {

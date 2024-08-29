@@ -41,6 +41,8 @@ import ApplicationAddEditMember from "views/Application/ApplicationAddEditMember
 import ApplicationNewHod from "views/Application/ApplicationNewHod";
 import ApplicationTransferMember from "views/Application/ApplicationTransferMember";
 import ApplicationChangeDom from "views/Application/ApplicationChangeDom";
+import ApplicationMarriage from 'views/Application/ApplicationMarriage'
+import ApplicationUnmarriage from 'views/Application/ApplicationUnmarriage'
 
 
 import {
@@ -84,6 +86,8 @@ const funCodeTable = [
 	{fun: APPLICATIONTYPES.memberCeased, 		code: process.env.REACT_APP_APPLICATION_CEASEDMEMBER},
 	{fun: APPLICATIONTYPES.editGotra, 			code: process.env.REACT_APP_APPLICATION_EDITGOTRA},
 	{fun: APPLICATIONTYPES.editGeneral, 		code: process.env.REACT_APP_APPLICATION_EDITDETAILS},
+	{fun: APPLICATIONTYPES.marriage, 				code: process.env.REACT_APP_APPLICATION_MARRIAGE},
+	{fun: APPLICATIONTYPES.unMarriage, 			code: process.env.REACT_APP_APPLICATION_UNMARRIAGE},
 ];
 
 
@@ -179,9 +183,6 @@ export default function Application(props) {
 		let tmpArray = myArray.filter(x => x.owner === item);
 		if (radOpts !== "All")
 			tmpArray = tmpArray.filter(x => x.status === radOpts);
-		//if (onlyPending)
-		//	tmpArray = tmpArray.filter(x => x.status === APPLICATIONSTATUS.pending);
-		
 		return tmpArray;
 	}
 		
@@ -497,6 +498,9 @@ export default function Application(props) {
 	}		
 	{(isDrawerOpened === APPLICATIONTYPES.changeDom) &&
 		<ApplicationChangeDom applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
+	}		
+	{(isDrawerOpened === APPLICATIONTYPES.marriage) &&
+		<ApplicationMarriage applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
 	}		
 	</Box>
 	</Container>

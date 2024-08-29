@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import axios from "axios";
 import { makeStyles } from '@material-ui/core/styles';
 // import { Switch, Route, Link } from 'react-router-dom';
-import { ValidatorForm, TextValidator, TextValidatorcvariant} from 'react-material-ui-form-validator';
+import { ValidatorForm, TextValidator, TextValidatorcvariant, TextareaAutosize} from 'react-material-ui-form-validator';
 import Drawer from '@material-ui/core/Drawer';
 import Divider from '@material-ui/core/Divider';
 
@@ -15,12 +15,16 @@ import Container from '@material-ui/core/Container';
 import Box from '@material-ui/core/Box';
 import Grid from "@material-ui/core/Grid";
 
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+
 import Typography from '@material-ui/core/Typography';
 import { UserContext } from "../../UserContext";
 
 import { 
 	JumpButton, DisplayPageHeader, ValidComp, BlankArea, 
-	ApplicationHeader, DisplayApplicationNameValue, DisplayApplicationName,
+	ApplicationHeader, DisplayApplicationNameValue, DisplayApplicationNameValueNameBig,
 } from 'CustomComponents/CustomComponents.js';
 
 import IconButton from '@material-ui/core/IconButton';
@@ -29,6 +33,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import IndeterminateCheckBoxIcon from '@material-ui/icons/IndeterminateCheckBox';
 import CancelIcon from '@material-ui/icons/Cancel';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import globalStyles from "assets/globalStyles";
 
@@ -36,11 +41,13 @@ import VsButton from "CustomComponents/VsButton";
 import VsCancel from "CustomComponents/VsCancel";
 
 
+
 import {
 	ADMIN, APPLICATIONTYPES, APPLICATIONSTATUS, SELECTSTYLE, 
   PADSTYLE,
 	MEMBERTITLE, RELATION, SELFRELATION, GENDER, BLOODGROUP, MARITALSTATUS,
 	STATUS_INFO,
+	MAXDISPLAYTEXTROWS,
 } from 'views/globals';
 
 import {
@@ -55,20 +62,50 @@ import {
 	setTab,
 } from "CustomComponents/CricDreamTabs.js"
 
-
-export default function ApplicationEditGotra() {
+export default function ApplicationUnmarriage() {
 	const gClasses = globalStyles();
 	const myProps = JSON.parse(sessionStorage.getItem("application_appRec"));
+	//console.log(myProps);
 	
 	//const [registerStatus, setRegisterStatus] = useState(0);
 	const [appData, setAppdata] = useState(JSON.parse(myProps.applicationRec.data));
+	const [spouseMemberRec, setSpouseMemberRec] = useState(JSON.parse(myProps.applicationRec.data).spouseMemberRec);
+	//const [spouseMemberRec, setSpouseMemberRec] = useState(null);
+	
+	// show in accordion
+	const [expandedPanel, setExpandedPanel] = useState("BASICMARRIAGE");
+	const handleAccordionChange = (panel) => (event, isExpanded) => {
+    setExpandedPanel(isExpanded ? panel : false);
+    //setRegisterStatus(0);
+  };
+	
 	const [remarks, setRemarks] = useState("");
-	const [action, setAction] = useState("");	
+	const [action, setAction] = useState("");
 	const [stage, setStage] = useState("INITIAL");
 	
-	//useEffect(() => {
-	//		setAppdata(JSON.parse(myProps.applicationRec.data));
-	//}, [])
+	useEffect(() => {
+		
+		async function getSpouseRecord() {
+			if ((appData.memberRec.spouseMid !== 0) && !JSON.parse(myProps.applicationRec.data).spouseMemberRec) {
+				// Member and spouse do not stay with the same family. Thus could not find the spouse record
+				try {
+					let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/mid/${appData.memberRec.spouseMid}`;
+					var resp = await axios.get(myUrl);
+					console.log(resp.data);
+					setSpouseMemberRec(resp.data);
+				}
+				catch (e) {
+					console.log(e);
+					showError(`Error fetching spouse record with mid ${appData.memberRec.spouseMid}`);
+				}
+			}
+		}
+		
+		//console.log(appData);
+		//console.log(JSON.parse(myProps.applicationRec.data).spouseMemberRec);
+		getSpouseRecord();
+
+	}, [])
 
 
 async function handleMemberAddEditSubmit() {
@@ -86,7 +123,6 @@ async function handleApplicationApprove() {
 	setStage("Approve");
 }
 
-
 function handleRemarksDone() {
 	var myRemarks = (remarks !== "") ? remarks : "-";
 	if (action === "Approve")
@@ -95,30 +131,24 @@ function handleRemarksDone() {
 		handleApplicationRejectConfirm(myRemarks);
 }
 
-async function junk_handleApplicationReject() {
-	handleApplicationRejectConfirm();
-	
-	/*vsDialog("Reject", `Are you sure you want reject application?`,
-		{label: "Yes", onClick: () => handleApplicationRejectConfirm() },
-		{label: "No" }
-		);*/
-}
 
 async function  handleApplicationApproveConfirm(myRemarks) {
-	showInfo("TO be implemenetd");
-	return;
-	
 	try {
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/reject/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/my comments`;
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
 		let resp = await axios.get(myUrl);
-		myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application rejected by Admin`});
+		var returnStatus = {
+			status: STATUS_INFO.SUCCESS, applicationRec: resp.data, 
+			msg: `Application approved by Admin`
+		};
+		sessionStorage.setItem("application_returnstatus", JSON.stringify(returnStatus));
+		setTab(process.env.REACT_APP_APPLICATION);
+		//myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application approved by Admin`});
 		
 	} catch (e) {
 		console.log(e);
-		showError(`Error rejecting Gotra/Caste change`);
+		showError(`Error approving ceased member`);
 	}
 }
-
 
 async function  handleApplicationRejectConfirm(myRemarks) {
 	try {
@@ -130,21 +160,20 @@ async function  handleApplicationRejectConfirm(myRemarks) {
 		};
 		sessionStorage.setItem("application_returnstatus", JSON.stringify(returnStatus));
 		setTab(process.env.REACT_APP_APPLICATION);
-		//myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application rejected by Admin`});
-		
+		//myProps.onReturn.call(this, {status: STATUS_INFO.ERROR, applicationRec: resp.data, msg: `Application rejected by Admin`});	
 	} catch (e) {
 		console.log(e);
-		showError(`Error rejecting Gotra/Caste change`);
+		showError(`Error rejecting ceased member`);
 	}
 }
-
-
 
 function handleCancel() {
 	setTab(process.env.REACT_APP_APPLICATION);
 }
 
-//console.log(appData);
+
+	//console.log(appData);
+	if ((appData.memberRec.spouseMid !== 0) && !appData.spouseMemberRec)  return false;
 
 
 return (
@@ -152,59 +181,16 @@ return (
 	<Container component="main" maxWidth="xs">	
 	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
 	<VsCancel align="right" onClick={handleCancel} />
-	<ApplicationHeader applicationRec={myProps.applicationRec} header="Application for change of Gotra/Caste/SubCaste" />
+	<ApplicationHeader applicationRec={myProps.applicationRec} header={`Application to change Marital status`} />
 	<br />
 	{(stage === "INITIAL") &&
-	<div>
-	{(appData.oldData.gotra !== appData.newData.gotra) &&
 		<div>
-		<DisplayApplicationNameValue name="Curr. Gotra" value={appData.oldData.gotra} style={{paddingTop: "5px" }}  />
-		<DisplayApplicationNameValue name="New Gotra" value={appData.newData.gotra} style={{paddingTop: "5px" }}  />
-		{(!appData.newData.existingGotra) &&
-		<DisplayApplicationName name="(Note that the new gotra is not in gotra database)" value="" style={{paddingTop: "5px" }}  />
-		}
+		<DisplayApplicationNameValue name="Member name" value={getMemberName(appData.memberRec, false, false)} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name="Spouse name" value={(appData.memberRec.spouseMid !== 0) ? getMemberName(appData.spouseMemberRec, false, false) : "N/A"} style={{paddingTop: "5px" }}  />
 		<br />
-		</div>	
+		</div>
 	}
-	{(appData.oldData.gotra === appData.newData.gotra) &&
-		<div>
-		<DisplayApplicationNameValue name={`No change in Gotra`} value={appData.newData.gotra} style={{paddingTop: "5px" }}  />
-		<br />
-		</div>	
-	}
-	{(appData.oldData.caste !== appData.newData.caste) &&
-		<div>
-		<DisplayApplicationNameValue name="Curr. Caste" value={appData.oldData.caste} style={{paddingTop: "5px" }}  />
-		<DisplayApplicationNameValue name="New Caste" value={appData.newData.caste} style={{paddingTop: "5px" }}  />
-		<br />
-		</div>	
-	}
-	{(appData.oldData.caste === appData.newData.caste) &&
-		<div>
-		<DisplayApplicationNameValue name={`No change in Caste`} value={appData.newData.caste} style={{paddingTop: "5px" }}  />
-		<br />
-		</div>	
-	}
-	{((appData.oldData.caste === "Humad") && (appData.newData.caste === "Humad") && (appData.oldData.subCaste === appData.newData.subCaste)) &&
-		<div>
-		<DisplayApplicationNameValue name={`No change in subCaste`} value={appData.newData.subCaste} style={{paddingTop: "5px" }}  />
-		<br />
-		</div>	
-	}
-	{((appData.oldData.caste === "Humad") && (appData.newData.caste === "Humad") && (appData.oldData.subCaste !== appData.newData.subCaste)) &&
-		<div>
-		<DisplayApplicationNameValue name="Old SubCaste" value={appData.oldData.subCaste} style={{paddingTop: "5px" }}  />
-		<DisplayApplicationNameValue name="New SubCaste" value={appData.newData.subCaste} style={{paddingTop: "5px" }}  />
-		<br />
-		</div>	
-	}
-	{((appData.oldData.caste !== "Humad") && (appData.newData.caste === "Humad")) &&
-		<div>
-		<DisplayApplicationNameValue name="New SubCaste" value={appData.newData.subCaste} style={{paddingTop: "5px" }}  />
-		<br />
-		</div>	
-	}
-	{(myProps.applicationRec.status === APPLICATIONSTATUS.pending) &&
+	{((myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
 	<Grid key={"APPLBUTTON"} className={gClasses.noPadding} container  alignItems="flex-start" >
 		<Grid item xs={2} sm={2} md={2} lg={2} />
 		<Grid item xs={4} sm={4} md={4} lg={4} >
@@ -215,8 +201,6 @@ return (
 		</Grid>
 		<Grid item xs={2} sm={2} md={2} lg={2} />
 	</Grid>
-	}
-	</div>
 	}
 	{((stage === "Approve") || (stage === "Reject")) && 
 	<Grid key={"APPLAPPROVEREHECT"} className={gClasses.noPadding} container  alignItems="flex-start" >
@@ -258,7 +242,6 @@ return (
 		<br />
 	</div>
 	}
-	<br />
 	<ToastContainer />
 	</Box>
 	</Container>

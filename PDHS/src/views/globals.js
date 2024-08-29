@@ -200,13 +200,24 @@ export const LADIESRELATION = [
 ];
 
 
+
 export const LADIES_INLAW_RELATION = [
 	"Daughter in law",
 	"Gr. grand DIL",
 	"Gr. grand SIL",
 	"Grand DIL",
 	"Grand SIL",
+	"Relative",
 	"Sister in law",
+	"Spouse"
+];
+
+export const GENTS_INLAW_RELATION = [
+	"Brother in law",
+	"Gr. grand SIL",
+	"Grand SIL",
+	"Relative",
+	"Son in law",
 	"Spouse"
 ];
 

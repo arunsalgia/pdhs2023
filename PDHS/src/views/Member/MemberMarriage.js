@@ -66,7 +66,7 @@ import {setTab} from "CustomComponents/CricDreamTabs.js"
 
 
 import {
-	SELFRELATION, RELATION, GENTSRELATION, LADIESRELATION, LADIES_INLAW_RELATION,
+	SELFRELATION, RELATION, GENTSRELATION, LADIESRELATION, LADIES_INLAW_RELATION, GENTS_INLAW_RELATION,
 	BLOODGROUP, ELIGIBLEMARRIAGEYEARS,
 	STATUS_INFO,
 } from 'views/globals';
@@ -75,7 +75,6 @@ import {
 	getMemberName,
 	hasPRWSpermission,
 } from 'views/functions';
-
 
 
 
@@ -101,12 +100,15 @@ export default function MemberMarriage() {
 	const [middleName, setMiddleName] = useState((myProps.memberRec.gender === "Male") ? myProps.memberRec.firstName : "");
 	const [lastName, setLastName] = useState((myProps.memberRec.gender === "Male") ? myProps.memberRec.lastName : "");
 	const [alias, setAlias] = useState((myProps.memberRec.gender === "Male") ? myProps.memberRec.alias : "");
-	const [relation, setRelation] = useState("Daughter In Law");
+	const [relation, setRelation] = useState((myProps.memberRec.gender === "Male") ? "Daughter in law" : "Son in law" );
 	const [mobile, setMobile] = useState("");
 	const [mobile1, setMobile1] = useState("");
 	const [email, setEmail] = useState("");
 	const [bloodGroup, setBloodGroup] = useState("");
 
+	const [marriedFirstName, setMarriedFirstName] = useState((myProps.memberRec.gender === "Female") ? myProps.memberRec.firstName : "" );
+	const [marriedMiddleName, setMarriedMiddleName] = useState((myProps.memberRec.gender === "Male") ? myProps.memberRec.firstName : "" );
+	const [marriedLastName, setMarriedLastName] = useState((myProps.memberRec.gender === "Male") ? myProps.memberRec.lastName : "" );
 
 	const [stage, setStage] = useState("PREFINALSTAGE");
 	
@@ -175,21 +177,18 @@ function DisplayRegisterStatus() {
         myMsg = "";
 				regerr = false;
         break;
-      case 1001:
-        myMsg = `Minimum 1 member has to be selected`;
+      case -1001:
+        myMsg = `Married name of female spouse not provided.`;
         break;
-      case 1002:
-        myMsg = `Unknown F.Head update error`;
+      case -1002:
+        myMsg = `Spouse not selected from the list`;
         break;
-			case 2001:
-				myMsg = `No F.Head selected for new family`;
+			case -1003:
+				myMsg = `Spouse personal details not proivded`;
 				break;
-			case 2002:
-				myMsg = `No member(s) selected for new family`;
+			default:
+				myMsg = "Unknown Error";
 				break;
-				default:
-          myMsg = "Unknown Error";
-          break;
     }
     return(
       <div align="center">
@@ -198,258 +197,98 @@ function DisplayRegisterStatus() {
     )
   }
 
-// new functions
-
-// Member selected / deselected for transfer
-function handleSelectMemberCb(idx) {
-	
-	// Minimum 1 member to be selected
-	// If member to be deselected and only member selected then error
-	if (cbArray[idx] !== 0)
-	if (cbArray.filter( x => x !== 0).length === 1) {
-		setRegisterStatus(1001);
-		return;
-	}
-	setRegisterStatus(0);
-	
-	var tmpArray = [].concat(cbArray);
-	tmpArray[idx] = (tmpArray[idx] !== 0) ? 0 : memberList[idx].mid	
-	setCbArray(tmpArray);
-	if (tmpArray.includes(myProps.hodMid)) {
-		setHodTransfer(true);
-		//setMergeOrCreate("MERGE");
-	}
-	else {		
-		setHodTransfer(false);
-	}
-	
-	// If this was new hod (required for create new family), select by default at member
-	//console.log(newHod, tmpArray[idx], tmpArray);
-	if ((cbArray[idx] === newHod) && (tmpArray[idx] === 0)) {
-		var tmp = tmpArray.find(x => x !== 0);
-		//console.log(tmp);
-		setNewHod(tmp);
-	}
-	
-	setTransferMemberList(memberList.filter(x => tmpArray.includes(x.mid)));
-	var tmpBalance = memberList.filter(x => !tmpArray.includes(x.mid))
-	//console.log(tmpBalance);
-	setBalanceMemberList (tmpBalance);
-	if (tmpBalance.length > 0) 
-		setBalanceHod(tmpBalance[0].mid);
-	else
-		setMergeOrCreate("MERGE");		// All the members selected. Has to be merge only
-}
-
-function orghandleMergeOrCreate(newValue) {
-	if ((balanceMemberList.length === 0) && (newValue === "CREATE")) {
-		showInfo("Create new family not permitted if all members selected for transfer");
-	}
-	else {
-		if (newValue === "CREATE") {
-			var tmp = cbArray.find(x => x !== 0);
-			//console.log(tmp);
-			setNewHod(tmp);
-		}
-		setMergeOrCreate(newValue);
-	}
-}
-
-function handleMergeOrCreate() {
-	var newValue = (mergedOrCreate === "CREATE") ? "MERGE" : "CREATE";
-	
-	if ((balanceMemberList.length === 0) && (newValue === "CREATE")) {
-		showInfo("Create new family not permitted if all members selected for transfer");
-	}
-	else {
-		if (newValue === "CREATE") {
-			var tmp = cbArray.find(x => x !== 0);
-			//console.log(tmp);
-			setNewHod(tmp);
-		}
-		setMergeOrCreate(newValue);
-	}
-}
-
-
-function preFinalStage() {	
-	if (mergedOrCreate === "MERGE") {
-		setMsg1(`Transfer members to family of`);
-		setMsg2(`${(familyHodRec) ? familyHodRec.mergedName : ""}`);
-	}
-	else {
-		setMsg1('Transfer members to new family');
-		//var tmp = memberList.find(x => x.mid === newHod);
-		//setMsg2(`${tmp.mergedName} as F.Head`);
-		setMsg2("");
-	}
-}
-
 
 function handleSubmit() {
-	showInfo("To be implemenetd");
-	return;
+	// do basic validation
+	// 1st find out if the married name of the female required
+	if (isMarriedNameRequired()) {
+		if ( 
+			(marriedFirstName === "") ||
+			(marriedMiddleName === "") ||
+			(marriedLastName === "")
+		) {
+			setRegisterStatus(-1001);
+			return;
+		}
+	}
 	
-	preFinalStage();
-	setStage("FINALSTAGE");
-}
-
-// Transfer functions
-
-
-
-function handleNewRelation(rel, idx) {
-	//console.log(rel, idx);	
-	var tmp = [].concat(relation);
-	tmp[idx] = rel;
-	setRelation(tmp);
-}
-
-
-function handleSelectMemberSubmit() {
-	//setTransferMemberList(memberList.filter(x => cbArray.includes(x.mid)));
-	//setBalanceMemberList (memberList.filter(x => !cbArray.includes(x.mid)));
-	if (cbArray.includes(myProps.hodMid)) {
-		setHodTransfer(true);
-		fetchFamilyHodNames();
-		// HOD also selected for transfer. Thus it will be merged only. Option for new family not available
-		setStage("SELECTFAMILY");    
+	// if spouse is memeber then confirm if spouse selected
+	if ( isSpouseMember && !spouseMemberRec ){
+		setRegisterStatus(-1002);
+		return;
 	}
-	else {
-		setHodTransfer(false);
-		setStage("MERGEORCREATE");		// Select member to be merged with existing family or create new family
+	
+	// if spouse non humad then confirm if spouse personal details required
+	if (isSpousePersonalDetailsRequired()) {
+		if ( 
+			(firstName === "") ||
+			(middleName === "") ||
+			(lastName === "")
+			) {
+				setRegisterStatus(-1003);
+				return;
+			}
 	}
+
+	handleFinalSubmit();
 }
 
-async function handleMergeOrCreateSubmit() {
-	setMergeOrCreate(mergedOrCreate);
-	if (mergedOrCreate === "MERGE") {
-		await fetchFamilyHodNames();
-		setStage("SELECTFAMILY");
-	}
-	else {
-		setFamilyHod(transferMemberList[0].mid);
-		setStage("SELECTHOD");
-	}
-}
-
-function handleSelectFamilySubmit() {
-	var tmpRelation = [];
-	for(var i=0; i<transferMemberList.length; ++i) {
-		tmpRelation.push((transferMemberList[i].relation !== "Self") ? transferMemberList[i].relation : "Brother");
-	}
-	setRelation(tmpRelation);
-	setStage("SELECTRELATION");
-}
-
-function handleSelectFamilyBack() {
-	console.log("SFB",hodTransfer)
-	if (hodTransfer)  setStage("SELECTMEMBERS");
-	else              setStage("MERGEORCREATE");
-}
-
-
-function handleSelectRelationSubmit() {
-	preFinalStage();	
-	setStage("FINALSTAGE");
-}
-
-function handleSelectRelationBack() {
-	setStage("SELECTFAMILY");
-}
-
-function JUnkedhandleSelectHodSubmit() {
-	var tmpRelation = [];
-	for(var i=0; i<transferMemberList.length; ++i) {
-		tmpRelation.push((transferMemberList[i].mid === familyHodjunked) ? "Self" : transferMemberList[i].relation)
-	}
-	setRelation(tmpRelation);
-	setStage("NEWRELATION");
-}
-
-
-
-
-async function handleFinalStageSubmit() {
+async function handleFinalSubmit() {
 	
 	var myData = {
-		hid: myProps.memberList[0].hid,
-		transferMidList: [],
-		transferNameList: [],
-		transferRelation: [],
-		createNewFamily:  (mergedOrCreate === "CREATE"),
-		// Required if CREATE
-		newHodMid: 0,						
-		newHodName: "",
-		// Required if MERGED		
-		mergedFamilyHid: 0, 	
-		mergedFamilyHeadName: "",
-		// Required if HOD also transfer
-		balanceFamilyHodMid: 0,
-		balanceFamilyHodName: "",
-		balanceFamilyMid: [],
-		balanceFamilyName: [],
-		balanceFamilyRelation: []
-	};
-	
-	for(var i=0; i< cbArray.length; ++i) {
-		if (cbArray[i] !== 0) {
-			var tmpRec = myProps.memberList.find(x => x.mid === cbArray[i]);
-			myData.transferMidList.push(tmpRec.mid);
-			myData.transferNameList.push(getMemberName(tmpRec, false, false));
-			myData.transferRelation.push(((mergedOrCreate === "CREATE") && (tmpRec.mid === newHod)) ? "Self" : relation[i]);
+		memberRec: memberRec,
+		spouseMemberRec: spouseMemberRec,
+		dom: marriageDate,
+		isSpouseHumad: isSpouseHumad,
+		isSpouseMember: isSpouseMember,
+		isSpouseRelationRequired: isSpouseRelationRequired(),
+		relation: relation,
+		isMarriedNameRequired: isMarriedNameRequired(),
+		marriedName: {
+			firstName: marriedFirstName,
+			lastName: marriedLastName,
+			middleName: marriedMiddleName
+		},
+		isSpousePersonalDetailsRequired: isSpousePersonalDetailsRequired(),
+		spousePersonalDetails: {
+			firstName: firstName,
+			lastName: lastName,
+			middleName: middleName,
+			alias: alias,
+			dob: spouseDob,
+			mobile: mobile,
+			mobile1: mobile1,
+			email: email,
+			bloodGroup: bloodGroup
 		}
-	}
+	};	
+	//console.log(myData);
+	//console.log(myData.isSpousePersonalDetailsRequired);
+	//return;
 	
-	if (myData.createNewFamily) {
-		myData.newHodMid = newHod;
-		var tmpRec = myProps.memberList.find(x => x.mid === newHod);
-		myData.newHodName = getMemberName(tmpRec, false, false);
-	}
-	else {
-		//var tmpRec = hodMemberList.find(x => x.mergedName === familyHod);
-		//myData.mergedFamilyHid = tmpRec.hid;
-		myData.mergedFamilyHeadName = familyHodRec.mergedName;		
-	}
-	
-	if (cbArray.includes(newHod)) {
-		// if HOD is also getting transferred then
-		myData.balanceFamilyHodMid = balanceHod;
-		var tmpRec = myProps.memberList.find(x => x.mid === balanceHod);
-		myData.balanceFamilyHodName = getMemberName(tmpRec, false, false);
-		//console.log(memberList);
-		//console.log(balanceHod, tmpRec);
-		for(var i=0; i<memberList.length; ++i) {
-			if (!cbArray.includes(memberList[i].mid)) {
-				myData.balanceFamilyMid.push(memberList[i].mid);
-				myData.balanceFamilyName.push(memberList[i].mergedName);
-				myData.balanceFamilyRelation.push((memberList[i].mid === balanceHod) ? "Self" : relation[i]);
-				
-			}
-		}
-		
-	}
-	console.log(myData);
-
 	let myMsg = '';
 	let myStatus;
 	let tmp = encodeURIComponent(JSON.stringify(myData));
-		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/movemember/${myProps.hodMid}/${sessionStorage.getItem('mid')}/${tmp}`;
+	try {
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/marriage/${myProps.hodMid}/${sessionStorage.getItem('mid')}/${tmp}`;
 
-			let resp = await axios.get(myUrl);
-			myMsg = `Successfully applied moving members. Application reference ${resp.data.id}.`;
-			myStatus = STATUS_INFO.SUCCESS;
-		} catch (e) {
-			console.log(e);
-			myMsg = `Error Moving members`;
-			myStatus = STATUS_INFO.ERROR;
-		}
-		myProps.onReturn.call(this, {status: myStatus,  msg: myMsg});
+		let resp = await axios.get(myUrl);
+		myMsg = `Successfully applied for marriage. Application reference ${resp.data.id}.`;
+		myStatus = STATUS_INFO.SUCCESS;
+	} catch (e) {
+		console.log(e);
+		myMsg = `Error applying for marriage`;
+		myStatus = STATUS_INFO.ERROR;
+	}
+	var returnStatus = {status: myStatus, msg: myMsg };
+	sessionStorage.setItem("family_personal_returnstatus", JSON.stringify(returnStatus));
+	sessionStorage.setItem("family_currentSelection", "Personal");
+	setTab(process.env.REACT_APP_FAMILY);
+	//myProps.onReturn.call(this, {status: myStatus,  msg: myMsg});
 }
 
 
-function Display_select_to_transfer() {
+function Junk_Display_select_to_transfer() {
 return (	
 <div>
 	<Grid key="SELECTMEMBERS" className={gClasses.noPadding} container  alignItems="flex-start" >
@@ -479,7 +318,7 @@ return (
 </div>
 )}
 
-function Display_merge_or_create() {
+function Junk_Display_merge_or_create() {
 return (
 <div>
 	<Grid style={{marginTop: "5px", marginBottom: "5px" }} className={gClasses.noPadding} key="LOGINOPTION" container align="center">
@@ -498,7 +337,7 @@ return (
 )}
 
 
-function Display_select_merging_family() {
+function Junk_Display_select_merging_family() {
 return (
 <div>
 	<Typography align="center" className={gClasses.title}>Select Family</Typography>
@@ -525,7 +364,7 @@ return (
 )}
 
 
-function Display_select_hod_for_new_family() {	
+function Junk_Display_select_hod_for_new_family() {	
 return (
 <div>
 	<Grid key="SELECTHODHDR" className={gClasses.noPadding} container  alignItems="flex-start" >
@@ -554,7 +393,7 @@ return (
 </div>
 )}
 
-function Display_select_relation_with_hod() {
+function Junk_Display_select_relation_with_hod() {
 return (	
 <div>
 	<Grid style={{marginTop: "10px" }}key="Display_select_relation_with_hod" className={gClasses.noPadding} container  alignItems="flex-start" >
@@ -620,7 +459,7 @@ return (
 )}
 
 
-function Display_select_balance_family_relation_with_hod() {
+function Junk_Display_select_balance_family_relation_with_hod() {
 return (	
 <div>
 	<Grid key="Display_balance_select_relation_with_hod" className={gClasses.noPadding} container  alignItems="flex-start" >
@@ -675,7 +514,7 @@ return (
 </div>
 )}
 
-function Display_select_hod_for_balance_family() {
+function Junk_isplay_select_hod_for_balance_family() {
 	//console.log(balanceMemberList);
 return (
 <div>
@@ -725,7 +564,7 @@ function junk_getHodName(midNumber) {
 //====
 
 
-function DisplayOfficeRelation() {
+function JUnk_DisplayOfficeRelation() {
 return (
 	<Typography>TO be impelmented</Typography>
 )};
@@ -735,43 +574,56 @@ function handleCancel() {
 	setTab(process.env.REACT_APP_FAMILY);
 }
 
+function getSpouseGender() {
+	if (memberRec.gender === "Male") return "Female";
+	if ( isSpouseMember ) return "Female";
+	if ( isSpouseHumad ) return "Male";
+	else return "";
+}
 
+function isSpouseRelationRequired() {
+	if (memberRec.gender === "Male") return true;
+	if ( isSpouseMember ) return true;
+	if ( isSpouseHumad ) return true;
+	else return false;
+}
+
+function isMarriedNameRequired() {
+	if (memberRec.gender === "Female") return true;
+	if (isSpouseMember) return true;
+	return false;
+}
+
+function isSpousePersonalDetailsRequired() {
+	if (isSpouseMember) return false;
+	if (memberRec.gender === "Male") {
+		return true;
+	}
+	else {
+		return (isSpouseHumad) ? true : false;
+	}
+	showError("yeh kaya aagaye hum");
+}
 
 return (
 	<div className={gClasses.webPage} >
 	<Container component="main" maxWidth="xs">	
 	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
 	<VsCancel align="right" onClick={handleCancel} />
-	<ValidatorForm align="left" className={gClasses.form} onSubmit={handleSubmit}>
 	<Typography align="center" className={gClasses.pdhs_title}>{header}</Typography>
+	{((memberRec.gender === "Female") && (isSpouseMember || isSpouseHumad)) &&
+		<Typography align="center" className={gClasses.pdhs_title}>{`(Spouse will be added to ${memberRec.firstName}\`s family)`}</Typography>
+	}
 	<br />
+	<ValidatorForm align="left" className={gClasses.form} onSubmit={handleSubmit}>
 	<Accordion expanded={expandedPanel === "MARRIAGEDETAILS"} onChange={handleAccordionChange("MARRIAGEDETAILS")} >
 		<Box align="right" className={(expandedPanel === "MARRIAGEDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
 			<Typography align="left" >{"Marriage Details"}</Typography>
 		</AccordionSummary>
 		</Box>
+		<br />
 		<Grid key="MARRIAGEDATE" className={gClasses.noPadding} container  alignItems="flex-start" >
-			<Grid style={{marginTop: "10px" }} item xs={12} sm={12} md={12} lg={12} />	
-			{(memberRec.gender === "Male") &&
-			<Grid style={{marginTop: "15px" }} item xs={6} sm={6} md={6} lg={6} >
-				<Typography className={gClasses.patientInfo2Blue} >Relation with Family head</Typography>
-			</Grid>
-			}
-			{(memberRec.gender === "Male") &&
-			<Grid item xs={6} sm={6} md={6} lg={6} >
-				<Autocomplete
-					disablePortal
-					id="SOUSERELATION"
-					value={relation}
-					onChange={(event, values) => setRelation(values) }
-					style={{paddingTop: "10px" }}
-					options={LADIES_INLAW_RELATION}
-					sx={{ width: 300 }}
-					renderInput={(params) => <TextField {...params} />}
-				/>	
-			</Grid>			
-			}
 			<Grid style={{marginTop: "10px" }} item xs={12} sm={12} md={12} lg={12} />	
 			<Grid  item xs={6} sm={6} md={6} lg={6} >
 				<Typography className={gClasses.patientInfo2Blue} >Marriage Date</Typography>
@@ -789,16 +641,15 @@ return (
 					closeOnSelect={true}
 				/>
 			</Grid>
-			<Grid style={{marginTop: "10px" }} item xs={12} sm={12} md={12} lg={12} />	
+			<br />
+			<br />
 			<Grid item xs={10} sm={10} md={10} lg={10} >
 				<Typography className={gClasses.patientInfo2Blue} >Spouse PRWS / Humad / PJYM member</Typography>
 			</Grid>
 			<Grid item xs={2} sm={2} md={2} lg={2} >
 				<Switch color="primary" checked={isSpouseMember} onChange={() => setIsSpouseMember(!isSpouseMember)} />
 			</Grid>
-			{((memberRec.gender === "Female") && !isSpouseMember) &&
-				<Grid style={{marginTop: "10px" }} item xs={12} sm={12} md={12} lg={12} />	
-			}
+			{((memberRec.gender === "Female") && !isSpouseMember) && <br />	}
 			{((memberRec.gender === "Female") && !isSpouseMember) &&
 				<Grid item xs={10} sm={10} md={10} lg={10} >
 					<Typography className={gClasses.patientInfo2Blue} >Spouse Humad</Typography>
@@ -809,10 +660,33 @@ return (
 					<Switch color="primary" checked={isSpouseHumad} onChange={() => setIsSpouseHumad(!isSpouseHumad)} />
 				</Grid>
 			}
+			{(isSpouseRelationRequired())  &&
+			<Grid style={{marginTop: "15px" }} item xs={6} sm={6} md={6} lg={6} >
+				<Typography className={gClasses.patientInfo2Blue} >
+				{`Relation of spouse with Family head`}
+				</Typography>
+			</Grid>
+			}
+			{(isSpouseRelationRequired())  &&
+			<Grid item xs={6} sm={6} md={6} lg={6} >
+				<Autocomplete
+					disablePortal
+					id="SOUSERELATION"
+					value={relation}
+					onChange={(event, values) => setRelation(values) }
+					style={{paddingTop: "10px" }}
+					options={(memberRec.gender === "Female") ? GENTS_INLAW_RELATION : LADIES_INLAW_RELATION}
+					sx={{ width: 300 }}
+					renderInput={(params) => <TextField {...params} />}
+				/>	
+			</Grid>			
+			}
 		</Grid>
+		<br />
 	</Accordion>
 	<br />
 	{(isSpouseMember) &&
+	<div>
 	<Accordion expanded={expandedPanel === "SPOUSEDETAILS1"} onChange={handleAccordionChange("SPOUSEDETAILS1")} >
 		<Box align="right" className={(expandedPanel === "SPOUSEDETAILS1") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
@@ -840,8 +714,49 @@ return (
 		</Grid>			
 		<br />
 	</Accordion>
+	<br />
+	</div>
+	}	
+	{(isMarriedNameRequired()) &&
+	<div>
+	<Accordion expanded={expandedPanel === "MARRIEDNAME"} onChange={handleAccordionChange("MARRIEDNAME")} >
+		<Box align="right" className={(expandedPanel === "MARRIEDNAME") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
+			<Typography align="left" >{"Married Name (Female)"}</Typography>
+		</AccordionSummary>
+		</Box>
+		<Grid key="MARRIEDNAMEDETAILS" className={gClasses.noPadding} container  alignItems="flex-start" >
+			<Grid style={{marginTop: "10px" }} item xs={12} sm={12} md={12} lg={12} />	
+		<Grid  item xs={5} sm={5} md={5} lg={5} >
+				<Typography className={gClasses.patientInfo2Blue} >Female last name</Typography>
+			</Grid>
+			<Grid item xs={7} sm={7} md={7} lg={7} >
+				<TextValidator key="DSPLASTNAME"  required style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing} inputProps={{className: gClasses.dateTimeNormal}}
+				type="text" value={marriedLastName} onChange={(event) => { setMarriedLastName(event.target.value) }} />
+			</Grid>
+			<Grid style={{marginTop: "10px" }} item xs={12} sm={12} md={12} lg={12} />	
+			<Grid  item xs={5} sm={5} md={5} lg={5} >
+				<Typography className={gClasses.patientInfo2Blue} >Female first name</Typography>
+			</Grid>
+			<Grid item xs={7} sm={7} md={7} lg={7} >
+				<TextValidator key="DSPFIRSTNAME"  required style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing} inputProps={{className: gClasses.dateTimeNormal}}
+				type="text" value={marriedFirstName} onChange={(event) => { setMarriedFirstName(event.target.value) }} />
+			</Grid>
+			<Grid style={{marginTop: "10px" }} item xs={12} sm={12} md={12} lg={12} />	
+			<Grid  item xs={5} sm={5} md={5} lg={5} >
+				<Typography className={gClasses.patientInfo2Blue} >Female middle name</Typography>
+			</Grid>
+			<Grid item xs={7} sm={7} md={7} lg={7} >
+				<TextValidator required style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing} inputProps={{className: gClasses.dateTimeNormal}}
+				type="text" value={marriedMiddleName} onChange={(event) => { setMarriedMiddleName(event.target.value) }} />
+			</Grid>
+		</Grid>			
+		<br />
+	</Accordion>
+	<br />
+	</div>
 	}
-	{( (!isSpouseMember) && (isSpouseHumad || (memberRec.gender === "Male") ) )&&
+	{(isSpousePersonalDetailsRequired()) &&
 	<div>
 	<Accordion expanded={expandedPanel === "SPOUSEDETAILS2"} onChange={handleAccordionChange("SPOUSEDETAILS2")} >
 		<Box align="right" className={(expandedPanel === "SPOUSEDETAILS2") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
@@ -950,19 +865,21 @@ return (
 	<br />
 	</div>
 	}
-	{(!isSpouseMember) && (isSpouseHumad || (memberRec.gender === "Male") ) &&
+	{(false && isSpousePersonalDetailsRequired()) &&
+	<div>
 	<Accordion expanded={expandedPanel === "SPOUSEOFFICEDETAILS"} onChange={handleAccordionChange("SPOUSEOFFICEDETAILS")} >
 		<Box align="right" className={(expandedPanel === "SPOUSEOFFICEDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
 			<Typography align="left" >{"Spouse Office Details"}</Typography>
 		</AccordionSummary>
 		</Box>
-		<Typography>TO be implemnetd</Typography>
+		<Typography>office details to be implemnetd</Typography>
 		<br />
 	</Accordion>
+	<br />
+	</div>
 	}	
-	{isSpouseMember && <br />}
-	{isSpouseMember &&
+	{(false && isSpouseMember) &&
 	<Accordion expanded={expandedPanel === "NEWHOME"} onChange={handleAccordionChange("NEWHOME")} >
 		<Box align="right" className={(expandedPanel === "NEWHOME") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
@@ -987,6 +904,7 @@ return (
 		<br />
 	</Accordion>
 	}	
+	<DisplayRegisterStatus />
 	<br />
 	<VsButton align="center" name="Submit" />
 	<ToastContainer />
