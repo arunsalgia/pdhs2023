@@ -30,7 +30,7 @@ import globalStyles from "assets/globalStyles";
 
 import {
 	DisplayPageHeader, ValidComp, BlankArea,
-	DisplayApplicationName,
+	DisplayApplicationName, DisplayApplicationNameValue,
 } from "CustomComponents/CustomComponents.js"
 
 
@@ -289,42 +289,44 @@ export default function Permissions() {
 		<br />
 		<ValidatorForm className={gClasses.form} onSubmit={handleAddEditAdmin}>
 		<Grid key="ADEDITPERM" className={gClasses.noPadding} container  alignItems="flex-start" >
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<DisplayApplicationName name="Name" value="" style={{paddingTop: "5px" }}  />
-		</Grid>
-		<Grid item xs={8} sm={8} md={8} lg={8} >
-			<div>
-			{(isDrawerOpened === "ADD") &&
+		{(isDrawerOpened === "ADD") &&
+			<Grid item xs={4} sm={4} md={4} lg={4} >
+		<DisplayApplicationName name="Name" value="" style={{paddingTop: "20px" }}  />
+			</Grid>
+		}
+		{(isDrawerOpened === "ADD") &&
+			<Grid item xs={8} sm={8} md={8} lg={8} >
 				<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} 
 				field="mergedName" options={memberArray} value={emurName} onChange={(event) => { setEmurName(event.target.value); }} />
-			}
-			{(isDrawerOpened !== "ADD") &&
-				<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue}  >{emurName}</Typography>
-			}			
-			</div>
+			</Grid>
+		}
+		{(isDrawerOpened === "EDIT") &&
+			<Grid item xs={12} sm={12} md={12} lg={12} >
+				<DisplayApplicationNameValue name="Name" value={emurName} style={{paddingTop: "5px" }}  />
+			</Grid>
+		}
+		<Grid item xs={5} sm={5} md={5} lg={5} >
+			<DisplayApplicationName name="Super Admin" value="" style={{paddingTop: "5px" }}  />
 		</Grid>
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Super Admin</Typography>
-		</Grid>
-		<Grid item xs={8} sm={8} md={8} lg={8} >
+		<Grid item xs={7} sm={7} md={7} lg={7} >
 			<VsCheckBox align="left" checked={isSuper} onClick={() => setIsSuper(!isSuper)} />
 		</Grid>
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >PJYM Admin</Typography>
+		<Grid item xs={5} sm={5} md={5} lg={5} >
+			<DisplayApplicationName name="PJYM Admin" value="" style={{paddingTop: "5px" }}  />
 		</Grid>
-		<Grid item xs={8} sm={8} md={8} lg={8} >
+		<Grid item xs={7} sm={7} md={7} lg={7} >
 				<VsCheckBox align="left" checked={isPjym} onClick={() => setIsPjym(!isPjym)} />
 		</Grid>
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Humad Admin</Typography>
+		<Grid item xs={5} sm={5} md={5} lg={5} >
+			<DisplayApplicationName name="Humad Admin" value="" style={{paddingTop: "5px" }}  />
 		</Grid>
-		<Grid item xs={8} sm={8} md={8} lg={8} >
+		<Grid item xs={7} sm={7} md={7} lg={7} >
 				<VsCheckBox align="left" checked={isHumad} onClick={() => setIsHumad(!isHumad)} />
 		</Grid>
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >PRWS Admin</Typography>
+		<Grid item xs={5} sm={5} md={5} lg={5} >
+			<DisplayApplicationName name="PRWS Admin" value="" style={{paddingTop: "5px" }}  />
 		</Grid>
-		<Grid item xs={8} sm={8} md={8} lg={8} >
+		<Grid item xs={7} sm={7} md={7} lg={7} >
 				<VsCheckBox align="left" checked={isPrws} onClick={() => setIsPrws(!isPrws)} />
 		</Grid>
 		</Grid>
