@@ -88,6 +88,8 @@ const getLoginName = (name) => {
   
 const getDisplayName = (name) => {
 	  //console.log('xxx', name);
+		
+		
     var xxx = name.split(" ");
 		for(let i=0; i<xxx.length; ++i) {
       let x = xxx[i].trim();
@@ -96,8 +98,20 @@ const getDisplayName = (name) => {
       xxx[i] = a + b;
 			//console.log(a, b, a+b);
     };
+		name = xxx.join(" ");
+		
+    xxx = name.split(".");
+		for(let i=0; i<xxx.length; ++i) {
+      let x = xxx[i];
+			let a = x.substr(0,1).toUpperCase();
+			let b = x.substr(1, x.length).toLowerCase();
+      xxx[i] = a + b;
+			//console.log(a, b, a+b);
+    };
+		name = xxx.join(".");
+
 		//console.log(xxx);
-    return xxx.join(" ");
+    return name
   }
 
 const svrToDbText = (text) => {

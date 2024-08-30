@@ -6,7 +6,6 @@ const {
 async function updateGotraInHod(oldGotra, newGotra) {
 	let allHods = await M_Hod.find({active: true, gotra: oldGotra}); 
 	for(let i=0; i<allHods.length; ++i) {
-		//console.log(allHods[i].hid, allHods[i].gotra);
 		allHods[i].gotra = newGotra;
 		await allHods[i].save();
 	}
@@ -44,42 +43,38 @@ router.get('/add/:newGotra', async function(req, res, next) {
   
   var {newGotra} = req.params;
 	console.log(newGotra);
-	let lname = getDisplayName(newGotra);	
-	M_Gotra.findOne({id: lname}, async function (err, rec) {
-    if (err == null) {
-			// good it is not found
-			let mRec = new M_Gotra();
-			mRec.id = lname;
-			mRec.gotra = lname;
-			mRec.enabled = true;
-			await mRec.save();
-			sendok(res, mRec);
-		} else {
-			console.log(err);
-      console.log("Data found");
-			senderr(res, 601, "Gotra already in database");
-    }
-	});
-	
+	newGotra = getDisplayName(newGotra);	
+	var mRec = await M_Gotra.findOne({gotra: newGotra});
+	if (mRec) return senderr(res, 601, "Gotra already in database");
+
+	mRec = new M_Gotra();
+	mRec.id = newGotra;
+	mRec.gotra = newGotra;
+	mRec.enabled = true;
+	await mRec.save();
+	sendok(res, mRec);
 });
 
 router.get('/renametonew/:oldGotra/:newGotra', async function(req, res, next) {
   setHeader(res);
   
   var {oldGotra, newGotra} = req.params;
+	oldGotra = getDisplayName(oldGotra)
+	newGotra = getDisplayName(newGotra)
 	console.log(oldGotra, newGotra);
 
-	let tmp = await M_Gotra.findOne({id: getDisplayName(newGotra)});
+	let tmp = await M_Gotra.findOne({gotra: newGotra});
 	if (tmp) return senderr(res, 601, "new found");
 	
-	let rec1 = await M_Gotra.findOne({id: getDisplayName(oldGotra)});
+	let rec1 = await M_Gotra.findOne({gotra: oldGotra});
 	if (!rec1)  return senderr(res, 602, "old not found");
 
-	rec1.id = getDisplayName(newGotra);
-	rec1.gotra = getDisplayName(newGotra);
+	rec1.id = newGotra;
+	rec1.gotra = newGotra;
 	rec1.enabled = true;
-	await updateGotraInHod(getDisplayName(oldGotra), getDisplayName(newGotra))
 	await rec1.save();
+	
+	await updateGotraInHod(oldGotra, newGotra)
 	sendok(res, rec1);
 
 });
@@ -88,19 +83,20 @@ router.get('/renametoexisting/:oldGotra/:newGotra', async function(req, res, nex
   setHeader(res);
   
   var {oldGotra, newGotra} = req.params;
+	oldGotra = getDisplayName(oldGotra)
+	newGotra = getDisplayName(newGotra)
 
-	let tmp = await M_Gotra.findOne({id: getDisplayName(oldGotra)})
+	let tmp = await M_Gotra.findOne({gotra: oldGotra})
 	if (!tmp) return senderr(res, 602, "Old Gotra not found in database");
 
-	let mRec = await M_Gotra.findOne({id: getDisplayName(newGotra)})
+	let mRec = await M_Gotra.findOne({gotra: newGotra})
 	if (!mRec) return senderr(res, 601, "New Gotra not found in database");
 
 	// now rename in HOD
-	await updateGotraInHod(getDisplayName(oldGotra), getDisplayName(newGotra))
+	await updateGotraInHod(oldGotra, newGotra);
 
 	// just delete the old one
-	await M_Gotra.deleteOne({id: getDisplayName(oldGotra)});
-
+	await M_Gotra.deleteOne({gotra: oldGotra});
 	sendok(res, mRec);
 });
 
@@ -108,16 +104,16 @@ router.get('/delete/:delGotra', async function(req, res, next) {
   setHeader(res);
   
   var { delGotra } = req.params;
+	delGotra = getDisplayName(delGotra);	
 	
 	//console.log("In delete...........................");
-	let dName = getDisplayName(delGotra);
-	console.log(dName);
-	// confirm if HOS is not using this gotra
-	let temp = await M_Hod.find({active: true, gotra: dName});
+	console.log(delGotra);
+	// confirm if HOD is not using this gotra
+	let temp = await M_Hod.find({active: true, gotra: delGotra});
 	if (temp.length > 0) return senderr(res, 601, "In use");
 
 	console.log("this gotra is not in use");
-	await M_Gotra.deleteOne({gotra: dName});
+	await M_Gotra.deleteOne({gotra: delGotra});
 	console.log("Deleted....");
 	sendok(res, "1 gotra deleted");
 });

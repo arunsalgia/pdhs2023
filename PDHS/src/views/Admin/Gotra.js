@@ -19,13 +19,18 @@ import VsRadioGroup from "CustomComponents/VsRadioGroup";
 import VsRadio from "CustomComponents/VsRadio";
 
 
-import TextField from '@material-ui/core/TextField';
 import Grid from "@material-ui/core/Grid";
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import { TextField, InputAdornment } from "@material-ui/core";
+
 import Drawer from '@material-ui/core/Drawer';
-import { useAlert } from 'react-alert'
+//import { useAlert } from 'react-alert'
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import lodashSortBy from 'lodash/sortBy';
 import lodashUniqBy from 'lodash/uniqBy';
@@ -39,12 +44,15 @@ import EditIcon from '@material-ui/icons/Edit';
 import globalStyles from "assets/globalStyles";
 
 
-import {DisplayPageHeader, ValidComp, BlankArea,
+import {
+	DisplayPageHeader, ValidComp, BlankArea,
+	DisplayApplicationName,
 } from "CustomComponents/CustomComponents.js"
 
 
 import { 
 	vsDialog,
+	showError, showSuccess, showInfo,
 } from "views/functions.js";
 
 import {
@@ -55,15 +63,14 @@ const ROWSPERPAGE = 10;
 
 export default function Gotra() {
 	const gClasses = globalStyles();
-	const alert = useAlert();
+	//const alert = useAlert();
 	
-  const [gotraDbArray, setGotraDbArray] = useState([]);	
-  const [gotraHodArray, setGotraHodArray] = useState([]);	
-  const [gotraAllArray, setGotraAllArray] = useState([]);	
   const [gotraArray, setGotraArray] = useState([]);	
 	const [isDrawerOpened, setIsDrawerOpened] = useState("");
 	const [rename, setRename] = useState(false);
 
+	const [editGotraRec, setEditGotraRec] = useState(null);
+	
 	const [page, setPage] = useState(0);
 	
 	const [filterText, setFilterText] = useState("");
@@ -83,21 +90,8 @@ export default function Gotra() {
 			// First get gotra list from database
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/gotra/list`;
 			let resp = await axios.get(myUrl);
-			var dbGotra = resp.data;
-			// Now get gotra from HOD 
-			/*myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/gotra/listfromhod`;
-			resp = await axios.get(myUrl);
-			var hodGotra = resp.data;
-			//hodGotra = hodGotra.filter(x => x.name !== "Other");
-			setGotraDbArray(dbGotra);
-			setGotraHodArray(hodGotra);*/
-			
-			//dbGotra = lodashSortBy(lodashUniqBy(dbGotra.concat(hodGotra), 'gotra'), 'gotra');
-			
-			
-			setGotraAllArray(dbGotra);
-			setGotraArray(dbGotra);
-			
+			setGotraArray(resp.data);
+		
 		} catch (e) {
 			setGotraArray([]);
 		}	
@@ -109,6 +103,7 @@ export default function Gotra() {
 			case 0:  myMsg = ""; break;
 			case 1001: myMsg = "Blank Gotra name"; break;
 			case 1002: myMsg = "Duplicate Gotra name"; break;
+			case 1004: myMsg = "Gotra not selected from existing list."; break;
 			default:  myMsg = "Unknown error"; break;
 		}
 		return (
@@ -127,65 +122,66 @@ export default function Gotra() {
 	
 	function editGotra(gotraRec) {
 		setRegisterStatus(0);
-		setRename(true);
-		setEmurName(gotraRec.name); 
-		setEmurOrigName(gotraRec.name);
-    //console.log(gotraRec.name);
+		setRename(false);
+		setEmurName(gotraRec.gotra); 
+		setEmurOrigName(gotraRec.gotra);
+		setEditGotraRec(gotraRec);
+		
+    //console.log(gotraRec.gotra);
 		setIsDrawerOpened("EDIT");  
 	}
 	
 	async function  addGotraSubmit()  {
-		let newName = emurName.trim();
-		setEmurName(newName);
-		//console.log("name is", newName);
+		let newName = emurName.trim().toLowerCase();
+		if (newName.length === 0) return  setRegisterStatus(1001);	
 		// for blank and duplicate
-		if (newName.length === 0) return setRegisterStatus(1001);	
-		if (gotraArray.find(x => x.id === newName.toLowerCase())) return setRegisterStatus(1002);
-		// now add gotra
-		//console.log("all ok");
+		if (gotraArray.find(x => x.gotra.toLowerCase() === newName)) return setRegisterStatus(1002);
+		// checked for blank and duplicate. Now ask backedn to update
 		try {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/gotra/add/${newName}`;
 			let resp = await axios.get(myUrl);
-			let tmpArray = [resp.data].concat(gotraArray);
-			setGotraArray(lodashSortBy(tmpArray, 'id'));
+			showSuccess(`Successfully added Gotra ${resp.data.gotra} to database.`);
+			let tmpArray = gotraArray.concat([resp.data]);
+			setGotraArray(lodashSortBy(tmpArray, 'gotra'));
 		} catch (e) {
 			console.log(e);
-			alert.error("Error adding new gotra");
+			showError("Error adding new Gotra to database");
 		}
 		setIsDrawerOpened("");
 	};
   
 		
 	async function  editGotraSubmit()  {
-		let newName = emurName.trim();
-		setEmurName(newName);
-		// check for blank and duplicate (if not reanme to existing)
-		if (newName.length === 0) return  setRegisterStatus(1001);	
+		// check for blank and duplicate (if not rename to existing)
+		var newGotraName = "";
 		if (rename) {
-			// new name must be already defined
-			let tmp =  gotraArray.find(x => x.id === newName.toLowerCase());
-			if (!tmp) return setRegisterStatus(1003);
+			//console.log(editGotraRec);
+			if (!editGotraRec) return setRegisterStatus(1004);
+			let tmp =  gotraArray.find(x => x.gotra === editGotraRec.gotra);
+			newGotraName = tmp.gotra.toLowerCase();
 		} else {
-			// if not rename to existing, new name must not be already defined
-			let tmp =  gotraArray.find(x => x.id === newName.toLowerCase());
+			newGotraName = emurName.trim().toLowerCase();
+			if (newGotraName.length === 0) return setRegisterStatus(1001);
+			// if not rename to existing, new name must not be defined
+			let tmp =  gotraArray.find(x => x.gotra.toLowerCase() === newGotraName);
 			if (tmp) return setRegisterStatus(1002);
 		}
-
 		setIsDrawerOpened("");
+		
 		let subcmd = (rename) ? "renametoexisting" : "renametonew"
 		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/gotra/${subcmd}/${emurOrigName}/${newName}`;
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/gotra/${subcmd}/${emurOrigName.toLowerCase()}/${newGotraName}`;
 			let resp = await axios.get(myUrl);
-			let tmpArray;
-			if (subcmd === "renametonew") {
-				tmpArray = [resp.data].concat(gotraArray.filter(x => x.name !== emurOrigName));
-			} else {
-				tmpArray = gotraArray.filter(x => x.name !== emurOrigName);
+			// remove the entry of old gotra name
+			let tmpArray = gotraArray.filter(x => x.gotra.toLowerCase() !== emurOrigName.toLowerCase());
+			if (subcmd !== "renametoexisting") {
+				tmpArray = tmpArray.concat([resp.data]);
 			}
-			setGotraArray(lodashSortBy(tmpArray, 'id'));
+			setGotraArray(lodashSortBy(tmpArray, 'gotra'));
+			showSuccess(`Successfully renamed Gotra ${emurOrigName} to ${resp.data.gotra} in database.`);
 		} catch (e) {
 			console.log(e);
-			alert.error("Error adding new gotra");
+			showError("Error renaming gotra");
 		}
 	};
 	
@@ -201,11 +197,11 @@ export default function Gotra() {
 		try {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/gotra/delete/${gotraRec.gotra}`;
 			let resp = await axios.get(myUrl);
-			let tmpArray = [resp.data].concat(gotraArray);
 			setGotraArray(gotraArray.filter(x => x.gotra !== gotraRec.gotra));
+			showSuccess(`Successfully deleted Gotra ${gotraRec.gotra} from database`);
 		} catch (e) {
 			console.log(e);
-			alert.error(`Gotra ${gotraRec.gotra} is configured in HOD. Cannot delete`);
+			showError(`Gotra ${gotraRec.gotra} is used in members record. Cannot delete`);
 		}
 		//setIsDrawerOpened("");
 	}
@@ -234,139 +230,87 @@ export default function Gotra() {
     setPage(newPage);
   };
 
-	function JunkedDisplayAllGotras() {
-	console.log("In all");
-	console.log(gClasses.thbold_tbl);
-	return (
-	<div>
-			<Table  align="center">
-			<TableHead p={0}>
-			<TableRow key="header" align="center">
-				<TableCell className={gClasses.thbold_tbl} p={0} align="center">Gotra</TableCell>
-					{/*<TableCell className={gClasses.thbold_tbl} p={0} align="center">In DB</TableCell>
-					<TableCell className={gClasses.thbold_tbl} p={0} align="center">In HOD</TableCell>*/}
-				<TableCell className={gClasses.thbold_tbl} p={0} align="center"></TableCell>
-			</TableRow>
-			</TableHead>
-			<TableBody p={0}>
-				{gotraArray.slice(page*ROWSPERPAGE, (page+1)*ROWSPERPAGE).map(x => {
-					var myClasses = gClasses.td_tbl;
-					var inDb = gotraDbArray.find(rec => rec.gotra === x.gotra);
-					var inHod = gotraHodArray.find(rec => rec.gotra === x.gotra);
-					return (
-					<TableRow key={x.gotra}>
-						<TableCell align="center" className={myClasses} p={0} >{x.gotra}</TableCell>
-							{/*<TableCell align="center" className={myClasses} p={0} >{(inDb) ? "Yes" : "No"}</TableCell>
-							<TableCell align="center" className={myClasses} p={0} >{(inHod)? "Yes" : "No"}</TableCell>*/}
-						<TableCell className={myClasses} p={0} >
-							<IconButton color="primary" size="small" onClick={() => {editGotra(x)}}  ><EditIcon /></IconButton>
-							<IconButton color="secondary" size="small" onClick={() => {delGotra(x)}}  ><CancelIcon /></IconButton>
-					</TableCell>
-					</TableRow>
-				)})}
-			</TableBody>
-			</Table>
-		{(gotraArray.length > ROWSPERPAGE) &&
-			<TablePagination
-				align="right"
-				rowsPerPageOptions={[ROWSPERPAGE]}
-				component="div"
-				labelRowsPerPage="Gotras per page"
-				count={gotraArray.length}
-				rowsPerPage={ROWSPERPAGE}
-				page={page}
-				onPageChange={handleChangePage}
-				//onRowsPerPageChange={handleChangeRowsPerPage}
-				//showFirstButton={true}
-			/>
-		}
-		</div>
-	)}
-
-	function setFilter(txt) {
-		txt = txt.toLowerCase();
-		var filterData = lodashDeepCloned(gotraAllArray);
-		if (txt !== "") {
-			filterData = filterData.filter(x => x.gotra.toLowerCase() === txt);
-		}
-		setGotraArray(filterData);
-		setFilterText(txt);
-		
-	}
-	
-	function DisplayFilter() {
-	return (
-	<Box style={PADSTYLE} className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
-	<TextField required className={gClasses.vgSpacing} autoFocus
-		label="Gotra" type="text"
-		value={filterText}
-		onChange={(event) => { (event) => setFilter(event.target.value) }}			
-	/>	
-	</Box>
-		)
-	}
-  
-  //console.log(emurName);
 	return (
 		<div className={gClasses.webPage} align="center" key="main">
 		<CssBaseline />
-		{/*<DisplayFilter />*/}
 		<DisplayPageHeader headerName="Gotra Database" groupName="" tournament=""/>
 		<VsButton align="right" name="Add new Gotra" onClick={addGotra} />	
 		<DisplayAllGotras />
 		<Drawer anchor="top" variant="temporary" open={isDrawerOpened !== ""}>
-		<Box style={PADSTYLE} className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
-			<VsCancel align="right" onClick={() => {setIsDrawerOpened("")}} />
-			{(isDrawerOpened === "ADD") &&   
-				<ValidatorForm className={gClasses.form} onSubmit={addGotraSubmit}>
-				<Typography className={gClasses.title}>New Gotra</Typography>
-				<br />
-				<TextValidator fullWidth required className={gClasses.vgSpacing}
-					label="Name of the Gotra" type="text"
-					value={emurName}
-					onChange={(event) => { setEmurName(event.target.value) }}
-					validators={['noSpecialCharacters']}
-					errorMessages={['Special characters not permitted']}
+		<Container component="main" maxWidth="xs">	
+		<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "20px", paddingRight: "20px"}} >
+		<VsCancel align="right" onClick={() => { setIsDrawerOpened("")}} />
+		{(isDrawerOpened === "ADD") &&   
+			<ValidatorForm className={gClasses.form} onSubmit={addGotraSubmit}>
+			<Typography className={gClasses.title}>New Gotra</Typography>
+			<br />
+			<TextValidator fullWidth required className={gClasses.vgSpacing}
+				label="Name of the Gotra" type="text"
+				value={emurName}
+				onChange={(event) => { setEmurName(event.target.value) }}
+				validators={['noSpecialCharacters']}
+				errorMessages={['Special characters not permitted']}
+			/>
+			<ShowResisterStatus/>
+			<BlankArea />
+			<VsButton align="center" name={"Add"} />
+			<ValidComp />  			
+			</ValidatorForm>
+		}
+		{(isDrawerOpened === "EDIT") &&   
+			<ValidatorForm className={gClasses.form} onSubmit={editGotraSubmit}>
+			<Typography>
+				<span className={gClasses.patientInfo2Brown} >Edit Gotra: </span>
+				<span className={gClasses.title}>{emurOrigName}</span>
+			</Typography>
+			<DisplayApplicationName name={`(All member records having Gotra as ${emurOrigName} will get updated with the new value)`} value="" style={{paddingTop: "5px" }}  />
+			<VsCheckBox align="left" label="Rename to existing" checked={rename} onClick={() => setRename(!rename)} />
+			<br />
+			{(false && rename) &&
+				<Grid key="AllGOtra" container >
+					{gotraArray.map( (d, index) => 
+						<Grid align="left" key={"GOTRAALL"+index} item xs={12} sm={6} md={2} lg={2} >
+							<VsRadio align="left" label={d.gotra} checked={d.gotra === emurName} onClick={(event) => setEmurName(d.gotra) }	/>
+						</Grid>
+					)}
+				</Grid>
+			}
+			{(rename) &&
+				<Autocomplete
+				disablePortal
+				id="HODNAME"
+				defaultValue={editGotraRec}
+				onChange={(event, values) => setEditGotraRec(values) }
+				style={{paddingTop: "10px" }}
+				getOptionLabel={(option) => option.gotra || ""}
+				options={gotraArray}
+				sx={{ width: 300 }}
+				renderInput={(params) => <TextField {...params} />}
 				/>
-				<ShowResisterStatus/>
-				<BlankArea />
-				<VsButton align="center" name={"Add"} />
-				<ValidComp />  			
-				</ValidatorForm>
 			}
-			{(isDrawerOpened === "EDIT") &&   
-				<ValidatorForm className={gClasses.form} onSubmit={editGotraSubmit}>
-				<Typography className={gClasses.title}>
-					{`Edit Gotra ${emurOrigName}`}
-				</Typography>
-				<VsCheckBox align="left" label="Rename to existing" checked={rename} onClick={() => setRename(!rename)} />
-				<br />
-				{(rename) &&
-          <Grid key="AllGOtra" container >
-            {gotraArray.map( (d, index) => 
-              <Grid align="left" key={"GOTRAALL"+index} item xs={12} sm={6} md={2} lg={2} >
-                <VsRadio align="left" label={d.gotra} checked={d.gotra === emurName} onClick={(event) => setEmurName(d.gotra) }	/>
-              </Grid>
-            )}
-          </Grid>
-        }
-				{(!rename) &&
-				<TextValidator fullWidth required className={gClasses.vgSpacing}
-					label="Name of the Gotra" type="text"
-					value={emurName}
-					onChange={(event) => { setEmurName(event.target.value) }}
-					validators={['noSpecialCharacters']}
-					errorMessages={['Special characters not permitted']}
-				/>			
-				}
-				<ShowResisterStatus/>
-				<br />
-				<VsButton align="center" name={"Update"} />
-				<ValidComp />  			
-				</ValidatorForm>
+			{(!rename) &&
+			<TextValidator fullWidth required className={gClasses.vgSpacing}
+				label="Name of the Gotra" type="text"
+				value={emurName}
+				onChange={(event) => { setEmurName(event.target.value) }}
+				validators={['noSpecialCharacters']}
+				errorMessages={['Special characters not permitted']}
+			/>			
 			}
+			<ShowResisterStatus/>
+			<br />
+			<VsButton align="center" name={"Update"} />
+			<ValidComp />  			
+			</ValidatorForm>
+			}
+		<br />
+		<br />
+		<br />
+		<br />
 		</Box>
+		</Container>
 		</Drawer>
+		<ToastContainer />
 		</div>
 	);
 }

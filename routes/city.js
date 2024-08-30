@@ -4,9 +4,8 @@ const {
 } = require('./functions'); 
 
 async function updateCityInHod(oldCity, newCity) {
-	let allHods = await M_Hod.find({active: true, gotra: oldCity}); 
+	let allHods = await M_Hod.find({active: true, city: oldCity}); 
 	for(let i=0; i<allHods.length; ++i) {
-		//console.log(allHods[i].hid, allHods[i].gotra);
 		allHods[i].city = newCity;
 		await allHods[i].save();
 	}
@@ -39,14 +38,15 @@ router.get('/add/:newCity', async function(req, res, next) {
   setHeader(res);
   
   var {newCity} = req.params;
+	newCity = getDisplayName(newCity);	
 	console.log(newCity);
-	let lname = getDisplayName(newCity);	
-	var mRec = await M_City.findOne({id: lname});
+
+	var mRec = await M_City.findOne({city: newCity});
 	if (mRec) return senderr(res, 601, "City already in database");
 
-	lmRec = new M_City();
-	mRec.id = lname;
-	mRec.city = lname;
+	mRec = new M_City();
+	mRec.id = newCity;
+	mRec.city = newCity;
 	mRec.enabled = true;
 	await mRec.save();
 	sendok(res, mRec);
@@ -57,20 +57,24 @@ router.get('/renametonew/:oldCity/:newCity', async function(req, res, next) {
   setHeader(res);
   
   var {oldCity, newCity} = req.params;
+	oldCity = getDisplayName(oldCity);
+	newCity = getDisplayName(newCity);
+	
 	console.log(oldCity, newCity);
 
-	let tmp = await M_City.findOne({id: getDisplayName(newCity)});
-	if (tmp) return senderr(res, 601, "new found");
+	let tmp = await M_City.findOne({city: newCity});
+	if (tmp) return senderr(res, 601, "new found. Duplicate error");
 	
-	let rec1 = await M_City.findOne({id: getDisplayName(oldCity)});
+	let rec1 = await M_City.findOne({city: oldCity});
 	if (!rec1)  return senderr(res, 602, "old not found");
 
-	await updateCityInHod(getDisplayName(oldCity), getDisplayName(newCity))
-
-	rec1.id = getDisplayName(newCity);
-	rec1.city = getDisplayName(newCity);
+	rec1.id = newCity;
+	rec1.city = newCity;
 	rec1.enabled = true;
 	await rec1.save();
+
+	await updateCityInHod(oldCity, newCity)
+
 
 	sendok(res, rec1);
 
@@ -81,18 +85,20 @@ router.get('/renametoexisting/:oldCity/:newCity', async function(req, res, next)
   setHeader(res);
   
   var {oldCity, newCity} = req.params;
+	oldCity = getDisplayName(oldCity);
+	newCity = getDisplayName(newCity);
 
-	let tmp = await M_City.findOne({id: getDisplayName(oldCity)})
+	let tmp = await M_City.findOne({city: oldCity})
 	if (!tmp) return senderr(res, 602, "Old City not found in database");
 
-	let mRec = await M_City.findOne({id: getDisplayName(newCity)})
+	let mRec = await M_City.findOne({city: newCity})
 	if (!mRec) return senderr(res, 601, "New City not found in database");
 
 	// now rename in HOD
-	await updateCityInHod(getDisplayName(oldCity), getDisplayName(newCity))
+	await updateCityInHod(oldCity, newCity);
 
 	// just delete the old one
-	await M_City.deleteOne({id: getDisplayName(oldCity)});
+	await M_City.deleteOne({city: oldCity});
 
 	sendok(res, mRec);
 });
@@ -104,23 +110,40 @@ router.get('/delete/:delCity', async function(req, res, next) {
   var { delCity } = req.params;
 	
 	//console.log("In delete...........................");
-	let dName = getDisplayName(delCity);
-	console.log(dName);
+	delCity = getDisplayName(delCity);
+	console.log(delCity);
 	
 	// confirm if HOD is not using this city
-	let temp = await M_Hod.find({active: true, city: dName});
+	let temp = await M_Hod.find({active: true, city: delCity});
 	if (temp.length > 0) return senderr(res, 601, "In use");
 
 	console.log("this city is not in use");
-	await M_City.deleteOne({city: dName});
+	await M_City.deleteOne({city: delCity});
 	console.log("Deleted....");
-	sendok(res, "1 city deleted");
+	sendok(res, `City ${delCity} deleted`);
 });
 
 
-router.get('/test', async function(req, res, next) {
+router.get('/test/:name', async function(req, res, next) {
   setHeader(res);
+	var { name } = req.params;
 	
+	var tmpList = name.split(" ");
+	for(var i=0; i<tmpList.length; ++i) {
+		tmpList[i] = getDisplayName(tmpList[i].trim());
+	}
+	name = tmpList.join(" ");
+
+	var tmpList = name.split(".");
+	for(var i=0; i<tmpList.length; ++i) {
+		tmpList[i] = getDisplayName(tmpList[i]);
+	}
+	name = tmpList.join(".");
+
+	sendok(res, name);
+	return;
+
+getDisplayName(newCity);	
 	var allRec = await M_Hod.find({active: true});
 	var cityList = _.map(allRec, 'city');
 	cityList = _.uniqBy(cityList);
@@ -139,14 +162,8 @@ router.get('/sethod/:oldCity/:newCity', async function(req, res, next) {
   setHeader(res);
 	
 	var { oldCity, newCity } = req.params;
-	
-	
-	var allRec = await M_Hod.find({active: true, city: oldCity});
-	for (var i=0; i<allRec.length; ++i) {
-		allRec[i].id = newCity;
-		allRec[i].city = newCity;
-		await allRec[i].save();
-	}
+
+	await updateCityInHod(getDisplayName(oldCity), getDisplayName(newCity))
 	sendok(res, "Done");
 });
 

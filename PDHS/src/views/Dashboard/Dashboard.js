@@ -348,7 +348,7 @@ export default function Dashboard() {
           </Card>
 					</a>
         </GridItem>
-				{(adminRec.superAdmin || adminRec.prwsAdmin) &&
+				{(false) &&
         <GridItem key="gotra_item" xs={12} sm={6} md={4} lg={3} >
 					<a href='/' > 
           <Card key="gotra_card" onClick={jumpToGotra}>
@@ -366,7 +366,7 @@ export default function Dashboard() {
 					</a>
         </GridItem>
 				}
-				{(adminRec.superAdmin || adminRec.prwsAdmin) &&
+				{(false) &&
         <GridItem key="city_item" xs={12} sm={6} md={4} lg={3} >
 					<a href='/' > 
           <Card key="city_card" onClick={jumpToCity}>
@@ -392,11 +392,11 @@ export default function Dashboard() {
               <CardIcon color="info">
 							<img src={process.env.PUBLIC_URL + 'image/ADMIN.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 							
               </CardIcon>
-             <button className={gClasses.dashText} >Admins</button>
+             <button className={gClasses.dashText} >Admin</button>
 							<h5 align="right" color="blue"  className={gClasses.cardTitle} ></h5>
             </CardHeader>
             <CardFooter key="admin_footer" stats>
-							<Typography className={gClasses.patientInfo2Blue} >{`Configured Admins`}</Typography>
+							<Typography className={gClasses.patientInfo2Blue} >{`Admin functions`}</Typography>
             </CardFooter>
           </Card>
 					</a>

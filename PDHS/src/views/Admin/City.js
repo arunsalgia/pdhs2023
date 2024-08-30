@@ -1,5 +1,8 @@
 import React,{useState, useEffect } from 'react';
 import { CssBaseline } from '@material-ui/core';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import { TextField, InputAdornment } from "@material-ui/core";
+
 import axios from 'axios';
 import VsButton from "CustomComponents/VsButton"; 
 import VsCancel from "CustomComponents/VsCancel";
@@ -9,12 +12,16 @@ import VsRadio from "CustomComponents/VsRadio";
 
 
 //import TextField from '@material-ui/core/TextField';
+import Container from '@material-ui/core/Container';
 import Grid from "@material-ui/core/Grid";
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
 import Drawer from '@material-ui/core/Drawer';
-import { useAlert } from 'react-alert'
+//import { useAlert } from 'react-alert'
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import lodashSortBy from 'lodash/sortBy';
 
@@ -27,11 +34,13 @@ import globalStyles from "assets/globalStyles";
 
 
 import {DisplayPageHeader, ValidComp, BlankArea,
+	DisplayApplicationName
 } from "CustomComponents/CustomComponents.js"
 
 
 import { 
 	vsDialog,
+	showError, showSuccess, showInfo,
 } from "views/functions.js";
 
 import {
@@ -42,11 +51,12 @@ import {
 export default function City() {
 	//const classes = useStyles();
 	const gClasses = globalStyles();
-	const alert = useAlert();
 	
   const [cityArray, setCityArray] = useState([]);	
 	const [isDrawerOpened, setIsDrawerOpened] = useState("");
 	const [rename, setRename] = useState(false);
+	
+	const [editCityRec, setEditCityRec] = useState(null);
 	
 	const [emurName, setEmurName] = useState("");
 	const [emurOrigName, setEmurOrigName] = useState("");
@@ -62,7 +72,6 @@ export default function City() {
 		try {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/city/list`;
 			let resp = await axios.get(myUrl);
-			//console.log(resp.data);
 			setCityArray(resp.data);
 		} catch (e) {
 			setCityArray([]);
@@ -75,6 +84,7 @@ export default function City() {
 			case 0:  myMsg = ""; break;
 			case 1001: myMsg = "Blank City name"; break;
 			case 1002: myMsg = "Duplicate City name"; break;
+			case 1004: myMsg = "City not selected from existing list."; break;
 			default:  myMsg = "Unknown error"; break;
 		}
 		return (
@@ -96,68 +106,68 @@ export default function City() {
 		setRename(false);
 		setEmurName(cityRec.city); 
 		setEmurOrigName(cityRec.city);
+		setEditCityRec(cityRec);
     //console.log(cityRec.city);
 		setIsDrawerOpened("EDIT");  
 	}
 	
 	async function  addCitySubmit()  {
-		let newName = emurName.trim();
-		setEmurName(newName);
-		//console.log("name is", newName);
+		let newName = emurName.trim().toLowerCase();
+		if (newName.length === 0) return  setRegisterStatus(1001);	
 		// for blank and duplicate
-		if (newName.length === 0) return setRegisterStatus(1001);	
-		if (cityArray.find(x => x.id === newName.toLowerCase())) return setRegisterStatus(1002);
-		// now add gotra
-		//console.log("all ok");
+		if (cityArray.find(x => x.city.toLowerCase() === newName)) return setRegisterStatus(1002);
 		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/gotra/add/${newName}`;
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/city/add/${newName}`;
 			let resp = await axios.get(myUrl);
-			let tmpArray = [resp.data].concat(cityArray);
-			setCityArray(lodashSortBy(tmpArray, 'id'));
+			showSuccess(`Successfully added city ${resp.data.city} to database.`);
+			let tmpArray = cityArray.concat([resp.data]);
+			setCityArray(lodashSortBy(tmpArray, 'city'));
+			showSuccess(`Successfully added City ${resp.data.city}`);
 		} catch (e) {
 			console.log(e);
-			alert.error("Error adding new gotra");
+			showError("Error adding new city to database");
 		}
 		setIsDrawerOpened("");
 	};
   
 		
 	async function  editCitySubmit()  {
-		let newName = emurName.trim();
-		setEmurName(newName);
 		// check for blank and duplicate (if not rename to existing)
-		if (newName.length === 0) return  setRegisterStatus(1001);	
+		var newCityName = "";
 		if (rename) {
-			// new name must be already defined
-			let tmp =  cityArray.find(x => x.id === newName.toLowerCase());
-			if (!tmp) return setRegisterStatus(1003);
+			console.log(editCityRec);
+			if (!editCityRec) return setRegisterStatus(1004);
+			let tmp =  cityArray.find(x => x.city === editCityRec.city);
+			newCityName = tmp.city.toLowerCase();
 		} else {
+			newCityName = emurName.trim().toLowerCase();
+			if (newCityName.length === 0) return setRegisterStatus(1001);
 			// if not rename to existing, new name must not be defined
-			let tmp =  cityArray.find(x => x.id === newName.toLowerCase());
+			let tmp =  cityArray.find(x => x.city.toLowerCase() === newCityName);
 			if (tmp) return setRegisterStatus(1002);
 		}
-
 		setIsDrawerOpened("");
+		
 		let subcmd = (rename) ? "renametoexisting" : "renametonew"
 		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/gotra/${subcmd}/${emurOrigName}/${newName}`;
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/city/${subcmd}/${emurOrigName.toLowerCase()}/${newCityName}`;
 			let resp = await axios.get(myUrl);
-			let tmpArray;
-			if (subcmd === "renametonew") {
-				tmpArray = [resp.data].concat(cityArray.filter(x => x.name !== emurOrigName));
-			} else {
-				tmpArray = cityArray.filter(x => x.name !== emurOrigName);
+			// remove the entry of old city name
+			let tmpArray = cityArray.filter(x => x.city.toLowerCase() !== emurOrigName.toLowerCase());
+			if (subcmd !== "renametoexisting") {
+				tmpArray = tmpArray.concat([resp.data]);
 			}
-			setCityArray(lodashSortBy(tmpArray, 'id'));
+			setCityArray(lodashSortBy(tmpArray, 'city'));
+			showSuccess(`Successfully renamed city ${emurOrigName} to ${resp.data.city} in database.`);
 		} catch (e) {
 			console.log(e);
-			alert.error("Error adding new gotra");
+			showError("Error renaming city");
 		}
 	};
 	
 
 	function delCity(cityRec) {
-		vsDialog("Delete City", `Are you sure you want to delete ${cityRec.name}?`,
+		vsDialog("Delete City", `Are you sure you want to delete city "${cityRec.city}"?`,
 		{label: "Yes", onClick: () => handleDelCityConfirm(cityRec) },
 		{label: "No" }
 		);
@@ -167,13 +177,12 @@ export default function City() {
 		try {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/city/delete/${cityRec.name}`;
 			let resp = await axios.get(myUrl);
-			let tmpArray = [resp.data].concat(cityArray);
-			setCityArray(cityArray.filter(x => x.id !== cityRec.id));
+			setCityArray(cityArray.filter(x => x.city !== cityRec.city));
+			showSuccess(`Successfully deleted city ${cityRec.city} from database`);
 		} catch (e) {
 			console.log(e);
-			alert.error(`City ${cityRec.name} is configured. Cannot delete`);
+			showError(`City ${cityRec.city} is used in members record. Cannot delete`);
 		}
-		//setIsDrawerOpened("");
 	}
 
 	function DisplayAllCity() {
@@ -203,33 +212,36 @@ export default function City() {
 		<VsButton align="right" name="Add new City" onClick={addCity} />	
 		<DisplayAllCity />
 		<Drawer anchor="top" variant="temporary" open={isDrawerOpened !== ""}>
-		<Box style={PADSTYLE} className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
-			<VsCancel align="right" onClick={() => {setIsDrawerOpened("")}} />
-			{(isDrawerOpened === "ADD") &&   
-				<ValidatorForm className={gClasses.form} onSubmit={addCitySubmit}>
-				<Typography className={gClasses.title}>New Gotra</Typography>
-				<br />
-				<TextValidator fullWidth required className={gClasses.vgSpacing}
-					label="Name of the Gotra" type="text"
-					value={emurName}
-					onChange={(event) => { setEmurName(event.target.value) }}
-					validators={['noSpecialCharacters']}
-					errorMessages={['Special characters not permitted']}
-				/>
-				<ShowResisterStatus/>
-				<BlankArea />
-				<VsButton align="center" name={"Add"} />
-				<ValidComp />  			
-				</ValidatorForm>
-			}
-			{(isDrawerOpened === "EDIT") &&   
+		<Container component="main" maxWidth="xs">	
+		<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "20px", paddingRight: "20px"}} >
+		<VsCancel align="right" onClick={() => { setIsDrawerOpened("")}} />
+		{(isDrawerOpened === "ADD") &&   
+			<ValidatorForm className={gClasses.form} onSubmit={addCitySubmit}>
+			<Typography className={gClasses.title}>New City</Typography>
+			<br />
+			<TextValidator fullWidth required className={gClasses.vgSpacing}
+				label="Name of the City" type="text"
+				value={emurName}
+				onChange={(event) => { setEmurName(event.target.value) }}
+				validators={['noSpecialCharacters']}
+				errorMessages={['Special characters not permitted']}
+			/>
+			<ShowResisterStatus/>
+			<BlankArea />
+			<VsButton align="center" name={"Add"} />
+			<ValidComp />  			
+			</ValidatorForm>
+		}
+		{(isDrawerOpened === "EDIT") &&   
 				<ValidatorForm className={gClasses.form} onSubmit={editCitySubmit}>
-				<Typography className={gClasses.title}>
-					{`Edit City ${emurOrigName}`}
+				<Typography>
+					<span className={gClasses.patientInfo2Brown} >Edit City: </span>
+					<span className={gClasses.title}>{emurOrigName}</span>
 				</Typography>
+				<DisplayApplicationName name={`(All member records having city as ${emurOrigName} will get updated with the new value)`} value="" style={{paddingTop: "5px" }}  />
 				<VsCheckBox align="left" label="Rename to existing" checked={rename} onClick={() => setRename(!rename)} />
 				<br />
-				{(rename) &&
+				{(false && rename) &&
           <Grid key="ALLCITY" container >
             {cityArray.map( (d, index) => 
               <Grid align="left" key={"CITYNUM"+index} item xs={12} sm={6} md={2} lg={2} >
@@ -238,6 +250,19 @@ export default function City() {
             )}
           </Grid>
         }
+				{(rename) &&
+				<Autocomplete
+				disablePortal
+				id="HODNAME"
+				defaultValue={editCityRec}
+				onChange={(event, values) => setEditCityRec(values) }
+				style={{paddingTop: "10px" }}
+				getOptionLabel={(option) => option.city || ""}
+				options={cityArray}
+				sx={{ width: 300 }}
+				renderInput={(params) => <TextField {...params} />}
+				/>
+        }				
 				{(!rename) &&
 				<TextValidator fullWidth required className={gClasses.vgSpacing}
 					label="Name of the City" type="text"
@@ -253,8 +278,14 @@ export default function City() {
 				<ValidComp />  			
 				</ValidatorForm>
 			}
+		<br />
+		<br />
+		<br />
+		<br />
 		</Box>
+		</Container>
 		</Drawer>
+		<ToastContainer />
 		</div>
 	);
 }

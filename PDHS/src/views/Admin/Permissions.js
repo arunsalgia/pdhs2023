@@ -28,7 +28,9 @@ import EditIcon from '@material-ui/icons/Edit';
 import globalStyles from "assets/globalStyles";
 
 
-import {DisplayPageHeader, ValidComp, BlankArea,
+import {
+	DisplayPageHeader, ValidComp, BlankArea,
+	DisplayApplicationName,
 } from "CustomComponents/CustomComponents.js"
 
 
@@ -54,7 +56,7 @@ export default function Permissions() {
 	const [rename, setRename] = useState(false);
 	
 	const [emurName, setEmurName] = useState("");
-	const [emurOrigName, setEmurOrigName] = useState("");
+	const [emurOrigRec, setEmurOrigRec] = useState("");
 	const [registerStatus, setRegisterStatus] = useState(0);
 
 	const [isPjym, setIsPjym] = useState(false);
@@ -128,8 +130,8 @@ export default function Permissions() {
 		console.log(adminRec);
 		var myMemberRec = memberArray.find(x => x.mid === adminRec.mid);
 		setRegisterStatus(0);
-		setEmurName(myMemberRec.mergedName);
-		setEmurOrigName(adminRec.mid);
+		setEmurName(`${adminRec.title} ${adminRec.name}`);
+		setEmurOrigRec(adminRec);
 		setIsSuper(adminRec.superAdmin);
 		setIsPjym(adminRec.pjymAdmin);
 		setIsPrws(adminRec.prwsAdmin);
@@ -145,12 +147,15 @@ export default function Permissions() {
 	}
 	
 	async function  addAdminSubmit()  {
-		let tmp = adminArray.find(x => x.mid === emurName);
-		if (tmp) return setRegisterStatus(1001);	
 		if (!isSuper && !isPjym && !isPrws && !isHumad) return setRegisterStatus(1002);	
 
+		let tmp = emurOrigRec;	//   adminArray.find(x => x.mid === emurName);
+		if (tmp) return setRegisterStatus(1001);	
+		
 		try {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/pdhsadm/add/${emurName}/${isSuper}/${isPjym}/${isHumad}/${isPrws}/false`;
+			console.log(myUrl);
+			return;
 			let resp = await axios.get(myUrl);
 			let tmpArray = [resp.data].concat(adminArray);
 			setAdminArray(lodashSortBy(tmpArray, 'name'));
@@ -171,9 +176,9 @@ export default function Permissions() {
 		if (!isSuper && !isPjym && !isPrws && !isHumad) return setRegisterStatus(1002);	
 
 		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/pdhsadm/update/${emurOrigName}/${isSuper}/${isPjym}/${isHumad}/${isPrws}/false`;
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/pdhsadm/update/${emurOrigRec}/${isSuper}/${isPjym}/${isHumad}/${isPrws}/false`;
 			let resp = await axios.get(myUrl);
-			let tmpArray = [resp.data].concat(adminArray.filter(x => x.mid !== emurOrigName));
+			let tmpArray = [resp.data].concat(adminArray.filter(x => x.mid !== emurOrigRec));
 			setAdminArray(lodashSortBy(tmpArray, 'name'));
 		} catch (e) {
 			console.log(e);
@@ -185,7 +190,7 @@ export default function Permissions() {
 
 	function deleteAdmin(adminRec) {
 		let myName = adminRec.title + " " + adminRec.name;
-		vsDialog("Delete Admin", `Are you sure you want to delete ${myName}?`,
+		vsDialog("Delete Admin", `Are you sure you want to remove ${myName} as Admin?`,
 		{label: "Yes", onClick: () => handleDelAdminConfirm(adminRec) },
 		{label: "No" }
 		);
@@ -209,17 +214,10 @@ export default function Permissions() {
 	<div>
 		<Box  style={PADSTYLE}  key={"MEMBOXHDR"} className={gClasses.boxStyle} borderColor="black" borderRadius={30} border={1} >
 		<Grid key={"MEMGRIDHDR"} className={gClasses.noPadding} container align="center" alignItems="center" >
-		{(!isMobile()) &&
-		<Grid align="left" key={"H1"} item xs={12} sm={12} md={6} lg={6} >
-			<Typography style={{paddingLeft: "10px"}} className={gClasses.patientInfo2Brown} >Name of the Member</Typography>
-			<Typography style={{paddingLeft: "10px"}} className={gClasses.patientInfo2Brown} >(Member Id)</Typography>
-		</Grid>
-		}
-		{(isMobile()) &&
+
 		<Grid align="left" key={"H1"} item xs={12} sm={12} md={6} lg={6} >
 			<Typography className={gClasses.patientInfo2Brown} >Name of the Member (Member Id)</Typography>
 		</Grid>
-		}
 		<Grid align="center" key={"H2"} item xs={2} sm={2} md={1} lg={1} >
 			<Typography className={gClasses.patientInfo2Brown} >Super</Typography>
 			<Typography className={gClasses.patientInfo2Brown} >Admin</Typography>
@@ -236,10 +234,10 @@ export default function Permissions() {
 			<Typography className={gClasses.patientInfo2Brown} >PRWS</Typography>
 			<Typography className={gClasses.patientInfo2Brown} >Admin</Typography>
 		</Grid>
-		<Grid align="center" key={"H6"} item xs={2} sm={2} md={1} lg={1} >
+		{/*<Grid align="center" key={"H6"} item xs={2} sm={2} md={1} lg={1} >
 			<Typography className={gClasses.patientInfo2Brown} >Future</Typography>
 			<Typography className={gClasses.patientInfo2Brown} >Admin</Typography>
-		</Grid>
+		</Grid>*/}
 		<Grid align="center" key={"H7"} item xs={2} sm={2} md={1} lg={1} >
 			<Typography></Typography>
 		</Grid>
@@ -263,9 +261,9 @@ export default function Permissions() {
 			<Grid align="center" key={"DOC5"+index} item xs={2} sm={2} md={1} lg={1} >
 				<Typography className={gClasses.patientInfo2}>{(a.prwsAdmin) ? "YES" : "-"}</Typography>
 			</Grid>
-			<Grid align="center" key={"DOC6"+index} item xs={2} sm={2} md={1} lg={1} >
+			{/*<Grid align="center" key={"DOC6"+index} item xs={2} sm={2} md={1} lg={1} >
 				<Typography className={gClasses.patientInfo2}>{"-"}</Typography>
-			</Grid>
+			</Grid>*/}
 			<Grid align="center" key={"DOC7"+index} item xs={2} sm={2} md={1} lg={1} >
 				<EditIcon   color="primary"   size="small" onClick={() => editAdmin(a)} />
 				<CancelIcon color="secondary" size="small" onClick={() => deleteAdmin(a)} />
@@ -287,12 +285,12 @@ export default function Permissions() {
 		<Container component="main" maxWidth="xs">	
 		<Box style={PADSTYLE} className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
 		<VsCancel align="right" onClick={() => {setIsDrawerOpened("")}} />
-		<Typography align="center" className={gClasses.title}>{(isDrawerOpened === "ADD") ? "Add new Admin" : `Edit permissions of ${emurName}`}</Typography>
+		<Typography align="center" className={gClasses.title}>{(isDrawerOpened === "ADD") ? "Add new Admin" : `Edit Admin permissions`}</Typography>
 		<br />
 		<ValidatorForm className={gClasses.form} onSubmit={handleAddEditAdmin}>
 		<Grid key="ADEDITPERM" className={gClasses.noPadding} container  alignItems="flex-start" >
 		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Name</Typography>
+			<DisplayApplicationName name="Name" value="" style={{paddingTop: "5px" }}  />
 		</Grid>
 		<Grid item xs={8} sm={8} md={8} lg={8} >
 			<div>
@@ -331,7 +329,7 @@ export default function Permissions() {
 		</Grid>
 		</Grid>
 		<ShowResisterStatus/>
-		<VsButton align="center" name={"Add new Administrator"} />
+		<VsButton align="center" name={((isDrawerOpened === "ADD") ? "Add" : "Update") + " Administrator permissions"} />
 		</ValidatorForm>
 		</Box>
 		</Container>
