@@ -5,7 +5,6 @@ import { TextField, InputAdornment } from "@material-ui/core";
 import { Switch } from '@material-ui/core';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 
-
 import { ValidatorForm, TextValidator, TextValidatorcvariant} from 'react-material-ui-form-validator';
 import Drawer from '@material-ui/core/Drawer';
 import { ToastContainer, toast } from 'react-toastify';
@@ -28,7 +27,7 @@ import { UserContext } from "../../UserContext";
 
 import { 
 	JumpButton, DisplayPageHeader, ValidComp, BlankArea,
-	DisplayApplicationNameValue, DisplayApplicationName,
+	DisplayApplicationNameValue
 } from 'CustomComponents/CustomComponents.js';
 
 import lodashSortBy from "lodash/sortBy";
@@ -75,7 +74,6 @@ import {
 import {
 	getMemberName,
 	hasPRWSpermission,
-	getHumadMembershipName,
 } from 'views/functions';
 
 const MERGECREATEARRAY = [
@@ -87,10 +85,10 @@ const CREATEINDEX = 1;
 
 const header = "Apply to move member(s)";
 
-export default function HumadUpgrade() {
+export default function PjymUpgrade() {
 	//const classes = useStyles();
 	const gClasses = globalStyles();
-	const myProps = JSON.parse(sessionStorage.getItem("humad_props"));
+	const myProps = JSON.parse(sessionStorage.getItem("pjym_props"));
 	//console.log(myProps);
 	
 	const [hodRec, setHodRec] = useState(null);
@@ -366,7 +364,7 @@ async function handleFinalStageSubmit() {
 	var returnStatus = {status: myStatus, msg: myMsg };
 	sessionStorage.setItem("family_personal_returnstatus", JSON.stringify(returnStatus));
 	sessionStorage.setItem("family_currentSelection", "Personal");
-	setTab(process.env.calledFrom);
+	setTab(process.env.REACT_APP_FAMILY);
 	//myProps.onReturn.call(this, {status: myStatus,  msg: myMsg});
 }
 
@@ -669,45 +667,47 @@ return (
 	<Container component="main" maxWidth="xs">	
 	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
 	<VsCancel align="right" onClick={handleCancel} />
-	<Typography align="center"  className={gClasses.pdhs_title} >{(myProps.humadRec) ? "Upgrade of Humad Membership" : "New Humad Membership"}</Typography>
-	<Typography align="center"  className={gClasses.pdhs_title} >{getMemberName(myProps.memberRec, false, false)}</Typography>
-	{(myProps.humadRec) &&
-	<div>
-	<Divider style={{ marginTop: "10px", marginBottom: "10px", paddingTop: "1px", backgroundColor: 'black', padding: 'none' }} />
-	<DisplayApplicationName name="Current membership details" value={``}  />
-		<DisplayApplicationNameValue name="Membership" value={getHumadMembershipName(myProps.humadRec.membershipNumber)}  />
-	}
-	<DisplayApplicationNameValue name="Mem. Number" value={`${myProps.humadRec.membershipNumber}`}  />
-	</div>
-	}	
-	<Divider style={{ marginTop: "10px", marginBottom: "10px", paddingTop: "1px", backgroundColor: 'black', padding: 'none' }} />
-	<DisplayApplicationName name="New membership details" value={``}  />
-	{upgradeArray.map( (u, index) => {
-		return (
-		<Grid key={"BALMEM"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
-		<Grid style={{marginTop: "10px"}}  item xs={6} sm={6} md={6} lg={6} >
-			<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{u.desc}</Typography>
-		</Grid>	
-		<Grid item xs={2} sm={2} md={2} lg={2} >
-			<VsRadio checked={u.desc == newUpgrade} onClick={() => setNewUpgrade(u.desc)}  />
-		</Grid>
-		</Grid>	
-
-	)})}
-	<Grid key={"HUMREMARKS"} className={gClasses.noPadding} container  alignItems="flex-start" >
-	<Grid style={{marginTop: "10px"}}  item xs={6} sm={6} md={6} lg={6} >
-		<Typography style={{marginLeft: "10px"}} className={gClasses.title}>Remarks</Typography>
-	</Grid>	
-	<Grid item xs={5} sm={5} md={5} lg={5} >
-		<TextField id="outlined-required" label={myProps.inputName}
-			value={remarks}  autoFocus
-			onChange={(event) => { setRemarks(event.target.value); }}
-		/>			
-	</Grid>
-	</Grid>			
-	<br />	
-	<VsButton align="center" name="Submit" onClick={handlHumadUpgradeSubmit} />
+	<Typography align="center"  className={gClasses.pdhs_title} >{(myProps.humadRec) ? "PJYM Membership" : "New Humad Membership"}</Typography>
 	<br />
+	<div>
+		<br />
+		<Typography align="center"  className={gClasses.pdhs_title} >{getMemberName(myProps.memberRec, false, false)}</Typography>
+		<br />
+		{(myProps.humadRec) &&
+		<div align="center" >
+			<DisplayApplicationNameValue name="Current membership" value={`${myProps.humadRec.membershipNumber}`}  />
+			<br />		
+		</div>
+		}	
+		{upgradeArray.map( (u, index) => {
+			return (
+			<Grid key={"BALMEM"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
+			<Grid style={{marginTop: "10px"}}  item xs={6} sm={6} md={6} lg={6} >
+				<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{u.desc}</Typography>
+			</Grid>	
+			<Grid item xs={2} sm={2} md={2} lg={2} >
+				<VsRadio checked={u.desc == newUpgrade} onClick={() => setNewUpgrade(u.desc)}  />
+			</Grid>
+			</Grid>	
+
+		)})}
+		<br />	
+		<Grid key={"HUMREMARKS"} className={gClasses.noPadding} container  alignItems="flex-start" >
+		<Grid style={{marginTop: "10px"}}  item xs={6} sm={6} md={6} lg={6} >
+			<Typography style={{marginLeft: "10px"}} className={gClasses.title}>Remarks</Typography>
+		</Grid>	
+		<Grid item xs={5} sm={5} md={5} lg={5} >
+			<TextField id="outlined-required" label={myProps.inputName}
+				value={remarks}  autoFocus
+				onChange={(event) => { setRemarks(event.target.value); }}
+			/>			
+		</Grid>
+		</Grid>			
+		<br />	
+		<VsButton align="center" name="Submit" onClick={handlHumadUpgradeSubmit} />
+		<br />
+	</div>
+
 	<ToastContainer />
 	</Box>
 	</Container>

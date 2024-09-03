@@ -25,7 +25,7 @@ import { UserContext } from "../../UserContext";
 
 import { 
 	JumpButton, DisplayPageHeader, ValidComp, BlankArea, 
-	ApplicationHeader, DisplayApplicationNameValue,
+	ApplicationHeader, DisplayApplicationNameValue, DisplayApplicationName,
 } from 'CustomComponents/CustomComponents.js';
 
 import IconButton from '@material-ui/core/IconButton';
@@ -65,7 +65,9 @@ import {
 
 export default function ApplicationEditGeneral() {
 	const gClasses = globalStyles();
-	const myProps = JSON.parse(sessionStorage.getItem("application_appRec"));
+	var myProps = JSON.parse(sessionStorage.getItem("application_appRec"));
+	//console.log(JSON.parse(myProps.applicationRec.data).oldHodRec);
+	//console.log(JSON.parse(myProps.applicationRec.data).newHodRec);
 	
 	const [registerStatus, setRegisterStatus] = useState(0);
 	const [appData, setAppdata] = useState(JSON.parse(myProps.applicationRec.data));
@@ -82,7 +84,7 @@ export default function ApplicationEditGeneral() {
 
 
 	//useEffect(() => {
-	//		setAppdata(JSON.parse(myProps.applicationRec.data));
+	//	
 	//}, [])
 
 
@@ -110,14 +112,6 @@ function handleRemarksDone() {
 		handleApplicationRejectConfirm(myRemarks);
 }
 
-async function junk_handleApplicationReject() {
-	handleApplicationRejectConfirm();
-	
-	/*vsDialog("Reject", `Are you sure you want reject application?`,
-		{label: "Yes", onClick: () => handleApplicationRejectConfirm() },
-		{label: "No" }
-		);*/
-}
 
 async function  handleApplicationApproveConfirm(myRemarks) {
 	showInfo("TO be implemenetd");
@@ -132,6 +126,36 @@ async function  handleApplicationApproveConfirm(myRemarks) {
 		console.log(e);
 		showError(`Error rejecting Gotra/Caste change`);
 	}
+}
+
+function isChangeOfAddress(oldHodRec, newHodRec) {
+	if (oldHodRec.indianResident !== newHodRec.indianResident) return true;
+	if (oldHodRec.resAddr1 !== newHodRec.resAddr1) return true;
+	if (oldHodRec.resAddr2 !== newHodRec.resAddr2) return true;
+	if (oldHodRec.resAddr3 !== newHodRec.resAddr3) return true;
+	if (oldHodRec.resAddr4 !== newHodRec.resAddr4) return true;
+	if (oldHodRec.resAddr5 !== newHodRec.resAddr5) return true;
+	if (oldHodRec.indianResident) {
+		if (oldHodRec.city !== newHodRec.city) return true;
+		if (oldHodRec.district !== newHodRec.district) return true;
+		if (oldHodRec.pinCode !== newHodRec.pinCode) return true;
+		if (oldHodRec.state !== newHodRec.state) return true;
+		if (oldHodRec.suburb !== newHodRec.suburb) return true;
+	}
+	else {
+		// for NRI only check if country is matching
+		if (oldHodRec.country !== newHodRec.country) return true;	
+	}
+	// all items matches. Thus declare no chnage in address
+	return false;
+}
+
+function isChangeOfHomeTownContact(oldHodRec, newHodRec) {
+	if (oldHodRec.village !== newHodRec.village) return true;
+	if (oldHodRec.resPhone1 !== newHodRec.resPhone1) return true;
+	if (oldHodRec.resPhone2 !== newHodRec.resPhone2) return true;
+	//console.log("allMatches");
+	return false;
 }
 
 
@@ -159,6 +183,18 @@ function handleCancel() {
 	setTab(process.env.REACT_APP_APPLICATION);
 }
 
+function getPhoneString(phone1, phone2) {
+	var myPhone = phone1;
+	
+	if (phone2 !== "") {
+		if (myPhone !== "") myPhone = myPhone + " / ";
+		myPhone = myPhone + phone2;
+	}
+	
+	if (myPhone === "") myPhone = "-";
+	return myPhone;
+}
+
 return (
 	<div className={gClasses.webPage} >
 	<Container component="main" maxWidth="xs">	
@@ -175,173 +211,71 @@ return (
 			</AccordionSummary>
 			</Box>
 			<br />
-			{((appData.oldHodRec.resAddr1 !== appData.newHodRec.resAddr1) ||
-				(appData.oldHodRec.resAddr2 !== appData.newHodRec.resAddr2) ||
-				(appData.oldHodRec.resAddr3 !== appData.newHodRec.resAddr3) ||
-				(appData.oldHodRec.resAddr4 !== appData.newHodRec.resAddr4) ||
-				(appData.oldHodRec.resAddr5 !== appData.newHodRec.resAddr5))  &&
+			<DisplayApplicationName name={(isChangeOfAddress(appData.oldHodRec, appData.newHodRec)) ? "Old Res. Address" : "No Change in Res. Address"} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name="Indian Resident" value={(appData.oldHodRec.indianResident) ? "Yes" : "No"}  />
+			<DisplayApplicationNameValue name="Address" value={appData.oldHodRec.resAddr1} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name="" value={appData.oldHodRec.resAddr2}  />
+			<DisplayApplicationNameValue name="" value={appData.oldHodRec.resAddr3}   />
+			<DisplayApplicationNameValue name="" value={appData.oldHodRec.resAddr4}  />
+			<DisplayApplicationNameValue name="" value={appData.oldHodRec.resAddr5}   />
+			{(appData.oldHodRec.indianResident) &&
 				<div>
-				<DisplayApplicationNameValue name="Old Res. resAddress" value={appData.oldHodRec.resAddr1} style={{paddingTop: "5px" }}  />
-				{(appData.oldHodRec.resAddr2 !== "") &&
-				<DisplayApplicationNameValue name="" value={appData.oldHodRec.resAddr2} style={{paddingTop: "5px" }}  />
+				<DisplayApplicationNameValue name="Suburb" value={appData.oldHodRec.suburb} style={{paddingTop: "5px" }}  />
+				<DisplayApplicationNameValue name="District" value={appData.oldHodRec.district}   />
+				<DisplayApplicationNameValue name="City" value={appData.oldHodRec.city}   />
+				<DisplayApplicationNameValue name="State" value={appData.oldHodRec.state}  />
+				<DisplayApplicationNameValue name="PinCode" value={appData.oldHodRec.pinCode}  />		
+				</div>
+			}
+			{(!appData.oldHodRec.indianResident) &&
+				<DisplayApplicationNameValue name="Country" value={appData.oldHodRec.country} style={{paddingTop: "5px" }}  />
+			}
+			{(isChangeOfAddress(appData.oldHodRec, appData.newHodRec)) &&
+				<div>
+				<Divider style={{ marginTop: "10px", marginBottom: "10px", paddingTop: "1px", backgroundColor: 'black', padding: 'none' }} />				<DisplayApplicationName name={"New Res. Address"} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name="Indian Resident" value={(appData.newHodRec.indianResident) ? "Yes" : "No"}  />
+				<DisplayApplicationNameValue name="Address" value={appData.newHodRec.resAddr1} style={{paddingTop: "5px" }}  />
+				<DisplayApplicationNameValue name="" value={appData.newHodRec.resAddr2}   />
+				<DisplayApplicationNameValue name="" value={appData.newHodRec.resAddr3}   />
+				<DisplayApplicationNameValue name="" value={appData.newHodRec.resAddr4}   />
+				<DisplayApplicationNameValue name="" value={appData.newHodRec.resAddr5}   />
+				{(appData.newHodRec.indianResident) &&
+					<div>
+					<DisplayApplicationNameValue name="Suburb" value={appData.newHodRec.suburb} style={{paddingTop: "5px" }}  />
+					<DisplayApplicationNameValue name="District" value={appData.newHodRec.district}   />
+					<DisplayApplicationNameValue name="City" value={appData.newHodRec.city}  />
+					<DisplayApplicationNameValue name="State" value={appData.newHodRec.state}   />
+					<DisplayApplicationNameValue name="PinCode" value={appData.newHodRec.pinCode}   />		
+					</div>
 				}
-				{(appData.oldHodRec.resAddr3 !== "") &&
-				<DisplayApplicationNameValue name="" value={appData.oldHodRec.resAddr3} style={{paddingTop: "5px" }}  />
+				{(!appData.newHodRec.indianResident) &&
+					<DisplayApplicationNameValue name="Country" value={appData.newHodRec.country} style={{paddingTop: "5px" }}  />
 				}
-				{(appData.oldHodRec.resAddr4 !== "") &&
-				<DisplayApplicationNameValue name="" value={appData.oldHodRec.resAddr4} style={{paddingTop: "5px" }}  />
-				}
-				{(appData.oldHodRec.resAddr5 !== "") &&
-				<DisplayApplicationNameValue name="" value={appData.oldHodRec.resAddr5} style={{paddingTop: "5px" }}  />
-				}
-				<DisplayApplicationNameValue name="New Res. resAddress" value={appData.newHodRec.resAddr1} style={{paddingTop: "5px" }}  />
-				{(appData.newHodRec.resAddr2 !== "") &&
-				<DisplayApplicationNameValue name="" value={appData.newHodRec.resAddr2} style={{paddingTop: "5px" }}  />
-				}
-				{(appData.newHodRec.resAddr3 !== "") &&
-				<DisplayApplicationNameValue name="" value={appData.newHodRec.resAddr3} style={{paddingTop: "5px" }}  />
-				}
-				{(appData.newHodRec.resAddr4 !== "") &&
-				<DisplayApplicationNameValue name="" value={appData.newHodRec.resAddr4} style={{paddingTop: "5px" }}  />
-				}
-				{(appData.newHodRec.resAddr5 !== "") &&
-				<DisplayApplicationNameValue name="" value={appData.newHodRec.resAddr5} style={{paddingTop: "5px" }}  />
-				}				
-				<br />
 				</div>
-			}		
-			{((appData.oldHodRec.resAddr1 === appData.newHodRec.resAddr1) &&
-				(appData.oldHodRec.resAddr2 === appData.newHodRec.resAddr2) &&
-				(appData.oldHodRec.resAddr3 === appData.newHodRec.resAddr3) &&
-				(appData.oldHodRec.resAddr4 === appData.newHodRec.resAddr4) &&
-				(appData.oldHodRec.resAddr5 === appData.newHodRec.resAddr5))  &&
-				<div>
-				<DisplayApplicationNameValue name="No change in" value={appData.newHodRec.resAddr1} style={{paddingTop: "5px" }}  />
-				<DisplayApplicationNameValue name="Res.Addr" value={appData.newHodRec.resAddr2} style={{paddingTop: "5px" }}  />
-				{(appData.newHodRec.resAddr3 !== "") &&
-				<DisplayApplicationNameValue name="" value={appData.newHodRec.resAddr3} style={{paddingTop: "5px" }}  />
-				}
-				{(appData.newHodRec.resAddr4 !== "") &&
-				<DisplayApplicationNameValue name="" value={appData.newHodRec.resAddr4} style={{paddingTop: "5px" }}  />
-				}
-				{(appData.newHodRec.resAddr5 !== "") &&
-				<DisplayApplicationNameValue name="" value={appData.newHodRec.resAddr5} style={{paddingTop: "5px" }}  />
-				}				
-				<br />
-				</div>
-			}		
-			{(((appData.oldHodRec.suburb !== "") || (appData.newHodRec.suburb !== "")) && (appData.oldHodRec.suburb !== appData.newHodRec.suburb))  &&
-				<div>
-				<DisplayApplicationNameValue name="Old Suburb" value={appData.oldHodRec.suburb} style={{paddingTop: "5px" }}  />
-				<DisplayApplicationNameValue name="New Suburb" value={appData.newHodRec.suburb} style={{paddingTop: "5px" }}  />
-				<br />
-				</div>
-			}		
-			{(((appData.oldHodRec.suburb !== "") || (appData.newHodRec.suburb !== "")) && (appData.oldHodRec.suburb === appData.newHodRec.suburb))  &&
-				<div>
-				<DisplayApplicationNameValue name="No change in Suburb" value={appData.newHodRec.suburb} style={{paddingTop: "5px" }}  />
-				<br />
-				</div>
-			}		
-			{(((appData.oldHodRec.district !== "") || (appData.newHodRec.district !== "")) && (appData.oldHodRec.district !== appData.newHodRec.district))  &&
-				<div>
-				<DisplayApplicationNameValue name="Old District" value={appData.oldHodRec.district} style={{paddingTop: "5px" }}  />
-				<DisplayApplicationNameValue name="New District" value={appData.newHodRec.district} style={{paddingTop: "5px" }}  />
-				<br />
-				</div>
-			}		
-			{(((appData.oldHodRec.district !== "") || (appData.newHodRec.district !== "")) && (appData.oldHodRec.district === appData.newHodRec.district))  &&
-				<div>
-				<DisplayApplicationNameValue name="No change in District" value={appData.newHodRec.district} style={{paddingTop: "5px" }}  />
-				<br />
-				</div>
-			}		
-			{(((appData.oldHodRec.city !== "") || (appData.newHodRec.city !== "")) && (appData.oldHodRec.city !== appData.newHodRec.city))  &&
-				<div>
-				<DisplayApplicationNameValue name="Old City" value={appData.oldHodRec.city} style={{paddingTop: "5px" }}  />
-				<DisplayApplicationNameValue name="New City" value={appData.newHodRec.city} style={{paddingTop: "5px" }}  />
-				<br />
-				</div>
-			}		
-			{(((appData.oldHodRec.city !== "") || (appData.newHodRec.city !== "")) && (appData.oldHodRec.city === appData.newHodRec.city))  &&
-				<div>
-				<DisplayApplicationNameValue name="No change in City" value={appData.newHodRec.city} style={{paddingTop: "5px" }}  />
-				<br />
-				</div>
-			}		
-			{(((appData.oldHodRec.state !== "") || (appData.newHodRec.state !== "")) && (appData.oldHodRec.state !== appData.newHodRec.state))  &&
-				<div>
-				<DisplayApplicationNameValue name="Old State" value={appData.oldHodRec.state} style={{paddingTop: "5px" }}  />
-				<DisplayApplicationNameValue name="New State" value={appData.newHodRec.state} style={{paddingTop: "5px" }}  />
-				<br />
-				</div>
-			}		
-			{(((appData.oldHodRec.state !== "") || (appData.newHodRec.state !== "")) && (appData.oldHodRec.state === appData.newHodRec.state))  &&
-				<div>
-				<DisplayApplicationNameValue name="No change in State" value={appData.newHodRec.state} style={{paddingTop: "5px" }}  />
-				<br />
-				</div>
-			}				
-			{(((appData.oldHodRec.pinCode !== "") || (appData.newHodRec.pinCode !== "")) && (appData.oldHodRec.pinCode !== appData.newHodRec.pinCode))  &&
-				<div>
-				<DisplayApplicationNameValue name="Old PinCode" value={appData.oldHodRec.pinCode} style={{paddingTop: "5px" }}  />
-				<DisplayApplicationNameValue name="New PinCode" value={appData.newHodRec.pinCode} style={{paddingTop: "5px" }}  />
-				<br />
-				</div>
-			}		
-			{(((appData.oldHodRec.pinCode !== "") || (appData.newHodRec.pinCode !== "")) && (appData.oldHodRec.pinCode === appData.newHodRec.pinCode))  &&
-				<div>
-				<DisplayApplicationNameValue name="No change in Pin" value={appData.newHodRec.pinCode} style={{paddingTop: "5px" }}  />
-				<br />
-				</div>
-			}				
+			}
+			<br />
 		</Accordion>	
 		<br />
-		<Accordion expanded={expandedPanel === "phoneandhometown"} onChange={handleAccordionChange("phoneandhometown")}>
-			<Box align="right" className={(expandedPanel === "phoneandhometown") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+		<Accordion expanded={expandedPanel === "hometown"} onChange={handleAccordionChange("hometown")}>
+			<Box align="right" className={(expandedPanel === "hometown") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 			<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
-				<Typography align="left" >{"Res. Phone and Home town"}</Typography>
+				<Typography align="left" >{"Home town & Contact"}</Typography>
 			</AccordionSummary>
 			</Box>
+			<DisplayApplicationName name={(isChangeOfHomeTownContact(appData.oldHodRec, appData.newHodRec)) ? "Old Home town & Contact" : "No Change in Home town & Contact"} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name="Home Town" value={appData.oldHodRec.village} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name="Phone 1" value={appData.oldHodRec.resPhone1}   />
+			<DisplayApplicationNameValue name="Phone 2" value={appData.oldHodRec.resPhone2}  />
+			{(isChangeOfHomeTownContact(appData.oldHodRec, appData.newHodRec)) &&
+			<div>
+			<Divider style={{ marginTop: "10px", marginBottom: "10px", paddingTop: "1px", backgroundColor: 'black', padding: 'none' }} />				
+			<DisplayApplicationName name={"New Home town & Contact"} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name="Home Town" value={appData.newHodRec.village} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name="Phone 1" value={appData.newHodRec.resPhone1}   />
+			<DisplayApplicationNameValue name="Phone 2" value={appData.newHodRec.resPhone2}  />	
+			</div>
+			}
 			<br />
-			{(((appData.oldHodRec.resPhone1 !== "") || (appData.newHodRec.resPhone1 !== "")) && (appData.oldHodRec.resPhone1 !== appData.newHodRec.resPhone1))  &&
-				<div>
-				<DisplayApplicationNameValue name="Old Res. Phone1" value={appData.oldHodRec.resPhone1} style={{paddingTop: "5px" }}  />
-				<DisplayApplicationNameValue name="New Res. Phone1" value={appData.newHodRec.resPhone1} style={{paddingTop: "5px" }}  />
-				<br />
-				</div>
-			}		
-			{(((appData.oldHodRec.resPhone1 !== "") || (appData.newHodRec.resPhone1 !== "")) && (appData.oldHodRec.resPhone1 === appData.newHodRec.resPhone1))  &&
-				<div>
-				<DisplayApplicationNameValue name="No change in Phone1" value={appData.newHodRec.resPhone1} style={{paddingTop: "5px" }}  />
-				<br />
-				</div>
-			}
-			{(((appData.oldHodRec.resPhone2 !== "") || (appData.newHodRec.resPhone2 !== "")) && (appData.oldHodRec.resPhone2 !== appData.newHodRec.resPhone2))  &&
-				<div>
-				<DisplayApplicationNameValue name="Old Res. Phone2" value={appData.oldHodRec.resPhone2} style={{paddingTop: "5px" }}  />
-				<DisplayApplicationNameValue name="New Res. Phone2" value={appData.newHodRec.resPhone2} style={{paddingTop: "5px" }}  />
-				<br />
-				</div>
-			}		
-			{(((appData.oldHodRec.resPhone2 !== "") || (appData.newHodRec.resPhone2 !== "")) && (appData.oldHodRec.resPhone2 === appData.newHodRec.resPhone2))  &&
-				<div>
-				<DisplayApplicationNameValue name="No change in Phone2" value={appData.newHodRec.resPhone2} style={{paddingTop: "5px" }}  />
-				<br />
-				</div>
-			}
-			{(((appData.oldHodRec.village !== "") || (appData.newHodRec.village !== "")) && (appData.oldHodRec.village !== appData.newHodRec.village))  &&
-				<div>
-				<DisplayApplicationNameValue name="Old Home Town" value={appData.oldHodRec.village} style={{paddingTop: "5px" }}  />
-				<DisplayApplicationNameValue name="New Home Town" value={appData.newHodRec.village} style={{paddingTop: "5px" }}  />
-				<br />
-				</div>
-			}		
-			{(((appData.oldHodRec.village !== "") || (appData.newHodRec.village !== "")) && (appData.oldHodRec.village === appData.newHodRec.village))  &&
-				<div>
-				<DisplayApplicationNameValue name="No change in HomeTown" value={appData.newHodRec.village} style={{paddingTop: "5px" }}  />
-				</div>
-			}
 		</Accordion>	
 		<br />
 		{(myProps.applicationRec.status === APPLICATIONSTATUS.pending) &&
@@ -356,7 +290,7 @@ return (
 			<Grid item xs={2} sm={2} md={2} lg={2} />
 		</Grid>
 	}
-		</div>	
+	</div>	
 	}
 	{((stage === "Approve") || (stage === "Reject")) && 
 	<Grid key={"APPLAPPROVEREHECT"} className={gClasses.noPadding} container  alignItems="flex-start" >

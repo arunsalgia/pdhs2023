@@ -95,6 +95,10 @@ import {
 } from "views/functions.js";
 
 
+const funCodeTable = [
+{fun: APPLICATIONTYPES.humadUpgrade, 					code: process.env.REACT_APP_HUMAD_UPGRADE},
+];
+
 var cityList = ["Mumbai"];
 var cityArray = [];
 
@@ -220,6 +224,13 @@ export default function Prws() {
 			}
 		}
 		
+		if ("humad_returnstatus" in sessionStorage) {
+			console.log("has return status");
+			var sts = JSON.parse(sessionStorage.getItem("humad_returnstatus"));
+			sessionStorage.removeItem("humad_returnstatus");
+			handlePrwsReturn(sts);
+		}
+
 		setPage(0);
 		getAllCities();
 		if (sessionStorage.getItem("isMember") === "true") {
@@ -230,6 +241,20 @@ export default function Prws() {
 		//return () => window.removeEventListener('resize', handleResize); 
   }, []);
 
+
+	function handlePrwsReturn(sts) {
+		console.log(sts);
+		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
+		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
+		
+		if (sts.status == STATUS_INFO.SUCCESS) {
+		}
+		else {
+			console.log("Yaha kaise aaya");
+		}
+		setIsDrawerOpened("");
+	}
+	
 	function DisplayAllToolTips() {
 	return(
 		<div>
@@ -432,7 +457,33 @@ export default function Prws() {
 		setIsDrawerOpened("HumadUpgrade");
 	}
 	
+	function upgradeHumad() {
+		handlePrwsContextMenuClose();
+		var memberRec = memberMasterArray.find( x => x.mid === radioMid);
+		selectCaller(APPLICATIONTYPES.humadUpgrade, "HumadUpgrade", memberRec);
+	}	
 	
+	function selectCaller(funCode, mode, memberRecord, humadRecord ) {
+		var myFun = funCodeTable.find(x => x.fun === funCode);
+		if (myFun) {
+			var myData = JSON.stringify({
+				calledFrom: process.env.REACT_APP_PRWS,
+				memberRec: memberRecord,
+				humadRec: null,
+				mode: mode,
+				hodMid: 0,
+				selectedMid:  memberRecord.mid
+			});
+			sessionStorage.setItem("humad_props", myData);
+			setTab(myFun.code);
+		}
+		else {
+			setIsDrawerOpened(mode);
+		}
+	}
+	
+
+
 	function handleHumadUpgradeBack(sts) {
 		if (sts.status === STATUS_INFO.ERROR) 
 			showError(sts.msg); 
@@ -498,7 +549,7 @@ export default function Prws() {
  const handlePrwsContextMenu = (e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) => {
 	 e.preventDefault();
 	setGrpAnchorEl(e.currentTarget);
-	console.log(e.currentTarget);
+	//console.log(e.currentTarget);
 	 //console.log(radioMid);
 	 const {pageX, pageY } = e;
 	 //setAnchorEl(event.currentTarget);
@@ -518,8 +569,8 @@ export default function Prws() {
     var myName = tmp.firstName + " " + tmp.lastName;
 		//console.log(contextParams);
 		var myStyle={top: `${contextParams.y}px` , left: `${contextParams.x}px` };
-		console.log(myStyle);
-		console.log(menuRef);
+		//console.log(myStyle);
+		//console.log(menuRef);
 		//anchorEl={grpAnchorEl}
 		// if not humad member and is humad admin then allowd humad upograde
 		var humadUpgradeAllowed = !tmp.humadMember && hasHumadpermission();
@@ -552,7 +603,7 @@ export default function Prws() {
 		<MenuItem disabled={tmp.pjymMember} onClick={jumpPjym}>
 			<Typography>Pjym Membership</Typography>
 		</MenuItem>
-		<MenuItem disabled={!humadUpgradeAllowed} onClick={jumpHumad}>
+		<MenuItem disabled={!humadUpgradeAllowed} onClick={upgradeHumad}>
 			<Typography>Humad Membership</Typography>
 		</MenuItem>
 		{/*<Divider />

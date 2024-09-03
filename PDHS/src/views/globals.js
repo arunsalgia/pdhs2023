@@ -355,6 +355,7 @@ export const APPLICATIONTYPES = {
 	changeDom: 				"Change DOM",
 	marriage:					"Marriage",
 	unMarriage:				"Change Mar. Sts.",
+	humadUpgrade:			"Humad Upgrade",
 };
 
 

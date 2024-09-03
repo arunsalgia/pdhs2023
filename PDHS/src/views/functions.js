@@ -25,6 +25,7 @@ var aadhar = require('aadhaar-validator')
 import {
 	ADMIN, DATESTR, MONTHNUMBERSTR,
 	APPLICATIONSTATUS,
+	HUMADCATEGORY,
 } from "views/globals.js";
 
 export function applicationSuccess(rec) {
@@ -1187,4 +1188,11 @@ export function isAppApprovePermitted(applicationRec) {
 		return true;
 		
 	return false;
+}
+
+export function getHumadMembershipName(receipt) {
+	console.log(receipt);
+	//var myArray = HUMADCATEGORY.slice(0, HUMADCATEGORY.map(e => e.short).indexOf(myProps.humadRec.membershipNumber.substr(0, 1))); 
+	var tmpRec = HUMADCATEGORY.find(m => m.short === receipt.substr(0, 1));
+	return tmpRec.desc;
 }

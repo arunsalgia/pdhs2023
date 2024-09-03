@@ -88,6 +88,7 @@ const funCodeTable = [
 	{fun: APPLICATIONTYPES.editGeneral, 		code: process.env.REACT_APP_APPLICATION_EDITDETAILS},
 	{fun: APPLICATIONTYPES.marriage, 				code: process.env.REACT_APP_APPLICATION_MARRIAGE},
 	{fun: APPLICATIONTYPES.unMarriage, 			code: process.env.REACT_APP_APPLICATION_UNMARRIAGE},
+	{fun: APPLICATIONTYPES.humadUpgrade, 		code: process.env.REACT_APP_APPLICATION_HUMADUPGRADE},
 ];
 
 

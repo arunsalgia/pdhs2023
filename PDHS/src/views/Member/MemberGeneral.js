@@ -102,6 +102,7 @@ export default function MemberGeneral (props) {
 	const [currentMemberData, setCurrentMemberData] = useState({});
 	const [gotraArray, setGotraArray] = useState([]);
 	const [cityArray, setCityArray] = useState([]);
+	const [countryArray, setCountryArray] = useState([]);
 	const [gotraFilterArray, setGotraFilterArray] = useState([]);
 		
 	const [radioRecord, setRadioRecord] = useState(0);
@@ -164,7 +165,7 @@ export default function MemberGeneral (props) {
 		setIsFamily(currentHod.hid === loginHid);
 		getGotraList();
 		getCityList(); 
-
+		getCountryList(); 
   }, []);
 
 	function handleGeneralReturn(sts) {
@@ -205,6 +206,20 @@ export default function MemberGeneral (props) {
 		} catch (e) {
 			console.log(e);
 			showError(`Error fetching city List`);
+			setCityArray([]);
+		}	
+	}
+
+	async function getCountryList() {
+		//console.log("Hi");
+		try {
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/country/list`
+			let resp = await axios.get(myUrl);
+			setCountryArray(resp.data);
+			//setCurrentMember()
+		} catch (e) {
+			console.log(e);
+			showError(`Error fetching Country List`);
 			setCityArray([]);
 		}	
 	}
@@ -307,6 +322,7 @@ export default function MemberGeneral (props) {
 		var myData = JSON.stringify({
 			calledFrom: "General",
 			cityList: cityArray,
+			countryList: countryArray,
 			hodRec: currentHod,
 			//mode: mode,
 			//hodMid: hodRecord.mid,
@@ -421,6 +437,13 @@ export default function MemberGeneral (props) {
 	
 	
 	function DisplayGeneralInformation() {
+	var myPhones = (currentHod.resPhone1 !== "") ? myPhones = currentHod.resPhone1 : "";
+	if (currentHod.resPhone2 !== "") {
+		if (myPhones !== "") myPhones = myPhones + " / ";
+		myPhones = myPhones + currentHod.resPhone2;
+	}
+	if (myPhones === "") myPhones = "-";
+	var myPin = (currentHod.pinCode > 0) ? currentHod.pinCode : "-";
 	return (
 	<Box style={{marginLeft: "5px", marginRight: "5px", paddingLeft: "5px" }} className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
 		<br />
@@ -432,6 +455,7 @@ export default function MemberGeneral (props) {
 			</div>
 		}
 		<DisplaySingleLine msg1="Village" msg2={currentHod.village} />
+		<DisplaySingleLine msg1="Indian Resident" msg2={(currentHod.indianResident) ? "Yes" : "No"} />
 		<DisplaySingleLine msg1="Res. Addr." msg2={currentHod.resAddr1} />
 		{(currentHod.resAddr2 !== "") &&
 		<DisplaySingleLine msg1="" msg2={currentHod.resAddr2} />
@@ -445,13 +469,20 @@ export default function MemberGeneral (props) {
 		{(currentHod.resAddr5 !== "") &&
 		<DisplaySingleLine msg1="" msg2={currentHod.resAddr5} />
 		}
-		<DisplaySingleLine msg1="Suburb" msg2={currentHod.suburb} />
-		<DisplaySingleLine msg1="City" msg2={currentHod.city} />
-		<DisplaySingleLine msg1="Pin Code" msg2={currentHod.pinCode} />
-		<DisplaySingleLine msg1="Division" msg2={currentHod.division} />
-		<DisplaySingleLine msg1="District" msg2={currentHod.district} />
-		<DisplaySingleLine msg1="State" msg2={currentHod.state} />
-		<DisplaySingleLine msg1="Res. Phone" msg2={currentHod.resPhone1 + (currentHod.resPhone2 !== "") ? " / " + currentHod.resPhone2 : "" } />
+		{(!currentHod.indianResident) &&
+		<DisplaySingleLine msg1="Country" msg2={currentHod.country} />
+		}
+		{(currentHod.indianResident) &&
+		<div>
+			<DisplaySingleLine msg1="Suburb"   msg2={currentHod.suburb} />
+			<DisplaySingleLine msg1="City"     msg2={currentHod.city} />
+			<DisplaySingleLine msg1="Pin Code" msg2={(currentHod.pinCode > 0) ? currentHod.pinCode : "-"} />
+			<DisplaySingleLine msg1="Division" msg2={currentHod.division} />
+			<DisplaySingleLine msg1="District" msg2={currentHod.district} />
+			<DisplaySingleLine msg1="State"    msg2={currentHod.state} />
+		</div>
+		}
+		<DisplaySingleLine msg1="Res. Phone" msg2={myPhones} />
 		<br />
 	</Box>	
 	)}

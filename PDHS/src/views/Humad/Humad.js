@@ -43,8 +43,6 @@ import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
 import moment from "moment";
 
-import {setTab, setDisplayPage } from "CustomComponents/CricDreamTabs.js"
-
 // styles
 import globalStyles from "assets/globalStyles";
 
@@ -79,7 +77,6 @@ import {
 
 
 import { 
-	showError, showSuccess, showInfo,
   displayType, getWindowDimensions,
 	decrypt, dispMobile, dispEmail, disableFutureDt,
 	isMobile, 
@@ -93,8 +90,18 @@ import {
 	applicationSuccess,
 	getHodCityList,
 	hasHumadpermission,
+	showSuccess, showError, showInfo,
+
 } from "views/functions.js";
 
+import {
+	setTab,
+} from "CustomComponents/CricDreamTabs.js"
+
+
+const funCodeTable = [
+{fun: APPLICATIONTYPES.humadUpgrade, 					code: process.env.REACT_APP_HUMAD_UPGRADE},
+];
 
 var cityList = ["Mumbai"];
 var cityArray = [];
@@ -259,6 +266,14 @@ export default function Humad() {
 		
 		setPage(0);
 		
+		if ("humad_returnstatus" in sessionStorage) {
+			console.log("has return status");
+			var sts = JSON.parse(sessionStorage.getItem("humad_returnstatus"));
+			//console.log(sts);
+			sessionStorage.removeItem("humad_returnstatus");
+			handleHumadReturn(sts);
+		}
+
 		if (sessionStorage.getItem("isMember") === "true") {
 			getAllCities();
 			getAllHumad();
@@ -337,10 +352,31 @@ export default function Humad() {
 			showInfo(`${getMemberName(menuMember, false, false)} is already ${HUMADCATEGORY[0].desc} (highest upgrade)`);
 			return;
 		}
-		setHumadRec(tmpHumadRec);
-		setIsDrawerOpened("HumadUpgrade");
+		selectCaller(APPLICATIONTYPES.humadUpgrade, "HumadUpgrade", menuMember, tmpHumadRec);
+
+		//setHumadRec(tmpHumadRec);
+		//setIsDrawerOpened("HumadUpgrade");
 	}
 
+	function selectCaller(funCode, mode, memberRecord, humadRecord ) {
+		var myFun = funCodeTable.find(x => x.fun === funCode);
+		if (myFun) {
+			var myData = JSON.stringify({
+				calledFrom: process.env.REACT_APP_HUMAD,
+				memberRec: memberRecord,
+				humadRec: humadRecord,
+				mode: mode,
+				hodMid: 0,
+				selectedMid:  memberRecord.mid
+			});
+			sessionStorage.setItem("humad_props", myData);
+			setTab(myFun.code);
+		}
+		else {
+			setIsDrawerOpened(mode);
+		}
+	}
+	
 
 //===================
 
@@ -541,6 +577,19 @@ export default function Humad() {
 		//setTab(process.env.REACT_APP_HUMAD);
 		setIsDrawerOpened("HumadUpgrade");
 	}
+
+	function handleHumadReturn(sts) {
+		console.log(sts);
+		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
+		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
+		
+		if (sts.status == STATUS_INFO.SUCCESS) {
+		}
+		else {
+			console.log("Yaha kaise aaya");
+		}
+		setIsDrawerOpened("");
+	}
 	
 	
 	function handleHumadUpgradeBack(sts) {
@@ -706,7 +755,7 @@ export default function Humad() {
 	return (
 	<div key="PRWS" className={gClasses.webPage} align="center" key="main">
 		<DisplayPageHeader headerName={(dispType === "xs") ? "Humad Samaj" : "Humad Samaj"} />
-		<DisplayPrwsFilter 
+			{/*<DisplayPrwsFilter 
 			inputFilterMode={inputFilterMode} 
 			inputName={inputName}
 			inputInfo={inputInfo}
@@ -720,7 +769,67 @@ export default function Humad() {
 			pdhsFilter={(event) => { addFilter(event.target.value); }}
 			applyClick={() => { addFilterConfirm(""); } }
 			cancelClick={() => { setInputFilterMode(false); setLastFilter(""); } }
-		/>
+			/>*/}
+		<Box key="BOXPRWSFILTER"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
+			<Grid key="PRWSFILTER" className={gClasses.noPadding} container>
+				<Grid align="left" item xs={10} sm={10} md={11} lg={11} >
+					<div>
+					{(!inputFilterMode) &&
+						<Typography style={{paddingLeft: "5px"}}>
+						{filterList.map( (m, index) => {
+							return (
+								<span key={"FILTER"+index} style={{marginLeft: "5px", paddingLeft: "5px"}} className={gClasses.filterItem} >
+									{m.item}: {m.value}
+									<CancelIcon size="small" style={{paddingTop: "8px"}} color="secondary" onClick={() => removeFilter(m.item) } />
+								</span>
+							)
+						})}
+						</Typography>
+					}
+					{(inputFilterMode) &&
+						<div>
+							{ (inputInfo.options) &&
+								<VsSelect 
+									inputProps={{className: gClasses.dateTimeNormal}} style={NORMALSELECTSTYLE} 
+									label={inputName} options={inputInfo.options} value={inputValue} 
+									onChange={(event) => { setInputValue(event.target.value); addFilterConfirm(event.target.value); }} 
+								/>				
+							}
+							{ (!inputInfo.options) &&
+								<div>
+								{/*<TextField id="outlined-required" label={inputName}
+										value={inputValue} type={inputInfo.type}
+										onChange={(event) => { setInputValue(event.target.value); }}
+									/>
+									<VsButton name="Apply"  onClick={() => { addFilterConfirm(""); } } />
+									<VsButton name="Cancel" onClick={() => { setInputFilterMode(false); setLastFilter(""); }  } />
+								*/}
+								<ValidatorForm align="left" className={gClasses.form} onSubmit={() => { addFilterConfirm(""); }}>
+								<TextValidator 
+									id="outlined-required" label={inputName} required className={gClasses.vgSpacing}
+									type={inputInfo.type}
+									value={inputValue}
+									onChange={(event) => { setInputValue(event.target.value); }}
+								/>
+								<VsButton  name="Apply"  type="submit" />
+								<VsButton name="Cancel"  type="button" onClick={() => { setInputFilterMode(false); setLastFilter(""); }  } />
+								</ValidatorForm>
+								
+								</div>
+							}
+						</div>
+					}
+					</div>
+				</Grid>
+				<Grid align="left" item xs={2} sm={2} md={1} lg={1} >
+					<div style={{paddingLeft: "5px", paddingRight: "5px"}} >
+					<VsPdhsFilter style={SELECTSTYLE} options={modMasterFilterItems} field="item"
+					value={lastFilter} onChange={(event) => { addFilter(event.target.value); }} />			
+					</div>
+				</Grid>
+			</Grid>			
+		</Box>
+
 		<DisplayHumadHeader dispType={dispType} />
 		{/* display members here */}
 		{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {

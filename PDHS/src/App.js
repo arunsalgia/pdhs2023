@@ -43,6 +43,7 @@ import ApplicationEditGotra from 'views/Application/ApplicationEditGotra'
 import ApplicationEditGeneral from 'views/Application/ApplicationEditGeneral'
 import ApplicationMarriage from 'views/Application/ApplicationMarriage'
 import ApplicationUnmarriage from 'views/Application/ApplicationUnmarriage'
+import ApplicationUpgradeHumad from 'views/Application/ApplicationUpgradeHumad'
 
 
 
@@ -56,6 +57,7 @@ import MemberMarriage from "views/Member/MemberMarriage";
 import MemberEditGotra from "views/Member/MemberEditGotra";
 import MemberEditGeneral from "views/Member/MemberEditGeneral";
 
+import HumadUpgrade from "views/Humad/HumadUpgrade";
 
 import IdleTimer from 'react-idle-timer'
 
@@ -274,6 +276,9 @@ function AppRouter() {
 			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_APPLICATION_UNMARRIAGE) &&
 				<ApplicationUnmarriage />
 			}				
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_APPLICATION_HUMADUPGRADE) &&
+				<ApplicationUpgradeHumad />
+			}				
 			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_FAMILY_PERSONAL_NEWHOD) &&
 				<NewHod />
 			}	
@@ -295,6 +300,9 @@ function AppRouter() {
 			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_FAMILY_GENERAL_EDITGOTRA) &&
 				<MemberEditGotra />
 			}	
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_HUMAD_UPGRADE) &&
+				<HumadUpgrade />
+			}		
 			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_CITY) &&
 				<City />
 			}

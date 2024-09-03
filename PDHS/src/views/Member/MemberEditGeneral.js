@@ -3,6 +3,8 @@ import axios from "axios";
 import { makeStyles } from '@material-ui/core/styles';
 
 import { TextField, InputAdornment } from "@material-ui/core";
+import { Switch } from '@material-ui/core';
+
 import { ValidatorForm, TextValidator, TextValidatorcvariant} from 'react-material-ui-form-validator';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import Drawer from '@material-ui/core/Drawer';
@@ -76,7 +78,7 @@ import {
 export default function MemberEditGeneral() {
 	const gClasses = globalStyles();
 	const myProps = JSON.parse(sessionStorage.getItem("family_personal_props"));
-	//console.log(myProps);
+	//console.log(myProps.hodRec);
 	
 	const [header, setHeader] = useState("Apply to change general details");
 
@@ -102,7 +104,8 @@ export default function MemberEditGeneral() {
 	
 	const [suburb, setSuburb] = useState(myProps.hodRec.suburb);			
 	const [city, setCity] = useState(myProps.hodRec.city);
-
+	const [country, setCountry] = useState(myProps.hodRec.country);
+	const [indian, setIndian] = useState(myProps.hodRec.indianResident);
 
 
 	const [emurAddr8, setEmurAddr8] = useState("");
@@ -152,7 +155,16 @@ export default function MemberEditGeneral() {
 			case 2002:
 				myMsg = `No member(s) selected for new family`;
 				break;
-				default:
+			case 3001:
+				myMsg = `City not selected`;
+				break;
+			case 3002:
+				myMsg = `Country not selected`;
+				break;
+			case 3003:
+				myMsg = `Country cannot be India for Non Resident Indian`;
+				break;
+			default:
           myMsg = "Unknown Error";
           break;
     }
@@ -165,11 +177,21 @@ export default function MemberEditGeneral() {
 
 
 	async function handleEditGeneralSubmit() {
+		//console.log(indian, city, country);
+		if (indian) {
+			if (city === "") return setRegisterStatus(3001);
+		}
+		else {
+			if (country === "") return setRegisterStatus(3002);
+			if (country === "India") return setRegisterStatus(3003);
+		}
+
 		
 		//let myData  = encodeURIComponent(JSON.stringify({
 		let myData = {
 			oldHodRec:  myProps.hodRec,
 			newHodRec: {
+				indianResident: indian,
 				resAddr1: emurAddr1,
 				resAddr2: emurAddr2,
 				resAddr3: emurAddr3,
@@ -177,6 +199,7 @@ export default function MemberEditGeneral() {
 				resAddr5: emurAddr5,
 				suburb: suburb,
 				city: city,
+				country: country,
 				district: district,
 				state: state,
 				pinCode: emurPinCode,
@@ -233,7 +256,14 @@ return (
 				<Typography align="left" >{"Res. Address"}</Typography>
 			</AccordionSummary>
 			</Box>
-			<Grid key="EDITGENERALADDRESS" className={gClasses.noPadding} container  alignItems="flex-start" >
+			<Grid key="COMMON" className={gClasses.noPadding} container  alignItems="flex-start" >
+			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+			<Grid item xs={4} sm={4} md={4} lg={4} >
+				<Typography className={gClasses.patientInfo2Blue} >Indian Resident</Typography>
+			</Grid>
+			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
+				<Switch color="primary" checked={indian} onChange={() => setIndian(!indian) } />
+			</Grid>
 			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 			<Grid item xs={4} sm={4} md={4} lg={4} >
 				<Typography className={gClasses.patientInfo2Blue} >Address</Typography>
@@ -256,55 +286,72 @@ return (
 				/>
 			</Grid>
 			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-			<Grid item xs={4} sm={4} md={4} lg={4} >
-				<Typography className={gClasses.patientInfo2Blue} >Suburb</Typography>
 			</Grid>
-			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
-				<TextValidator  fullWidth className={gClasses.vgSpacing}
-					value={suburb}
-					onChange={(event) => { setSuburb(event.target.value) }}			
-				/>
+			{(indian) &&
+			<Grid key="NONNRI" className={gClasses.noPadding} container  alignItems="flex-start" >
+				<Grid item xs={4} sm={4} md={4} lg={4} >
+					<Typography className={gClasses.patientInfo2Blue} >Suburb</Typography>
+				</Grid>
+				<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
+					<TextValidator  fullWidth className={gClasses.vgSpacing}
+						value={suburb}
+						onChange={(event) => { setSuburb(event.target.value) }}			
+					/>
+				</Grid>
+				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+				<Grid item xs={4} sm={4} md={4} lg={4} >
+					<Typography className={gClasses.patientInfo2Blue} >District</Typography>
+				</Grid>
+				<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
+					<TextValidator fullWidth className={gClasses.vgSpacing}
+						value={district} onChange={(event) => { setDistrict(event.target.value) }}			
+					/>
+				</Grid>
+				<Grid item xs={4} sm={4} md={4} lg={4} >
+					<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >City</Typography>
+				</Grid>
+				<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
+					<VsSelect size="small" align="left"  style={{paddingLeft: "10px", paddingRight: "10px" }}
+						inputProps={{className: gClasses.dateTimeNormal}} options={myProps.cityList} field="city"
+						value={city} onChange={(event) => setCity(event.target.value)}
+					/>			
+				</Grid>
+				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+				<Grid item xs={4} sm={4} md={4} lg={4} >
+					<Typography className={gClasses.patientInfo2Blue} >State</Typography>
+				</Grid>
+				<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
+					<TextValidator fullWidth className={gClasses.vgSpacing}
+						value={state} onChange={(event) => { setState(event.target.value) }}			
+					/>
+				</Grid>
+				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+				<Grid item xs={4} sm={4} md={4} lg={4} >
+					<Typography className={gClasses.patientInfo2Blue} >Pin Code</Typography>
+				</Grid>
+				<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
+					<TextValidator  fullWidth className={gClasses.vgSpacing} type="number"
+						value={emurPinCode} onChange={(event) => { setEmurPincCode(event.target.value) }}	
+						validators={['minNumber:110000', 'maxNumber:859999']}
+						errorMessages={['Invalid Pin code', 'Invalid Pin code']}			
+					/>
+				</Grid>
 			</Grid>
-			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-			<Grid item xs={4} sm={4} md={4} lg={4} >
-				<Typography className={gClasses.patientInfo2Blue} >District</Typography>
+			}
+			{(!indian) &&
+			<Grid key="NRI" className={gClasses.noPadding} container  alignItems="flex-start" >
+				<Grid item xs={4} sm={4} md={4} lg={4} >
+					<Typography style={{marginTop: "15px" }} className={gClasses.patientInfo2Blue} >Country</Typography>
+				</Grid>
+				<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
+					<VsSelect size="small" align="left"  style={{paddingLeft: "10px", paddingRight: "10px" }}
+						inputProps={{className: gClasses.dateTimeNormal}} options={myProps.countryList} field="country"
+						value={country} onChange={(event) => setCountry(event.target.value)}
+					/>			
+				</Grid>
+				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 			</Grid>
-			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
-				<TextValidator fullWidth className={gClasses.vgSpacing}
-					value={district} onChange={(event) => { setDistrict(event.target.value) }}			
-				/>
-			</Grid>
-			<Grid item xs={4} sm={4} md={4} lg={4} >
-				<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >City</Typography>
-			</Grid>
-			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
-        <VsSelect size="small" align="left"  style={{paddingLeft: "10px", paddingRight: "10px" }}
-					inputProps={{className: gClasses.dateTimeNormal}} options={myProps.cityList} field="city"
-					value={city} onChange={(event) => setCity(event.target.value)}
-				/>			
-			</Grid>
-			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-			<Grid item xs={4} sm={4} md={4} lg={4} >
-				<Typography className={gClasses.patientInfo2Blue} >State</Typography>
-			</Grid>
-			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
-				<TextValidator fullWidth className={gClasses.vgSpacing}
-					value={state} onChange={(event) => { setState(event.target.value) }}			
-				/>
-			</Grid>
-			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-			<Grid item xs={4} sm={4} md={4} lg={4} >
-				<Typography className={gClasses.patientInfo2Blue} >Pin Code</Typography>
-			</Grid>
-			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
-				<TextValidator  required fullWidth className={gClasses.vgSpacing} type="number"
-					value={emurPinCode} onChange={(event) => { setEmurPincCode(event.target.value) }}	
-					validators={['minNumber:110000', 'maxNumber:859999']}
-					errorMessages={['Invalid Pin code', 'Invalid Pin code']}			
-				/>
-			</Grid>
-			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-			</Grid>
+			}
 		</Accordion>
 		<br />
 		<Accordion expanded={expandedPanel === "phoneandhometown"} onChange={handleAccordionChange("phoneandhometown")}>
@@ -319,7 +366,7 @@ return (
 				<Typography className={gClasses.patientInfo2Blue} >Home Town</Typography>
 			</Grid>
 			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
-				<TextValidator required fullWidth className={gClasses.vgSpacing}
+				<TextValidator fullWidth className={gClasses.vgSpacing}
 					value={emurVillage} onChange={(event) => { setEmurVillage(event.target.value) }}			
 				/>
 			</Grid>

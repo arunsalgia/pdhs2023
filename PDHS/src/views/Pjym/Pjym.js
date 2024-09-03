@@ -681,7 +681,7 @@ export default function Pjym() {
 	<div key="PRWS" className={gClasses.webPage} align="center" key="main">
 		{/*<DisplayPersonalButtons />*/}
 		<DisplayPageHeader headerName={(dispType === "xs") ? "PJYM" : "Pratapgarh Jain Yuva Manch"} />
-		<DisplayPrwsFilter 
+			{/*<DisplayPrwsFilter 
 			inputFilterMode={inputFilterMode} 
 			inputName={inputName}
 			inputInfo={inputInfo}
@@ -695,7 +695,66 @@ export default function Pjym() {
 			pdhsFilter={(event) => { addFilter(event.target.value); }}
 			applyClick={() => { addFilterConfirm(""); } }
 			cancelClick={() => { setInputFilterMode(false); setLastFilter(""); } }
-		/>
+			/>*/}
+		<Box key="BOXPRWSFILTER"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
+			<Grid key="PRWSFILTER" className={gClasses.noPadding} container>
+				<Grid align="left" item xs={10} sm={10} md={11} lg={11} >
+					<div>
+					{(!inputFilterMode) &&
+						<Typography style={{paddingLeft: "5px"}}>
+						{filterList.map( (m, index) => {
+							return (
+								<span key={"FILTER"+index} style={{marginLeft: "5px", paddingLeft: "5px"}} className={gClasses.filterItem} >
+									{m.item}: {m.value}
+									<CancelIcon size="small" style={{paddingTop: "8px"}} color="secondary" onClick={() => removeFilter(m.item) } />
+								</span>
+							)
+						})}
+						</Typography>
+					}
+					{(inputFilterMode) &&
+						<div>
+							{ (inputInfo.options) &&
+								<VsSelect 
+									inputProps={{className: gClasses.dateTimeNormal}} style={NORMALSELECTSTYLE} 
+									label={inputName} options={inputInfo.options} value={inputValue} 
+									onChange={(event) => { setInputValue(event.target.value); addFilterConfirm(event.target.value); }} 
+								/>				
+							}
+							{ (!inputInfo.options) &&
+								<div>
+								{/*<TextField id="outlined-required" label={inputName}
+										value={inputValue} type={inputInfo.type}
+										onChange={(event) => { setInputValue(event.target.value); }}
+									/>
+									<VsButton name="Apply"  onClick={() => { addFilterConfirm(""); } } />
+									<VsButton name="Cancel" onClick={() => { setInputFilterMode(false); setLastFilter(""); }  } />
+								*/}
+								<ValidatorForm align="left" className={gClasses.form} onSubmit={() => { addFilterConfirm(""); }}>
+								<TextValidator 
+									id="outlined-required" label={inputName} required className={gClasses.vgSpacing}
+									type={inputInfo.type}
+									value={inputValue}
+									onChange={(event) => { setInputValue(event.target.value); }}
+								/>
+								<VsButton  name="Apply"  type="submit" />
+								<VsButton name="Cancel"  type="button" onClick={() => { setInputFilterMode(false); setLastFilter(""); }  } />
+								</ValidatorForm>
+								
+								</div>
+							}
+						</div>
+					}
+					</div>
+				</Grid>
+				<Grid align="left" item xs={2} sm={2} md={1} lg={1} >
+					<div style={{paddingLeft: "5px", paddingRight: "5px"}} >
+					<VsPdhsFilter style={SELECTSTYLE} options={modMasterFilterItems} field="item"
+					value={lastFilter} onChange={(event) => { addFilter(event.target.value); }} />			
+					</div>
+				</Grid>
+			</Grid>			
+		</Box>		
 		<PjymHeader dispType={dispType} />
 		{/* display members here */}
 		{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {

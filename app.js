@@ -97,6 +97,7 @@ humadRouter = require('./routes/humad');
 pjymRouter = require('./routes/pjym');
 gotraRouter = require('./routes/gotra');
 cityRouter = require('./routes/city');
+countryRouter = require('./routes/country');
 adminRouter = require('./routes/admin');
 applicationRouter = require('./routes/application');
 
@@ -134,6 +135,9 @@ app.use('/humad', humadRouter);
 app.use('/pjym', pjymRouter);
 app.use('/gotra', gotraRouter);
 app.use('/city', cityRouter);
+app.use('/country', countryRouter);
+;
+
 app.use('/pdhsadm', adminRouter);
 app.use('/apply', applicationRouter);
 
@@ -186,6 +190,12 @@ CitySchema = mongoose.Schema({
 	enabled: Boolean
 });
 
+CountrySchema = mongoose.Schema({
+	id: String,
+	country: String,
+	enabled: Boolean
+});
+
 HodSchema = mongoose.Schema({
 	hid: Number,
 	mid: Number,		// not required. Order 0 (zero) in Member list are HOD 
@@ -200,12 +210,14 @@ HodSchema = mongoose.Schema({
 	resAddr4: String,
 	resAddr5: String,
 	resAddr6: String,
+	indianResident: Boolean,
 	suburb: String,
 	city: String,
 	pinCode: Number,
 	division: String,
 	district: String,
 	state: String,
+	country: String,
 	resPhone1: String,
 	resPhone2: String,
 	active:  Boolean
@@ -359,6 +371,7 @@ M_Humad = mongoose.model('humad', HumadSchema);
 M_Pjym = mongoose.model('pjym', PjymSchema);
 M_Gotra = mongoose.model('gotra', GotraSchema);
 M_City  = mongoose.model('city', CitySchema);
+M_Country = mongoose.model('country', CountrySchema);
 M_Password = mongoose.model('password', PasswordSchema);
 M_PinCode = mongoose.model('pincode', PinCodeSchema);
 M_Application = mongoose.model('application', ApplicationSchema);
@@ -549,6 +562,7 @@ APPLICATIONTYPES = {
 	changeDom: 				"Change DOM",
 	marriage:					"Marriage",
 	unMarriage:				"Change Mar. Sts.",
+	humadUpgrade:			"Humad Upgrade",
 };
 
 APPLICATIONSTATUS = {
