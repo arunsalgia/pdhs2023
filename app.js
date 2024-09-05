@@ -578,8 +578,8 @@ PRWSACTION = {
 };
 
 PRWSMAILHEADER = {
-	login:  	'PRWS login OTP',
-	logout: 	"PRWS logout",
+	login:  	'PRWS Login OTP',
+	logout: 	"PRWS Logout",
 };
 
 OWNER = {

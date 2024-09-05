@@ -24,9 +24,9 @@ var arun_customer=[];
 var arun_master=[];
 const { createCipheriv, createDecipheriv }  = require('node:crypto');
 
-const junkencrypt = (text) => {
+const org_encrypt = (text) => {
 
-    console.log(`Text is ${text}`);
+    //console.log(`Text is ${text}`);
 	var encrypteddata = crypto.AES.encrypt(text, akshusecretKey).toString();
 	console.log(encrypteddata);
 	return encrypteddata;
@@ -40,7 +40,7 @@ const junkencrypt = (text) => {
 
 const encrypt = (text) => {
 
-    console.log(`Text is ${text}`);
+    //console.log(`Text is ${text}`);
     const cipher = createCipheriv(algorithm, akshusecretKey, Buffer.from(iv, 'hex'));	
     const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
     //myIv = iv.toString('hex');
@@ -55,7 +55,7 @@ const decrypt = (hash) => {
     return decrpyted.toString();
 };
 
-const dbencrypt = (text) => {
+const org_dbencrypt = (text) => {
 
     //console.log(`Text is ${text}`);
     const cipher = crypto.createCipheriv(algorithm, ankitsecretKey, Buffer.from(iv, 'hex'));
@@ -65,9 +65,19 @@ const dbencrypt = (text) => {
     return encrypted.toString('hex');
 };
 
+const dbencrypt = (text) => {
+
+    //console.log(`Text is ${text}`);
+    const cipher = createCipheriv(algorithm, ankitsecretKey, Buffer.from(iv, 'hex'));
+    const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
+    //myIv = iv.toString('hex');
+
+    return encrypted.toString('hex');
+};
+
 const dbdecrypt = (hash) => {
 
-    const decipher = crypto.createDecipheriv(algorithm, ankitsecretKey, Buffer.from(iv, 'hex'));
+    const decipher = createDecipheriv(algorithm, ankitsecretKey, Buffer.from(iv, 'hex'));
     const decrpyted = Buffer.concat([decipher.update(Buffer.from(hash, 'hex')), decipher.final()]);
     return decrpyted.toString();
 };
@@ -78,6 +88,8 @@ const getLoginName = (name) => {
   
 const getDisplayName = (name) => {
 	  //console.log('xxx', name);
+		
+		
     var xxx = name.split(" ");
 		for(let i=0; i<xxx.length; ++i) {
       let x = xxx[i].trim();
@@ -86,8 +98,20 @@ const getDisplayName = (name) => {
       xxx[i] = a + b;
 			//console.log(a, b, a+b);
     };
+		name = xxx.join(" ");
+		
+    xxx = name.split(".");
+		for(let i=0; i<xxx.length; ++i) {
+      let x = xxx[i];
+			let a = x.substr(0,1).toUpperCase();
+			let b = x.substr(1, x.length).toLowerCase();
+      xxx[i] = a + b;
+			//console.log(a, b, a+b);
+    };
+		name = xxx.join(".");
+
 		//console.log(xxx);
-    return xxx.join(" ");
+    return name
   }
 
 const svrToDbText = (text) => {

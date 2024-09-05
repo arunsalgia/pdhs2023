@@ -142,8 +142,8 @@ router.get('/jaijinendra/:myData', async function (req, res, next) {
 			<h4 style="text-align: left;">&nbsp;</h4>
 			<h4 style="text-align: left;"><strong>Dear Member,</strong></h4>
 			<p>Greetings from Pratapgarh Rajasthan Welfare Samiti</p>
-			<p>Login with Captha ${myCaptha.captcha} &nbsp;</p>
-			<p>Kindly note that this captcha is valid only for ${process.env.PASSWORDLINKVALIDTIME} minutes.</p>
+			<p>Login with OTP ${myCaptha.captcha} &nbsp;</p>
+			<p>Kindly note that this OTP is valid only for ${process.env.PASSWORDLINKVALIDTIME} minutes.</p>
 			<p>&nbsp;</p>
 			<p><span style="text-align: left;"><strong>Regards,</strong></span><br /><span style="text-align: left;"><strong>for Pratapgarh Rajasthan Welfare Samiti</strong></span></p>
 			</div>`

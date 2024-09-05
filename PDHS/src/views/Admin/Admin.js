@@ -9,6 +9,9 @@ import Box from '@material-ui/core/Box';
 
 import Gotra from "views/Admin/Gotra";
 import City from "views/Admin/City";
+import Country from "views/Admin/Country";
+
+
 import Permissions from "views/Admin/Permissions";
 
 // styles
@@ -68,6 +71,7 @@ export default function Admin(props) {
 			<DisplayFunctionItem item="Permissions" />
 			<DisplayFunctionItem item="Gotra" />
 			<DisplayFunctionItem item="City" />
+			<DisplayFunctionItem item="Country" />
 		</Grid>	
 	)}
 
@@ -95,6 +99,9 @@ export default function Admin(props) {
 		}
 		{(currentSelection === "City") &&
 			<City />
+		}
+		{(currentSelection === "Country") &&
+			<Country />
 		}
   </div>
   );    

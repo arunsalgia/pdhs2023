@@ -9,14 +9,25 @@ const algorithm = 'aes-256-ctr';
 //zTvzr3p67VC61jmV54rIYu1545x4TlY
 let debugTest = true;
 // for sending email
+
 const send = require('gmail-send')();
-var mailOptions =  {
-  user: process.env.EMAILID,
-  pass: process.env.EMAILPASSWORD,
+var gmailOptions =  {
+  user: process.env.GMAILEMAILID,
+  pass: process.env.GMAILEMAILPASSWORD,
   to:   '',
   subject: ''
   //html: ''
 }
+
+
+var yahooTransporter = nodemailer.createTransport({
+	service: 'Yahoo',
+	secure: false,
+	auth: {
+		user: process.env.EMAILID,
+		pass: process.env.EMAILPASSWORD,
+	},
+});
 
 
 var arun_user={};
@@ -133,7 +144,27 @@ const dbToSvrText = (text) => {
 
 
 
-async function sendCricMail (dest, mailSubject, mailText) {
+async function sendCricMailYahoo (dest, mailSubject, mailText) {
+
+	let testAccount = await nodemailer.createTestAccount();
+	var mailOptions = {
+    from: process.env.EMAILID,
+    to: dest,
+    subject: mailSubject,
+    text: mailText,
+	};
+	var retStatus;
+	yahooTransporter.sendMail(mailOptions, function(error, info) {
+    if (error) {
+			console.log(error);
+			retStatus = {status: false, error: 'error sending Email'}; 
+    } else {
+			console.log('Email sent: ' + info.response);
+			retStatus = {status: true, error: 'Email Successfully sent'};
+    }
+	});
+	return retStatus;
+
 
   // setup to, subject and text
   mailOptions.to = dest;
@@ -151,8 +182,27 @@ async function sendCricMail (dest, mailSubject, mailText) {
 } 
 
 
-async function sendCricHtmlMail (dest, mailSubject, mailText) {
+async function sendCricHtmlMailYahoo (dest, mailSubject, mailText) {
 
+	let testAccount = await nodemailer.createTestAccount();
+	var mailOptions = {
+    from: process.env.EMAILID,
+    to: dest,
+    subject: mailSubject,
+    html: mailText,
+	};
+	var retStatus;
+	yahooTransporter.sendMail(mailOptions, function(error, info) {
+    if (error) {
+			console.log(error);
+			retStatus = {status: false, error: 'error sending Email'}; 
+    } else {
+			console.log('Email sent: ' + info.response);
+			retStatus = {status: true, error: 'Email Successfully sent'};
+    }
+	});
+	return retStatus;
+	
   // setup to, subject and text
   mailOptions.to = dest;
   mailOptions.subject = mailSubject;
@@ -167,6 +217,39 @@ async function sendCricHtmlMail (dest, mailSubject, mailText) {
   }
 } 
 
+async function sendCricMail (dest, mailSubject, mailText) {
+
+  // setup to, subject and text
+  gmailOptions.to = dest;
+  gmailOptions.subject = mailSubject;
+  gmailOptions.text = mailText;
+	console.log(gmailOptions);
+	
+  try {
+    const res = await send(gmailOptions);
+    return {status: true, error: 'Email Successfully sent'};
+  } catch (e) {
+    console.log(e);
+    return {status: false, error: 'error sending Email'}; 
+  }
+} 
+
+
+async function sendCricHtmlMail (dest, mailSubject, mailText) {
+
+  // setup to, subject and text
+  gmailOptions.to = dest;
+  gmailOptions.subject = mailSubject;
+  gmailOptions.html = mailText;
+
+  try {
+    const res = await send(gmailOptions);
+    return {status: true, error: 'Email Successfully sent'};
+  } catch (e) {
+    console.log(e);
+    return {status: false, error: 'error sending Email'}; 
+  }
+} 
 
 /** calculate #time refill done by user till now **/
 async function rechargeCount(userid) {
