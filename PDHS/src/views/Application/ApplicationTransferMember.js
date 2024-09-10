@@ -128,6 +128,7 @@ async function  handleApplicationApproveConfirm(myRemarks) {
 	} catch (e) {
 		console.log(e);
 		showError(`Error approving ceased member`);
+		var a = 1;
 	}
 }
 
