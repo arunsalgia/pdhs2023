@@ -75,6 +75,14 @@ export function dateString(dStr) {
 	return memDateStr;
 }
 
+export function dateTimeString(dStr) {
+	let d = new Date(dStr);
+	let memDateStr = (d.getFullYear() !== 1900)
+		? `${DATESTR[d.getDate()]}/${MONTHNUMBERSTR[d.getMonth()]}/${d.getFullYear()} ${HOURSTR[d.getHours()]}:${MINUTESTR[d.getMinutes()]}`
+		: "";
+	return memDateStr;
+}
+
 export function isUserLogged() {
   //console.log("User is", sessionStorage.getItem("userName"));
   if ((sessionStorage.getItem("userName") === "") || 

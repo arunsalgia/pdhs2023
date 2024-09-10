@@ -24,7 +24,8 @@ import { UserContext } from "../../UserContext";
 
 import { 
 	JumpButton, DisplayPageHeader, ValidComp, BlankArea, 
-	ApplicationHeader, DisplayApplicationNameValue,
+	ApplicationHeader, DisplayApplicationNameValue, DisplayApplicationName,
+	YesNoButton,
 } from 'CustomComponents/CustomComponents.js';
 
 import IconButton from '@material-ui/core/IconButton';
@@ -153,6 +154,33 @@ async function  handleApplicationRejectConfirm(myRemarks) {
 	}
 }
 
+function hasNameChanged() {
+	if (appData.oldMemberRec.title !== appData.memberRec.title) return true;
+	if (appData.oldMemberRec.firstName !== appData.memberRec.firstName) return true;
+	if (appData.oldMemberRec.lastName !== appData.memberRec.lastName) return true;
+	if (appData.oldMemberRec.middleName !== appData.memberRec.middleName) return true;
+	return false;
+}
+
+function hasPersonalChanged() {
+	if (appData.oldMemberRec.relation !== appData.memberRec.relation) return true;
+	if (appData.oldMemberRec.bloodGroup !== appData.memberRec.bloodGroup) return true;
+	if (appData.oldMemberRec.mobile !== appData.memberRec.mobile) return true;
+	if (appData.oldMemberRec.mobile1 !== appData.memberRec.mobile1) return true;
+	if (appData.oldMemberRec.email !== appData.memberRec.email) return true;
+	if (appData.oldMemberRec.gender !== appData.memberRec.gender) return true;
+	if (appData.oldMemberRec.dob !== appData.memberRec.dob) return true;
+	return false;
+}
+
+function hasOfficeChanged() {
+	if (appData.oldMemberRec.occupation !== appData.memberRec.occupation) return true;
+	if (appData.oldMemberRec.officePhone !== appData.memberRec.officePhone) return true;
+	if (appData.oldMemberRec.officeName !== appData.memberRec.officeName) return true;
+	if (appData.oldMemberRec.education !== appData.memberRec.education) return true;
+	return false;
+}
+
 function handleCancel() {
 	setTab(process.env.REACT_APP_APPLICATION);
 }
@@ -161,26 +189,16 @@ function handleCancel() {
 	//console.log(appData);
 	if (!appData.hid) return false;
 	//console.log(appData.memberRec);
-	var newTitlePrefix = (appData.mode !== "ADD") ? "" : "New ";
+	var newTitlePrefix = (appData.mode === "EDIT")  ? "" : "New ";
+	//console.log(appData);
 
 return (
 	<div className={gClasses.webPage} >
 	<Container component="main" maxWidth="xs">	
 	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
 	<VsCancel align="right" onClick={handleCancel} />
-	<ApplicationHeader applicationRec={myProps.applicationRec} header={`Application for ${appData.mode} member details`} />
-	{(stage === "INITIAL") &&
-	<div>
-	<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.pdhs_title} >Application data</Typography>
-	<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.pdhs_title} >
-	{(appData.mode !== "ADD") ?
-		`Modified details of ${getMemberName(appData.oldMemberRec)}` :
-		`New details of ${getMemberName(appData.memberRec)}`
-	}
-	</Typography>
+	<ApplicationHeader applicationRec={myProps.applicationRec} header={`Application to ${appData.mode} member details`} />
 	<br />
-	</div>
-	}
 	{(stage === "INITIAL") &&
 	<Accordion expanded={expandedPanel === "NAMEDETAILS"} onChange={handleAccordionChange("NAMEDETAILS")}>
 		<Box align="right" className={(expandedPanel === "NAMEDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
@@ -188,49 +206,19 @@ return (
 			<Typography align="left" >{"Name Details"}</Typography>
 		</AccordionSummary>
 		</Box>
-		{(appData.memberRec.title) &&
-			<div>
-			{(appData.mode !== "ADD") &&
-			  <DisplayApplicationNameValue name="Old Title" value={appData.oldMemberRec.title} style={{paddingTop: "5px" }}  />
-			}
-			<DisplayApplicationNameValue name="New Title" value={appData.memberRec.title} style={{paddingTop: "5px" }}  />
-			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
-			<br />
-			</div>
+		{((appData.mode === "EDIT") && hasNameChanged()) &&
+		<div>
+			<DisplayApplicationNameValue name={`Old Name`} value={getMemberName(appData.oldMemberRec, true, false)} style={{paddingTop: "5px" }}  />
+		</div>
 		}
-		{(appData.memberRec.lastName) &&
-			<div>
-			{(appData.mode !== "ADD") &&
-			<DisplayApplicationNameValue name="Old Last Name" value={appData.oldMemberRec.lastName} style={{paddingTop: "5px" }}  />
-			}
-			<DisplayApplicationNameValue name="New Last Name" value={appData.memberRec.lastName} style={{paddingTop: "5px" }}  />
-			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
-			<br />
-			</div>
+		{((appData.mode === "EDIT") && !hasNameChanged()) &&
+			<DisplayApplicationName name="No change in name details" value="" style={{paddingTop: "5px" }}  />
 		}
-		{(appData.memberRec.middleName) &&
-			<div>
-			{(appData.mode !== "ADD") &&
-			<DisplayApplicationNameValue name="Old Middle Name" value={appData.oldMemberRec.middleName} style={{paddingTop: "5px" }}  />
-			}
-			<DisplayApplicationNameValue name="New Middle Name" value={appData.memberRec.middleName} style={{paddingTop: "5px" }}  />
-			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
-			<br />
-			</div>
-		}
-		{(appData.memberRec.firstName) &&
-			<div>
-			{(appData.mode !== "ADD") &&
-			<DisplayApplicationNameValue name="Old First Name" value={appData.oldMemberRec.firstName} style={{paddingTop: "5px" }}  />
-			}
-			<DisplayApplicationNameValue name="New First Name" value={appData.memberRec.firstName} style={{paddingTop: "5px" }}  />
-			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
-			<br />
-			</div>
-		}
+		<DisplayApplicationNameValue name={`${newTitlePrefix} Name`} value={getMemberName(appData.memberRec, true, false)} style={{paddingTop: "5px" }}  />
 		<br />
 	</Accordion>
 	}
+	<br />
 	{(stage === "INITIAL") &&
 	<Accordion expanded={expandedPanel === "PERSONALDETAILS"} onChange={handleAccordionChange("PERSONALDETAILS")}>
 		<Box align="right" className={(expandedPanel === "PERSONALDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
@@ -238,123 +226,34 @@ return (
 			<Typography align="left" >{"Personal Details"}</Typography>
 		</AccordionSummary>
 		</Box>
-		{(appData.memberRec.relation) &&
-			<div>
-			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
-			{(appData.mode !== "ADD") &&
-			<DisplayApplicationNameValue name="Old Relation" value={appData.oldMemberRec.relation} style={{paddingTop: "5px" }}  />
-			}
-			<DisplayApplicationNameValue name="New Relation" value={appData.memberRec.relation} style={{paddingTop: "5px" }}  />
-			<br />
-			</div>
+		{(appData.mode === "EDIT") &&
+			<DisplayApplicationName name={hasPersonalChanged() ? "Old Personal details" : "No change in Personal details"} value="" style={{paddingTop: "5px" }}  />
 		}
-		{(appData.memberRec.gender) &&
-			<div>
-			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
-			{(appData.mode !== "ADD") &&
-			<DisplayApplicationNameValue name="Old Gender" value={appData.oldMemberRec.gender} style={{paddingTop: "5px" }}  />
-			}
-			<DisplayApplicationNameValue name="New Gender" value={appData.memberRec.gender} style={{paddingTop: "5px" }}  />
+		{((appData.mode === "EDIT") && hasPersonalChanged()) &&
+		<div>
+			<DisplayApplicationNameValue name={`Relation`} value={appData.oldMemberRec.relation} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name={`Gender`} value={appData.oldMemberRec.gender} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name="Blood group" value={appData.oldMemberRec.bloodGroup} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name="DOB" value={dateString(appData.oldMemberRec.dob)} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name={`Mobile 1`} value={appData.oldMemberRec.mobile} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name={`Mobile 2`} value={appData.oldMemberRec.mobile1} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name="EMail" value={decrypt(appData.oldMemberRec.email)} style={{paddingTop: "5px" }}  />
 			<br />
-			</div>
+			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />			
+			<DisplayApplicationName name={`${newTitlePrefix} Personal details`} value="" style={{paddingTop: "5px" }}  />
+		</div>
 		}
-		{(appData.memberRec.dob) &&
-			<div>
-			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
-			{(appData.mode !== "ADD") &&
-			<DisplayApplicationNameValue name="Old DOB" value={dateString(appData.oldMemberRec.dob)} style={{paddingTop: "5px" }}  />
-			}
-			<DisplayApplicationNameValue name="New DOB" value={dateString(appData.memberRec.dob)} style={{paddingTop: "5px" }}  />
-			<br />
-			</div>
-		}
-		{(appData.memberRec.bloodGroup) &&
-			<div>
-			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
-			{(appData.mode !== "ADD") &&
-			<DisplayApplicationNameValue name="Old Blood group" value={appData.oldMemberRec.bloodGroup} style={{paddingTop: "5px" }}  />
-			}
-			<DisplayApplicationNameValue name="New Blood group" value={appData.memberRec.bloodGroup} style={{paddingTop: "5px" }}  />
-			<br />
-			</div>
-		}
-		{(appData.memberRec.mobile) &&
-			<div>
-			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
-			{(appData.mode !== "ADD") &&
-			<DisplayApplicationNameValue name="Old Mobile" value={appData.oldMemberRec.mobile} style={{paddingTop: "5px" }}  />
-			}
-			<DisplayApplicationNameValue name="New Mobile" value={appData.memberRec.mobile} style={{paddingTop: "5px" }}  />
-			<br />
-			</div>
-		}
-		{(appData.memberRec.mobile1) &&
-			<div>
-			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
-			{(appData.mode !== "ADD") &&
-			<DisplayApplicationNameValue name="Old Mobile 2" value={appData.oldMemberRec.mobile1} style={{paddingTop: "5px" }}  />
-			}
-			<DisplayApplicationNameValue name="New Mobile 2" value={appData.memberRec.mobile1} style={{paddingTop: "5px" }}  />
-			<br />
-			</div>
-		}
-		{(true && (appData.memberRec.email)) &&
-			<div>
-			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
-			{(appData.mode !== "ADD") &&
-			<DisplayApplicationNameValue name="Old EMail" value={decrypt(appData.oldMemberRec.email)} style={{paddingTop: "5px" }}  />
-			}
-			<DisplayApplicationNameValue name="New Email" value={decrypt(appData.memberRec.email)} style={{paddingTop: "5px" }}  />
-			<br />
-			</div>
-		}
+		<DisplayApplicationNameValue name={`Relation`} value={appData.memberRec.relation} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name={`Gender`} value={appData.memberRec.gender} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name="Blood group" value={appData.memberRec.bloodGroup} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name="DOB" value={dateString(appData.memberRec.dob)} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name={`Mobile 1`} value={appData.memberRec.mobile} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name={`Mobile 2`} value={appData.memberRec.mobile1} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name="EMail" value={decrypt(appData.memberRec.email)} style={{paddingTop: "5px" }}  />
 		<br />
 	</Accordion>
 	}
-	{((stage === "INITIAL")  && false) &&	
-	<Accordion expanded={expandedPanel === "MARITALDETAILS"} onChange={handleAccordionChange("MARITALDETAILS")}>
-		<Box align="right" className={(expandedPanel === "MARITALDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
-		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
-			<Typography align="left" >{"Marital Details"}</Typography>
-		</AccordionSummary>
-		</Box>
-		{(appData.memberRec.emsStatus) &&
-			<div>
-			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
-			<DisplayApplicationNameValue name="Old Marital status" value={dateString(appData.oldMemberRec.emsStatus)} style={{paddingTop: "5px" }}  />
-			<DisplayApplicationNameValue name="New Marital status" value={dateString(appData.memberRec.emsStatus)} style={{paddingTop: "5px" }}  />
-			<br />
-			</div>
-		}
-		{(appData.memberRec.dateOfMarriage) &&
-			<div>
-			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
-			<DisplayApplicationNameValue name="Old DOM" value={dateString(appData.oldMemberRec.dateOfMarriage)} style={{paddingTop: "5px" }}  />
-			<DisplayApplicationNameValue name="New DOM" value={dateString(appData.memberRec.dateOfMarriage)} style={{paddingTop: "5px" }}  />
-			<br />
-			</div>
-		}
-		{(appData.memberRec.spouseMid) &&
-			<div>
-			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
-			<DisplayApplicationNameValue name="Old Spouse" value={(appData.oldMemberRec.spouseMid !== 0) ? getMemberName(appData.oldMemberRec,false, false) : ""} style={{paddingTop: "5px" }}  />
-			<DisplayApplicationNameValue name="New Spouse" value={appData.memberRec.spouseName} style={{paddingTop: "5px" }}  />
-			<br />
-			</div>
-		}
-		<br />
-	</Accordion>
-	}
-	{((stage === "INITIAL") && false) &&
-	<Accordion expanded={expandedPanel === "OTHERDETAILS"} onChange={handleAccordionChange("OTHERDETAILS")}>
-		<Box align="right" className={(expandedPanel === "OTHERDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
-		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
-			<Typography align="left" >{"Other Details"}</Typography>
-		</AccordionSummary>
-		</Box>
-		<br />
-	</Accordion>
-	}
+	<br />
 	{(stage === "INITIAL") &&
 	<Accordion expanded={expandedPanel === "OFFICEDETAILS"} onChange={handleAccordionChange("OFFICEDETAILS")}>
 		<Box align="right" className={(expandedPanel === "OFFICEDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
@@ -362,77 +261,33 @@ return (
 			<Typography align="left" >{"Office Details"}</Typography>
 		</AccordionSummary>
 		</Box>
-		{(appData.memberRec.occupation) &&
-			<div>
-			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
-			{(appData.mode !== "ADD") &&
-			<DisplayApplicationNameValue name="Old Occupation" value={appData.oldMemberRec.occupation} style={{paddingTop: "5px" }}  />
-			}
-			<DisplayApplicationNameValue name="New Occupation" value={appData.memberRec.occupation} style={{paddingTop: "5px" }}  />
-			<br />
-			</div>
+		{(appData.mode === "EDIT") &&
+			<DisplayApplicationName name={hasOfficeChanged() ? "Old Office details" : "No change in Office details"} value="" style={{paddingTop: "5px" }}  />
 		}
-		{(appData.memberRec.officeName) &&
-			<div>
-			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
-			{(appData.mode !== "ADD") &&
-			<DisplayApplicationNameValue name="Old Office" value={appData.oldMemberRec.officeName} style={{paddingTop: "5px" }}  />
-			}
-			<DisplayApplicationNameValue name="New Office" value={appData.memberRec.officeName} style={{paddingTop: "5px" }}  />
+		{((appData.mode === "EDIT") && hasOfficeChanged()) &&
+		<div>
+			<DisplayApplicationNameValue name="Eductaion" value={appData.oldMemberRec.education} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name="Occupation" value={dateString(appData.oldMemberRec.occupation)} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name="Company Name" value={appData.oldMemberRec.officeName} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name="Company Phone" value={appData.oldMemberRec.officePhone} style={{paddingTop: "5px" }}  />
 			<br />
-			</div>
+			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />			
+			<DisplayApplicationName name={`${newTitlePrefix} Office details`} value="" style={{paddingTop: "5px" }}  />
+		</div>
 		}
-		{(appData.memberRec.education) &&
-			<div>
-			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
-			{(appData.mode !== "ADD") &&
-			<DisplayApplicationNameValue name="Old Education" value={appData.oldMemberRec.education} style={{paddingTop: "5px" }}  />
-			}
-			<DisplayApplicationNameValue name="New Education" value={appData.memberRec.education} style={{paddingTop: "5px" }}  />
-			<br />
-			</div>
-		}
-		{(appData.memberRec.officePhone) &&
-			<div>
-			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />
-			{(appData.mode !== "ADD") &&
-			<DisplayApplicationNameValue name="Old Office Phone" value={appData.oldMemberRec.officePhone} style={{paddingTop: "5px" }}  />
-			}
-			<DisplayApplicationNameValue name="New Office Phone" value={appData.memberRec.officePhone} style={{paddingTop: "5px" }}  />
-			<br />
-			</div>
-		}
+		<DisplayApplicationNameValue name="Eductaion" value={appData.memberRec.education} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name="Occupation" value={appData.memberRec.occupation} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name="Company Name" value={appData.memberRec.officeName} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name="Company Phone" value={appData.memberRec.officePhone} style={{paddingTop: "5px" }}  />
 		<br />
 	</Accordion>
 	}
 	<br />
-	{((myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
-	<Grid key={"APPLBUTTON"} className={gClasses.noPadding} container  alignItems="flex-start" >
-		<Grid item xs={2} sm={2} md={2} lg={2} />
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<VsButton align="center" name="Approve" onClick={handleApplicationApprove} />
-		</Grid>
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<VsButton align="center" name="Reject" type="button"  onClick={handleApplicationReject} />
-		</Grid>
-		<Grid item xs={2} sm={2} md={2} lg={2} />
-	</Grid>
+	{(hasPRWSpermission() && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
+		<YesNoButton title="" yesName="Approve" noName="Reject" yesClick={handleApplicationApprove} noClick={handleApplicationReject} />
 	}
 	{((stage === "Approve") || (stage === "Reject")) && 
-	<Grid key={"APPLAPPROVEREHECT"} className={gClasses.noPadding} container  alignItems="flex-start" >
-		<Grid item xs={12} sm={12} md={12} lg={12} >
-			<Typography align="center" className={gClasses.functionSelected}>{`${stage} Application?`}</Typography>
-			<br />
-		</Grid>
-		<Grid item xs={2} sm={2} md={2} lg={2} />
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<VsButton align="center" name="Yes" onClick={() => setStage("Remarks") } />
-		</Grid>
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<VsButton align="center" name="No" onClick={() => setStage("INITIAL") } />
-		</Grid>
-		<Grid item xs={2} sm={2} md={2} lg={2} />
-	</Grid>
+		<YesNoButton title={`${stage} Application?`} yesName="Yes" noName="No" yesClick={() => setStage("Remarks") } noClick={() => setStage("INITIAL") } />
 	}
 	{((stage === "Remarks") && (myProps.applicationRec.status === "Pending")) &&
 	<div align="center">

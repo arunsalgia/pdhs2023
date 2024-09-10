@@ -25,6 +25,7 @@ import { UserContext } from "../../UserContext";
 import { 
 	JumpButton, DisplayPageHeader, ValidComp, BlankArea, 
 	ApplicationHeader, DisplayApplicationNameValue, DisplayApplicationNameValueNameBig,
+	YesNoButton,
 } from 'CustomComponents/CustomComponents.js';
 
 import IconButton from '@material-ui/core/IconButton';
@@ -174,16 +175,14 @@ return (
 			<Typography align="left" >{(appData.createNewFamily) ? `Transfer members to new family` : `Transfer to family of ${appData.mergedFamilyHeadName}`}</Typography>
 		</AccordionSummary>
 		</Box>
-		{/*<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.pdhs_title} >{(appData.createNewFamily) ?  "Create new family"  :  "Merge with another family"}</Typography>*/}
 		<br />
-		<DisplayApplicationNameValue name="Family Head" value={(appData.createNewFamily) ? `${appData.newHodName}` : `${appData.mergedFamilyHeadName}`} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name={(appData.createNewFamily) ? `${appData.newHodName}` : `${appData.mergedFamilyHeadName}`} value="Family Head" style={{paddingTop: "5px" }}  />
 		{/*  Display list if names whar are to be moved */}
 		{appData.transferNameList.map( (memberName, index) => {
 			if (appData.transferRelation[index] === 'Self') return;
-			//var relation = (appData.transferRelation[index] === 'Self') ? "Family Head" : appData.transferRelation[index];
 			return (
 				<div key={memberName} >
-					<DisplayApplicationNameValueNameBig name={memberName} value={appData.transferRelation[index]} style={{paddingTop: "5px" }}  />
+					<DisplayApplicationNameValue name={memberName} value={appData.transferRelation[index]} style={{paddingTop: "5px" }}  />
 				</div>
 			)}
 		)}
@@ -199,15 +198,14 @@ return (
 		</AccordionSummary>
 		</Box>
 		<br />
-		<DisplayApplicationNameValue name="Family Head" value={appData.balanceFamilyHodName} style={{paddingTop: "5px" }}  />
-		<br />
+		<DisplayApplicationNameValue name={appData.balanceFamilyHodName} value={"Self"} style={{paddingTop: "5px" }}  />
 		{/*  Display list if names whar are to be moved */}
 		{appData.balanceFamilyName.map( (memberName, index) => {
 			if (appData.balanceFamilyRelation[index] === 'Self') return;
 			//var relation = (appData.transferRelation[index] === 'Self') ? "Family Head" : appData.transferRelation[index];
 			return (
 				<div key={memberName} >
-					<DisplayApplicationNameValueNameBig name={memberName} value={appData.balanceFamilyRelation[index]} style={{paddingTop: "5px" }}  />
+					<DisplayApplicationNameValue name={memberName} value={appData.balanceFamilyRelation[index]} style={{paddingTop: "5px" }}  />
 				</div>
 			)}
 		)}
@@ -215,33 +213,11 @@ return (
 	</Accordion>
 	}
 	<br />
-	{((myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
-	<Grid key={"APPLBUTTON"} className={gClasses.noPadding} container  alignItems="flex-start" >
-		<Grid item xs={2} sm={2} md={2} lg={2} />
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<VsButton align="center" name="Approve" onClick={handleApplicationApprove} />
-		</Grid>
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<VsButton align="center" name="Reject" type="button"  onClick={handleApplicationReject} />
-		</Grid>
-		<Grid item xs={2} sm={2} md={2} lg={2} />
-	</Grid>
+	{(hasPRWSpermission() && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
+		<YesNoButton title="" yesName="Approve" noName="Reject" yesClick={handleApplicationApprove} noClick={handleApplicationReject} />
 	}
 	{((stage === "Approve") || (stage === "Reject")) && 
-	<Grid key={"APPLAPPROVEREHECT"} className={gClasses.noPadding} container  alignItems="flex-start" >
-		<Grid item xs={12} sm={12} md={12} lg={12} >
-			<Typography align="center" className={gClasses.functionSelected}>{`${stage} Application?`}</Typography>
-			<br />
-		</Grid>
-		<Grid item xs={2} sm={2} md={2} lg={2} />
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<VsButton align="center" name="Yes" onClick={() => setStage("Remarks") } />
-		</Grid>
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<VsButton align="center" name="No" onClick={() => setStage("INITIAL") } />
-		</Grid>
-		<Grid item xs={2} sm={2} md={2} lg={2} />
-	</Grid>
+		<YesNoButton title={`${stage} Application?`} yesName="Yes" noName="No" yesClick={() => setStage("Remarks") } noClick={() => setStage("INITIAL") } />
 	}
 	{((stage === "Remarks") && (myProps.applicationRec.status === "Pending")) &&
 	<div align="center">

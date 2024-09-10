@@ -68,10 +68,10 @@ export default function Admin(props) {
 	function DisplayFunctionHeader() {
 		return (
 		<Grid className={gClasses.noPadding} key="AllPatients" container align="center">
-			<DisplayFunctionItem item="Permissions" />
 			<DisplayFunctionItem item="Gotra" />
 			<DisplayFunctionItem item="City" />
-			<DisplayFunctionItem item="Country" />
+			{/*<DisplayFunctionItem item="Country" />*/}
+			<DisplayFunctionItem item="Permissions" />
 		</Grid>	
 	)}
 

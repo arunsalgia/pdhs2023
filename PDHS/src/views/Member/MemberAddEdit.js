@@ -257,58 +257,27 @@ async function handleMemberAddEditSubmit() {
 	console.log("in submit");
 	console.log(myProps.memberRec);
 	// first update if change of name
-	if (myProps.memberRec.title !== emurAddr1)
-		tmpRec["title"] = emurAddr1;
-	if ((myProps.memberRec.lastName !== emurAddr2) || (myProps.mode == "ADD"))
-		tmpRec["lastName"] = emurAddr2;
-	if (myProps.memberRec.firstName !== emurAddr3)
-		tmpRec["firstName"] = emurAddr3;
-	if (myProps.memberRec.middleName !== emurAddr4)
-		tmpRec["middleName"] = emurAddr4;
-	if (myProps.memberRec.alias !== emurAddr5)
-		tmpRec["alias"] = emurAddr5;
+	tmpRec["title"] = emurAddr1;
+	tmpRec["lastName"] = emurAddr2;
+	tmpRec["firstName"] = emurAddr3;
+	tmpRec["middleName"] = emurAddr4;
+	tmpRec["alias"] = emurAddr5;
 	// update personal details
-	if (myProps.memberRec.relation !== emurAddr6)
-		tmpRec["relation"] = emurAddr6;
-	if (myProps.memberRec.gender !== emurAddr7)
-		tmpRec["gender"] = emurAddr7;
-	/*if (myProps.memberRec.emsStatus !== emurAddr8)
-		tmpRec["emsStatus"] = emurAddr8;*/
-	if (myProps.memberRec.bloodGroup !== emurAddr9)
-		tmpRec["bloodGroup"] = emurAddr9;
+	tmpRec["relation"] = emurAddr6;
+	tmpRec["gender"] = emurAddr7;
+	tmpRec["bloodGroup"] = emurAddr9;
 	// other details
-	if (myProps.memberRec.mobile !== emurAddr11)
-		tmpRec["mobile"] = emurAddr11;
-	if (myProps.memberRec.mobile1 !== emurAddr12)
-		tmpRec["mobile1"] = emurAddr12;
+	tmpRec["mobile"] = emurAddr11;
+	tmpRec["mobile1"] = emurAddr12;
 	// encrypt email
-	var xxxtmp = (emurAddr13 !== "") ? emurAddr13 : "-";
-	xxxtmp = encrypt(xxxtmp);
-	if (myProps.memberRec.email !== xxxtmp)
-		tmpRec["email"] = xxxtmp;
+	tmpRec["email"] = encrypt((emurAddr13 !== "") ? emurAddr13 : "-");
 	// Now dates 
-	xxxtmp = emurDate1.toDate();
-	if (new Date(myProps.memberRec.dob).getTime() !== xxxtmp.getTime())
-		tmpRec["dob"] = xxxtmp;
-	/*xxxtmp = emurDate2.toDate();
-	if (new Date(myProps.memberRec.dateOfMarriage).getTime() !== xxxtmp.getTime())
-		tmpRec["dateOfMarriage"] = xxxtmp;	*/
-
-	// Spouse
-/*	xxxtmp = (emurSpouseRec) ? emurSpouseRec.mid : 0;
-	if (myProps.memberRec.spouseMid !== xxxtmp) {
-		tmpRec["spouseMid"] = xxxtmp;
-		tmpRec["spouseName"] = (xxxtmp !=  0) ? getMemberName(emurSpouseRec, false, false) : "";
-	}*/
+	tmpRec["dob"] = emurDate1.toDate();
 	// Office 
-	if (myProps.memberRec.occupation !== emurAddr10)
-		tmpRec["occupation"] = emurAddr10;
-	if (myProps.memberRec.education !== education)
-		tmpRec["education"] = education;
-	if (myProps.memberRec.officePhone !== officePhone)
-		tmpRec["officePhone"] = officePhone;
-	if (myProps.memberRec.officeName !== company)
-		tmpRec["officeName"] = company;
+	tmpRec["occupation"] = emurAddr10;
+	tmpRec["education"] = education;
+	tmpRec["officePhone"] = officePhone;
+	tmpRec["officeName"] = company;
 	
 	console.log(tmpRec);
 	

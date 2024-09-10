@@ -1447,7 +1447,19 @@ return (
 	</Grid>
 )}
 
-	
+export function DisplayApplicationNameValue50(props) {
+	const gClasses = globalStyles();
+return (	
+	<Grid key={"APPLLINE"+props.name} className={gClasses.noPadding} container  alignItems="flex-start" >
+		<Grid item xs={6} sm={6} md={6} lg={6} >
+			<Typography style={(props.style) ? props.style : {}} className={gClasses.pdhs_name} >{props.name}</Typography>
+		</Grid>
+		<Grid item xs={6} sm={6} md={6} lg={6} >
+			<Typography style={(props.style) ? props.style : {}} className={gClasses.pdhs_value} >{props.value}</Typography>
+		</Grid>
+	</Grid>
+)}
+
 export function DisplayApplicationNameValueNameBig(props) {
 	const gClasses = globalStyles();
 return (	
@@ -1483,14 +1495,38 @@ return (
 	<br />
 	<DisplayApplicationNameValue name="Appl. Id." value={props.applicationRec.id} style={{paddingTop: "5px" }}  />
 	<DisplayApplicationNameValue name="Appl. Date" value={dateString(props.applicationRec.date)} style={{paddingTop: "5px" }}  />
-	<DisplayApplicationNameValue name="Appl. Status" value={props.applicationRec.status} style={{paddingTop: "5px" }}  />
 	<DisplayApplicationNameValue name="Applicant" value={props.applicationRec.name} style={{paddingTop: "5px" }}  />
 	<DisplayApplicationNameValue name="Family Head" value={props.applicationRec.hodName} style={{paddingTop: "5px" }}  />
+	<DisplayApplicationNameValue name="Appl. Status" value={props.applicationRec.status} style={{paddingTop: "5px" }}  />
+	{(props.applicationRec.status !== "Pending") &&
+	<DisplayApplicationNameValue name={(props.applicationRec.status === "Approved") ? "Approved on" : "Rejected on"}  value={dateString(props.applicationRec.approvalDate)} style={{paddingTop: "5px" }}  />
+	}	
+	{(props.applicationRec.status !== "Pending") &&
+	<DisplayApplicationNameValue name={(props.applicationRec.status === "Approved") ? "Approved by" : "Rejected by"} value={props.applicationRec.adminName} style={{paddingTop: "5px" }}  />	
+	}
 	{(props.applicationRec.status !== "Pending") &&
 	<DisplayApplicationNameValue name="Remarks" value={props.applicationRec.comments} style={{paddingTop: "5px" }}  />	
 	}
-	<br />
 	<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
-	
 	</div>
 )}
+
+
+export function YesNoButton(props) {
+const gClasses = globalStyles();
+return(	
+<Grid key={"YesNoButton"} className={gClasses.noPadding} container  alignItems="flex-start" >
+	<Grid item xs={12} sm={12} md={12} lg={12} >
+		<Typography align="center" className={gClasses.functionSelected}>{props.title}</Typography>
+		<br />
+	</Grid>
+	<Grid item xs={2} sm={2} md={2} lg={2} />
+	<Grid item xs={4} sm={4} md={4} lg={4} >
+		<VsButton align="center" name={props.yesName} onClick={props.yesClick} />
+	</Grid>
+	<Grid item xs={4} sm={4} md={4} lg={4} >
+		<VsButton align="center" name={props.noName} onClick={props.noClick} />
+	</Grid>
+	<Grid item xs={2} sm={2} md={2} lg={2} />
+</Grid>
+)};

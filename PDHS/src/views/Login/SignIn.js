@@ -104,11 +104,13 @@ export default function SignIn() {
 		let response = await axios.get(`${process.env.REACT_APP_AXIOS_BASEPATH}/user/padmavatimata/${myData}`); 
 		setError("", false);
 		let userData = response.data.user;
+		console.log(userData);
 		if (userData) {
 			window.sessionStorage.setItem("hid", userData.hid)
 			window.sessionStorage.setItem("mid", userData.mid)
 			window.sessionStorage.setItem("memberRec", JSON.stringify(userData));
 			window.sessionStorage.setItem("userMobile", getMemberName(userData, false, false));
+			window.sessionStorage.setItem("userName", getMemberName(userData, false, false));
 			window.sessionStorage.setItem("firstName", userData.firstName );	
 		}
 		else {
@@ -116,8 +118,10 @@ export default function SignIn() {
 			window.sessionStorage.setItem("mid", "0")
 			window.sessionStorage.setItem("memberRec", "{}");
 			window.sessionStorage.setItem("userMobile", "Guest");
+			window.sessionStorage.setItem("userName", "Guest");
 			window.sessionStorage.setItem("firstName","Guest");				
 		}
+		
 		window.sessionStorage.setItem("prwsLogin", response.data.userName);
 		window.sessionStorage.setItem("isMember", response.data.isMember);
 		if (response.data.admin)

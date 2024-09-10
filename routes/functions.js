@@ -528,7 +528,7 @@ async function fetchPinDetails(pinCode) {
 	return newPinRec;
 }
 
-function getMemberName(rec) {
+function getMemberName(rec, addTitle) {
 	let tmp = `${rec.lastName} ${rec.firstName} ${rec.middleName}`;
 	return tmp;
 }

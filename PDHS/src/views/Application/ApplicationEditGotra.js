@@ -21,6 +21,7 @@ import { UserContext } from "../../UserContext";
 import { 
 	JumpButton, DisplayPageHeader, ValidComp, BlankArea, 
 	ApplicationHeader, DisplayApplicationNameValue, DisplayApplicationName,
+	YesNoButton,
 } from 'CustomComponents/CustomComponents.js';
 
 import IconButton from '@material-ui/core/IconButton';
@@ -105,18 +106,28 @@ async function junk_handleApplicationReject() {
 }
 
 async function  handleApplicationApproveConfirm(myRemarks) {
-	showInfo("TO be implemenetd");
-	return;
-	
+	var myTmp = encodeURIComponent(JSON.stringify(myProps.applicationRec));
+	var returnStatus = {};
 	try {
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/reject/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/my comments`;
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/approve/application/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
 		let resp = await axios.get(myUrl);
-		myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application rejected by Admin`});
-		
-	} catch (e) {
+		returnStatus = {
+			status: STATUS_INFO.SUCCESS, 
+			applicationRec: resp.data, 
+			msg: `Application approved and updated by Admin`
+		};
+	} 
+	catch (e) {
 		console.log(e);
-		showError(`Error rejecting Gotra/Caste change`);
+		returnStatus = {
+			status: STATUS_INFO.ERROR, 
+			applicationRec: null, 
+			msg: `Error updating approval by Admin`
+		};
 	}
+	sessionStorage.setItem("application_returnstatus", JSON.stringify(returnStatus));
+	setTab(process.env.REACT_APP_APPLICATION);
+	//myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application rejected by Admin`});
 }
 
 
@@ -204,35 +215,13 @@ return (
 		<br />
 		</div>	
 	}
-	{(myProps.applicationRec.status === APPLICATIONSTATUS.pending) &&
-	<Grid key={"APPLBUTTON"} className={gClasses.noPadding} container  alignItems="flex-start" >
-		<Grid item xs={2} sm={2} md={2} lg={2} />
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<VsButton align="center" name="Approve" onClick={handleApplicationApprove} />
-		</Grid>
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<VsButton align="center" name="Reject" type="button"  onClick={handleApplicationReject} />
-		</Grid>
-		<Grid item xs={2} sm={2} md={2} lg={2} />
-	</Grid>
-	}
 	</div>
 	}
+	{(hasPRWSpermission() && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
+		<YesNoButton title="" yesName="Approve" noName="Reject" yesClick={handleApplicationApprove} noClick={handleApplicationReject} />
+	}
 	{((stage === "Approve") || (stage === "Reject")) && 
-	<Grid key={"APPLAPPROVEREHECT"} className={gClasses.noPadding} container  alignItems="flex-start" >
-		<Grid item xs={12} sm={12} md={12} lg={12} >
-			<Typography align="center" className={gClasses.functionSelected}>{`${stage} Application?`}</Typography>
-			<br />
-		</Grid>
-		<Grid item xs={2} sm={2} md={2} lg={2} />
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<VsButton align="center" name="Yes" onClick={() => setStage("Remarks") } />
-		</Grid>
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<VsButton align="center" name="No" onClick={() => setStage("INITIAL") } />
-		</Grid>
-		<Grid item xs={2} sm={2} md={2} lg={2} />
-	</Grid>
+		<YesNoButton title={`${stage} Application?`} yesName="Yes" noName="No" yesClick={() => setStage("Remarks") } noClick={() => setStage("INITIAL") } />
 	}
 	{((stage === "Remarks") && (myProps.applicationRec.status === "Pending")) &&
 	<div align="center">

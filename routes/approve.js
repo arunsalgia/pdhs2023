@@ -5,6 +5,7 @@ const {
 	getMemberName
 } = require('./functions'); 
 
+
 const { 
 	memberGetByMidOne, memberUpdateOne,
 	memberGetByHidMany,memberUpdateMany,
@@ -13,11 +14,26 @@ const {
 var router = express.Router();
 
 
+async function setNewHodInArray(memberArray, hodMid, saveRec=false) {
+	var memberHodRecArray = memberArray.filter(x => x.mid === hodMid);
+	memberArray = memberHodRecArray.concat(memberArray.filter(x => x.mid !== hodMid));
+	for(var i=0; i < memberArray.length; ++i) {
+		memberArray[i].order = i;
+		if (saveRec)
+			await memberArray[i].save();
+	}
+	return memberArray;
+}
+
+
+
 /* GET users listing. */
 router.use('/', function(req, res, next) {
   // WalletRes = res;
   setHeader(res);
   if (!db_connection) { senderr(res, DBERROR, ERR_NODB); return; }
+	
+	console.log("IN APPROVE");
   next('route');
 });
 
@@ -26,21 +42,90 @@ return { $regex: name, $options: "i" }
 }
 
 
-router.get('/list', async function (req, res) {
+
+
+async function approve_editGotra(appRec) {
+	var appData = JSON.parse(appRec.data);
+	console.log(appData);
+	// First get the HOD record
+	var hodRec = await M_Hod.findOne({hid: appData.hid});
+	if (!hodRec) return 651;
+	
+	if (!appData.newData.existingGotra) {
+		// New gotra. To be added in database
+		return 661;
+	}
+	
+	hodRec.gotra = appData.newData.gotra;
+	hodRec.caste = appData.newData.caste;
+	hodRec.subCaste = appData.newData.subCaste;
+	await hodRec.save();
+	
+	console.log(hodRec);
+	
+  return 0;	
+}
+
+async function approve_newHod(appRec) {
+	var appData = JSON.parse(appRec.data);
+	console.log(appData);
+	// First get the HOD record
+	var hodRec = await M_Hod.findOne({hid: appData.hid});
+	if (!hodRec) return 651;
+	console.log(hodRec);
+	
+	
+  return 699;	
+}
+
+// all application for approval will come here
+router.get('/application/:appId/:adminMid/:remarks', async function (req, res) {
+	var {appId, adminMid, remarks } = req.params;
   setHeader(res);
 
-	let myData = await M_Application.find({}).sort({id: -1});
-	//console.log(myData);
-	sendok(res, myData);
+	var appRec = await M_Application.findOne({id: appId});
+	var adminRec = await memberGetByMidOne(Number(adminMid));
+	
+	console.log(adminRec);
+	console.log(appRec);
+	console.log(remarks);
+	
+	// First check the status is still pending.  If not reject the request
+	if (appRec.status !== APPLICATIONSTATUS.pending) return senderr(res, 601, "Incorrect");
+	
+	console.log(appRec.desc);
+	var sts = 0;
+	switch(appRec.desc) {
+		case APPLICATIONTYPES.editGotra:
+			sts = await approve_editGotra(appRec);
+			break;
+		case APPLICATIONTYPES.newHod:
+			sts = await approve_newHod(appRec);
+			break;
+		default:
+			return senderr(res, 699, "Not yet implemented");
+			break;
+	}
+	// check the return status
+	if (sts === 0) {
+		// Update in application Rec
+		appRec.status = APPLICATIONSTATUS.approved;
+		appRec.comments = remarks;
+		appRec.approvalDate = new Date();
+		// update admin Name
+		appRec.aminMid = adminRec.mid;
+		appRec.adminName = getMemberName(adminRec, false);
+		
+		sendok(res, appRec);
+		await appRec.save();
+	}
+	else {
+		senderr(res, 603, "Error");
+	}
+
 });		
 
-router.get('/list/:mid', async function (req, res) {
-  setHeader(res);
-	var {mid } = req.params;
-
-	let myData = await M_Application.find({mid: mid}).sort({id: -1});
-	sendok(res, myData);
-});		
+		
 
 router.get('/add/:appData', async function (req, res) {
   setHeader(res);
@@ -83,38 +168,6 @@ router.get('/delete/:id', async function (req, res) {
 	sendok(res, "Done");
 });
 
-
-router.get('/oldeditfamilydetails/:editor_mid/:appData', async function (req, res) {
-  setHeader(res);
-	var {editor_mid, appData } = req.params;
-	appData = JSON.parse(appData);
-
-	var editorRec = await memberGetByMidOne(Number(editor_mid));
-	
-	let aRec = new M_Application();
-	aRec.owner = "PRWS";
-	aRec.desc = "Edit Family details";
-	aRec.name = getMemberName(editorRec);
-	aRec.mid = editorRec.mid;
-	aRec.isMember = true;
-	aRec.data = JSON.stringify(appData.data);
-	aRec.status = 'Pending';
-	aRec.adminName = '';
-	aRec.comments = '';
-	//console.log(appData.data);
-	
-	let justNow = new Date();
-	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
-	//console.log(baseid);
-	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
-	
-	aRec.date = justNow;
-	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
-	await aRec.save();
-	//console.log(aRec);
-	
-	sendok(res, aRec);
-});
 
 router.get('/editfamilydetails/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
   setHeader(res);
@@ -581,13 +634,13 @@ router.get('/reject/:id/:adminMid/:comments', async function (req, res) {
 	
 	let aRec = await M_Application.findOne({id: id});
 	aRec.status = APPLICATIONSTATUS.rejected;
-	aRec.approvalDate = new Date();
 	aRec.adminMid = adminRec.mid;
 	aRec.adminName = getMemberName(adminRec, false);
 	aRec.comments = comments;
-	sendok(res, aRec);
 	await aRec.save();
 	//console.log(aRec);
+	
+	sendok(res, aRec);
 });
 
 router.get('/approve/:id/:adminMid/:comments', async function (req, res) {

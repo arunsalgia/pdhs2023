@@ -24,7 +24,8 @@ import { UserContext } from "../../UserContext";
 
 import { 
 	JumpButton, DisplayPageHeader, ValidComp, BlankArea, 
-	ApplicationHeader, DisplayApplicationNameValue,
+	ApplicationHeader, DisplayApplicationNameValue, DisplayApplicationName,
+	YesNoButton,
 } from 'CustomComponents/CustomComponents.js';
 
 import IconButton from '@material-ui/core/IconButton';
@@ -173,17 +174,17 @@ return (
 	{(stage === "INITIAL") &&
 		<div>
 		<br />
-		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Ceased member ${appData.ceasedName}`}</Typography>
-		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Ceased date ${dateString(appData.ceasedDate)}`}</Typography>
+		<DisplayApplicationNameValue name={"Ceased member"} value={appData.ceasedName} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name={"Ceased date"} value={dateString(appData.ceasedDate)} style={{paddingTop: "5px" }}  />
 		{(appData.newHodName !== "") &&
-		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`New F.Head ${appData.newHodName}`}</Typography>
+		<DisplayApplicationNameValue name={"New F.Head"} value={appData.newHodName} style={{paddingTop: "5px" }}  />
 		}
-		<br />
-		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
 		<br />
 		{(appData.midList.length > 0) &&
 			<div>
-			<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.pdhs_title} >{`Relation of members with ${appData.newHodName}`}</Typography>
+			<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
+			<br />
+			<DisplayApplicationName name={`Relation of members with ${appData.newHodName}`} value="" style={{paddingTop: "5px" }}  />
 			<br />
 			</div>
 		}
@@ -193,40 +194,18 @@ return (
 			var newRelation = appData.relationList[index];
 			return (
 				<div key={memberName} >
-					<Typography className={gClasses.patientInfo2Blue} >{`${memberName} ( ${newRelation} )`}</Typography>
+					<DisplayApplicationNameValue name={memberName} value={newRelation} style={{paddingTop: "5px" }}  />
 				</div>
 			)}
 		)}			
 	</div>
 	}
 	<br />
-	{((myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
-	<Grid key={"APPLBUTTON"} className={gClasses.noPadding} container  alignItems="flex-start" >
-		<Grid item xs={2} sm={2} md={2} lg={2} />
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<VsButton align="center" name="Approve" onClick={handleApplicationApprove} />
-		</Grid>
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<VsButton align="center" name="Reject" type="button"  onClick={handleApplicationReject} />
-		</Grid>
-		<Grid item xs={2} sm={2} md={2} lg={2} />
-	</Grid>
+	{(hasPRWSpermission() && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
+		<YesNoButton title="" yesName="Approve" noName="Reject" yesClick={handleApplicationApprove} noClick={handleApplicationReject} />
 	}
 	{((stage === "Approve") || (stage === "Reject")) && 
-	<Grid key={"APPLAPPROVEREHECT"} className={gClasses.noPadding} container  alignItems="flex-start" >
-		<Grid item xs={12} sm={12} md={12} lg={12} >
-			<Typography align="center" className={gClasses.functionSelected}>{`${stage} Application?`}</Typography>
-			<br />
-		</Grid>
-		<Grid item xs={2} sm={2} md={2} lg={2} />
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<VsButton align="center" name="Yes" onClick={() => setStage("Remarks") } />
-		</Grid>
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<VsButton align="center" name="No" onClick={() => setStage("INITIAL") } />
-		</Grid>
-		<Grid item xs={2} sm={2} md={2} lg={2} />
-	</Grid>
+		<YesNoButton title={`${stage} Application?`} yesName="Yes" noName="No" yesClick={() => setStage("Remarks") } noClick={() => setStage("INITIAL") } />
 	}
 	{((stage === "Remarks") && (myProps.applicationRec.status === "Pending")) &&
 	<div align="center">
