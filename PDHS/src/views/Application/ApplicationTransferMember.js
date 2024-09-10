@@ -162,12 +162,7 @@ return (
 	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
 	<VsCancel align="right" onClick={handleCancel} />
 	<ApplicationHeader applicationRec={myProps.applicationRec} header={`Application to move member(s)`} />
-	{(stage === "INITIAL") &&
-	<div>
-	<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.pdhs_title} >Application data</Typography>
 	<br />
-	</div>
-	}
 	{(stage === "INITIAL") &&
 		<Accordion expanded={expandedPanel === "TRANSFERDETAILS"} onChange={handleAccordionChange("TRANSFERDETAILS")}>
 		<Box align="right" className={(expandedPanel === "TRANSFERDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
@@ -176,7 +171,7 @@ return (
 		</AccordionSummary>
 		</Box>
 		<br />
-		<DisplayApplicationNameValue name={(appData.createNewFamily) ? `${appData.newHodName}` : `${appData.mergedFamilyHeadName}`} value="Family Head" style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name={(appData.createNewFamily) ? `${appData.newHodName}` : `${appData.mergedFamilyHeadName}`} value="Self" style={{paddingTop: "5px" }}  />
 		{/*  Display list if names whar are to be moved */}
 		{appData.transferNameList.map( (memberName, index) => {
 			if (appData.transferRelation[index] === 'Self') return;

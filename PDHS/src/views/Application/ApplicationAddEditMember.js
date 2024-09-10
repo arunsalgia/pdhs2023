@@ -267,7 +267,7 @@ return (
 		{((appData.mode === "EDIT") && hasOfficeChanged()) &&
 		<div>
 			<DisplayApplicationNameValue name="Eductaion" value={appData.oldMemberRec.education} style={{paddingTop: "5px" }}  />
-			<DisplayApplicationNameValue name="Occupation" value={dateString(appData.oldMemberRec.occupation)} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name="Occupation" value={appData.oldMemberRec.occupation} style={{paddingTop: "5px" }}  />
 			<DisplayApplicationNameValue name="Company Name" value={appData.oldMemberRec.officeName} style={{paddingTop: "5px" }}  />
 			<DisplayApplicationNameValue name="Company Phone" value={appData.oldMemberRec.officePhone} style={{paddingTop: "5px" }}  />
 			<br />

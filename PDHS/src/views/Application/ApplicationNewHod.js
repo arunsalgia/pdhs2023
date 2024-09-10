@@ -164,19 +164,27 @@ return (
 	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
 	<VsCancel align="right" onClick={handleCancel} />
 	<ApplicationHeader applicationRec={myProps.applicationRec} header={`Application for new F.Head`} />
+	<br />
 	{(stage === "INITIAL") &&
-	<div>
-		<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.pdhs_title} >Application data</Typography>
+		<Accordion expanded={expandedPanel === "FAMHEAD"} onChange={handleAccordionChange("FAMHEAD")}>
+		<Box align="right" className={(expandedPanel === "FAMHEAD") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
+			<Typography align="left" >{"Family head details"}</Typography>
+		</AccordionSummary>
+		</Box>
+		<DisplayApplicationNameValue name="Curr family head" value={appData.oldHodName} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name="New family head" value={appData.newHodName} style={{paddingTop: "5px" }}  />
 		<br />
-		<DisplayApplicationNameValue name="Current F.Head" value={appData.oldHodName} style={{paddingTop: "5px" }}  />
-		<DisplayApplicationNameValue name="New F.Head" value={appData.newHodName} style={{paddingTop: "5px" }}  />
-		<br />
-		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
-		<br />
-		<DisplayApplicationName name="Relation of members with new F.Head" value="" style={{paddingTop: "5px" }}  />
-			{/*<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Current F.Head ${appData.oldHodName}`}</Typography>
-		<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`New F.Head ${appData.newHodName}`}</Typography>
-			<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Relation with new F.Head`}</Typography>*/}
+		</Accordion>
+	}
+	<br />
+	{(stage === "INITIAL") &&
+		<Accordion expanded={expandedPanel === "RELDETAILS"} onChange={handleAccordionChange("RELDETAILS")}>
+		<Box align="right" className={(expandedPanel === "RELDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
+			<Typography align="left" >{"Relation with family head"}</Typography>
+		</AccordionSummary>
+		</Box>
 		{appData.nameList.map( (memberName, index) => {
 			var newRelation = appData.relationList[index];
 			return (
@@ -186,8 +194,9 @@ return (
 			)}
 		)}			
 		<br />
-		</div>
+		</Accordion>
 	}
+	<br />
 	{(hasPRWSpermission() && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
 		<YesNoButton title="" yesName="Approve" noName="Reject" yesClick={handleApplicationApprove} noClick={handleApplicationReject} />
 	}

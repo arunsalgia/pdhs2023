@@ -81,9 +81,7 @@ export default function ApplicationMemberCeased() {
 	const [remarks, setRemarks] = useState("");
 	const [action, setAction] = useState("");
 	const [stage, setStage] = useState("INITIAL");
-	
-	
-	
+		
 	//useEffect(() => {
 			//console.log(myProps.applicationRec.data);
 	//		setAppdata(JSON.parse(myProps.applicationRec.data));
@@ -166,28 +164,41 @@ return (
 	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
 	<VsCancel align="right" onClick={handleCancel} />
 	<ApplicationHeader applicationRec={myProps.applicationRec} header={`Application for member ceased`} />
+	<br />
 	{(stage === "INITIAL") &&
-	<div>
-	<Typography align="center" style={{paddingTop: "5px" }} className={gClasses.pdhs_title} >Application data</Typography>
-	</div>
-	}
-	{(stage === "INITIAL") &&
-		<div>
+	<Accordion expanded={expandedPanel === "PERSONALDETAILS"} onChange={handleAccordionChange("PERSONALDETAILS")}>
+		<Box align="right" className={(expandedPanel === "PERSONALDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
+			<Typography align="left" >{"Ceased member details"}</Typography>
+		</AccordionSummary>
+		</Box>
 		<br />
 		<DisplayApplicationNameValue name={"Ceased member"} value={appData.ceasedName} style={{paddingTop: "5px" }}  />
 		<DisplayApplicationNameValue name={"Ceased date"} value={dateString(appData.ceasedDate)} style={{paddingTop: "5px" }}  />
-		{(appData.newHodName !== "") &&
-		<DisplayApplicationNameValue name={"New F.Head"} value={appData.newHodName} style={{paddingTop: "5px" }}  />
-		}
 		<br />
-		{(appData.midList.length > 0) &&
-			<div>
-			<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
-			<br />
-			<DisplayApplicationName name={`Relation of members with ${appData.newHodName}`} value="" style={{paddingTop: "5px" }}  />
-			<br />
-			</div>
-		}
+	</Accordion>
+	}
+	<br />
+	{((stage === "INITIAL") && (appData.newHodName !== "")) &&
+	<Accordion expanded={expandedPanel === "FHEADDETAILS"} onChange={handleAccordionChange("FHEADDETAILS")}>
+		<Box align="right" className={(expandedPanel === "FHEADDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
+			<Typography align="left" >{"New family head details"}</Typography>
+		</AccordionSummary>
+		</Box>
+		<DisplayApplicationNameValue name={"New family head"} value={appData.newHodName} style={{paddingTop: "5px" }}  />
+		<br />
+	</Accordion>
+	}
+	<br />
+	{((stage === "INITIAL") && (appData.midList.length > 0)) &&
+	<Accordion expanded={expandedPanel === "relationDETAILS"} onChange={handleAccordionChange("relationDETAILS")}>
+		<Box align="right" className={(expandedPanel === "relationDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
+			<Typography align="left" >{"Relation details"}</Typography>
+		</AccordionSummary>
+		</Box>
+		<DisplayApplicationName name={`Relation of members with new family head`} value="" style={{paddingTop: "5px" }}  />
 		{appData.nameList.map( (memberName, index) => {
 			if (appData.midList[index] === appData.newHodMid) return;
 			//var oldRelation = appData.oldRelationList[index];
@@ -197,8 +208,9 @@ return (
 					<DisplayApplicationNameValue name={memberName} value={newRelation} style={{paddingTop: "5px" }}  />
 				</div>
 			)}
-		)}			
-	</div>
+		)}
+		<br />
+	</Accordion>
 	}
 	<br />
 	{(hasPRWSpermission() && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
