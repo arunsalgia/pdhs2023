@@ -125,7 +125,7 @@ async function  handleApplicationApproveConfirm(myRemarks) {
 		
 	} catch (e) {
 		console.log(e);
-		showError(`Error approving ceased member`);
+		showError(`Error approving marriage`);
 	}
 }
 
@@ -142,7 +142,7 @@ async function  handleApplicationRejectConfirm(myRemarks) {
 		//myProps.onReturn.call(this, {status: STATUS_INFO.ERROR, applicationRec: resp.data, msg: `Application rejected by Admin`});	
 	} catch (e) {
 		console.log(e);
-		showError(`Error rejecting ceased member`);
+		showError(`Error rejecting marriage`);
 	}
 }
 

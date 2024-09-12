@@ -100,7 +100,7 @@ cityRouter = require('./routes/city');
 countryRouter = require('./routes/country');
 adminRouter = require('./routes/admin');
 applicationRouter = require('./routes/application');
-approveRouter = require('./routes/approve');
+//approveRouter = require('./routes/approve');
 
 app.set('view engine', 'html');
 //app.use(logger('dev'));
@@ -139,7 +139,7 @@ app.use('/city', cityRouter);
 app.use('/country', countryRouter);
 app.use('/pdhsadm', adminRouter);
 app.use('/apply', applicationRouter);
-app.use('/approve', approveRouter);
+//app.use('/approve', approveRouter);
 
 //Schema
 

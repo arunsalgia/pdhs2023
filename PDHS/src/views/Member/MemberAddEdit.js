@@ -29,6 +29,7 @@ import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 
 import lodashSortBy from "lodash/sortBy";
+import lodashCloneDeep from "lodash/cloneDeep";
 
 import IconButton from '@material-ui/core/IconButton';
 import InfoIcon from '@material-ui/icons/Info';
@@ -252,7 +253,8 @@ async function handleMemberAddEditSubmit() {
 		dateOfMarriage: emurDate2.toDate(),
 		spouseMid: (emurSpouseRec) ? emurSpouseRec.mid : 0
 	}*/
-	var tmpRec = {};
+	
+	var tmpRec = lodashCloneDeep(myProps.memberRec);
 	
 	console.log("in submit");
 	console.log(myProps.memberRec);

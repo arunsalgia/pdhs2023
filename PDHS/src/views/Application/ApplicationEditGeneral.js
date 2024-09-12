@@ -115,19 +115,41 @@ function handleRemarksDone() {
 
 
 async function  handleApplicationApproveConfirm(myRemarks) {
-	showInfo("TO be implemenetd");
-	return;
-	
 	try {
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/reject/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/my comments`;
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
 		let resp = await axios.get(myUrl);
-		myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application rejected by Admin`});
+		var returnStatus = {
+			status: STATUS_INFO.SUCCESS, applicationRec: resp.data, 
+			msg: `Application approved by Admin`
+			};
+		sessionStorage.setItem("application_returnstatus", JSON.stringify(returnStatus));
+		setTab(process.env.REACT_APP_APPLICATION);
+		//myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application rejected by Admin`});
 		
 	} catch (e) {
 		console.log(e);
-		showError(`Error rejecting Gotra/Caste change`);
+		showError(`Error approving edit general`);
 	}
 }
+
+async function  handleApplicationRejectConfirm(myRemarks) {
+	try {
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/reject/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
+		let resp = await axios.get(myUrl);
+		var returnStatus = {
+			status: STATUS_INFO.ERROR, applicationRec: resp.data, 
+			msg: `Application rejected by Admin`
+		};
+		sessionStorage.setItem("application_returnstatus", JSON.stringify(returnStatus));
+		setTab(process.env.REACT_APP_APPLICATION);
+		//myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application rejected by Admin`});
+		
+	} catch (e) {
+		console.log(e);
+		showError(`Error rejecting edit general`);
+	}
+}
+
 
 function isChangeOfAddress(oldHodRec, newHodRec) {
 	if (oldHodRec.indianResident !== newHodRec.indianResident) return true;
@@ -158,26 +180,6 @@ function isChangeOfHomeTownContact(oldHodRec, newHodRec) {
 	//console.log("allMatches");
 	return false;
 }
-
-
-async function  handleApplicationRejectConfirm(myRemarks) {
-	try {
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/reject/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
-		let resp = await axios.get(myUrl);
-		var returnStatus = {
-			status: STATUS_INFO.ERROR, applicationRec: resp.data, 
-			msg: `Application rejected by Admin`
-		};
-		sessionStorage.setItem("application_returnstatus", JSON.stringify(returnStatus));
-		setTab(process.env.REACT_APP_APPLICATION);
-		//myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application rejected by Admin`});
-		
-	} catch (e) {
-		console.log(e);
-		showError(`Error rejecting Gotra/Caste change`);
-	}
-}
-
 
 
 function handleCancel() {

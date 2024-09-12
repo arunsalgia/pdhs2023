@@ -96,20 +96,12 @@ function handleRemarksDone() {
 		handleApplicationRejectConfirm(myRemarks);
 }
 
-async function junk_handleApplicationReject() {
-	handleApplicationRejectConfirm();
-	
-	/*vsDialog("Reject", `Are you sure you want reject application?`,
-		{label: "Yes", onClick: () => handleApplicationRejectConfirm() },
-		{label: "No" }
-		);*/
-}
 
 async function  handleApplicationApproveConfirm(myRemarks) {
 	var myTmp = encodeURIComponent(JSON.stringify(myProps.applicationRec));
 	var returnStatus = {};
 	try {
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/approve/application/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
 		let resp = await axios.get(myUrl);
 		returnStatus = {
 			status: STATUS_INFO.SUCCESS, 
@@ -122,7 +114,7 @@ async function  handleApplicationApproveConfirm(myRemarks) {
 		returnStatus = {
 			status: STATUS_INFO.ERROR, 
 			applicationRec: null, 
-			msg: `Error updating approval by Admin`
+			msg: `Error updating approval of gotra change`
 		};
 	}
 	sessionStorage.setItem("application_returnstatus", JSON.stringify(returnStatus));

@@ -117,8 +117,6 @@ function handleRemarksDone() {
 
 
 async function  handleApplicationApproveConfirm(myRemarks) {
-	showInfo("Change DOM approval to be implemenetd");
-	return;
 	try {
 		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
 		let resp = await axios.get(myUrl);
@@ -131,7 +129,7 @@ async function  handleApplicationApproveConfirm(myRemarks) {
 		//myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application approved by Admin`});	
 	} catch (e) {
 		console.log(e);
-		showError(`Error approving ceased member`);
+		showError(`Error approving changing date of marriage`);
 	}
 }
 
@@ -147,7 +145,7 @@ async function  handleApplicationRejectConfirm(myRemarks) {
 		//myProps.onReturn.call(this, {status: STATUS_INFO.ERROR, applicationRec: resp.data, msg: `Application rejected by Admin`});
 	} catch (e) {
 		console.log(e);
-		showError(`Error rejecting ceased member`);
+		showError(`Error rejecting changing date of marriage`);
 	}
 }
 

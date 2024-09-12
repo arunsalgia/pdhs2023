@@ -21,7 +21,6 @@ import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
 import SignIn from "views/Login/SignIn"
 import LandingPage from "views/Login/LandingPage"
 import Directory from "views/Directory/Directory"
-import ApplicationTest from "views/Application/ApplicationTest"
 
 import Dashboard from 'views/Dashboard/Dashboard'
 import Member from 'views/Member/Member'

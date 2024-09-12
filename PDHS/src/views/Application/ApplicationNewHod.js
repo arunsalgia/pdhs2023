@@ -116,7 +116,7 @@ function handleRemarksDone() {
 
 async function  handleApplicationApproveConfirm(myRemarks) {
 	try {
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/approve/application/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
 		let resp = await axios.get(myUrl);
 		var returnStatus = {
 			status: STATUS_INFO.SUCCESS, applicationRec: resp.data, 

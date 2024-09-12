@@ -127,7 +127,7 @@ async function  handleApplicationApproveConfirm(myRemarks) {
 		
 	} catch (e) {
 		console.log(e);
-		showError(`Error approving ceased member`);
+		showError(`Error approving tranfer of members`);
 		var a = 1;
 	}
 }
@@ -145,7 +145,7 @@ async function  handleApplicationRejectConfirm(myRemarks) {
 		//myProps.onReturn.call(this, {status: STATUS_INFO.ERROR, applicationRec: resp.data, msg: `Application rejected by Admin`});	
 	} catch (e) {
 		console.log(e);
-		showError(`Error rejecting ceased member`);
+		showError(`Error rejecting tranfer of members`);
 	}
 }
 
