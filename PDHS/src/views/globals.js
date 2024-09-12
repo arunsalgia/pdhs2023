@@ -319,7 +319,7 @@ export const  NORMALSELECTSTYLE = {
 } ;
 	
 export const MOBROWSPERPAGE = 5;
-export const NONMOBROWSPERPAGE = 8;
+export const NONMOBROWSPERPAGE = 10;
 
 export const PAGELIST = {
 PRWS: "PRWS",

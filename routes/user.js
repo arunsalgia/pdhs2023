@@ -297,7 +297,7 @@ router.get('/padmavatimata/:myData', async function (req, res, next) {
 	}
 	else {
 		myLogRec.mid = 0;
-		myLogRec.name = `Guest ( ${userName} )`;
+		myLogRec.name = `Guest`;
 		myLogRec.desc = `Login by Guest ( ${userName} )`;
 	}
 	myLogRec.isAdmin = isAdmin;

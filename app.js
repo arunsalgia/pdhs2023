@@ -99,6 +99,7 @@ gotraRouter = require('./routes/gotra');
 cityRouter = require('./routes/city');
 countryRouter = require('./routes/country');
 adminRouter = require('./routes/admin');
+logRouter = require('./routes/logs');
 applicationRouter = require('./routes/application');
 //approveRouter = require('./routes/approve');
 
@@ -138,6 +139,7 @@ app.use('/gotra', gotraRouter);
 app.use('/city', cityRouter);
 app.use('/country', countryRouter);
 app.use('/pdhsadm', adminRouter);
+app.use('/log', logRouter);
 app.use('/apply', applicationRouter);
 //app.use('/approve', approveRouter);
 

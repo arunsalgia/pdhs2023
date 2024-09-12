@@ -32,6 +32,7 @@ import Application from 'views/Application/Application'
 import City from 'views/Admin/City'
 import Gotra from 'views/Admin/Gotra'
 import Admin from 'views/Admin/Admin'
+import Logs from 'views/Admin/Logs'
 
 import ApplicationChangeDom from 'views/Application/ApplicationChangeDom'
 import ApplicationTransferMember from 'views/Application/ApplicationTransferMember'
@@ -310,6 +311,9 @@ function AppRouter() {
 			}
 			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_ADMIN) &&
 				<Admin />
+			}	
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_LOG) &&
+				<Logs />
 			}	
 			</div>
     }

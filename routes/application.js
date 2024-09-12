@@ -29,7 +29,7 @@ return { $regex: name, $options: "i" }
 router.get('/list', async function (req, res) {
   setHeader(res);
 
-	let myData = await M_Application.find({}).sort({id: -1});
+	let myData = await M_Application.find({}).sort({id: 1});
 	//console.log(myData);
 	sendok(res, myData);
 });		
@@ -38,7 +38,7 @@ router.get('/list/:mid', async function (req, res) {
   setHeader(res);
 	var {mid } = req.params;
 
-	let myData = await M_Application.find({mid: mid}).sort({id: -1});
+	let myData = await M_Application.find({mid: mid}).sort({id: 1});
 	sendok(res, myData);
 });		
 

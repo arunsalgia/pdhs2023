@@ -142,6 +142,12 @@ async function  handleApplicationRejectConfirm(myRemarks) {
 }
 
 
+function hasGotraChanged() {
+	if (appData.oldData.gotra !== appData.newData.gotra) return true;
+	if (appData.oldData.caste !== appData.newData.caste) return true;
+	if ((appData.newData.caste === "Humad") && (appData.oldData.subCaste === appData.newData.subCaste))  return true;
+	return false;
+}
 
 function handleCancel() {
 	setTab(process.env.REACT_APP_APPLICATION);
@@ -156,56 +162,30 @@ return (
 	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
 	<VsCancel align="right" onClick={handleCancel} />
 	<ApplicationHeader applicationRec={myProps.applicationRec} header="Application for change of Gotra/Caste/SubCaste" />
-	<br />
 	{(stage === "INITIAL") &&
 	<div>
-	{(appData.oldData.gotra !== appData.newData.gotra) &&
-		<div>
-		<DisplayApplicationNameValue name="Curr. Gotra" value={appData.oldData.gotra} style={{paddingTop: "5px" }}  />
-		<DisplayApplicationNameValue name="New Gotra" value={appData.newData.gotra} style={{paddingTop: "5px" }}  />
-		{(!appData.newData.existingGotra) &&
-		<DisplayApplicationName name="(Note that the new gotra is not in gotra database)" value="" style={{paddingTop: "5px" }}  />
+	{(hasGotraChanged()) &&
+	<div>
+		<br />
+		<DisplayApplicationName name="Old Gotra/Caste/Subcaste" value="" style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name="Gotra" value={appData.oldData.gotra} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name="Caste" value={appData.oldData.caste} style={{paddingTop: "5px" }}  />
+		{(appData.oldData.caste === "Humad") &&
+			<DisplayApplicationNameValue name="SubCaste" value={appData.oldData.subCaste} style={{paddingTop: "5px" }}  />
 		}
 		<br />
-		</div>	
+		<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />			
+	</div>
 	}
-	{(appData.oldData.gotra === appData.newData.gotra) &&
-		<div>
-		<DisplayApplicationNameValue name={`No change in Gotra`} value={appData.newData.gotra} style={{paddingTop: "5px" }}  />
-		<br />
-		</div>	
+	<br />
+	<DisplayApplicationName name="New Gotra/Caste/Subcaste" value="" style={{paddingTop: "5px" }}  />
+	<DisplayApplicationNameValue name="Gotra" value={appData.newData.gotra} style={{paddingTop: "5px" }}  />
+	{(!appData.newData.existingGotra) &&
+	<DisplayApplicationName name="(Note that the new gotra is not in gotra database)" value="" style={{paddingTop: "5px" }}  />
 	}
-	{(appData.oldData.caste !== appData.newData.caste) &&
-		<div>
-		<DisplayApplicationNameValue name="Curr. Caste" value={appData.oldData.caste} style={{paddingTop: "5px" }}  />
-		<DisplayApplicationNameValue name="New Caste" value={appData.newData.caste} style={{paddingTop: "5px" }}  />
-		<br />
-		</div>	
-	}
-	{(appData.oldData.caste === appData.newData.caste) &&
-		<div>
-		<DisplayApplicationNameValue name={`No change in Caste`} value={appData.newData.caste} style={{paddingTop: "5px" }}  />
-		<br />
-		</div>	
-	}
-	{((appData.oldData.caste === "Humad") && (appData.newData.caste === "Humad") && (appData.oldData.subCaste === appData.newData.subCaste)) &&
-		<div>
-		<DisplayApplicationNameValue name={`No change in subCaste`} value={appData.newData.subCaste} style={{paddingTop: "5px" }}  />
-		<br />
-		</div>	
-	}
-	{((appData.oldData.caste === "Humad") && (appData.newData.caste === "Humad") && (appData.oldData.subCaste !== appData.newData.subCaste)) &&
-		<div>
-		<DisplayApplicationNameValue name="Old SubCaste" value={appData.oldData.subCaste} style={{paddingTop: "5px" }}  />
-		<DisplayApplicationNameValue name="New SubCaste" value={appData.newData.subCaste} style={{paddingTop: "5px" }}  />
-		<br />
-		</div>	
-	}
-	{((appData.oldData.caste !== "Humad") && (appData.newData.caste === "Humad")) &&
-		<div>
-		<DisplayApplicationNameValue name="New SubCaste" value={appData.newData.subCaste} style={{paddingTop: "5px" }}  />
-		<br />
-		</div>	
+	<DisplayApplicationNameValue name="Caste" value={appData.newData.caste} style={{paddingTop: "5px" }}  />
+	{(appData.newData.caste === "Humad")  &&
+		<DisplayApplicationNameValue name="SubCaste" value={appData.newData.subCaste} style={{paddingTop: "5px" }}  />	
 	}
 	</div>
 	}

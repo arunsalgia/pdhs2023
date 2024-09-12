@@ -82,7 +82,8 @@ export default function ApplicationAddEditMember() {
 	const [action, setAction] = useState("");
 	const [stage, setStage] = useState("INITIAL");
 	
-
+	console.log(appData.oldMemberRec.email)
+	console.log(appData.memberRec.email)
 	//useEffect(() => {
 	//		console.log(myProps.applicationRec);
 	//		setAppdata(JSON.parse(myProps.applicationRec.data));
@@ -189,7 +190,7 @@ function handleCancel() {
 	//console.log(appData);
 	if (!appData.hid) return false;
 	//console.log(appData.memberRec);
-	var newTitlePrefix = (appData.mode === "EDIT")  ? "" : "New ";
+	var newTitlePrefix = "New";   //(appData.mode === "EDIT")  ? "" : "New ";
 	//console.log(appData);
 
 return (
@@ -237,7 +238,7 @@ return (
 			<DisplayApplicationNameValue name="DOB" value={dateString(appData.oldMemberRec.dob)} style={{paddingTop: "5px" }}  />
 			<DisplayApplicationNameValue name={`Mobile 1`} value={appData.oldMemberRec.mobile} style={{paddingTop: "5px" }}  />
 			<DisplayApplicationNameValue name={`Mobile 2`} value={appData.oldMemberRec.mobile1} style={{paddingTop: "5px" }}  />
-			<DisplayApplicationNameValue name="EMail" value={decrypt(appData.oldMemberRec.email)} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name="Email" value={decrypt(appData.oldMemberRec.email)} style={{paddingTop: "5px" }}  />
 			<br />
 			<Divider style={{ paddingBottom: "2px", backgroundColor: 'black', padding: 'none' }} />			
 			<DisplayApplicationName name={`${newTitlePrefix} Personal details`} value="" style={{paddingTop: "5px" }}  />
@@ -249,7 +250,7 @@ return (
 		<DisplayApplicationNameValue name="DOB" value={dateString(appData.memberRec.dob)} style={{paddingTop: "5px" }}  />
 		<DisplayApplicationNameValue name={`Mobile 1`} value={appData.memberRec.mobile} style={{paddingTop: "5px" }}  />
 		<DisplayApplicationNameValue name={`Mobile 2`} value={appData.memberRec.mobile1} style={{paddingTop: "5px" }}  />
-		<DisplayApplicationNameValue name="EMail" value={decrypt(appData.memberRec.email)} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name="Email" value={decrypt(appData.memberRec.email)} style={{paddingTop: "5px" }}  />
 		<br />
 	</Accordion>
 	}

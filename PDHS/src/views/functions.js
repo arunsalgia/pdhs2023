@@ -26,6 +26,7 @@ import {
 	ADMIN, DATESTR, MONTHNUMBERSTR,
 	APPLICATIONSTATUS,
 	HUMADCATEGORY,
+	HOURSTR, MINUTESTR,
 } from "views/globals.js";
 
 export function applicationSuccess(rec) {
@@ -968,7 +969,16 @@ export async function handleLogout() {
 	
 };
 
-export function compareDate(d1, d2) {
+export function compareDate(d1, d2, timeAlso=false) {
+	//console.log(d1);
+	//console.log(d2);
+	if (timeAlso) {
+		var d1Val = d1.getTime();
+		var d2Val = d2.getTime();
+		if (d1Val < d2Val) return -1
+		if (d1Val > d2Val) return 1
+		return 0
+	}
 	if (d1.getFullYear() < d2.getFullYear()) return -1;
 	if (d1.getFullYear() > d2.getFullYear()) return 1;
 	
