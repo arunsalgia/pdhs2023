@@ -11,6 +11,13 @@ import Typography from '@material-ui/core/Typography';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import Divider from '@material-ui/core/Divider';
 
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -1283,6 +1290,62 @@ return (
 
 );}
 
+
+export function PersonalMemberTable(props) {
+const gClasses = globalStyles();
+var dispType = props.dispType;
+var m = props.m;
+return (
+
+<Box  key={"MEMBOX"+props.index} 
+  className={((props.index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} 
+	borderColor="black" borderRadius={30} border={1} 
+>
+<TableRow key={"MEMGRID"+props.index} className={gClasses.noPadding} container justifyContent="center" alignItems="center" >
+	<TableCell>
+		<Typography>
+			{/*<span><VsRadioSa checked={props.checked}  onClick={props.onClick}  /></span>*/}
+			<span style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2Blue } >{getMemberName(m)+" ("+dispAge(m.dob, m.gender)+")"}</span>
+				<span align="left" data-for={"MEMBER"+m.mid} data-tip={props.datatip} data-iscapture="true" >
+				<InfoIcon color="primary" size="small"/>
+				</span>
+		</Typography>		
+	</TableCell>
+	{((dispType !== "xs") && (dispType !== "sm"))  &&
+	<TableCell>
+		<Typography className={gClasses.patientInfo2}>{getRelation(m.relation)}</Typography>
+	</TableCell>
+	}
+	{((dispType !== "xs") && (dispType !== "sm"))  &&
+	<TableCell>
+		<Typography className={gClasses.patientInfo2}>{capitalizeFirstLetter(m.emsStatus)}</Typography>
+	</TableCell>
+	}
+	{((dispType !== "xs") && (dispType !== "sm"))  &&
+	<TableCell>
+			<Typography className={gClasses.patientInfo2}>{m.bloodGroup.toUpperCase()}</Typography>
+	</TableCell>
+	}
+	{((dispType !== "xs") && (dispType !== "sm") && (dispType !== "md")) &&
+	<TableCell>
+			<Typography className={gClasses.patientInfo2}>{m.occupation}</Typography>
+	</TableCell>
+	}
+	<TableCell>
+		{(m.mobile !== "") &&
+			<Typography className={gClasses.patientInfo2}>{m.mobile}</Typography>
+		}
+	</TableCell>
+	<TableCell>
+		<Typography>
+		 <span><MoreVertIcon color="primary" size="small" onClick={props.onClick} id={props.id}	 /></span>
+		</Typography>
+	</TableCell>
+</TableRow>
+</Box>
+
+);}
+
 export function OrgPersonalOffice(props) {
 const gClasses = globalStyles();
 var dispType = props.dispType;
@@ -1530,3 +1593,232 @@ return(
 	<Grid item xs={2} sm={2} md={2} lg={2} />
 </Grid>
 )};
+
+export function PrwsHeaderBody(props) {
+const gClasses = globalStyles();
+var dispType = props.dispType;
+return (
+<TableHead key={"MEMGRIDTBLHDR"}>
+<TableRow key={"MEMGRIDHDR"}  className={gClasses.boxStyleOdd} >
+<TableCell style={{padding: "2px" }} >
+	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }} className={gClasses.patientInfo2Brown } >Name</Typography>
+</TableCell>
+{((dispType !== "xs") && (dispType !== "sm"))  &&
+<TableCell style={{padding: "2px" }} >
+	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }}  align="center" className={gClasses.patientInfo2Brown }>Relation</Typography>
+</TableCell>
+}
+{((dispType !== "xs") && (dispType !== "sm"))  &&
+<TableCell style={{padding: "2px" }} >
+	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }}  align="center" className={gClasses.patientInfo2Brown }>Mar. Sts.</Typography>
+</TableCell>
+}
+{((dispType !== "xs") && (dispType !== "sm"))  &&
+<TableCell style={{padding: "2px" }} >
+	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }} align="center" className={gClasses.patientInfo2Brown }>Blood Grp.</Typography>
+</TableCell>
+}
+{((dispType !== "xs") && (dispType !== "sm"))  &&
+<TableCell style={{padding: "2px" }} >
+	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }} align="center" className={gClasses.patientInfo2Brown }>Occupation</Typography>
+</TableCell>
+}
+<TableCell style={{padding: "2px" }} >
+	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }} align="center" className={gClasses.patientInfo2Brown }>Mobile</Typography>
+</TableCell>
+<TableCell style={{padding: "2px" }} ></TableCell>
+</TableRow>
+</TableHead>
+)};
+
+export function HumadHeaderBody(props) {
+const gClasses = globalStyles();
+var dispType = props.dispType;
+return (
+<TableHead key={"MEMGRIDTBLHDR"}>
+<TableRow key={"MEMGRIDHDR"}  className={gClasses.boxStyleOdd} >
+<TableCell style={{padding: "2px" }} >
+	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }} className={gClasses.patientInfo2Brown } >Name</Typography>
+</TableCell>
+<TableCell style={{padding: "2px" }} >
+	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }} align="center" className={gClasses.patientInfo2Brown }>Mobile</Typography>
+</TableCell>
+{((dispType !== "xs") && (dispType !== "sm"))  &&
+<TableCell style={{padding: "2px" }} >
+	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }}  align="center" className={gClasses.patientInfo2Brown }>Mem. Id.</Typography>
+</TableCell>
+}
+{((dispType !== "xs") && (dispType !== "sm"))  &&
+<TableCell style={{padding: "2px" }} >
+	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }}  align="center" className={gClasses.patientInfo2Brown }>Mem. Date</Typography>
+</TableCell>
+}
+{((dispType !== "xs") && (dispType !== "sm"))  &&
+<TableCell style={{padding: "2px" }} >
+	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }} align="center" className={gClasses.patientInfo2Brown }>Remarks</Typography>
+</TableCell>
+}
+<TableCell style={{padding: "2px" }} ></TableCell>
+</TableRow>
+</TableHead>
+)};
+
+export function OfficeBody(props) {
+const gClasses = globalStyles();
+var dispType = props.dispType;
+return (
+<TableHead key={"MEMGRIDTBLHDR"}>
+<TableRow key={"MEMGRIDHDR"}  className={gClasses.boxStyleOdd} >
+<TableCell style={{padding: "2px" }} >
+	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }} className={gClasses.patientInfo2Brown } >Name</Typography>
+</TableCell>
+{((dispType !== "xs") && (dispType !== "sm"))  &&
+<TableCell style={{padding: "2px" }} >
+	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }}  align="center" className={gClasses.patientInfo2Brown }>Eduaction</Typography>
+</TableCell>
+}
+{((dispType !== "xs") && (dispType !== "sm"))  &&
+<TableCell style={{padding: "2px" }} >
+	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }}  align="center" className={gClasses.patientInfo2Brown }>Company</Typography>
+</TableCell>
+}
+<TableCell style={{padding: "2px" }} >
+	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }} align="center" className={gClasses.patientInfo2Brown }>Office Phone</Typography>
+</TableCell>
+<TableCell style={{padding: "2px" }} ></TableCell>
+</TableRow>
+</TableHead>
+)};
+
+
+export function PrwsDataRow(props) {
+const gClasses = globalStyles();
+var dispType = props.dispType;
+var index = props.index;
+var m = props.m;
+var memberCity = props.memberCity;
+return (	
+	<TableRow key={"MEMGRID"+index}  className={((index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} >
+	<TableCell style={{padding: "2px" }} >
+		<Typography className={gClasses.patientInfo2 }>
+			<span style={{marginLeft: "0px", paddingLeft: "5px" }}  >{getMemberName(m)+" ("+dispAge(m.dob, m.gender)+")"}</span>
+				<span align="left" data-for={"MEMBER"+m.mid} data-tip={props.datatip}  data-iscapture="true" >
+				<InfoIcon color="primary" size="small"/>
+				</span>
+		</Typography>		
+	</TableCell>
+	{((dispType !== "xs") && (dispType !== "sm"))  &&
+	<TableCell style={{padding: "2px" }} align="center" >
+		<Typography className={gClasses.patientInfo2}>{getRelation(m.relation)}</Typography>
+	</TableCell>
+	}
+	{((dispType !== "xs") && (dispType !== "sm"))  &&
+	<TableCell style={{padding: "2px" }} align="center" >
+		<Typography className={gClasses.patientInfo2}>{capitalizeFirstLetter(m.emsStatus)}</Typography>
+	</TableCell >
+	}
+	{((dispType !== "xs") && (dispType !== "sm"))  &&
+	<TableCell style={{padding: "2px" }} align="center">
+			<Typography className={gClasses.patientInfo2}>{m.bloodGroup.toUpperCase()}</Typography>
+	</TableCell>
+	}
+	{((dispType !== "xs") && (dispType !== "sm") && (dispType !== "md")) &&
+	<TableCell style={{padding: "2px" }} align="center" >
+			<Typography className={gClasses.patientInfo2}>{m.occupation}</Typography>
+	</TableCell>
+	}
+	<TableCell style={{padding: "2px" }} align="center" >
+		{(m.mobile !== "") &&
+			<Typography className={gClasses.patientInfo2}>{m.mobile}</Typography>
+		}
+	</TableCell>
+	<TableCell style={{padding: "2px" }} align="center" >
+		<Typography>
+		 <span><MoreVertIcon color="primary" size="small" onClick={props.onClick} id={m.id}	 /></span>
+		</Typography>
+	</TableCell>
+</TableRow>
+)}
+
+
+
+export function OfficeDataRow(props) {
+const gClasses = globalStyles();
+var dispType = props.dispType;
+var index = props.index;
+var m = props.m;
+var memberCity = props.memberCity;
+return (	
+	<TableRow key={"MEMGRID"+index}  className={((index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} >
+	<TableCell style={{padding: "2px" }} >
+		<Typography>
+			<span style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2 } >{getMemberName(m)+" ("+dispAge(m.dob, m.gender)+")"}</span>
+			<span align="left" data-for={"MEMBER"+m.mid} data-tip={props.datatip} data-iscapture="true" >
+				<InfoIcon color="primary" size="small"/>
+			</span>
+		</Typography>		
+	</TableCell>
+	{((dispType !== "xs") && (dispType !== "sm"))  &&
+	<TableCell style={{padding: "2px" }} align="center" >
+		<Typography className={gClasses.patientInfo2}>{m.education}</Typography>
+	</TableCell>
+	}
+	{((dispType !== "xs") && (dispType !== "sm"))  &&
+	<TableCell style={{padding: "2px" }} align="center" >
+		<Typography className={gClasses.patientInfo2}>{m.officeName}</Typography>
+	</TableCell >
+	}
+	<TableCell style={{padding: "2px" }} align="center" >
+		{(m.mobile !== "") &&
+		<Typography className={gClasses.patientInfo2}>{m.officePhone}</Typography>
+		}
+	</TableCell>
+	<TableCell style={{padding: "2px" }} align="center" >
+		<Typography>
+		 <span><MoreVertIcon color="primary" size="small" onClick={props.onClick} id={m.id}	 /></span>
+		</Typography>
+	</TableCell>
+</TableRow>
+)}
+
+
+export function HumadDataRow(props) {
+const gClasses = globalStyles();
+var dispType = props.dispType;
+var m = props.m;
+var h = props.h;
+let memDateStr = dateString(h.membershipDate);
+let index = props.index;
+return (
+	<TableRow key={"MEMGRID"+index}  className={((index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} >
+	<TableCell style={{padding: "2px" }} >
+		<Typography>
+			<span style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2 } >{getMemberName(m)+" ("+dispAge(m.dob, m.gender)+")"}</span>
+			<span align="left" data-for={"MEMBER"+m.mid} data-tip={props.datatip} data-iscapture="true" >
+				<InfoIcon color="primary" size="small"/>
+			</span>
+		</Typography>		
+	</TableCell>
+	<TableCell style={{padding: "2px" }} align="center" >
+		<Typography className={gClasses.patientInfo2}>{m.mobile}</Typography>
+	</TableCell>
+	<TableCell style={{padding: "2px" }} align="center" >
+		<Typography className={gClasses.patientInfo2}>{h.membershipNumber}</Typography>
+	</TableCell>
+	{( (dispType !== "xs") && (dispType !== "sm") ) &&
+	<TableCell style={{padding: "2px" }} align="center" >
+		<Typography className={gClasses.patientInfo2}>{memDateStr}</Typography>
+	</TableCell>
+	}
+	{( (dispType !== "xs") && (dispType !== "sm") ) &&
+	<TableCell style={{padding: "2px" }} align="center" >
+		<Typography className={gClasses.patientInfo2}>{h.remarks}</Typography>
+	</TableCell>
+	}
+	<TableCell style={{padding: "2px" }} align="center" >
+		<Typography>
+		 <span><MoreVertIcon color="primary" size="small" onClick={props.onClick} id={h.id}	 /></span>
+		</Typography>
+	</TableCell>
+</TableRow>
+);}

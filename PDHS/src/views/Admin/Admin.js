@@ -71,9 +71,9 @@ export default function Admin(props) {
 		<Grid className={gClasses.noPadding} key="AllPatients" container align="center">
 			<DisplayFunctionItem item="Gotra" />
 			<DisplayFunctionItem item="City" />
-			{/*<DisplayFunctionItem item="Country" />*/}
+			<DisplayFunctionItem item="Country" />
 			<DisplayFunctionItem item="Permissions" />
-			{/*<DisplayFunctionItem item="Logs" />*/}
+			<DisplayFunctionItem item="Logs" />
 		</Grid>	
 	)}
 

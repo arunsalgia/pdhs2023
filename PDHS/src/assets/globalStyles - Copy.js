@@ -239,18 +239,16 @@ const globalStyles = makeStyles((theme) => ({
 		//backgroundColor: blue[300] 
 	},
 	boxStyleOdd: {
-		padding: "2px 2px", 
+		padding: "5px 10px", 
 		margin: "4px 2px", 
-		//backgroundColor: '#FFF3E0',
-		backgroundColor: 'rgba(255, 255, 255, 0.87)',
+		backgroundColor: '#FFF3E0',
 		//backgroundColor: 'green',
 		//backgroundColor: blue[300] 
 	},
 	boxStyleEven: {
-		padding: "2px 2px", 
+		padding: "5px 10px", 
 		margin: "4px 2px", 
-		//backgroundColor: '#EEEEEE',
-		backgroundColor: 'rgb(238, 238, 238)',
+		backgroundColor: '#EEEEEE',
 		//backgroundColor: 'green',
 		//backgroundColor: blue[300] 
 	},
@@ -289,7 +287,7 @@ const globalStyles = makeStyles((theme) => ({
 	},
 	patientInfo2: {
 		fontSize: theme.typography.pxToRem(14),
-		//fontWeight: theme.typography.fontWeightBold,
+		fontWeight: theme.typography.fontWeightBold,
 	},
 	patientInfo2WithBg: {
 		fontSize: theme.typography.pxToRem(14),
@@ -395,7 +393,7 @@ const globalStyles = makeStyles((theme) => ({
 		color: 'green',
   },
 	boxStyle: {
-		padding: "1px 1px", 
+		padding: "5px 10px", 
 		margin: "4px 2px", 
 		//backgroundColor: 'green',
 		//backgroundColor: blue[300] 
@@ -530,10 +528,6 @@ const globalStyles = makeStyles((theme) => ({
       marginLeft: "3px"
     }
   },
-	tcPad: {
-		paddingTop: "2px",
-		paddingBottom: "2px",
-	},
   cardCategory: {
     color: grayColor[0],
     margin: "0",

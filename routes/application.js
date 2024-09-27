@@ -13,6 +13,70 @@ const {
 var router = express.Router();
 
 
+async function addApplication(editor_hodmid, editor_mid, appData, appDesc, appOwner) {
+	var editorRec = await memberGetByMidOne(Number(editor_mid));
+	var editorHodRec = await memberGetByMidOne(Number(editor_hodmid));
+	//console.log(editor_hodmid, editorHodRec);
+	var justNow = new Date();
+	
+	let aRec = new M_Application();
+	aRec.date = justNow;
+	aRec.owner = appOwner;				//OWNER.prws;
+	aRec.hid = 0;
+	aRec.desc = appDesc;
+
+	aRec.hodMid = editorHodRec.mid
+	aRec.hodName = getMemberName(editorHodRec, false);
+
+	aRec.mid = editorRec.mid;
+	aRec.name = getMemberName(editorRec, false);
+
+	aRec.isMember = true;
+	aRec.data = appData;
+	aRec.status = APPLICATIONSTATUS.pending;
+
+	aRec.adminName = '';
+	aRec.comments = '';
+	
+	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
+	//console.log(baseid);
+	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
+	
+	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
+	
+	await aRec.save();
+
+	// First find out if application is admin....
+	isAdmin = "true"
+	console.log(editorRec.mid);
+	if (editorRec.mid === 470001)
+		// Arun Salgia by default is admin
+		isAdmin = "true"
+	else {
+		let adminRec = await M_Application.findOne({mid: editorRec.mid});
+		isAdmin = (adminRec) ? "true" : "false";
+	}
+	
+	// Create a log entry for the given Application
+	
+	let myLogRec = new M_PrwsLog();
+	myLogRec.date = justNow;
+	myLogRec.mid = editorRec.mid;
+	myLogRec.name = getMemberName(editorHodRec, false);
+	myLogRec.desc = "Application by " +  getMemberName(editorHodRec, false)  + " for \"" + appDesc + "\"" ;
+	myLogRec.isAdmin = isAdmin;
+	myLogRec.action = appDesc;
+	myLogRec.data = appData;
+	myLogRec.status = true;
+	await myLogRec.save();
+	
+	//console.log("Mid: ", editorRec.mid);
+	//console.log("Nam: ", getMemberName(editorHodRec, false));
+	//console.log("Des: ", "Apply for " + appDesc + " by " +  getMemberName(editorHodRec, false));
+	
+	return aRec;
+}
+
 /* GET users listing. */
 router.use('/', function(req, res, next) {
   // WalletRes = res;
@@ -73,7 +137,6 @@ router.get('/add/:appData', async function (req, res) {
 	sendok(res, aRec);
 });
 
-
 router.get('/delete/:id', async function (req, res) {
   setHeader(res);
 	var {id } = req.params;
@@ -84,7 +147,7 @@ router.get('/delete/:id', async function (req, res) {
 });
 
 
-router.get('/oldeditfamilydetails/:editor_mid/:appData', async function (req, res) {
+router.get('/junkeditfamilydetails/:editor_mid/:appData', async function (req, res) {
   setHeader(res);
 	var {editor_mid, appData } = req.params;
 	appData = JSON.parse(appData);
@@ -119,455 +182,85 @@ router.get('/oldeditfamilydetails/:editor_mid/:appData', async function (req, re
 router.get('/editfamilydetails/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
   setHeader(res);
 	var {editor_mid, editor_hodmid, appData } = req.params;
-	console.log(appData);
-	let justNow = new Date();
-
-	var editorRec = await memberGetByMidOne(Number(editor_mid));
-	var editorHodRec = await memberGetByMidOne(Number(editor_hodmid));
-	console.log(editor_hodmid, editorHodRec);
-	
-	let aRec = new M_Application();
-	aRec.date = justNow;
-	aRec.owner = OWNER.prws;
-	aRec.hid = 0;
-	aRec.desc = APPLICATIONTYPES.editGeneral;
-
-	aRec.hodMid = editorHodRec.mid
-	aRec.hodName = getMemberName(editorHodRec, false);
-
-	aRec.mid = editorRec.mid;
-	aRec.name = getMemberName(editorRec, false);
-
-	aRec.isMember = true;
-	aRec.data = appData;
-	aRec.status = APPLICATIONSTATUS.pending;
-
-	aRec.adminName = '';
-	aRec.comments = '';
-	
-	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
-	console.log(baseid);
-	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
-	
-	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
-	await aRec.save();
-	//console.log(aRec);
-	
-	sendok(res, aRec);
+	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.editGeneral, OWNER.prws);	
+	sendok(res, myRec);
 });
 
 router.get('/updategotra/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
   setHeader(res);
 	var {editor_mid, editor_hodmid, appData } = req.params;
-	//console.log(appData);
-	let justNow = new Date();
-
-	var editorRec = await memberGetByMidOne(Number(editor_mid));
-	var editorHodRec = await memberGetByMidOne(Number(editor_hodmid));
-	//console.log(editor_hodmid, editorHodRec);
-	
-	let aRec = new M_Application();
-	aRec.date = justNow;
-	aRec.owner = OWNER.prws;
-	aRec.hid = 0;
-	aRec.desc = APPLICATIONTYPES.editGotra;
-
-	aRec.hodMid = editorHodRec.mid
-	aRec.hodName = getMemberName(editorHodRec, false);
-
-	aRec.mid = editorRec.mid;
-	aRec.name = getMemberName(editorRec, false);
-
-	aRec.isMember = true;
-	aRec.data = appData;
-	aRec.status = APPLICATIONSTATUS.pending;
-
-	aRec.adminName = '';
-	aRec.comments = '';
-	
-	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
-	//console.log(baseid);
-	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
-	
-	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
-	await aRec.save();
-	//console.log(aRec);
-	
-	sendok(res, aRec);
+	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.editGotra, OWNER.prws);	
+	sendok(res, myRec);
 });
 
 router.get('/humadupgrade/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
   setHeader(res);
 	var {editor_mid, editor_hodmid, appData } = req.params;
-	//console.log(appData);
-	let justNow = new Date();
-
-	var editorRec = await memberGetByMidOne(Number(editor_mid));
-	var editorHodRec = await memberGetByMidOne(Number(editor_hodmid));
-	//console.log(editor_hodmid, editorHodRec);
-	
-	let aRec = new M_Application();
-	aRec.date = justNow;
-	aRec.owner = OWNER.prws;
-	aRec.hid = 0;
-	aRec.desc = APPLICATIONTYPES.humadUpgrade;
-
-	aRec.hodMid = editorHodRec.mid
-	aRec.hodName = getMemberName(editorHodRec, false);
-
-	aRec.mid = editorRec.mid;
-	aRec.name = getMemberName(editorRec, false);
-
-	aRec.isMember = true;
-	aRec.data = appData;
-	aRec.status = APPLICATIONSTATUS.pending;
-
-	aRec.adminName = '';
-	aRec.comments = '';
-	
-	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
-	//console.log(baseid);
-	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
-	
-	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
-	await aRec.save();
-	//console.log(aRec);
-	
-	sendok(res, aRec);
+	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.humadUpgrade, OWNER.humad);	
+	sendok(res, myRec);
 });
 
 
 router.get('/ceased/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
   setHeader(res);
 	var {editor_hodmid, editor_mid, appData } = req.params;
-	//console.log(appData);
-	let justNow = new Date();
-
-	var editorRec = await memberGetByMidOne(Number(editor_mid));
-	var editorHodRec = await memberGetByMidOne(Number(editor_hodmid));
-	//console.log(editor_hodmid, editorHodRec);
-	
-	let aRec = new M_Application();
-	aRec.date = justNow;
-	aRec.owner = OWNER.prws;
-	aRec.hid = 0;
-	aRec.desc = APPLICATIONTYPES.memberCeased;
-
-	aRec.hodMid = editorHodRec.mid
-	aRec.hodName = getMemberName(editorHodRec, false);
-
-	aRec.mid = editorRec.mid;
-	aRec.name = getMemberName(editorRec, false);
-
-	aRec.isMember = true;
-	aRec.data = appData;
-	aRec.status = APPLICATIONSTATUS.pending;
-
-	aRec.adminName = '';
-	aRec.comments = '';
-	
-	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
-	//console.log(baseid);
-	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
-	
-	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
-
-	sendok(res, aRec);
-
-	await aRec.save();
-	//console.log(aRec);
+	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.memberCeased, OWNER.prws);	
+	sendok(res, myRec);
 });
 
 
 router.get('/marriage/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
   setHeader(res);
 	var {editor_hodmid, editor_mid, appData } = req.params;
-	//console.log(appData);
-	let justNow = new Date();
-
-	var editorRec = await memberGetByMidOne(Number(editor_mid));
-	var editorHodRec = await memberGetByMidOne(Number(editor_hodmid));
-	//console.log(editor_hodmid, editorHodRec);
-	
-	let aRec = new M_Application();
-	aRec.date = justNow;
-	aRec.owner = OWNER.prws;
-	aRec.hid = 0;
-	aRec.desc = APPLICATIONTYPES.marriage;
-
-	aRec.hodMid = editorHodRec.mid
-	aRec.hodName = getMemberName(editorHodRec, false);
-
-	aRec.mid = editorRec.mid;
-	aRec.name = getMemberName(editorRec, false);
-
-	aRec.isMember = true;
-	aRec.data = appData;
-	aRec.status = APPLICATIONSTATUS.pending;
-
-	aRec.adminName = '';
-	aRec.comments = '';
-	
-	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
-	//console.log(baseid);
-	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
-	
-	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
-
-	sendok(res, aRec);
-
-	await aRec.save();
-	//console.log(aRec);
+	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.marriage, OWNER.prws);	
+	sendok(res, myRec);
 });
 
 router.get('/unmarriage/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
   setHeader(res);
 	var {editor_hodmid, editor_mid, appData } = req.params;
-	//console.log(appData);
-	let justNow = new Date();
-
-	var editorRec = await memberGetByMidOne(Number(editor_mid));
-	var editorHodRec = await memberGetByMidOne(Number(editor_hodmid));
-	//console.log(editor_hodmid, editorHodRec);
-	
-	let aRec = new M_Application();
-	aRec.date = justNow;
-	aRec.owner = OWNER.prws;
-	aRec.hid = 0;
-	aRec.desc = APPLICATIONTYPES.unMarriage;
-
-	aRec.hodMid = editorHodRec.mid
-	aRec.hodName = getMemberName(editorHodRec, false);
-
-	aRec.mid = editorRec.mid;
-	aRec.name = getMemberName(editorRec, false);
-
-	aRec.isMember = true;
-	aRec.data = appData;
-	aRec.status = APPLICATIONSTATUS.pending;
-
-	aRec.adminName = '';
-	aRec.comments = '';
-	
-	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
-	//console.log(baseid);
-	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
-	
-	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
-
-	sendok(res, aRec);
-
-	await aRec.save();
-	//console.log(aRec);
+	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.unMarriage, OWNER.prws);	
+	sendok(res, myRec);
 });
 
 
 router.get('/changedom/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
   setHeader(res);
 	var {editor_hodmid, editor_mid, appData } = req.params;
-	//console.log(appData);
-	let justNow = new Date();
-
-	var editorRec = await memberGetByMidOne(Number(editor_mid));
-	var editorHodRec = await memberGetByMidOne(Number(editor_hodmid));
-	//console.log(editor_hodmid, editorHodRec);
-	
-	let aRec = new M_Application();
-	aRec.date = justNow;
-	aRec.owner = OWNER.prws;
-	aRec.hid = 0;
-	aRec.desc = APPLICATIONTYPES.changeDom;
-
-	aRec.hodMid = editorHodRec.mid
-	aRec.hodName = getMemberName(editorHodRec, false);
-
-	aRec.mid = editorRec.mid;
-	aRec.name = getMemberName(editorRec, false);
-
-	aRec.isMember = true;
-	aRec.data = appData;
-	aRec.status = APPLICATIONSTATUS.pending;
-
-	aRec.adminName = '';
-	aRec.comments = '';
-	
-	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
-	//console.log(baseid);
-	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
-	
-	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
-
-	sendok(res, aRec);
-
-	await aRec.save();
-	//console.log(aRec);
+	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.changeDom, OWNER.prws);	
+	sendok(res, myRec);
 });
 
 router.get('/newhod/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
   setHeader(res);
 	var {editor_hodmid, editor_mid, appData } = req.params;
-	//console.log(appData);
-	let justNow = new Date();
-
-	var editorRec = await memberGetByMidOne(Number(editor_mid));
-	var editorHodRec = await memberGetByMidOne(Number(editor_hodmid));
-	//console.log(editor_hodmid, editorHodRec);
-	
-	let aRec = new M_Application();
-	aRec.date = justNow;
-	aRec.owner = OWNER.prws;
-	aRec.hid = 0;
-	aRec.desc = APPLICATIONTYPES.newHod;
-
-	aRec.hodMid = editorHodRec.mid
-	aRec.hodName = getMemberName(editorHodRec, false);
-
-	aRec.mid = editorRec.mid;
-	aRec.name = getMemberName(editorRec, false);
-
-	aRec.isMember = true;
-	aRec.data = appData;
-	aRec.status = APPLICATIONSTATUS.pending;
-
-	aRec.adminName = '';
-	aRec.comments = '';
-	
-	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
-	//console.log(baseid);
-	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
-	
-	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
-
-	sendok(res, aRec);
-
-	await aRec.save();
-	//console.log(aRec);
+	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.newHod, OWNER.prws);	
+	sendok(res, myRec);
 });
 
 router.get('/movemember/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
   setHeader(res);
 	var {editor_mid, editor_hodmid, appData } = req.params;
-	//console.log(appData);
-	let justNow = new Date();
-
-	var editorRec = await memberGetByMidOne(Number(editor_mid));
-	var editorHodRec = await memberGetByMidOne(Number(editor_hodmid));
-	//console.log(editor_hodmid, editorHodRec);
-	
-	let aRec = new M_Application();
-	aRec.date = justNow;
-	aRec.owner = OWNER.prws;
-	aRec.hid = 0;
-	aRec.desc = APPLICATIONTYPES.transferMember;
-
-	aRec.hodMid = editorHodRec.mid
-	aRec.hodName = getMemberName(editorHodRec, false);
-
-	aRec.mid = editorRec.mid;
-	aRec.name = getMemberName(editorRec, false);
-
-	aRec.isMember = true;
-	aRec.data = appData;
-	aRec.status = APPLICATIONSTATUS.pending;
-
-	aRec.adminName = '';
-	aRec.comments = '';
-	
-	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
-	//console.log(baseid);
-	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
-	
-	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
-	await aRec.save();
-	//console.log(aRec);
-	
-	sendok(res, aRec);
+	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.transferMember, OWNER.prws);	
+	sendok(res, myRec);
 });
 
 
 router.get('/addeditpersonal/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
   setHeader(res);
 	var {editor_hodmid, editor_mid, appData } = req.params;
-	//console.log(appData);
 	var xxx = JSON.parse(appData);
-	
-	let justNow = new Date();
-
-	var editorRec = await memberGetByMidOne(Number(editor_mid));
-	var editorHodRec = await memberGetByMidOne(Number(editor_hodmid));
-	//console.log(editor_hodmid, editorHodRec);
-	
-	let aRec = new M_Application();
-	aRec.date = justNow;
-	aRec.owner = OWNER.prws;
-	aRec.hid = 0;
-	aRec.desc = (xxx.mode === "ADD") ? APPLICATIONTYPES.addMember : APPLICATIONTYPES.editMember ;
-
-	aRec.hodMid = editorHodRec.mid
-	aRec.hodName = getMemberName(editorHodRec, false);
-
-	aRec.mid = editorRec.mid;
-	aRec.name = getMemberName(editorRec, false);
-
-	aRec.isMember = true;
-	aRec.data = appData;
-	aRec.status = APPLICATIONSTATUS.pending;
-
-	aRec.adminName = '';
-	aRec.comments = '';
-	
-	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
-	//console.log(baseid);
-	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
-	
-	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
-
-	sendok(res, aRec);
-
-	await aRec.save();
-	//console.log(aRec);
+	var myRec = await addApplication(editor_hodmid, editor_mid, appData, 
+														(xxx.mode === "ADD") ? APPLICATIONTYPES.addMember : APPLICATIONTYPES.editMember, 
+														OWNER.prws);	
+	sendok(res, myRec);
 });
 
 router.get('/editgotra/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
   setHeader(res);
 	var {editor_hodmid, editor_mid, appData } = req.params;
-	//console.log(appData);
-	var xxx = JSON.parse(appData);
-	
-	let justNow = new Date();
-
-	var editorRec = await memberGetByMidOne(Number(editor_mid));
-	var editorHodRec = await memberGetByMidOne(Number(editor_hodmid));
-
-	let aRec = new M_Application();
-	aRec.date = justNow;
-	aRec.owner = OWNER.prws;
-	aRec.hid = 0;
-	aRec.desc = APPLICATIONTYPES.editGotra;
-
-	aRec.hodMid = editorHodRec.mid
-	aRec.hodName = getMemberName(editorHodRec, false);
-
-	aRec.mid = editorRec.mid;
-	aRec.name = getMemberName(editorRec, false);
-
-	aRec.isMember = true;
-	aRec.data = appData;
-	aRec.status = APPLICATIONSTATUS.pending;
-
-	aRec.adminName = '';
-	aRec.comments = '';
-	
-	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
-	//console.log(baseid);
-	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
-	
-	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
-
-	sendok(res, aRec);
-
-	await aRec.save();
-	//console.log(aRec);
+	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.editGotra, OWNER.prws);	
+	sendok(res, myRec);
 });
 
 
@@ -812,6 +505,28 @@ async function approve_memberCeased(aRec) {
 	// All done
 
 	return {status: true, record: ceasedRec};
+}
+
+async function approve_changeMaritalStatus(aRec) {
+	return {status: false};
+	
+	// First remove link to spouse and set status as Unmarried
+	
+	var myData = JSON.parse(aRec.data);
+	//console.log(myData);
+	// Set member as unmarried
+	var myRec = memberGetByMidOne(myData.memberRec.mid);
+	myRec.spouseMid = 0;
+	myRec.emsStatus = EMSTYPES.unmarried;
+	await memberUpdateOne(myRec);
+	// Now the same for spouse (if in database)
+	if (myData.spouseMemberRec) {
+		myRec = memberGetByMidOne(myData.spouseMemberRec.mid);
+		myRec.spouseMid = 0;
+		myRec.emsStatus = EMSTYPES.unmarried;
+		await memberUpdateOne(myRec);
+	}
+	return {status: true, record: null};
 }
 
 // Member new Hod approve

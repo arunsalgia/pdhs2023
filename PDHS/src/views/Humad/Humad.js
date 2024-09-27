@@ -9,6 +9,13 @@ import Menu from '@material-ui/core/Menu';
 import TextField from '@material-ui/core/TextField'; 
 import TablePagination from '@material-ui/core/TablePagination';
 
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -61,6 +68,7 @@ import {
 	HumadMember,
 	DisplaySingleTip,
 	DisplayPrwsFilter,
+	HumadHeaderBody, HumadDataRow,
 } from "CustomComponents/CustomComponents.js"
 
 import {
@@ -829,9 +837,12 @@ export default function Humad() {
 				</Grid>
 			</Grid>			
 		</Box>
-
-		<DisplayHumadHeader dispType={dispType} />
+		<Box key="BOXPRWSFILTERTABLE"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
+    <TableContainer>
+		<Table style={{padding: "2px" }} >
+		<HumadHeaderBody dispType={dispType} />
 		{/* display members here */}
+		<TableBody>
 		{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
 			if (m.ceased) return null;
 			let h = humadArray.find(x => x.mid === m.mid);
@@ -840,12 +851,16 @@ export default function Humad() {
 			//console.log(memberCity);
 			//console.log(m.email);
 			return (
-			<HumadMember key= {"PERSONALMEMBER"+index} m={m} h={h} dispType={dispType}  index={index} 
+			<HumadDataRow key= {"PERSONALMEMBER"+index} m={m} h={h} dispType={dispType}  index={index} 
 				checked={radioRecord == m.mid}
 				datatip={getMemberTip(m, dispType, memberCity) } 
 				onClick={(event) => { radioMid = m.mid; handlePrwsContextMenu(event); }}
 			/>
 			)})}	
+		</TableBody>
+		</Table>
+    </TableContainer>
+		</Box>	
 		{/* Table pagination here */}
 		{((process.env.REACT_APP_BACKENDFILTER !== "true") && (humadCount > ROWSPERPAGE)) &&
 			<TablePagination

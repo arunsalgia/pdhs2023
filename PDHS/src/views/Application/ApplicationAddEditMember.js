@@ -160,6 +160,7 @@ function hasNameChanged() {
 	if (appData.oldMemberRec.firstName !== appData.memberRec.firstName) return true;
 	if (appData.oldMemberRec.lastName !== appData.memberRec.lastName) return true;
 	if (appData.oldMemberRec.middleName !== appData.memberRec.middleName) return true;
+	if (appData.oldMemberRec.alias !== appData.memberRec.alias) return true;
 	return false;
 }
 
@@ -209,13 +210,13 @@ return (
 		</Box>
 		{((appData.mode === "EDIT") && hasNameChanged()) &&
 		<div>
-			<DisplayApplicationNameValue name={`Old Name`} value={getMemberName(appData.oldMemberRec, true, false)} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name={`Old Name`} value={getMemberName(appData.oldMemberRec, true, true)} style={{paddingTop: "5px" }}  />
 		</div>
 		}
 		{((appData.mode === "EDIT") && !hasNameChanged()) &&
 			<DisplayApplicationName name="No change in name details" value="" style={{paddingTop: "5px" }}  />
 		}
-		<DisplayApplicationNameValue name={`${newTitlePrefix} Name`} value={getMemberName(appData.memberRec, true, false)} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name={`${newTitlePrefix} Name`} value={getMemberName(appData.memberRec, true, true)} style={{paddingTop: "5px" }}  />
 		<br />
 	</Accordion>
 	}

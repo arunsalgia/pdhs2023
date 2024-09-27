@@ -9,6 +9,13 @@ import Tooltip from "react-tooltip";
 import MenuItem from '@material-ui/core/MenuItem'; 
 import Menu from '@material-ui/core/Menu'; 
 
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+
 import lodashCloneDeep from 'lodash/cloneDeep';
 import lodashSortBy from "lodash/sortBy";
 import lodashMap from "lodash/map";
@@ -54,6 +61,7 @@ import {
 	DisplayMemberHeader,
 	PersonalOffice,
 	DisplaySingleTip,
+	OfficeBody, OfficeDataRow,
 } from "CustomComponents/CustomComponents.js"
 
 import {
@@ -449,15 +457,25 @@ export default function MemberOffice(props) {
 	<div className={gClasses.webPage} align="center" key="main">
 		{/*<DisplayOfficeButtons />*/}
 		{/*<DisplayOfficeInformation />*/}
+		<Box key="BOXOFFICE"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
+    <TableContainer>
+		<Table style={{padding: "2px" }} >
+		<OfficeBody key="OFFICE" dispType={dispType} />
+		<TableBody>
 		{memberArray.map( (m, index) => {
 			let myInfo = getMemberTip(m, dispType, props.city);		// + "<br />" + getOfficeTip(m, dispType);
 			return (
-			<PersonalOffice key={"Office"+m.mid} m={m} dispType={dispType}  index={index} 
+			<OfficeDataRow key={"Office"+m.mid} m={m} dispType={dispType}  index={index} 
 				checked={radioRecord == m.order} onClick={(event) => { setRadioRecord(m.order); handleMemberOfficeContextMenu(event); } }
 				datatip={myInfo} 
 			/>
 		)}
-	)}	
+	)}
+	</TableBody>
+	</Table>
+	</TableContainer>
+	</Box>	
+		
 {contextParams.show && <MemberOfficeContextMenu /> }	
 	<DisplayAllToolTips />
 	<Drawer style={{ width: "100%"}} anchor="top" variant="temporary" open={isDrawerOpened != ""} >

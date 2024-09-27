@@ -9,6 +9,13 @@ import Menu from '@material-ui/core/Menu';
 import TextField from '@material-ui/core/TextField'; 
 import TablePagination from '@material-ui/core/TablePagination';
 
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -56,13 +63,16 @@ import InfoIcon  from 	'@material-ui/icons/Info';
 import CancelIcon from '@material-ui/icons/Cancel';
 import SearchIcon from '@material-ui/icons/Search';
 import ArrowDropDownCircle from '@material-ui/icons/ArrowDropDownCircle';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
+
 
 import {
 	BlankArea, DisplayPageHeader,
 	DisplayMemberHeader,
-	PersonalHeader, PersonalMember,
+	PersonalHeader, PersonalMember, PersonalMemberTable,
 	DisplaySingleTip,
 	DisplayPrwsFilter,
+	PrwsHeaderBody, PrwsDataRow,
 } from "CustomComponents/CustomComponents.js"
 
 import {
@@ -679,6 +689,8 @@ export default function Prws() {
 	*/
 	// If filter at back-end then we have only 1 page data
 	currentPage =(process.env.REACT_APP_BACKENDFILTER === "true") ? 0 : page;
+	
+	var cellPadStyle = {padding: "2px" };
 	return (
 	<div key="PRWS" className={gClasses.webPage} align="center" key="main">
 		{/*<DisplayPersonalButtons />*/}
@@ -762,7 +774,7 @@ export default function Prws() {
 		</Box>
 		{/*<PersonalHeader dispType={dispType} />*/}
 		{/* display members here */}
-		{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
+			{/*{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
 			if (m.ceased) return null;		
 			var memberCity = getMyCity(m.hid);
 			//console.log(memberCity);
@@ -773,10 +785,31 @@ export default function Prws() {
 				datatip={getMemberTip(m, dispType, memberCity) } 
 				onClick={(event) => { radioMid = m.mid; handlePrwsContextMenu(event); }}
 			/>
-			)})}	
+			)})}	*/}
+		<Box key="BOXPRWSFILTERTABLE"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
+    <TableContainer>
+		<Table style={{padding: "2px" }} >
+		<PrwsHeaderBody key="PRWSHHHHHH" dispType={dispType} />
+		<TableBody>
+		{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
+				if (m.ceased) return null;		
+				var memberCity = getMyCity(m.hid);
+				//console.log(memberCity);
+				//console.log(m.email);
+				return (
+		<PrwsDataRow key={"PERSONALMEMBER"+index} index={index} m={m} dispType={dispType} memberCity={memberCity} 
+			datatip={getMemberTip(m, dispType, memberCity)} onClick={(event) => { radioMid = m.mid; handlePrwsContextMenu(event); }}
+		/>
+				)})}	
+		</TableBody>
+		</Table>
+    </TableContainer>
+		</Box>	
+		
 		{/* Table pagination here */}
 		{((process.env.REACT_APP_BACKENDFILTER !== "true") && (memberArray.length > ROWSPERPAGE)) &&
 			<TablePagination
+				classes={gClasses.boxStyleEven}
 				align="right"
 				rowsPerPageOptions={[ROWSPERPAGE]}
 				component="div"

@@ -3,6 +3,14 @@ import { CssBaseline } from '@material-ui/core';
 import axios from 'axios';
 import Container from '@material-ui/core/Container';
 
+import Table from '@material-ui/core/Table';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableBody from '@material-ui/core/TableBody';
+import TableRow from '@material-ui/core/TableRow';
+import TableCell from '@material-ui/core/TableCell';
+import TablePagination from '@material-ui/core/TablePagination';
+
 import VsButton from "CustomComponents/VsButton"; 
 import VsCancel from "CustomComponents/VsCancel";
 import VsCheckBox from "CustomComponents/VsCheckBox";
@@ -208,70 +216,57 @@ export default function Permissions() {
 		}
 	}
 
+	function DisplayPermHeader() {
+	return (	
+		<TableHead>
+		<TableRow key={"MEMGRIDHDR0"}  className={gClasses.boxStyleOdd} >
+			<TableCell style={{padding: "2px" }} align="left">
+				<Typography style={{paddingLeft: "10px"}} className={gClasses.patientInfo2Brown} >Name (Member Id)</Typography>
+			</TableCell>
+			<TableCell style={{padding: "2px" }} align="center">
+				<Typography className={gClasses.patientInfo2Brown} >PJYM Admin</Typography>
+			</TableCell>
+			<TableCell style={{padding: "2px" }} align="center">
+				<Typography className={gClasses.patientInfo2Brown} >Humad Admin</Typography>
+			</TableCell>
+			<TableCell style={{padding: "2px" }} align="center">
+				<Typography className={gClasses.patientInfo2Brown} >PRWSAdmin</Typography>
+			</TableCell>
+			<TableCell style={{padding: "2px" }} align="center">
+			</TableCell>
+			<TableCell style={{padding: "2px" }} align="center">
+			</TableCell>
+		</TableRow>
+		</TableHead>
+	)}
+	
 	function DisplayAllAdmin() {
 		//console.log(adminArray);
 	return (
-	<div>
-		<Box  style={PADSTYLE}  key={"MEMBOXHDR"} className={gClasses.boxStyle} borderColor="black" borderRadius={30} border={1} >
-		<Grid key={"MEMGRIDHDR"} className={gClasses.noPadding} container align="center" alignItems="center" >
-
-		<Grid align="left" key={"H1"} item xs={12} sm={12} md={6} lg={6} >
-			<Typography className={gClasses.patientInfo2Brown} >Name of the Member (Member Id)</Typography>
-		</Grid>
-		<Grid align="center" key={"H2"} item xs={2} sm={2} md={1} lg={1} >
-			<Typography className={gClasses.patientInfo2Brown} >Super</Typography>
-			<Typography className={gClasses.patientInfo2Brown} >Admin</Typography>
-		</Grid>
-		<Grid align="center" key={"H3"} item xs={2} sm={2} md={1} lg={1} >
-			<Typography className={gClasses.patientInfo2Brown} >PJYM</Typography>
-			<Typography className={gClasses.patientInfo2Brown} >Admin</Typography>
-		</Grid>
-		<Grid align="center" key={"H4"} item xs={2} sm={2} md={1} lg={1} >
-			<Typography className={gClasses.patientInfo2Brown} >Humad</Typography>
-			<Typography className={gClasses.patientInfo2Brown} >Admin</Typography>
-		</Grid>
-		<Grid align="center" key={"H5"} item xs={2} sm={2} md={1} lg={1} >
-			<Typography className={gClasses.patientInfo2Brown} >PRWS</Typography>
-			<Typography className={gClasses.patientInfo2Brown} >Admin</Typography>
-		</Grid>
-		{/*<Grid align="center" key={"H6"} item xs={2} sm={2} md={1} lg={1} >
-			<Typography className={gClasses.patientInfo2Brown} >Future</Typography>
-			<Typography className={gClasses.patientInfo2Brown} >Admin</Typography>
-		</Grid>*/}
-		<Grid align="center" key={"H7"} item xs={2} sm={2} md={1} lg={1} >
-			<Typography></Typography>
-		</Grid>
-		</Grid>
-		</Box>
+	<TableBody>
 		{adminArray.map( (a, index) => 
-			<Box  key={"DOC0Box"+index} className={gClasses.boxStyle} borderColor="black" borderRadius={30} border={1} >
-			<Grid key={"DOC0GRD"+index} className={gClasses.noPadding} container align="center" alignItems="center" >
-			<Grid align="left" key={"DOC1"+index} item xs={12} sm={12} md={6} lg={6} >
-				<Typography style={{paddingLeft: "10px"}} className={gClasses.patientInfo2}>{a.title + ' ' + a.name + ' ('+a.mid+')'}</Typography>
-			</Grid>
-			<Grid align="center" key={"DOC2"+index} item xs={2} sm={2} md={1} lg={1} >
-				<Typography className={gClasses.patientInfo2}>{(a.superAdmin) ? "YES" : "-"}</Typography>
-			</Grid>
-			<Grid align="center" key={"DOC3"+index} item xs={2} sm={2} md={1} lg={1} >
-				<Typography className={gClasses.patientInfo2}>{(a.pjymAdmin) ? "YES" : "-"}</Typography>
-			</Grid>
-			<Grid align="center" key={"DOC4"+index} item xs={2} sm={2} md={1} lg={1} >
-				<Typography className={gClasses.patientInfo2}>{(a.humadAdmin) ? "YES" : "-"}</Typography>
-			</Grid>
-			<Grid align="center" key={"DOC5"+index} item xs={2} sm={2} md={1} lg={1} >
-				<Typography className={gClasses.patientInfo2}>{(a.prwsAdmin) ? "YES" : "-"}</Typography>
-			</Grid>
-			{/*<Grid align="center" key={"DOC6"+index} item xs={2} sm={2} md={1} lg={1} >
-				<Typography className={gClasses.patientInfo2}>{"-"}</Typography>
-			</Grid>*/}
-			<Grid align="center" key={"DOC7"+index} item xs={2} sm={2} md={1} lg={1} >
-				<EditIcon   color="primary"   size="small" onClick={() => editAdmin(a)} />
-				<CancelIcon color="secondary" size="small" onClick={() => deleteAdmin(a)} />
-			</Grid>
-			</Grid>
-			</Box>
+		<TableRow key={"MEMGRID"+index}  className={((index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} >
+		<TableCell style={{padding: "0px" }} align="left">
+			<Typography style={{paddingLeft: "10px"}} className={gClasses.patientInfo2}>{a.title + ' ' + a.name + ' ('+a.mid+')'}</Typography>
+		</TableCell>
+		<TableCell style={{padding: "0px" }} align="center">
+			<Typography className={gClasses.patientInfo2}>{(a.pjymAdmin) ? "YES" : "-"}</Typography>
+		</TableCell>
+		<TableCell style={{padding: "0px" }} align="center">
+			<Typography className={gClasses.patientInfo2}>{(a.humadAdmin) ? "YES" : "-"}</Typography>
+		</TableCell>
+		<TableCell style={{padding: "0px" }} align="center">
+			<Typography className={gClasses.patientInfo2}>{(a.prwsAdmin) ? "YES" : "-"}</Typography>
+		</TableCell>
+		<TableCell style={{padding: "0px" }} align="center">
+		</TableCell>
+		<TableCell style={{padding: "0px" }} align="center">
+			<EditIcon   color="primary"   size="small" onClick={() => editAdmin(a)} />
+			<CancelIcon color="secondary" size="small" onClick={() => deleteAdmin(a)} />
+		</TableCell>
+		</TableRow>
 		)}
-	</div>
+	</TableBody>
 	)}
 	
 	return (
@@ -280,7 +275,14 @@ export default function Permissions() {
 		<DisplayPageHeader headerName="Admin Maintenance" groupName="" tournament=""/>
 		<br />
 		<VsButton align="right" name="Add new Admin" onClick={addAdmin} />	
+		<Box key="BOXPRWSFILTERTABLE"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
+		<TableContainer>
+		<Table style={{padding: "2px" }} >
+		<DisplayPermHeader />
 		<DisplayAllAdmin />
+		</Table>
+		</TableContainer>
+		</Box>	
 		<Drawer anchor="top" variant="temporary" open={isDrawerOpened !== ""}>
 		<Container component="main" maxWidth="xs">	
 		<Box style={PADSTYLE} className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
@@ -305,12 +307,12 @@ export default function Permissions() {
 				<DisplayApplicationNameValue name="Name" value={emurName} style={{paddingTop: "5px" }}  />
 			</Grid>
 		}
-		<Grid item xs={5} sm={5} md={5} lg={5} >
+		{/*<Grid item xs={5} sm={5} md={5} lg={5} >
 			<DisplayApplicationName name="Super Admin" value="" style={{paddingTop: "5px" }}  />
 		</Grid>
 		<Grid item xs={7} sm={7} md={7} lg={7} >
 			<VsCheckBox align="left" checked={isSuper} onClick={() => setIsSuper(!isSuper)} />
-		</Grid>
+		</Grid>*/}
 		<Grid item xs={5} sm={5} md={5} lg={5} >
 			<DisplayApplicationName name="PJYM Admin" value="" style={{paddingTop: "5px" }}  />
 		</Grid>

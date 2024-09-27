@@ -59,8 +59,9 @@ import ArrowDropDownCircle from '@material-ui/icons/ArrowDropDownCircle';
 
 import {
 	BlankArea, DisplayPageHeader,
-	DisplayMemberHeader,
-	PersonalHeader, PersonalMember,
+	//DisplayMemberHeader,
+	//PersonalHeader, PersonalMember,
+	PjymMember, PjymHeader,
 	DisplaySingleTip,
 	DisplayPrwsFilter,
 } from "CustomComponents/CustomComponents.js"
@@ -165,10 +166,11 @@ export default function Pjym() {
 	
 	let menuRef = useRef();
 	
-	//===========
-	
+	//==================
 	const [pjymArray, setPjymArray] = useState([]);
 	const [pjymCount, setPjymCount] = useState(0);
+	
+	//====================
 	
   useEffect(() => {	
 		function handleResize() {
@@ -178,7 +180,7 @@ export default function Pjym() {
 			setDispType(displayType(myDim.width));
 		}
 		
-		async function getAllMembers() {
+		async function junked_getAllMembers() {
 			// first get all cities
 			//await getAllCities();
 			// now fetch all members
@@ -213,9 +215,12 @@ export default function Pjym() {
 				try {
 					let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/pjym/listwithnames`;
 					let axiosResp = await axios.get(myUrl);
+					//console.log(axiosResp.data.pjym);
 					setPjymArray(axiosResp.data.pjym);
+					//console.log(new Date());
 					setMemberMasterArray(axiosResp.data.member);
 					setMemberArray(axiosResp.data.member);
+					//console.log(new Date());
 				} 
 				catch (e) {
 					console.log(e);
@@ -244,8 +249,9 @@ export default function Pjym() {
 		}
 		
 		setPage(0);
+		getAllCities();
 		if (sessionStorage.getItem("isMember") === "true") {
-			getAllCities();
+			//getAllMembers();
 			getPjymList();
 		}
 		handleResize();
@@ -253,12 +259,15 @@ export default function Pjym() {
 		//return () => window.removeEventListener('resize', handleResize); 
   }, []);
 
+//================
+
 	async function getPjymPage(filterList, pageNumber)  {
 		var myData = encodeURIComponent(JSON.stringify({
 			pageNumber: pageNumber,
 			pageSize:	ROWSPERPAGE,
 			filterData: filterList
-		}));
+		}))  ;
+
 		try {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/pjym/filterdata/${myData}`;
 			//console.log(myUrl);
@@ -277,8 +286,9 @@ export default function Pjym() {
 		}
 		
 	}
+	
 
-//====
+//====================
 
 	function DisplayAllToolTips() {
 	return(
@@ -340,7 +350,7 @@ export default function Pjym() {
 	
 	
 	function addFilterConfirm(tmpValue) {
-		console.log("addFilterConfirm", tmpValue);
+		//console.log("addFilterConfirm", tmpValue);
 		let finalFilter;
 		let userSelection = ""
 		if (tmpValue.length > 0) 
@@ -369,7 +379,8 @@ export default function Pjym() {
 		setInputFilterMode(false);
 		updateFilterItems(finalFilter);
 		if (process.env.REACT_APP_BACKENDFILTER === "true") {
-			getMemeberPage(finalFilter, 0);
+			//getMemeberPage(finalFilter, 0);
+			getPjymPage(finalFilter, 0);
 		}
 		else {
 			updateMemberArray(finalFilter);
@@ -382,7 +393,7 @@ export default function Pjym() {
 		setFilterList(tmp);	
 		updateFilterItems(tmp);
 		if (process.env.REACT_APP_BACKENDFILTER === "true") {
-			getMemeberPage(tmp, 0);
+			getPjymPage(tmp, 0);
 		}
 		else {
 			updateMemberArray(tmp);
@@ -504,7 +515,7 @@ export default function Pjym() {
 	// pagination function 
 	const handleChangePage = (event, newPage) => {
 		if (process.env.REACT_APP_BACKENDFILTER === "true") {
-			getMemeberPage(filterList, newPage);
+			getPjymPage(filterList, newPage);
 		}
     setPage(newPage);
   };
@@ -543,7 +554,7 @@ export default function Pjym() {
  const handlePrwsContextMenu = (e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) => {
 	 e.preventDefault();
 	setGrpAnchorEl(e.currentTarget);
-	console.log(e.currentTarget);
+	//console.log(e.currentTarget);
 	 //console.log(radioMid);
 	 const {pageX, pageY } = e;
 	 //setAnchorEl(event.currentTarget);
@@ -563,8 +574,8 @@ export default function Pjym() {
     var myName = tmp.firstName + " " + tmp.lastName;
 		//console.log(contextParams);
 		var myStyle={top: `${contextParams.y}px` , left: `${contextParams.x}px` };
-		console.log(myStyle);
-		console.log(menuRef);
+		//console.log(myStyle);
+		//console.log(menuRef);
 		//anchorEl={grpAnchorEl}
 	return(
 	<div id="PRWSMENU" ref={menuRef} className='absolute z-20' style={myStyle}>
@@ -590,13 +601,13 @@ export default function Pjym() {
 		<MenuItem onClick={jumpFamily}>
 			<Typography>{"Family"}</Typography>
 		</MenuItem>
-		<Divider />
+		{/*<Divider />
 		<MenuItem disabled={tmp.pjymMember} onClick={jumpPjym}>
 			<Typography>Pjym Membership</Typography>
 		</MenuItem>
 		<MenuItem disabled={tmp.humadMember} onClick={jumpHumad}>
 			<Typography>Humad Membership</Typography>
-		</MenuItem>
+		</MenuItem>*/}
 		{/*<Divider />
 		<MenuItem onClick={jumpGotra}>
 			<Typography>Gotra</Typography>
@@ -663,18 +674,14 @@ export default function Pjym() {
 	</div>
 	);
 	
-	/*
-	<Typography style={{marginTop: "5px", marginRight: "10px" }} 
-				className={gClasses.message16Blue} 
-				onClick={downloadPrwsData} >Export</Typography>
-	*/
+
 	// If filter at back-end then we have only 1 page data
 	currentPage =(process.env.REACT_APP_BACKENDFILTER === "true") ? 0 : page;
 	return (
 	<div key="PRWS" className={gClasses.webPage} align="center" key="main">
 		{/*<DisplayPersonalButtons />*/}
-		<DisplayPageHeader headerName="Pratapgarh Jain Yuva Manch" />
-		<DisplayPrwsFilter 
+		<DisplayPageHeader headerName={(dispType === "xs") ? "PJYM" : "Pratapgarh Jain Yuva Manch"} />
+			{/*<DisplayPrwsFilter 
 			inputFilterMode={inputFilterMode} 
 			inputName={inputName}
 			inputInfo={inputInfo}
@@ -688,16 +695,76 @@ export default function Pjym() {
 			pdhsFilter={(event) => { addFilter(event.target.value); }}
 			applyClick={() => { addFilterConfirm(""); } }
 			cancelClick={() => { setInputFilterMode(false); setLastFilter(""); } }
-		/>
-		{/*<PersonalHeader dispType={dispType} /> */}
+			/>*/}
+		<Box key="BOXPRWSFILTER"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
+			<Grid key="PRWSFILTER" className={gClasses.noPadding} container>
+				<Grid align="left" item xs={10} sm={10} md={11} lg={11} >
+					<div>
+					{(!inputFilterMode) &&
+						<Typography style={{paddingLeft: "5px"}}>
+						{filterList.map( (m, index) => {
+							return (
+								<span key={"FILTER"+index} style={{marginLeft: "5px", paddingLeft: "5px"}} className={gClasses.filterItem} >
+									{m.item}: {m.value}
+									<CancelIcon size="small" style={{paddingTop: "8px"}} color="secondary" onClick={() => removeFilter(m.item) } />
+								</span>
+							)
+						})}
+						</Typography>
+					}
+					{(inputFilterMode) &&
+						<div>
+							{ (inputInfo.options) &&
+								<VsSelect 
+									inputProps={{className: gClasses.dateTimeNormal}} style={NORMALSELECTSTYLE} 
+									label={inputName} options={inputInfo.options} value={inputValue} 
+									onChange={(event) => { setInputValue(event.target.value); addFilterConfirm(event.target.value); }} 
+								/>				
+							}
+							{ (!inputInfo.options) &&
+								<div>
+								{/*<TextField id="outlined-required" label={inputName}
+										value={inputValue} type={inputInfo.type}
+										onChange={(event) => { setInputValue(event.target.value); }}
+									/>
+									<VsButton name="Apply"  onClick={() => { addFilterConfirm(""); } } />
+									<VsButton name="Cancel" onClick={() => { setInputFilterMode(false); setLastFilter(""); }  } />
+								*/}
+								<ValidatorForm align="left" className={gClasses.form} onSubmit={() => { addFilterConfirm(""); }}>
+								<TextValidator 
+									id="outlined-required" label={inputName} required className={gClasses.vgSpacing}
+									type={inputInfo.type}
+									value={inputValue}
+									onChange={(event) => { setInputValue(event.target.value); }}
+								/>
+								<VsButton  name="Apply"  type="submit" />
+								<VsButton name="Cancel"  type="button" onClick={() => { setInputFilterMode(false); setLastFilter(""); }  } />
+								</ValidatorForm>
+								
+								</div>
+							}
+						</div>
+					}
+					</div>
+				</Grid>
+				<Grid align="left" item xs={2} sm={2} md={1} lg={1} >
+					<div style={{paddingLeft: "5px", paddingRight: "5px"}} >
+					<VsPdhsFilter style={SELECTSTYLE} options={modMasterFilterItems} field="item"
+					value={lastFilter} onChange={(event) => { addFilter(event.target.value); }} />			
+					</div>
+				</Grid>
+			</Grid>			
+		</Box>		
+		<PjymHeader dispType={dispType} />
 		{/* display members here */}
 		{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
-			if (m.ceased) return null;		
+			if (m.ceased) return null;	
+			let p = pjymArray.find(x => x.mid === m.mid);			
 			var memberCity = getMyCity(m.hid);
 			//console.log(memberCity);
 			//console.log(m.email);
 			return (
-			<PersonalMember key= {"PERSONALMEMBER"+index} m={m} dispType={dispType}  index={index} 
+			<PjymMember key= {"PJYMMEMBER"+index} m={m} p={p} dispType={dispType}  index={index} 
 				checked={radioRecord == m.mid}
 				datatip={getMemberTip(m, dispType, memberCity) } 
 				onClick={(event) => { radioMid = m.mid; handlePrwsContextMenu(event); }}
@@ -718,13 +785,13 @@ export default function Pjym() {
 				//showFirstButton={true}
 			/>
 		}
-		{((process.env.REACT_APP_BACKENDFILTER === "true") && (memberCount > ROWSPERPAGE)) &&
+		{((process.env.REACT_APP_BACKENDFILTER === "true") && (pjymCount > ROWSPERPAGE) ) &&
 			<TablePagination
 				align="right"
 				rowsPerPageOptions={[ROWSPERPAGE]}
 				component="div"
-				labelRowsPerPage="Members per page"
-				count={memberCount}
+				labelRowsPerPage="Pjym Members per page"
+				count={pjymCount}
 				rowsPerPage={ROWSPERPAGE}
 				page={page}
 				onPageChange={handleChangePage}

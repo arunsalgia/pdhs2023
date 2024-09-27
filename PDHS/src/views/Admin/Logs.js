@@ -2,6 +2,13 @@ import React,{useState, useEffect } from 'react';
 import { CssBaseline } from '@material-ui/core';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { TextField, InputAdornment } from "@material-ui/core";
+
+import Table from '@material-ui/core/Table';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableBody from '@material-ui/core/TableBody';
+import TableRow from '@material-ui/core/TableRow';
+import TableCell from '@material-ui/core/TableCell';
 import TablePagination from '@material-ui/core/TablePagination';
 
 import Datetime from "react-datetime";
@@ -33,6 +40,8 @@ import lodashSortBy from 'lodash/sortBy';
 // icons
 import CancelIcon from '@material-ui/icons/Cancel';
 import EditIcon from '@material-ui/icons/Edit';
+import IconButton from '@material-ui/core/IconButton';
+import VisibilityIcon from '@material-ui/icons/Visibility';
 
 // styles
 import globalStyles from "assets/globalStyles";
@@ -57,6 +66,8 @@ import {
 } from "views/globals.js";
 
 const FILTERLIST = ["All", "OnlyLogInOut", "NoLogInOut"];
+
+const NonMovableActionList = ["Login", "Logout"];
 
 export default function Logs() {
 	//const classes = useStyles();
@@ -125,61 +136,66 @@ export default function Logs() {
 	
 	function DisplayLogsHeader() {
 	return (
-		<Box key={"MEMBOXHDR"} className={gClasses.boxStyleOdd} borderColor="black" borderRadius={30} border={1} 
-		>
-		<Grid key={"MEMGRIDHDR"} className={gClasses.noPadding} container justifyContent="center" alignItems="center" >
-			<Grid align="center" item xs={4} sm={3} md={2} lg={2} >
-				<Typography className={gClasses.patientInfo2Brown }>Date</Typography>		
-			</Grid>
-			<Grid align="center" item xs={4} sm={2} md={1} lg={1} >
-				<Typography className={gClasses.patientInfo2Brown}>Action</Typography>
-			</Grid>
-			<Grid align="center" item xs={4} sm={2} md={1} lg={1} >
-				<Typography className={gClasses.patientInfo2Brown}>Admin</Typography>
-			</Grid>
-			<Grid align="center" item xs={12} sm={5} md={2} lg={2} >
+	<TableHead>
+	<TableRow key={"MEMGRIDHDR"}  className={gClasses.boxStyleOdd} >
+		<TableCell style={{padding: "2px" }} align="center">
+			<Typography className={gClasses.patientInfo2Brown }>Date</Typography>		
+		</TableCell>
+		<TableCell style={{padding: "2px" }} align="center">
+			<Typography className={gClasses.patientInfo2Brown}>Action</Typography>
+		</TableCell>
+		<TableCell style={{padding: "2px" }} align="center">
+			<Typography className={gClasses.patientInfo2Brown}>Admin</Typography>
+		</TableCell>
+		<TableCell style={{padding: "2px" }} align="center">
 				<Typography className={gClasses.patientInfo2Brown} >Name</Typography>		
-			</Grid>
-			<Grid align="left" item xs={12} sm={12} md={6} lg={6} >
-				<Typography style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2Brown} >Description</Typography>		
-			</Grid>
-		</Grid>
-		</Box>
+		</TableCell>
+		<TableCell style={{padding: "2px" }} align="left">
+			<Typography style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2Brown} >Description</Typography>		
+		</TableCell>
+		<TableCell style={{padding: "2px" }} align="center">
+		</TableCell>
+	</TableRow>
+	</TableHead>
 	)}
   
 
+	function editApplication(logRec) {
+		showInfo("View Application to be implemented");
+	}
+	
 	
 	function DisplayAllLogs() {
 	if (logArray.length === 0) return null;
 	return (
-		<div>
+		<TableBody>
 		{logArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (l, index) => {
+				//console.log(l.admin);
+				//console.log(l.action, NonMovableActionList.includes(l.action));
 		return (
-		<Box key={"MEMBOX"+index} 
-			className={((index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} 
-			borderColor="black" borderRadius={30} border={1} 
-		>
-		<Grid key={"MEMGRID"+index} className={gClasses.noPadding} container justifyContent="center" alignItems="center" >
-			<Grid align="center" item xs={4} sm={3} md={2} lg={2} >
-				<Typography className={gClasses.patientInfo2 }>{dateTimeString(l.date)}</Typography>		
-			</Grid>
-			<Grid align="center" item xs={4} sm={2} md={1} lg={1} >
-				<Typography className={gClasses.patientInfo2}>{l.action}</Typography>
-			</Grid>
-			<Grid align="center" item xs={4} sm={2} md={1} lg={1} >
-				<Typography className={gClasses.patientInfo2}>{(l.admin) ? "Admin" : "NonAdmin"}</Typography>
-			</Grid>
-			<Grid align="center" item xs={12} sm={5} md={2} lg={2} >
-				<Typography className={gClasses.patientInfo2 } >{l.name}</Typography>		
-			</Grid>
-			<Grid align="left" item xs={12} sm={12} md={6} lg={6} >
-				<Typography style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2 } >{l.desc}</Typography>		
-			</Grid>
-		</Grid>
-		</Box>
+		<TableRow key={"MEMGRID"+index}  className={((index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} >
+		<TableCell style={{padding: "0px"}} align="center">
+			<Typography className={gClasses.patientInfo2 }>{dateTimeString(l.date)}</Typography>		
+		</TableCell>
+		<TableCell style={{padding: "0px"}} align="center">
+			<Typography className={gClasses.patientInfo2}>{l.action}</Typography>
+		</TableCell>
+		<TableCell style={{padding: "0px"}} align="center">
+			<Typography className={gClasses.patientInfo2}>{(l.isAdmin === "true") ? "Yes" : "-"}</Typography>
+		</TableCell>
+		<TableCell  style={{padding: "0px"}} align="center">
+			<Typography className={gClasses.patientInfo2 } >{l.name}</Typography>		
+		</TableCell>
+		<TableCell style={{padding: "0px"}} align="left">
+			<Typography style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2 } >{l.desc}</Typography>		
+		</TableCell>
+		<TableCell style={{padding: "0px"}} align="center">
+			<IconButton disabled={NonMovableActionList.includes(l.action)}  color="primary" size="small" onClick={() => {editApplication(l)}}><VisibilityIcon /></IconButton>			
+		</TableCell>
+		</TableRow>
 		)}
 		)}
-		</div>
+		</TableBody>
 	)}
   
 	function filterLogs(selection, trange, t1, t2) {
@@ -275,8 +291,14 @@ export default function Logs() {
 			</Grid >
 			<Grid align="center" item xs={2} sm={2} md={1} lg={1} />
 		</Grid>
+		<Box key="BOXPRWSFILTERTABLE"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
+		<TableContainer>
+		<Table style={{padding: "2px" }} >
 		<DisplayLogsHeader />
 		<DisplayAllLogs />
+		</Table>
+		</TableContainer>
+		</Box>	
 		{(logArray.length > ROWSPERPAGE) &&
 		<TablePagination
 			align="right"

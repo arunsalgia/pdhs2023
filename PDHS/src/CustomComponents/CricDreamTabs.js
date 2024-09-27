@@ -32,7 +32,7 @@ import Member from 'views/Member/Member'
 import Humad from 'views/Humad/Humad'
 import Pjym from 'views/Pjym/Pjym'
 import Prws from 'views/Prws/Prws'
-import TestValidator from 'views/Prws/TestValidator'
+//import TestValidator from 'views/Prws/TestValidator'
 
 
 import Admin from 'views/Admin/Admin'
@@ -361,7 +361,7 @@ export function CricDreamTabs() {
 			case 903: return <Pjym />;
 			case 904: return <Member hid={Number(sessionStorage.getItem("menuHid"))} mid={Number(sessionStorage.getItem("menuMid"))} />;
 			case 905: return <Application />;
-			case 9999: return <TestValidator />;
+			//case 9999: return <TestValidator />;
 			case 999: return <Application userType="user" />;
 			
       case 1001: return <Gotra />;

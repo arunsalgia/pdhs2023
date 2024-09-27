@@ -59,11 +59,16 @@ import {
 import {
 	ADMIN,
   PADSTYLE,
+	APPLICATIONTYPES,
 	MEMBERTITLE, RELATION, SELFRELATION, GENDER, BLOODGROUP, MARITALSTATUS,
 	DATESTR, MONTHNUMBERSTR,
 	CASTE, HUMADSUBCASTRE,
 	STATUS_INFO,
 } from "views/globals.js";
+
+import {
+	setTab,
+} from "CustomComponents/CricDreamTabs.js"
 
 
 import { 
@@ -86,6 +91,11 @@ import {  } from 'views/functions';
 //import { updateCbItem } from 'typescript';
 
 const InitialContextParams = {show: false, x: 0, y: 0};
+
+const funCodeTable = [
+{fun: APPLICATIONTYPES.addMember, 			code: process.env.REACT_APP_FAMILY_PERSONAL_ADD},
+{fun: APPLICATIONTYPES.editMember, 			code: process.env.REACT_APP_FAMILY_PERSONAL_EDIT},
+];
 
 
 export default function MemberOffice(props) {
@@ -169,6 +179,15 @@ export default function MemberOffice(props) {
 			setHodRec(myHodRec);		
 			setMemberArray(JSON.parse(sessionStorage.getItem("member_members")));
 		}
+		
+		if ("family_personal_returnstatus" in sessionStorage) {
+			console.log("has return status");
+			var sts = JSON.parse(sessionStorage.getItem("family_personal_returnstatus"));
+			//console.log(sts);
+			sessionStorage.removeItem("family_personal_returnstatus");
+			handleOfficeReturn(sts);
+		}
+
 		getDetails();
 		handleResize();
 		window.addEventListener('resize', handleResize);
@@ -249,18 +268,31 @@ export default function MemberOffice(props) {
 		handleOfficeContextMenuClose()
 		let m = memberArray.find(x => x.order === radioRecord);
 		setSelMember(m);
-		
-		//console.log(m);
-/*
-		setEmurAddr1(m.education);
-		setEmurAddr2(m.officeName)
-		setEmurAddr3(m.officePhone)
-		setEmurAddr4(getMemberName(m));
-		setIsDrawerOpened("EDITOFFICE");			// "EDITOFFICE" is old. TO be finally discarded
-*/
+		selectCaller(APPLICATIONTYPES.editMember, "EDIT", memberArray, hodRec, m);
 
-		setIsDrawerOpened("EDIT");
+		//setIsDrawerOpened("EDIT");
 	}
+	
+	function selectCaller(funCode, mode, memberList, hodRecord, memberRecord) {
+		var myFun = funCodeTable.find(x => x.fun === funCode);
+		if (myFun) {
+			var myData = JSON.stringify({
+				calledFrom: "Office",
+				mode: mode,
+				memberList: memberList,
+				hodRec: hodRecord,
+				hodMid: hodRecord.mid,
+				memberRec: memberRecord,
+				selectedMid:  memberRecord.mid
+			});
+			sessionStorage.setItem("family_personal_props", myData);
+			setTab(myFun.code);
+		}
+		else {
+			setIsDrawerOpened(mode);
+		}
+	}
+	
 
 	function handleAddEditBack(sts) {
 		console.log(sts);
@@ -274,7 +306,20 @@ export default function MemberOffice(props) {
 		}
 		setIsDrawerOpened("");
 	}
-	
+
+	function handleOfficeReturn(sts) {
+		console.log(sts);
+		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
+		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
+		
+		if (sts.status == STATUS_INFO.SUCCESS) {
+		}
+		else {
+			console.log("Yaha kaise aaya");
+		}
+		setIsDrawerOpened("");
+	}
+		
 	function handleEditOfficeSubmit() {
 		let m = memberArray.find(x => x.order === radioRecord);
 		m.education = emurAddr1;
@@ -403,7 +448,17 @@ export default function MemberOffice(props) {
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
 		{/*<DisplayOfficeButtons />*/}
-	<DisplayOfficeInformation />
+		{/*<DisplayOfficeInformation />*/}
+		{memberArray.map( (m, index) => {
+			let myInfo = getMemberTip(m, dispType, props.city);		// + "<br />" + getOfficeTip(m, dispType);
+			return (
+			<PersonalOffice key={"Office"+m.mid} m={m} dispType={dispType}  index={index} 
+				checked={radioRecord == m.order} onClick={(event) => { setRadioRecord(m.order); handleMemberOfficeContextMenu(event); } }
+				datatip={myInfo} 
+			/>
+		)}
+	)}	
+{contextParams.show && <MemberOfficeContextMenu /> }	
 	<DisplayAllToolTips />
 	<Drawer style={{ width: "100%"}} anchor="top" variant="temporary" open={isDrawerOpened != ""} >
 	<Container component="main" maxWidth="xs">	

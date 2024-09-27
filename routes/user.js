@@ -274,7 +274,7 @@ router.get('/padmavatimata/:myData', async function (req, res, next) {
 		if (!myAdmin) {
 			myAdmin = {
 				mid: myMem.mid, 
-				superAdmin: false, humadAdmin: false, 
+				superAdmin: false, humadAdmin : false, 
 				pjymAdmin: false, prwsAdmin: false, 
 				pmmAdmin: false
 			};
@@ -284,7 +284,6 @@ router.get('/padmavatimata/:myData', async function (req, res, next) {
 		}
 	}
 	//console.log(myAdmin);
-
   sendok(res, {user: myMem, admin: myAdmin, isMember: isMember, userName: userName});
 
 	// Make logger entry of use login.

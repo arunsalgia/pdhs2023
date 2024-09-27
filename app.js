@@ -169,8 +169,6 @@ UserSchema = mongoose.Schema({
 
 
 adminSchema = mongoose.Schema({
-	//id: Number,
-	//hid: Number,
 	mid: Number,
 	superAdmin: Boolean,
 	humadAdmin: Boolean,
@@ -592,5 +590,11 @@ OWNER = {
 	pmm:		"PMM"
 };
 
+EMSTYPES = {
+	married:		"Married",
+	unmarried:	"Unmarried",
+	widow:			"Widow",
+	widower:		"Widower",
+};
 
 ELIGIBLEMARRIAGEYEARS = 21;

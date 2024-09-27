@@ -11,14 +11,6 @@ import lodashMap from "lodash/map";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-
-
 import MemberEditDom from 'views/Member/MemberEditDom';
 
 import VsButton from "CustomComponents/VsButton";
@@ -314,7 +306,7 @@ export default function MemberSpouse(props) {
 		setIsTopDrawerOpened("EDITDOM");
 	}
 	
-	function OldDisplaySpouseInformation() {
+	function DisplaySpouseInformation() {
 		let hands = getImageName("MARRIAGEHANDS");
 		return (
 		<div>
@@ -364,62 +356,6 @@ export default function MemberSpouse(props) {
 			)}
 		)}	
 		</div>
-	)}
-
-	function DisplaySpouseInformation() {
-		let hands = getImageName("MARRIAGEHANDS");
-		return (
-		<Box key="BOXOFFICE"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
-    <TableContainer>
-		<Table style={{padding: "2px" }} >
-<TableHead key={"MEMGRIDTBLHDR"}>
-<TableRow key={"MEMGRIDHDR"}  className={gClasses.boxStyleOdd} >
-<TableCell style={{padding: "2px" }} align="center">
-	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }} className={gClasses.patientInfo2Brown } >Husband</Typography>
-</TableCell>
-<TableCell style={{padding: "2px" }} align="center">
-	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }}  align="center" className={gClasses.patientInfo2Brown }>DOM</Typography>
-</TableCell>
-<TableCell style={{padding: "2px" }} align="center">
-	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }}  align="center" className={gClasses.patientInfo2Brown }>Wife</Typography>
-</TableCell>
-<TableCell style={{padding: "2px" }} ></TableCell>
-</TableRow>
-</TableHead>
-<TableBody>
-		{coupleArray.map( (c, index) => {
-			let myDate = dateString(c.dom);
-			if (myDate === "") myDate = "N.A.";
-			//console.log(c);
-			return (
-	<TableRow key={"MEMGRID"+index}  className={((index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} >
-	<TableCell style={{padding: "2px" }} align="center" >
-					<Typography className={gClasses.patientInfo2}>{c.gName}</Typography>
-	</TableCell>
-	<TableCell style={{padding: "2px" }} align="center" >
-					{(SHOWMARRIAGEIMAGE) &&
-					<Avatar size="small" variant="circular" src={hands} />
-					}
-					<Typography className={gClasses.patientInfo2Green}>
-						{myDate}
-					</Typography>
-	</TableCell>
-	<TableCell style={{padding: "2px" }} align="center" >
-					<Typography className={gClasses.patientInfo2}>{c.bName}</Typography>
-	</TableCell>
-	<TableCell style={{padding: "2px" }} align="center" >
-				<Typography>
-				 <span><MoreVertIcon color="primary" size="small" onClick={() => handleDOM(c) }	 /></span>
-				</Typography>
-
-	</TableCell>					
-	</TableRow>
-			)}
-		)}	
-</TableBody>
-		</Table>
-    </TableContainer>
-		</Box>	
 	)}
 
 	function handleEditDomBack(sts) {

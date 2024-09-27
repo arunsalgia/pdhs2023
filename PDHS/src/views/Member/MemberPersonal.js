@@ -15,6 +15,14 @@ import lodashSortBy from "lodash/sortBy";
 import lodashMap from "lodash/map";
 //import IconButton from '@material-ui/core/IconButton';
 
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+
+
 import VsButton from "CustomComponents/VsButton";
 import VsCancel from "CustomComponents/VsCancel";
 import VsRadio from "CustomComponents/VsRadio";
@@ -50,6 +58,7 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 import {
 	BlankArea,
 	DisplayMemberHeader, PersonalHeader, PersonalMember, DisplaySingleTip,
+	PrwsHeaderBody, PrwsDataRow,
 } from "CustomComponents/CustomComponents.js"
 
 import {
@@ -104,7 +113,7 @@ const funCodeTable = [
 {fun: APPLICATIONTYPES.editMember, 			code: process.env.REACT_APP_FAMILY_PERSONAL_EDIT},
 {fun: APPLICATIONTYPES.transferMember, 	code: process.env.REACT_APP_FAMILY_PERSONAL_TRANSFER},
 {fun: APPLICATIONTYPES.marriage, 				code: process.env.REACT_APP_FAMILY_PERSONAL_MARRIAGE},
-{fun: APPLICATIONTYPES.unMarriage, 			code: process.env.REACT_APP_FAMILY_PERSONAL_UNMARRIAGE},
+// Managed locally. No page required for this {fun: APPLICATIONTYPES.unMarriage, 			code: process.env.REACT_APP_FAMILY_PERSONAL_UNMARRIAGE},
 {fun: APPLICATIONTYPES.memberCeased, 		code: process.env.REACT_APP_FAMILY_PERSONAL_CEASED},
 ];
 
@@ -599,17 +608,26 @@ function DisplayPersonalInformation() {
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
 	<Typography align="right" style={{paddingRight: "10px"}}  className={gClasses.patientInfo2Blue} onClick={handlePersonalAdd} >Add Member</Typography>
-		{/*<DisplayPersonalInformation />*/}
-	<PersonalHeader dispType={dispType} />
+	{/*<DisplayPersonalInformation />*/}
+	<Box key="BOXPRWSFILTERTABLE"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
+	<TableContainer>
+	<Table style={{padding: "2px" }} >
+	<PrwsHeaderBody dispType={dispType} />
+	<TableBody>
 	{memberArray.map( (m, index) => {
 		if (m.ceased) return null;
 		var memberCity = "";		//getMyCity(m.hid);
 		return (
-			<PersonalMember  key={"PERSONALMEMBER"+index} m={m} dispType={dispType}  index={index} id={"PERSONALMEMBER"+index}
-					onClick={(event) => { radioMid = m.mid; handleMemberPersonalContextMenu(event,`PERSONALMEMBER${index}`); }}
-					datatip={getMemberTip(m, dispType, memberCity)} />
+			<PrwsDataRow key={"PERSONALMEMBER"+index} index={index} m={m} dispType={dispType} memberCity={memberCity} 
+				datatip={getMemberTip(m, dispType, memberCity)} 
+				onClick={(event) => { radioMid = m.mid; handleMemberPersonalContextMenu(event,`PERSONALMEMBER${index}`); }}
+			/>
 		)}
 	)}	
+	</TableBody>
+	</Table>
+	</TableContainer>
+	</Box>	
 	{contextParams.show && 
 		<MemberPersonalContextMenu /> 
 	}		

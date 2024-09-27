@@ -368,6 +368,16 @@ return (
 						onChange={(event) => { setEmurAddr4(event.target.value) }}			
 					/>	
 				</Grid>
+				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+				<Grid item xs={5} sm={5} md={5} lg={5} >
+					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Alias</Typography>
+				</Grid>
+				<Grid item xs={7} sm={7} md={7} lg={7} >
+					<TextValidator style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing}
+						inputProps={{className: gClasses.dateTimeNormal}} type="text" value={emurAddr5}
+						onChange={(event) => { setEmurAddr5(event.target.value) }}			
+					/>	
+				</Grid>
 			</Grid>
 			<br />
 		</Accordion>

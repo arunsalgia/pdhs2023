@@ -372,6 +372,13 @@ export const VALUEDIRECTION = {
 	current: 0
 };
 
+export const OWNER = {
+	prws:   "PRWS",
+	pjym:		"PJYM",
+	humad:	"Humad",
+	pmm:		"PMM"
+};
+
 export const MAXDISPLAYTEXTROWS=10;
 
 export const ELIGIBLEMARRIAGEYEARS = 21;

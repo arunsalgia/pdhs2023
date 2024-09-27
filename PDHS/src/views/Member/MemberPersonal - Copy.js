@@ -73,6 +73,7 @@ import {
 	getAdminInfo,
 	applicationSuccess,
 	showSuccess, showError, showInfo,
+	callYesNo,
 } from "views/functions.js";
 
 import SplitFamily from "views/Member/SplitFamily";
@@ -87,11 +88,25 @@ import {
 	readAllMembers, memberGetByHidMany, memberUpdateMany,
 } from "views/clientdbfunctions";
 
+import {
+	setTab,
+} from "CustomComponents/CricDreamTabs.js"
+
 
 
 const InitialContextParams = {show: false, x: 0, y: 0};
 var radioMid = -1;
 //var familyCity = "";
+
+const funCodeTable = [
+{fun: APPLICATIONTYPES.newHod, 					code: process.env.REACT_APP_FAMILY_PERSONAL_NEWHOD},
+{fun: APPLICATIONTYPES.addMember, 			code: process.env.REACT_APP_FAMILY_PERSONAL_ADD},
+{fun: APPLICATIONTYPES.editMember, 			code: process.env.REACT_APP_FAMILY_PERSONAL_EDIT},
+{fun: APPLICATIONTYPES.transferMember, 	code: process.env.REACT_APP_FAMILY_PERSONAL_TRANSFER},
+{fun: APPLICATIONTYPES.marriage, 				code: process.env.REACT_APP_FAMILY_PERSONAL_MARRIAGE},
+// Managed locally. No page required for this {fun: APPLICATIONTYPES.unMarriage, 			code: process.env.REACT_APP_FAMILY_PERSONAL_UNMARRIAGE},
+{fun: APPLICATIONTYPES.memberCeased, 		code: process.env.REACT_APP_FAMILY_PERSONAL_CEASED},
+];
 
 
 export default function MemberPersonal(props) {
@@ -158,10 +173,12 @@ export default function MemberPersonal(props) {
 	const [contextParams, setContextParams] = useState(InitialContextParams);
 	const [grpAnchorEl, setGrpAnchorEl] = React.useState(null);
 	const grpOpen = Boolean(grpAnchorEl);
-	let menuRef = useRef();
+	let menuRef = useRef(null);
+	let newMenuRef = useRef();
+	
 	
   useEffect(() => {	
-  function handleResize() {
+		function handleResize() {
 			let myDim = getWindowDimensions();
       setWindowDimensions(myDim);
       //console.log(displayType(myDim.width));
@@ -174,6 +191,14 @@ export default function MemberPersonal(props) {
 			setMemberArray(myMemArray);
 			var ccc = myMemArray.find(x => x.mid === myHodRec.mid);
 			if (!ccc) showError(`Family Head of family ${myHodRec.hid} not in list. May be ceased`);
+		}
+
+		if ("family_personal_returnstatus" in sessionStorage) {
+			console.log("has return status");
+			var sts = JSON.parse(sessionStorage.getItem("family_personal_returnstatus"));
+			//console.log(sts);
+			sessionStorage.removeItem("family_personal_returnstatus");
+			handlePersonalReturn(sts);
 		}
 
 		getDetails();
@@ -280,7 +305,6 @@ function DisplayPersonalInformation() {
 					datatip={getMemberTip(m, dispType, props.city)} />
 		)}
 	)}
-	{contextParams.show && <MemberPersonalContextMenu /> }		
 	</div>	
 	)}
 
@@ -288,20 +312,21 @@ function DisplayPersonalInformation() {
  
 	function MemberPersonalContextMenu() {
 		//console.log(contextParams);
-		var myStyle={top: `${contextParams.y}px` , left: `${contextParams.x}px` };
+		var myStyle={top: `${contextParams.y}px`, left: `${contextParams.x}px` };
+		//console.log(myStyle);
+		//console.log(newMenuRef);
 		var memberRecord = memberArray.find(x => x.mid === radioMid);
 		if (!memberRecord) return;
+		//console.log(hodRec);
+		//console.log(memberRecord);
 		var myIndex = memberArray.findIndex(x => x.mid === radioMid);
 		//console.log(myIndex);
 		let isFamilyMember = (memberArray[0].hid === loginHid);
 		let admin = ((adminInfo & (ADMIN.superAdmin | ADMIN.prwsAdmin)) !== 0);
 		let isEligible = isEligibleForMarriage(memberRecord);
-		console.log(isEligible, isFamilyMember, admin);
-		console.log(!isEligible);
-		console.log(!(isFamilyMember || admin));
-		console.log(!(isEligible && (isFamilyMember || admin)));
+		//console.log(newMenuRef);
 	return(
-	<div ref={menuRef}   className='absolute z-20' style={myStyle}>
+	<div id="MEMPERSMENU" ref={newMenuRef} className='absolute z-20' style={myStyle}>
 	<Menu
 		id="memberpersonal-menu1"
 		anchorEl={grpAnchorEl}
@@ -331,10 +356,17 @@ function DisplayPersonalInformation() {
 		<MenuItem disabled={(!isFamilyMember && !admin)} onClick={() => { handleMemPerContextMenuClose(); handlePersonalTransfer(memberRecord) } }>
 			<Typography>Move</Typography>
 		</MenuItem>
+		{(memberRecord.emsStatus.toUpperCase() !== "MARRIED") &&
 		<MenuItem disabled={!(isEligible && (isFamilyMember || admin))} onClick={() => {handleMemPerContextMenuClose(); handleMarriage(memberRecord); } } >
 			<Typography>Marriage</Typography>
 		</MenuItem>
-		<MenuItem disabled={!isFamilyMember && !admin} onClick={() => { handleMemPerContextMenuClose(); newHOD(memberRecord) } }>
+		}
+		{(memberRecord.emsStatus.toUpperCase() === "MARRIED") &&
+		<MenuItem disabled={!(true && (isFamilyMember || admin))} onClick={() => {handleMemPerContextMenuClose(); handleUnMarriage(memberRecord); } } >
+			<Typography>Change Marital Status</Typography>
+		</MenuItem>
+		}		
+		<MenuItem disabled={(!isFamilyMember && !admin) || (hodRec.mid === memberRecord.mid)} onClick={() => { handleMemPerContextMenuClose(); newHOD(memberRecord) } }>
 			<Typography>New Family Head</Typography>
 		</MenuItem>
 		<MenuItem disabled={!isFamilyMember && !admin} onClick={() => {handleMemPerContextMenuClose(); ceasedMember(memberRecord); } } >
@@ -345,14 +377,13 @@ function DisplayPersonalInformation() {
 	)}
 	
 	const handleMemberPersonalContextMenu = (e,id) => {
-		//console.log("In handleMemberPersonalContextMenu");
 		e.preventDefault();
-		setGrpAnchorEl(e.currentTarget);
 		//console.log(e.currentTarget);
-		//console.log(radioMid);
+		setGrpAnchorEl(e.currentTarget);
 		const {pageX, pageY } = e;
 		//console.log(pageX, pageY);
-		setContextParams({show: true, x: pageX, y: pageY});
+		setContextParams({show: false, x: pageX, y: pageY});
+		setContextParams({x: pageX, y: pageY, show: true});
 	}
 	
 	 
@@ -369,7 +400,37 @@ function DisplayPersonalInformation() {
 	
 	function handleMarriage(memRec) {
 		setSelMember(memRec);
-		setIsDrawerOpened("MARRIAGE");
+		selectCaller(APPLICATIONTYPES.marriage, "MARRIAGE", memberArray, hodRec, memRec);
+		//setIsDrawerOpened("MARRIAGE");
+	}
+	
+  function handleUnMarriage(memRec) {
+		//console.log(memRec.spouseMid);
+		var msg = (memRec.spouseMid !== 0) ?
+			`Set ${getMemberName(memRec, false, false)} along with spouse as Unmarried?` :
+			`Set ${getMemberName(memRec, false, false)} as Unmarried?`;
+		//console.log(msg);
+		vsDialog("Change Marital Status", msg,
+		{label: "Yes", onClick: () => unMarriageConfirm(memRec) },
+		{label: "No" }
+		);
+	}
+	
+	async function unMarriageConfirm(memRec) {
+		//console.log(memRec);
+		let myData = {
+			memberRec: memRec,
+			spouseMemberRec: memberArray.find(x => x.mid === memRec.spouseMid)
+		}
+		let tmp = encodeURIComponent(JSON.stringify(myData));
+		try {
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/unmarriage/${hodRec.mid}/${sessionStorage.getItem('mid')}/${tmp}`;
+			let resp = await axios.get(myUrl);
+			showSuccess(`Successfully applied for marital status change. Application reference ${resp.data.id}.`);
+		} catch (e) {
+			console.log(e);
+			showError(`Error applying for for marital status change`);
+		}
 	}
 	
 	function handleMarriageBack(sts) {
@@ -400,7 +461,8 @@ function DisplayPersonalInformation() {
 	
 	function ceasedMemberConfirm(m) {
 		setSelMember(m);
-		setIsDrawerOpened("CEASED");
+		selectCaller(APPLICATIONTYPES.memberCeased, "CEASED", memberArray, hodRec, m);
+		//setIsDrawerOpened("CEASED");
 	}
 
 	function handleCeasedMemberBack(sts) {
@@ -432,7 +494,8 @@ function DisplayPersonalInformation() {
 
 	function newHODConfirm(rec) {	
 		setSelMember(rec);
-		setIsDrawerOpened("NEWHOD");
+		selectCaller(APPLICATIONTYPES.newHod, "NEWHOD", memberArray, hodRec, rec);
+		//setIsDrawerOpened("NEWHOD");
 	}
 
 	function handleNewHodBack(sts) {
@@ -452,7 +515,8 @@ function DisplayPersonalInformation() {
 		// Transfer member(s) to another family
 	function handlePersonalTransfer(rec) {
 		setSelMember(rec);
-		setIsDrawerOpened("TRANSFER");
+		selectCaller(APPLICATIONTYPES.transferMember, "TRANSFER", memberArray, hodRec, rec);
+		//setIsDrawerOpened("TRANSFER");
 	}
 	
 	function handlePersonalTransferBack(sts) {
@@ -470,14 +534,17 @@ function DisplayPersonalInformation() {
 
 	/// Add new member or edit member
 	function handlePersonalAdd() {
-		setSelMember(null);
-		setIsDrawerOpened("ADD");
+		//setSelMember(null);
+		setSelMember({hid: memberArray[0].hid, mid: 0, lastName: memberArray[0].lastName, firstName: ""});
+		selectCaller(APPLICATIONTYPES.addMember, "ADD", memberArray, hodRec, {hid: memberArray[0].hid, lastName: memberArray[0].lastName, firstName: ""});
+		//setIsDrawerOpened("ADD");
 	}
 	
 	// edit personal details
 	function handlePersonalEdit(m) {
 		setSelMember(m);
-		setIsDrawerOpened("EDIT");
+		selectCaller(APPLICATIONTYPES.editMember, "EDIT", memberArray, hodRec, m);
+		//setIsDrawerOpened("EDIT");
 	}
 
 	function handleAddEditBack(sts) {
@@ -493,11 +560,59 @@ function DisplayPersonalInformation() {
 		setIsDrawerOpened("");
 	}
 	
+	function handlePersonalReturn(sts) {
+		console.log(sts);
+		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
+		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
+		
+		if (sts.status == STATUS_INFO.SUCCESS) {
+		}
+		else {
+			console.log("Yaha kaise aaya");
+		}
+		setIsDrawerOpened("");
+	}
+	
+	
+	function selectCaller(funCode, mode, memberList, hodRecord, memberRecord) {
+		var myFun = funCodeTable.find(x => x.fun === funCode);
+		if (myFun) {
+			var myData = JSON.stringify({
+				calledFrom: "Personal",
+				mode: mode,
+				memberList: memberList,
+				hodRec: hodRecord,
+				hodMid: hodRecord.mid,
+				memberRec: memberRecord,
+				selectedMid:  memberRecord.mid
+			});
+			sessionStorage.setItem("family_personal_props", myData);
+			//sessionStorage.setItem("family_currentSelection", "Personal");
+			setTab(myFun.code);
+		}
+		else {
+			setIsDrawerOpened(mode);
+		}
+	}
+	
 	//console.log(isDrawerOpened);
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
 	<Typography align="right" style={{paddingRight: "10px"}}  className={gClasses.patientInfo2Blue} onClick={handlePersonalAdd} >Add Member</Typography>
-	<DisplayPersonalInformation />
+		{/*<DisplayPersonalInformation />*/}
+	<PersonalHeader dispType={dispType} />
+	{memberArray.map( (m, index) => {
+		if (m.ceased) return null;
+		var memberCity = "";		//getMyCity(m.hid);
+		return (
+			<PersonalMember  key={"PERSONALMEMBER"+index} m={m} dispType={dispType}  index={index} id={"PERSONALMEMBER"+index}
+					onClick={(event) => { radioMid = m.mid; handleMemberPersonalContextMenu(event,`PERSONALMEMBER${index}`); }}
+					datatip={getMemberTip(m, dispType, memberCity)} />
+		)}
+	)}	
+	{contextParams.show && 
+		<MemberPersonalContextMenu /> 
+	}		
 	<DisplayAllToolTips />
 	<Drawer style={{ width: "100%"}} anchor="top" variant="temporary" open={isDrawerOpened != ""} >
 	<Container component="main" maxWidth="xs">	

@@ -43,8 +43,6 @@ import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
 import moment from "moment";
 
-import {setTab, setDisplayPage } from "CustomComponents/CricDreamTabs.js"
-
 // styles
 import globalStyles from "assets/globalStyles";
 
@@ -60,6 +58,7 @@ import ArrowDropDownCircle from '@material-ui/icons/ArrowDropDownCircle';
 import {
 	BlankArea, DisplayPageHeader,
 	PersonalHeader, PersonalMember,
+	HumadMember,
 	DisplaySingleTip,
 	DisplayPrwsFilter,
 } from "CustomComponents/CustomComponents.js"
@@ -78,7 +77,6 @@ import {
 
 
 import { 
-	showError, showSuccess, showInfo,
   displayType, getWindowDimensions,
 	decrypt, dispMobile, dispEmail, disableFutureDt,
 	isMobile, 
@@ -91,8 +89,19 @@ import {
 	getAdminInfo,
 	applicationSuccess,
 	getHodCityList,
+	hasHumadpermission,
+	showSuccess, showError, showInfo,
+
 } from "views/functions.js";
 
+import {
+	setTab,
+} from "CustomComponents/CricDreamTabs.js"
+
+
+const funCodeTable = [
+{fun: APPLICATIONTYPES.humadUpgrade, 					code: process.env.REACT_APP_HUMAD_UPGRADE},
+];
 
 var cityList = ["Mumbai"];
 var cityArray = [];
@@ -171,7 +180,8 @@ export default function Humad() {
 
 	const [humadArray, setHumadArray] = useState([]);
 	const [humadCount, setHumadCount] = useState(0);
-
+	const [humadRec, setHumadRec] = useState(null);
+	
 	//================
 
   useEffect(() => {	
@@ -256,6 +266,14 @@ export default function Humad() {
 		
 		setPage(0);
 		
+		if ("humad_returnstatus" in sessionStorage) {
+			console.log("has return status");
+			var sts = JSON.parse(sessionStorage.getItem("humad_returnstatus"));
+			//console.log(sts);
+			sessionStorage.removeItem("humad_returnstatus");
+			handleHumadReturn(sts);
+		}
+
 		if (sessionStorage.getItem("isMember") === "true") {
 			getAllCities();
 			getAllHumad();
@@ -273,26 +291,29 @@ export default function Humad() {
 	return (
 		<Box  key={"MEMBOXHDR"} className={gClasses.boxStyleOdd} borderColor="black" borderRadius={30} border={1} >
 		<Grid key={"MEMGRIDHDR"} className={gClasses.noPadding} key={"SYMHDR"} container align="center" alignItems="center" >
-		<Grid align="left" item md={5} lg={5} >
+		<Grid align="left" item xs={8} sm={8} md={5} lg={5} >
 			<Typography className={gClasses.patientInfo2Brown}>Name</Typography>
-		</Grid>
-		
-		<Grid align="center" item md={1} lg={1} >
-			<Typography className={gClasses.patientInfo2Brown}>Mem. No.</Typography>
-		</Grid>
-		<Grid align="center" item md={1} lg={1} >
+		</Grid>	
+		{( (dispType !== "xs") && (dispType !== "sm") ) &&
+		<Grid align="center" item xs={3} sm={3} md={2} lg={2} >
 			<Typography className={gClasses.patientInfo2Brown}>Mobile</Typography>
 		</Grid>
-		<Grid align="center" item md={1} lg={1} >
+		}
+		<Grid align="center" item xs={3} sm={3} md={1} lg={1} >
 			<Typography className={gClasses.patientInfo2Brown}>Mem. Id</Typography>
 		</Grid>
+		{( (dispType !== "xs") && (dispType !== "sm") ) &&
 		<Grid align="center" item md={1} lg={1} >
-			<Typography className={gClasses.patientInfo2Brown}>Mem. Date</Typography>
+			<Typography className={gClasses.patientInfo2Brown}>Med. Date</Typography>
 		</Grid>
+		}
+		{( (dispType !== "xs") && (dispType !== "sm") ) &&
 		<Grid align="center" item md={2} lg={2} >
 			<Typography className={gClasses.patientInfo2Brown}>Remarks</Typography>
 		</Grid>
+		}
 		<Grid align="center" item md={1} lg={1} >
+		<Typography className={gClasses.patientInfo2Brown}></Typography>
 		</Grid>
 		</Grid>
 		</Box>	
@@ -323,7 +344,7 @@ export default function Humad() {
 	}
 	
 	function upgradeHumad() {
-		handleHumadMenuClose();
+		handlePrwsContextMenuClose();
 		// get Humad record
 		let tmpHumadRec = humadArray.find(x => x.mid === menuMember.mid);
 		let  myIndex = HUMADCATEGORY.map(e => e.short).indexOf(tmpHumadRec.membershipNumber.substr(0, 1));  //.find(x => x.short === );
@@ -331,10 +352,31 @@ export default function Humad() {
 			showInfo(`${getMemberName(menuMember, false, false)} is already ${HUMADCATEGORY[0].desc} (highest upgrade)`);
 			return;
 		}
-		setHumadRec(tmpHumadRec);
-		setIsDrawerOpened("Upgrade");
+		selectCaller(APPLICATIONTYPES.humadUpgrade, "HumadUpgrade", menuMember, tmpHumadRec);
+
+		//setHumadRec(tmpHumadRec);
+		//setIsDrawerOpened("HumadUpgrade");
 	}
 
+	function selectCaller(funCode, mode, memberRecord, humadRecord ) {
+		var myFun = funCodeTable.find(x => x.fun === funCode);
+		if (myFun) {
+			var myData = JSON.stringify({
+				calledFrom: process.env.REACT_APP_HUMAD,
+				memberRec: memberRecord,
+				humadRec: humadRecord,
+				mode: mode,
+				hodMid: 0,
+				selectedMid:  memberRecord.mid
+			});
+			sessionStorage.setItem("humad_props", myData);
+			setTab(myFun.code);
+		}
+		else {
+			setIsDrawerOpened(mode);
+		}
+	}
+	
 
 //===================
 
@@ -399,7 +441,7 @@ export default function Humad() {
 	
 	
 	function addFilterConfirm(tmpValue) {
-		console.log("addFilterConfirm", tmpValue);
+		//console.log("addFilterConfirm", tmpValue);
 		let finalFilter;
 		let userSelection = ""
 		if (tmpValue.length > 0) 
@@ -428,7 +470,7 @@ export default function Humad() {
 		setInputFilterMode(false);
 		updateFilterItems(finalFilter);
 		if (process.env.REACT_APP_BACKENDFILTER === "true") {
-			getMemeberPage(finalFilter, 0);
+			getHumadPage(finalFilter, 0);
 		}
 		else {
 			updateMemberArray(finalFilter);
@@ -441,7 +483,7 @@ export default function Humad() {
 		setFilterList(tmp);	
 		updateFilterItems(tmp);
 		if (process.env.REACT_APP_BACKENDFILTER === "true") {
-			getMemeberPage(tmp, 0);
+			getHumadPage(tmp, 0);
 		}
 		else {
 			updateMemberArray(tmp);
@@ -535,6 +577,19 @@ export default function Humad() {
 		//setTab(process.env.REACT_APP_HUMAD);
 		setIsDrawerOpened("HumadUpgrade");
 	}
+
+	function handleHumadReturn(sts) {
+		console.log(sts);
+		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
+		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
+		
+		if (sts.status == STATUS_INFO.SUCCESS) {
+		}
+		else {
+			console.log("Yaha kaise aaya");
+		}
+		setIsDrawerOpened("");
+	}
 	
 	
 	function handleHumadUpgradeBack(sts) {
@@ -563,7 +618,7 @@ export default function Humad() {
 	// pagination function 
 	const handleChangePage = (event, newPage) => {
 		if (process.env.REACT_APP_BACKENDFILTER === "true") {
-			getMemeberPage(filterList, newPage);
+			getHumadPage(filterList, newPage);
 		}
     setPage(newPage);
   };
@@ -602,7 +657,7 @@ export default function Humad() {
  const handlePrwsContextMenu = (e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) => {
 	 e.preventDefault();
 	setGrpAnchorEl(e.currentTarget);
-	console.log(e.currentTarget);
+	//console.log(e.currentTarget);
 	 //console.log(radioMid);
 	 const {pageX, pageY } = e;
 	 //setAnchorEl(event.currentTarget);
@@ -623,9 +678,10 @@ export default function Humad() {
     var myName = tmp.firstName + " " + tmp.lastName;
 		//console.log(contextParams);
 		var myStyle={top: `${contextParams.y}px` , left: `${contextParams.x}px` };
-		console.log(myStyle);
-		console.log(menuRef);
+		//console.log(myStyle);
+		//console.log(menuRef);
 		//anchorEl={grpAnchorEl}
+		var upgradeAllowed = hasHumadpermission() && tmpHumadRec.membershipNumber.substr(0, 1) !== HUMADCATEGORY[0].short
 	return(
 	<div id="PRWSMENU" ref={menuRef} className='absolute z-20' style={myStyle}>
 	<Menu
@@ -651,7 +707,7 @@ export default function Humad() {
 			<Typography>{"Family"}</Typography>
 		</MenuItem>
 		<Divider />
-		<MenuItem disabled={tmpHumadRec.membershipNumber.substr(0, 1) === HUMADCATEGORY[0].short} onClick={upgradeHumad}>
+		<MenuItem disabled={!upgradeAllowed} onClick={upgradeHumad}>
 			<Typography>Upgrade</Typography>
 		</MenuItem>
 		{/*<Divider />
@@ -659,38 +715,6 @@ export default function Humad() {
 			<Typography>Gotra</Typography>
 		</MenuItem>
 		<MenuItem onClick={downloadPrwsData}>
-			<Typography>Export</Typography>
-		</MenuItem>*/}
-	</Menu>	
-	</div>
-	)}
-	
-	 
-	function MotWorking_PrwsContextMenu() {
-		console.log(contextParams);
-		var myStyle={top: contextParams.y+"px" , left: contextParams.x+"px" };
-		console.log(myStyle);
-		//anchorEl={grpAnchorEl}
-	return(
-	<div ref={menuRef}  style={myStyle}>
-	<Menu
-		id="prws-menu"
-		open={contextParams.show}
-		onClose={handlePrwsContextMenuClose}
-	>
-		<MenuItem onClick={jumpFamily}>
-			<Typography>Family</Typography>
-		</MenuItem>
-		{/*<MenuItem onClick={jumpPjym}>
-			<Typography>Pjym</Typography>
-		</MenuItem>
-		<MenuItem onClick={jumpHumad}>
-			<Typography>Humad</Typography>
-		</MenuItem>*/}
-		<MenuItem onClick={jumpGotra}>
-			<Typography>Gotra</Typography>
-		</MenuItem>
-		{/*<MenuItem onClick={downloadPrwsData}>
 			<Typography>Export</Typography>
 		</MenuItem>*/}
 	</Menu>	
@@ -727,10 +751,11 @@ export default function Humad() {
 	*/
 	// If filter at back-end then we have only 1 page data
 	currentPage =(process.env.REACT_APP_BACKENDFILTER === "true") ? 0 : page;
+	
 	return (
 	<div key="PRWS" className={gClasses.webPage} align="center" key="main">
 		<DisplayPageHeader headerName={(dispType === "xs") ? "Humad Samaj" : "Humad Samaj"} />
-		<DisplayPrwsFilter 
+			{/*<DisplayPrwsFilter 
 			inputFilterMode={inputFilterMode} 
 			inputName={inputName}
 			inputInfo={inputInfo}
@@ -744,29 +769,91 @@ export default function Humad() {
 			pdhsFilter={(event) => { addFilter(event.target.value); }}
 			applyClick={() => { addFilterConfirm(""); } }
 			cancelClick={() => { setInputFilterMode(false); setLastFilter(""); } }
-		/>
+			/>*/}
+		<Box key="BOXPRWSFILTER"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
+			<Grid key="PRWSFILTER" className={gClasses.noPadding} container>
+				<Grid align="left" item xs={10} sm={10} md={11} lg={11} >
+					<div>
+					{(!inputFilterMode) &&
+						<Typography style={{paddingLeft: "5px"}}>
+						{filterList.map( (m, index) => {
+							return (
+								<span key={"FILTER"+index} style={{marginLeft: "5px", paddingLeft: "5px"}} className={gClasses.filterItem} >
+									{m.item}: {m.value}
+									<CancelIcon size="small" style={{paddingTop: "8px"}} color="secondary" onClick={() => removeFilter(m.item) } />
+								</span>
+							)
+						})}
+						</Typography>
+					}
+					{(inputFilterMode) &&
+						<div>
+							{ (inputInfo.options) &&
+								<VsSelect 
+									inputProps={{className: gClasses.dateTimeNormal}} style={NORMALSELECTSTYLE} 
+									label={inputName} options={inputInfo.options} value={inputValue} 
+									onChange={(event) => { setInputValue(event.target.value); addFilterConfirm(event.target.value); }} 
+								/>				
+							}
+							{ (!inputInfo.options) &&
+								<div>
+								{/*<TextField id="outlined-required" label={inputName}
+										value={inputValue} type={inputInfo.type}
+										onChange={(event) => { setInputValue(event.target.value); }}
+									/>
+									<VsButton name="Apply"  onClick={() => { addFilterConfirm(""); } } />
+									<VsButton name="Cancel" onClick={() => { setInputFilterMode(false); setLastFilter(""); }  } />
+								*/}
+								<ValidatorForm align="left" className={gClasses.form} onSubmit={() => { addFilterConfirm(""); }}>
+								<TextValidator 
+									id="outlined-required" label={inputName} required className={gClasses.vgSpacing}
+									type={inputInfo.type}
+									value={inputValue}
+									onChange={(event) => { setInputValue(event.target.value); }}
+								/>
+								<VsButton  name="Apply"  type="submit" />
+								<VsButton name="Cancel"  type="button" onClick={() => { setInputFilterMode(false); setLastFilter(""); }  } />
+								</ValidatorForm>
+								
+								</div>
+							}
+						</div>
+					}
+					</div>
+				</Grid>
+				<Grid align="left" item xs={2} sm={2} md={1} lg={1} >
+					<div style={{paddingLeft: "5px", paddingRight: "5px"}} >
+					<VsPdhsFilter style={SELECTSTYLE} options={modMasterFilterItems} field="item"
+					value={lastFilter} onChange={(event) => { addFilter(event.target.value); }} />			
+					</div>
+				</Grid>
+			</Grid>			
+		</Box>
+
 		<DisplayHumadHeader dispType={dispType} />
 		{/* display members here */}
 		{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
-			if (m.ceased) return null;		
+			if (m.ceased) return null;
+			let h = humadArray.find(x => x.mid === m.mid);
+			if (!h) return null;
 			var memberCity = getMyCity(m.hid);
 			//console.log(memberCity);
 			//console.log(m.email);
 			return (
-			<PersonalMember key= {"PERSONALMEMBER"+index} m={m} dispType={dispType}  index={index} 
+			<HumadMember key= {"PERSONALMEMBER"+index} m={m} h={h} dispType={dispType}  index={index} 
 				checked={radioRecord == m.mid}
 				datatip={getMemberTip(m, dispType, memberCity) } 
 				onClick={(event) => { radioMid = m.mid; handlePrwsContextMenu(event); }}
 			/>
 			)})}	
 		{/* Table pagination here */}
-		{((process.env.REACT_APP_BACKENDFILTER !== "true") && (memberArray.length > ROWSPERPAGE)) &&
+		{((process.env.REACT_APP_BACKENDFILTER !== "true") && (humadCount > ROWSPERPAGE)) &&
 			<TablePagination
 				align="right"
 				rowsPerPageOptions={[ROWSPERPAGE]}
 				component="div"
 				labelRowsPerPage="Members per page"
-				count={memberArray.length}
+				count={humadCount}
 				rowsPerPage={ROWSPERPAGE}
 				page={page}
 				onPageChange={handleChangePage}
@@ -774,13 +861,13 @@ export default function Humad() {
 				//showFirstButton={true}
 			/>
 		}
-		{((process.env.REACT_APP_BACKENDFILTER === "true") && (memberCount > ROWSPERPAGE)) &&
+		{((process.env.REACT_APP_BACKENDFILTER === "true") && (humadCount > ROWSPERPAGE)) &&
 			<TablePagination
 				align="right"
 				rowsPerPageOptions={[ROWSPERPAGE]}
 				component="div"
 				labelRowsPerPage="Members per page"
-				count={memberCount}
+				count={humadCount}
 				rowsPerPage={ROWSPERPAGE}
 				page={page}
 				onPageChange={handleChangePage}
@@ -795,7 +882,7 @@ export default function Humad() {
 		<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
 		<VsCancel align="right" onClick={() => { setIsDrawerOpened("")}} />
 		{(isDrawerOpened === "HumadUpgrade") &&
-			<HumadUpgrade memberRec={menuMember} humadRec={null} onReturn={handleHumadUpgradeBack} />
+			<HumadUpgrade memberRec={menuMember} humadRec={humadRec} onReturn={handleHumadUpgradeBack} />
 		}
 		</Box>
 		</Container>
