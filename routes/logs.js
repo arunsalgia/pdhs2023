@@ -41,11 +41,11 @@ router.get('/filterlist/:filterData', async function(req, res, next) {
 	var cond = {};
 	switch(filterData.filterBy) {
 		case "NoLogInOut":
-			console.log("NoLogInOut");
+			//console.log("NoLogInOut");
 			cond['action'] = {$nin: [PRWSACTION.login, PRWSACTION.logout] };
 			break;
 		case "OnlyLogInOut":
-			console.log("OnlyLogInOut");
+			//console.log("OnlyLogInOut");
 			cond['action'] = {$in: [PRWSACTION.login, PRWSACTION.logout] };
 			break;
 	}
@@ -80,8 +80,8 @@ router.get('/filterlist/:filterData', async function(req, res, next) {
 	var myData =  await M_PrwsLog.find(cond).sort({date: -1}).skip(filterData.currentPage*filterData.pageSize).limit(filterData.pageSize);
 	var totalCount = await M_PrwsLog.countDocuments(cond);
 
-	console.log("Record count", myData.length)
-	console.log("Total count",totalCount);
+	//console.log("Record count", myData.length)
+	//console.log("Total count",totalCount);
 	sendok(res, {totalCount: totalCount, data: myData});
 
 });

@@ -104,21 +104,26 @@ export default function Logs() {
 		pageSize: NONMOBROWSPERPAGE
 	};
 
+	if ("log_condition" in sessionStorage) {
+		//console.log("Condition found");
+		DefaultFilterCond = JSON.parse(sessionStorage.getItem("log_condition"));
+		sessionStorage.removeItem("application_condition");
+	} 
 
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
   const [dispType, setDispType] = useState("lg");
   const [ROWSPERPAGE, setROWSPERPAGE] = useState(NONMOBROWSPERPAGE);
-	const [currentPage, setCurrentPage] = useState(0);
 	
   const [logArray, setLogArray] = useState([]);	
 	//const [logMasterArray, setLogMasterArray] = useState([]);	
-	const [filterBy, setFilterBy] = useState("NoLogInOut");
 	//const [registerStatus, setRegisterStatus] = useState(0);
 
-	const [timeRange, setTimeRange] = useState(false);
-	const [time1, setTime1] = useState(moment());
-	const [time2, setTime2] = useState(moment());
-	
+	const [timeRange, setTimeRange] = useState(DefaultFilterCond.timeRange);
+	const [time1, setTime1] = useState(moment(DefaultFilterCond.startDate));
+	const [time2, setTime2] = useState(moment(DefaultFilterCond.endDate));
+	const [currentPage, setCurrentPage] = useState(DefaultFilterCond.currentPage);
+	const [filterBy, setFilterBy] = useState(DefaultFilterCond.filterBy);
+
 	const [totalCount, setTotalCount] = useState(0);
 	
 	const [filterCond, setFilterCond] = useState(DefaultFilterCond)
@@ -207,7 +212,9 @@ export default function Logs() {
 			return;
 		}
 		sessionStorage.setItem("application_appRec", JSON.stringify({applicationRec: myAppRec}));
+		sessionStorage.setItem("application_caller", process.env.REACT_APP_LOG);
 		sessionStorage.setItem("application_readonly", "true");
+		sessionStorage.setItem("log_condition", JSON.stringify(filterCond));
 		//console.log(myRec.applPage);
 		setTab(myRec.page);
 	}

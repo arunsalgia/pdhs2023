@@ -128,6 +128,12 @@ export default function Application(props) {
 		pageSize: NONMOBROWSPERPAGE
 	};
 	
+	if ("application_condition" in sessionStorage) {
+		//console.log("Confition found");
+		DefaultFilterCond = JSON.parse(sessionStorage.getItem("application_condition"));
+		sessionStorage.removeItem("application_condition");
+	} 
+
 	const [applicationMasterArray, setApplicationMasterArray] = useState([]);	
   const [applicationArray, setApplicationArray] = useState([]);	
 	const [hodName, setHodName] = useState("");
@@ -135,17 +141,17 @@ export default function Application(props) {
 	const [filterCond, setFilterCond] = useState(DefaultFilterCond)
 	const [totalCount, setTotalCount] = useState(0);
 	const [ROWSPERPAGE, setROWSPERPAGE] = useState(NONMOBROWSPERPAGE);
-	const [currentPage, setCurrentPage] = useState(0);
+	const [currentPage, setCurrentPage] = useState(DefaultFilterCond.currentPage);
 	
 	const [applicationRec, setApplicationRec] = useState(null);
 	
-	const [currentSelection, setCurrentSelection] = useState(DEFAULTOWNER);
+	const [currentSelection, setCurrentSelection] = useState(DefaultFilterCond.owner);
 	const [onlyPending, setOnlyPending] = useState(false);
 	
 	const [editApplRec, setEditApplRec] = useState(null);
 	const [approve, setApprove] = useState("Application Rejected");
 	
-	const [radOpts, setRadOpts] = useState(APPLICATIONSTATUS.pending);
+	const [radOpts, setRadOpts] = useState(DefaultFilterCond.filterBy);
 	
 	const [isDrawerOpened, setIsDrawerOpened] = useState("");
 	const [emurRemarks, setEmurRemarks] = useState("");
@@ -379,12 +385,16 @@ export default function Application(props) {
 		//console.log(JSON.parse(appRec.data));
 		//return;
 		if (myRec) {
+			//console.log("myRec found");
+			sessionStorage.setItem("application_condition", JSON.stringify(filterCond));
 			sessionStorage.setItem("application_appRec", JSON.stringify({applicationRec: appRec}));
+			sessionStorage.setItem("application_caller", process.env.REACT_APP_APPLICATION);
 			setTab(myRec.code);
 			return;
 		}
 		else {
-			//sessionStorage.setItem("application_appRec", appRec);
+			//console.log("myRec not found");
+			sessionStorage.setItem("application_appRec", appRec);
 			setApplicationRec(appRec);
 			setIsDrawerOpened(appRec.desc);
 		}	

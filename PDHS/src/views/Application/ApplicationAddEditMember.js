@@ -141,6 +141,10 @@ async function  handleApplicationApproveConfirm(myRemarks) {
 		sessionStorage.setItem("application_returnstatus", JSON.stringify(returnStatus));
 		if (readOnly) sessionStorage.removeItem("application_readonly");
 		setTab(process.env.REACT_APP_APPLICATION);
+		var caller = sessionStorage.getItem("application_caller");
+		sessionStorage.removeItem("application_caller")
+		console.log(caller);
+		//setTab(caller);
 		//myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application approved by Admin`});
 		
 	} catch (e) {
