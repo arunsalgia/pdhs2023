@@ -113,7 +113,7 @@ app.use(express.json());
 
 
 app.use((req, res, next) => {
-  if (req.url.includes("admin") || 
+  if (req.url.includes("nnnnnnnnnnnnnadmin") || 
       req.url.includes("signIn") ||
       req.url.includes("Logout") ||
       req.url.includes("pdhsamaj")
@@ -329,6 +329,7 @@ PrwsLogSchema = mongoose.Schema({
 	desc:			String,
 	action:		String,
 	data:			String,
+	referenceId:	Number,
 	status: 	Boolean
 	
 });

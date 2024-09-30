@@ -66,7 +66,17 @@ import {
 
 export default function ApplicationAddEditMember() {
 	const gClasses = globalStyles();
+	//console.log(sessionStorage.getItem("application_appRec"));
 	const myProps = JSON.parse(sessionStorage.getItem("application_appRec"));
+	//console.log(myProps.data);
+	var readOnly = sessionStorage.getItem("application_readonly");
+	//console.log(readOnly);
+	if (readOnly !== null) {
+		readOnly = true;
+	}
+	else
+		readOnly = false;
+	
 	
 	//const [registerStatus, setRegisterStatus] = useState(0);
 	const [appData, setAppdata] = useState(JSON.parse(myProps.applicationRec.data));
@@ -78,12 +88,13 @@ export default function ApplicationAddEditMember() {
 		//setRegisterStatus(0);
 	};
 	
+	
 	const [remarks, setRemarks] = useState("");
 	const [action, setAction] = useState("");
 	const [stage, setStage] = useState("INITIAL");
 	
-	console.log(appData.oldMemberRec.email)
-	console.log(appData.memberRec.email)
+	//console.log(appData.oldMemberRec.email)
+	//console.log(appData.memberRec.email)
 	//useEffect(() => {
 	//		console.log(myProps.applicationRec);
 	//		setAppdata(JSON.parse(myProps.applicationRec.data));
@@ -128,6 +139,7 @@ async function  handleApplicationApproveConfirm(myRemarks) {
 			msg: `Application approved by Admin`
 		};
 		sessionStorage.setItem("application_returnstatus", JSON.stringify(returnStatus));
+		if (readOnly) sessionStorage.removeItem("application_readonly");
 		setTab(process.env.REACT_APP_APPLICATION);
 		//myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application approved by Admin`});
 		
@@ -146,6 +158,7 @@ async function  handleApplicationRejectConfirm(myRemarks) {
 			msg: `Application rejected by Admin`
 		};
 		sessionStorage.setItem("application_returnstatus", JSON.stringify(returnStatus));
+		if (readOnly) sessionStorage.removeItem("application_readonly");
 		setTab(process.env.REACT_APP_APPLICATION);
 		//myProps.onReturn.call(this, {status: STATUS_INFO.ERROR, applicationRec: resp.data, msg: `Application rejected by Admin`});
 		
@@ -184,7 +197,14 @@ function hasOfficeChanged() {
 }
 
 function handleCancel() {
-	setTab(process.env.REACT_APP_APPLICATION);
+	console.log(readOnly);
+	if (readOnly) {
+		sessionStorage.removeItem("application_readonly");
+		setTab(process.env.REACT_APP_LOG);
+	}
+	else {
+		setTab(process.env.REACT_APP_APPLICATION);
+	}
 }
 
 
@@ -199,7 +219,7 @@ return (
 	<Container component="main" maxWidth="xs">	
 	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
 	<VsCancel align="right" onClick={handleCancel} />
-	<ApplicationHeader applicationRec={myProps.applicationRec} header={`Application to ${appData.mode} member details`} />
+	<ApplicationHeader applicationRec={myProps.applicationRec} header={`Application to ${appData.mode} member details`} readOnly={readOnly} />
 	<br />
 	{(stage === "INITIAL") &&
 	<Accordion expanded={expandedPanel === "NAMEDETAILS"} onChange={handleAccordionChange("NAMEDETAILS")}>
@@ -285,7 +305,7 @@ return (
 	</Accordion>
 	}
 	<br />
-	{(hasPRWSpermission() && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
+	{(hasPRWSpermission() && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL") && (!readOnly)) &&
 		<YesNoButton title="" yesName="Approve" noName="Reject" yesClick={handleApplicationApprove} noClick={handleApplicationReject} />
 	}
 	{((stage === "Approve") || (stage === "Reject")) && 

@@ -36,12 +36,18 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import lodashSortBy from 'lodash/sortBy';
+import lodashCloneDeep from 'lodash/cloneDeep';
 
 // icons
 import CancelIcon from '@material-ui/icons/Cancel';
 import EditIcon from '@material-ui/icons/Edit';
 import IconButton from '@material-ui/core/IconButton';
 import VisibilityIcon from '@material-ui/icons/Visibility';
+
+import {
+	setTab,
+} from "CustomComponents/CricDreamTabs.js"
+
 
 // styles
 import globalStyles from "assets/globalStyles";
@@ -63,15 +69,41 @@ import {
 import {
   PADSTYLE,
 	NONMOBROWSPERPAGE,
+	APPLICATIONTYPES,
 } from "views/globals.js";
 
 const FILTERLIST = ["All", "OnlyLogInOut", "NoLogInOut"];
 
-const NonMovableActionList = ["Login", "Logout"];
+const NonViewableActionList = ["Login", "Logout"];
+
+	var APPLICATIONPAGES = [
+		{action: APPLICATIONTYPES.editGotra, page: process.env.REACT_APP_APPLICATION_EDITGOTRA },
+		{action: APPLICATIONTYPES.editGeneral, page: process.env.REACT_APP_APPLICATION_EDITDETAILS},
+		{action: APPLICATIONTYPES.addMember, page: process.env.REACT_APP_APPLICATION_ADDMEMBER},
+		{action: APPLICATIONTYPES.editMember, page: process.env.REACT_APP_APPLICATION_EDITMEMBER},
+		{action: APPLICATIONTYPES.memberCeased, page: process.env.REACT_APP_APPLICATION_CEASEDMEMBER},
+		//{action: APPLICATIONTYPES.spouseDetails, page: process.env.},
+		{action: APPLICATIONTYPES.transferMember, page: process.env.REACT_APP_APPLICATION_TRANSFERMEMBER},
+		{action: APPLICATIONTYPES.changeDom, page: process.env.REACT_APP_APPLICATION_DOMCHANGE},
+		{action: APPLICATIONTYPES.marriage, page: process.env.REACT_APP_APPLICATION_MARRIAGE},
+		{action: APPLICATIONTYPES.unMarriage, page: process.env.REACT_APP_APPLICATION_UNMARRIAGE},
+		{action: APPLICATIONTYPES.humadUpgrade, page: process.env.REACT_APP_APPLICATION_HUMADUPGRADE}
+	];
+	
 
 export default function Logs() {
 	//const classes = useStyles();
 	const gClasses = globalStyles();
+	
+	var DefaultFilterCond = {
+		filterBy: "NoLogInOut",
+		timeRange: false,
+		startDate: moment().toDate().toString(),
+		endDate: moment().toDate().toString(),
+		currentPage: 0,
+		pageSize: NONMOBROWSPERPAGE
+	};
+
 
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
   const [dispType, setDispType] = useState("lg");
@@ -79,14 +111,17 @@ export default function Logs() {
 	const [currentPage, setCurrentPage] = useState(0);
 	
   const [logArray, setLogArray] = useState([]);	
-	const [logMasterArray, setLogMasterArray] = useState([]);	
-	const [filterBy, setFilterBy] = useState("All");
-	const [registerStatus, setRegisterStatus] = useState(0);
+	//const [logMasterArray, setLogMasterArray] = useState([]);	
+	const [filterBy, setFilterBy] = useState("NoLogInOut");
+	//const [registerStatus, setRegisterStatus] = useState(0);
 
 	const [timeRange, setTimeRange] = useState(false);
 	const [time1, setTime1] = useState(moment());
 	const [time2, setTime2] = useState(moment());
 	
+	const [totalCount, setTotalCount] = useState(0);
+	
+	const [filterCond, setFilterCond] = useState(DefaultFilterCond)
   useEffect(() => {	
 		function handleResize() {
 			let myDim = getWindowDimensions();
@@ -95,29 +130,28 @@ export default function Logs() {
 			setDispType(displayType(myDim.width));
 		}
 	
-		getAllLogs();
+		getAllLogs(DefaultFilterCond);
 		window.addEventListener('resize', handleResize);
   }, []);
 
-	async  function getAllLogs() {
+	async  function getAllLogs(fCond) {
+		setFilterCond(fCond);
 		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/log/list/all`;
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/log/filterlist/${JSON.stringify(fCond)}`;
 			let resp = await axios.get(myUrl);
-			setLogMasterArray(resp.data);
-			setLogArray(resp.data);
+			console.log(resp.data);
+			//var tmp = resp.data.filter(x => !NonViewableActionList.includes(x.action) )
+			///console.log(tmp.length);
+			setLogArray(resp.data.data);
+			setTotalCount(resp.data.totalCount);
+			//setLogMasterArray(resp.data.data);
 		} catch (e) {
 			setLogArray([]);
 			setLogMasterArray([]);
 		}	
 	}
 	
-	// pagination function 
-	const handleChangePage = (event, newPage) => {
-    setCurrentPage(newPage);
-  };
-
-	
-
+/*
 	function ShowResisterStatus() {
 		let myMsg = "";
 		switch (registerStatus) {
@@ -133,6 +167,7 @@ export default function Logs() {
 		</div>
 		);
 	}
+*/
 	
 	function DisplayLogsHeader() {
 	return (
@@ -160,8 +195,21 @@ export default function Logs() {
 	)}
   
 
-	function editApplication(logRec) {
-		showInfo("View Application to be implemented");
+	async function viewApplicationInfo(logRec) {
+		if (logRec.data === '') return;
+		// Objectify the application record using the filed "data"
+		var myAppRec = JSON.parse(logRec.data);
+		// Find the page number information based on the application action
+		console.log(myAppRec);
+		var myRec = APPLICATIONPAGES.find(x => x.action === myAppRec.desc);
+		if (!myRec) {
+			showError(`Unable to find page for application ${myAppRec.id}`);
+			return;
+		}
+		sessionStorage.setItem("application_appRec", JSON.stringify({applicationRec: myAppRec}));
+		sessionStorage.setItem("application_readonly", "true");
+		//console.log(myRec.applPage);
+		setTab(myRec.page);
 	}
 	
 	
@@ -169,9 +217,13 @@ export default function Logs() {
 	if (logArray.length === 0) return null;
 	return (
 		<TableBody>
-		{logArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (l, index) => {
+		{logArray.slice(0*ROWSPERPAGE, (0+1)*ROWSPERPAGE).map( (l, index) => {
 				//console.log(l.admin);
-				//console.log(l.action, NonMovableActionList.includes(l.action));
+				//console.log(l.action, NonViewableActionList.includes(l.action));
+			var viewDisable = true;
+			if (l.referenceId)
+			if (l.referenceId> 0)
+				viewDisable = false;
 		return (
 		<TableRow key={"MEMGRID"+index}  className={((index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} >
 		<TableCell style={{padding: "0px"}} align="center">
@@ -190,7 +242,7 @@ export default function Logs() {
 			<Typography style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2 } >{l.desc}</Typography>		
 		</TableCell>
 		<TableCell style={{padding: "0px"}} align="center">
-			<IconButton disabled={NonMovableActionList.includes(l.action)}  color="primary" size="small" onClick={() => {editApplication(l)}}><VisibilityIcon /></IconButton>			
+			<IconButton disabled={viewDisable}  color="primary" size="small" onClick={() => {viewApplicationInfo(l)}}><VisibilityIcon /></IconButton>			
 		</TableCell>
 		</TableRow>
 		)}
@@ -198,6 +250,7 @@ export default function Logs() {
 		</TableBody>
 	)}
   
+/*
 	function filterLogs(selection, trange, t1, t2) {
 		//console.log(t1, t2)
 		var tmp = [].concat(logMasterArray);
@@ -224,28 +277,68 @@ export default function Logs() {
 		setCurrentPage(0);
 		setLogArray(tmp);
 	}
+*/
 	
+	// pagination function 
+	function handleChangePage(event, newPage)  {
+    setCurrentPage(newPage);
+		
+		var tmp = lodashCloneDeep(filterCond);
+		tmp.currentPage = newPage;
+		console.log(tmp);
+		getAllLogs(tmp);
+  };
+
+	
+	// action type
 	function setNewFilter(value) {
-		//console.log(value);
 		setFilterBy(value);
-		filterLogs(value, timeRange, time1, time2);
+		setCurrentPage(0);
+		console.log(value);
+		var tmp = lodashCloneDeep(filterCond);
+		tmp.filterBy = value;
+		tmp.currentPage = 0;
+		console.log(tmp);
+		getAllLogs(tmp);
+
+		//filterLogs(value, timeRange, time1, time2);
 	}
 	
+	// strat date
 	function enableTimeRange(newState) {
 		setTimeRange(newState);
-		filterLogs(filterBy, newState, time1, time2);
+		setCurrentPage(0);
+		var tmp = lodashCloneDeep(filterCond);
+		tmp.timeRange = newState;
+		tmp.currentPage = 0;
+		console.log(tmp);
+		getAllLogs(tmp);
+
+		//filterLogs(filterBy, newState, time1, time2);
 	}
 	
+	// end date
 	function enableDate1(newTime) {
 		//console.log(newTime);
 		setTime1(newTime);
-		filterLogs(filterBy, timeRange, newTime, time2);
+		setCurrentPage(0);
+		var tmp = lodashCloneDeep(filterCond);
+		tmp.startDate = newTime.toDate().toString();
+		tmp.currentPage = 0;
+		console.log(tmp);
+		getAllLogs(tmp);
+		
 	}
 
 	function enableDate2(newTime) {
 		//console.log(newTime);
 		setTime2(newTime);
-		filterLogs(filterBy, timeRange, time1, newTime);
+		setCurrentPage(0);
+		var tmp = lodashCloneDeep(filterCond);
+		tmp.endDate = newTime.toDate().toString();
+		tmp.currentPage = 0;
+		console.log(tmp);
+		getAllLogs(tmp);
 	}
 
 	return (
@@ -299,20 +392,18 @@ export default function Logs() {
 		</Table>
 		</TableContainer>
 		</Box>	
-		{(logArray.length > ROWSPERPAGE) &&
 		<TablePagination
 			align="right"
 			rowsPerPageOptions={[ROWSPERPAGE]}
 			component="div"
 			labelRowsPerPage="Logs per page"
-			count={logArray.length}
+			count={totalCount}
 			rowsPerPage={ROWSPERPAGE}
 			page={currentPage}
 			onPageChange={handleChangePage}
 			//onRowsPerPageChange={handleChangeRowsPerPage}
 			//showFirstButton={true}
 		/>
-		}
 		<ToastContainer />
 		</div>
 	);

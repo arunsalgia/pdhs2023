@@ -359,6 +359,8 @@ export const APPLICATIONTYPES = {
 };
 
 
+
+
 export const APPLICATIONSTATUS = {
 	inEdit:   "InEdit",
 	approved: "Approved",

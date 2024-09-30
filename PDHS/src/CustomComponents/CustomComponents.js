@@ -1555,6 +1555,9 @@ export function ApplicationHeader (props) {
 return (
 	<div>
 	<Typography align="center"  className={gClasses.pdhs_title} >{props.header}</Typography>
+	{((props.readOnly) && (props.applicationRec.status === APPLICATIONSTATUS.pending)) &&
+		<Typography style={{fontSize: "12px", fontWeight: 'Bold', color: 'red' }} align="center"  >(Status at the time of application)</Typography>
+	}
 	<br />
 	<DisplayApplicationNameValue name="Appl. Id." value={props.applicationRec.id} style={{paddingTop: "5px" }}  />
 	<DisplayApplicationNameValue name="Appl. Date" value={dateString(props.applicationRec.date)} style={{paddingTop: "5px" }}  />

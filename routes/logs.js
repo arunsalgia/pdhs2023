@@ -29,6 +29,63 @@ router.get('/list/all', async function(req, res, next) {
 	sendok(res, tmp);
 });
 
+const LOGINLOGOUT = ["Login", "Logout"];
+
+router.get('/filterlist/:filterData', async function(req, res, next) {
+  setHeader(res);
+	var {filterData} = req.params;
+	
+	filterData = JSON.parse(filterData);
+	//console.log(filterData);
+
+	var cond = {};
+	switch(filterData.filterBy) {
+		case "NoLogInOut":
+			console.log("NoLogInOut");
+			cond['action'] = {$nin: [PRWSACTION.login, PRWSACTION.logout] };
+			break;
+		case "OnlyLogInOut":
+			console.log("OnlyLogInOut");
+			cond['action'] = {$in: [PRWSACTION.login, PRWSACTION.logout] };
+			break;
+	}
+	
+	/*
+	$and: [
+        { $or: [ { qty: { $lt : 10 } }, { qty : { $gt: 50 } } ] },
+        { $or: [ { sale: true }, { price : { $lt : 5 } } ] }
+    ]
+	$and: [ { qty: { $lt : 10 } }, { qty : { $gt: 50 } } ] 
+	'Sun Sep 29 2024 12:23:17 GMT+0530 (India Standard Time)'
+*/	
+	
+	if (filterData.timeRange) {
+		var startDate = new Date(filterData.startDate)
+		startDate.setHours(0);
+		startDate.setMinutes(0);
+		startDate.setSeconds(0);
+		startDate.setMilliseconds(0);
+		var endDate = new Date(filterData.endDate)
+		endDate.setHours(0);
+		endDate.setMinutes(0);
+		endDate.setSeconds(0);
+		endDate.setMilliseconds(0);
+		endDate.setDate(endDate.getDate()+1);
+		//console.log(startDate, endDate);
+		var tmp = [ { date: { $gte : startDate } }, { date : { $lt:  endDate} } ];
+		//console.log(tmp);
+		cond['$and'] = tmp;
+	}
+		
+	var myData =  await M_PrwsLog.find(cond).sort({date: -1}).skip(filterData.currentPage*filterData.pageSize).limit(filterData.pageSize);
+	var totalCount = await M_PrwsLog.countDocuments(cond);
+
+	console.log("Record count", myData.length)
+	console.log("Total count",totalCount);
+	sendok(res, {totalCount: totalCount, data: myData});
+
+});
+
 router.get('/list/nologinlogout', async function(req, res, next) {
   setHeader(res);
 

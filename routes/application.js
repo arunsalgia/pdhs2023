@@ -63,10 +63,11 @@ async function addApplication(editor_hodmid, editor_mid, appData, appDesc, appOw
 	myLogRec.date = justNow;
 	myLogRec.mid = editorRec.mid;
 	myLogRec.name = getMemberName(editorHodRec, false);
-	myLogRec.desc = "Application by " +  getMemberName(editorHodRec, false)  + " for \"" + appDesc + "\"" ;
+	myLogRec.desc = "Application " + aRec.id + " by " +  getMemberName(editorHodRec, false)  + " for \"" + appDesc + "\"" ;
 	myLogRec.isAdmin = isAdmin;
 	myLogRec.action = appDesc;
-	myLogRec.data = appData;
+	myLogRec.data = JSON.stringify(aRec);
+	myLogRec.referenceId = aRec.id;
 	myLogRec.status = true;
 	await myLogRec.save();
 	
@@ -105,6 +106,36 @@ router.get('/list/:mid', async function (req, res) {
 	let myData = await M_Application.find({mid: mid}).sort({id: 1});
 	sendok(res, myData);
 });		
+
+router.get('/filterlist/:filterData', async function (req, res) {
+  setHeader(res);
+	var { filterData } = req.params;
+	filterData = JSON.parse(filterData);
+	console.log(filterData);
+	var cond = {owner: filterData.owner};
+	if (!filterData.adminPermission)
+		cond['mid'] = filterData.mid;
+	if (filterData.filterBy !== "All")
+		cond['status'] = filterData.filterBy;
+	console.log(cond);
+	
+	let myData = await M_Application.find(cond).sort({id: 1}).skip(filterData.currentPage*filterData.pageSize).limit(filterData.pageSize);
+	let totalCount = await M_Application.countDocuments(cond);
+	//console.log(myData);
+	sendok(res, {totalCount: totalCount, data: myData});
+});		
+
+
+router.get('/get/:id', async function (req, res) {
+  setHeader(res);
+	var { id } = req.params;
+	
+	console.log(id);
+	let myData = await M_Application.findOne({id: id});
+	//console.log(myData);
+	sendok(res, myData);
+});		
+
 
 router.get('/add/:appData', async function (req, res) {
   setHeader(res);
@@ -280,7 +311,19 @@ router.get('/reject/:id/:adminMid/:comments', async function (req, res) {
 	aRec.comments = comments;
 	sendok(res, aRec);
 	await aRec.save();
-	//console.log(aRec);
+	
+	// Now Log the approve action.	
+	let myLogRec = new M_PrwsLog();
+	myLogRec.date = new Date();
+	myLogRec.mid = adminMid;
+	myLogRec.name = getMemberName(adminRec, false);
+	myLogRec.desc = "Application " + aRec.id + " rejected by " +  getMemberName(adminRec, false)  + " for \"" + aRec.desc + "\"" ;
+	myLogRec.isAdmin = isAdmin;
+	myLogRec.action = aRec.desc;
+	myLogRec.data = JSON.stringify(aRec);
+	myLogRec.referenceId = aRec.id;
+	myLogRec.status = true;
+	await myLogRec.save();
 });
 
 router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
@@ -324,10 +367,22 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
 	aRec.adminMid = adminRec.mid;
 	aRec.adminName = getMemberName(adminRec, false);
 	aRec.comments = comments;
+	await aRec.save();	
+	
+	// Now Log the approve action.	
+	let myLogRec = new M_PrwsLog();
+	myLogRec.date = new Date();
+	myLogRec.mid = adminMid;
+	myLogRec.name = getMemberName(adminRec, false);
+	myLogRec.desc = "Application " + aRec.id + " approved by " +  getMemberName(adminRec, false)  + " for \"" + aRec.desc + "\"" ;
+	myLogRec.isAdmin = isAdmin;
+	myLogRec.action = aRec.desc;
+	myLogRec.data = JSON.stringify(aRec);
+	myLogRec.referenceId = aRec.id;
+	myLogRec.status = true;
+	await myLogRec.save();
+	
 	sendok(res, aRec);
-		
-	//console.log(aRec);
-	await memberUpdateOne(aRec);	
 });
 
 // Approval functions

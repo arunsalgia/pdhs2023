@@ -29,10 +29,17 @@ import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
 import Drawer from '@material-ui/core/Drawer';
 import { useAlert } from 'react-alert'
 
+import Datetime from "react-datetime";
+import "react-datetime/css/react-datetime.css";
+import moment from "moment";
+
+
 //import VsRadioGroup from "CustomComponents/VsRadioGroup";
 
 import lodashSortBy from 'lodash/sortBy';
 import lodashReverse from 'lodash/reverse';
+import lodashCloneDeep from 'lodash/cloneDeep';
+
 // icons
 import CancelIcon from '@material-ui/icons/Cancel';
 import EditIcon from '@material-ui/icons/Edit';
@@ -55,7 +62,7 @@ import ApplicationUnmarriage from 'views/Application/ApplicationUnmarriage'
 import {
 	ADMIN, APPLICATIONSTATUS, APPLICATIONTYPES, SELECTSTYLE, STATUS_INFO,
 	AppDataStyle,
-	CASTE, HUMADSUBCASTRE,
+	NONMOBROWSPERPAGE,
 	OWNER,
 } from "views/globals.js";
 
@@ -73,7 +80,7 @@ import {
 import { 
 	isMobile,
 	vsDialog,
-	hasAnyAdminPermission,
+	hasAnyAdminPermission, hasPRWSpermission, hasPJYMpermission, hasHumadpermission,
 	showError, showSuccess,
 } from "views/functions.js";
 
@@ -102,17 +109,33 @@ const funCodeTable = [
 
 
 export default function Application(props) {
+	const gClasses = globalStyles();	
 	sessionStorage.removeItem("application_appRec");
-	
 	const loginHid = parseInt(sessionStorage.getItem("hid"), 10);
 	const loginMid = parseInt(sessionStorage.getItem("mid"), 10);
 	var adminRec = sessionStorage.getItem("adminRec");
 	var userType = 'user';
 
-	const gClasses = globalStyles();	
+	var DefaultFilterCond = {
+		filterBy: APPLICATIONSTATUS.pending,
+		adminPermission: hasPRWSpermission(),
+		timeRange: false,
+		mid: loginMid,
+		owner: OWNER.prws,
+		startDate: moment().toDate().toString(),
+		endDate: moment().toDate().toString(),
+		currentPage: 0,
+		pageSize: NONMOBROWSPERPAGE
+	};
+	
 	const [applicationMasterArray, setApplicationMasterArray] = useState([]);	
   const [applicationArray, setApplicationArray] = useState([]);	
 	const [hodName, setHodName] = useState("");
+
+	const [filterCond, setFilterCond] = useState(DefaultFilterCond)
+	const [totalCount, setTotalCount] = useState(0);
+	const [ROWSPERPAGE, setROWSPERPAGE] = useState(NONMOBROWSPERPAGE);
+	const [currentPage, setCurrentPage] = useState(0);
 	
 	const [applicationRec, setApplicationRec] = useState(null);
 	
@@ -122,7 +145,7 @@ export default function Application(props) {
 	const [editApplRec, setEditApplRec] = useState(null);
 	const [approve, setApprove] = useState("Application Rejected");
 	
-	const [radOpts, setRadOpts] = useState("All");
+	const [radOpts, setRadOpts] = useState(APPLICATIONSTATUS.pending);
 	
 	const [isDrawerOpened, setIsDrawerOpened] = useState("");
 	const [emurRemarks, setEmurRemarks] = useState("");
@@ -137,8 +160,9 @@ export default function Application(props) {
 	
 
 	
-  useEffect(() => {		
-		getAllApplication();
+  useEffect(() => {	
+		//DefaultFilterCond.adminPermission = hasAnyAdminPermission();
+		getAllApplication(DefaultFilterCond);
 		if ("application_returnstatus" in sessionStorage) {
 			console.log("has return status");
 			var sts = JSON.parse(sessionStorage.getItem("application_returnstatus"));
@@ -159,7 +183,22 @@ export default function Application(props) {
 		}	
 	}
 
-	async  function getAllApplication() {
+	async  function getAllApplication(filterCond) {
+		//console.log(filterCond);
+		setFilterCond(filterCond);
+		try {
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/filterlist/${JSON.stringify(filterCond)}`;
+			//console.log(hasAnyAdminPermission(), myUrl);
+			let resp = await axios.get(myUrl);
+			setApplicationArray(resp.data.data);
+			setTotalCount(resp.data.totalCount);
+			//setSelection(resp.data, "PRWS", "All");
+		} catch (e) {
+			console.log(e);
+		}	
+	}
+
+	async  function oldgetAllApplication() {
 		try {
 			let myUrl = (hasAnyAdminPermission())
 				? `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/list`
@@ -175,12 +214,29 @@ export default function Application(props) {
 		}	
 	}
 
+	function handleOwnerChange(newOwner) {
+		setCurrentSelection(newOwner);
+		setCurrentPage(0);
+		
+		var tmp = lodashCloneDeep(filterCond);
+		tmp.owner = newOwner;
+		tmp.currentPage = 0;
+		var hasPermission = false;
+		switch (newOwner) {
+			case OWNER.prws:   hasPermission = hasPRWSpermission(); break;
+			case OWNER.pjym:   hasPermission = hasPJYMpermission(); break;
+			case OWNER.humad:   hasPermission = hasHumadpermission(); break;
+			default:		hasPermission = false; break;			
+		}
+		tmp.adminPermission = hasPermission;
+		getAllApplication(tmp);
+	}
 	
 	function DisplayFunctionItem(props) {
 		let itemName = props.item;
 		return (
 		<Grid key={"BUT"+itemName} item xs={6} sm={3} md={2} lg={2} >	
-		<Typography onClick={() => setSelection(applicationMasterArray, itemName, radOpts)}>
+		<Typography onClick={() => handleOwnerChange(itemName)}>
 			<span 
 				className={(itemName === currentSelection) ? gClasses.functionSelected : gClasses.functionUnselected}>
 			{itemName}
@@ -202,7 +258,18 @@ export default function Application(props) {
 		setApplicationArray(tmpArray);
 		setCurrentSelection(item);
 	}
-	
+
+	// pagination function 
+	async function handleChangePage(event, newPage)  {
+    setCurrentPage(newPage);
+		
+		var tmp = lodashCloneDeep(filterCond);
+		tmp.currentPage = newPage;
+		//console.log(tmp);
+		getAllApplication(tmp);
+  };
+
+
 	function DisplayFunctionHeader() {
 	return (
 	<Grid className={gClasses.noPadding} key="AllOptions" container align="center">
@@ -298,8 +365,13 @@ export default function Application(props) {
 	}
 	
 	function submitChangeOpt(opt) {
-		setSelection(applicationMasterArray, currentSelection, opt)
+		//setSelection(applicationMasterArray, currentSelection, opt)
 		setRadOpts(opt);
+		setCurrentPage(0);
+		var tmp = lodashCloneDeep(filterCond)
+		tmp.filterBy = opt;
+		tmp.currentPage = 0;
+		getAllApplication(tmp)
 	}		
 		// edit application by admin
 	async function editApplicationPage(appRec) {
@@ -342,6 +414,18 @@ export default function Application(props) {
 	<DisplayFunctionHeader />
 	<VsRadioGroup radioList={RadioList} value={radOpts} onChange={() => submitChangeOpt(event.target.value) } />
 	<DisplayAllApplication />
+	<TablePagination
+		align="right"
+		rowsPerPageOptions={[ROWSPERPAGE]}
+		component="div"
+		labelRowsPerPage="Applications per page"
+		count={totalCount}
+		rowsPerPage={ROWSPERPAGE}
+		page={currentPage}
+		onPageChange={handleChangePage}
+		//onRowsPerPageChange={handleChangeRowsPerPage}
+		//showFirstButton={true}
+	/>
 	{/*<Drawer style={{ width: "100%"}} anchor="top" variant="temporary" open={isDrawerOpened != ""} >
 	<Container component="main" maxWidth="xs">	
 	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >

@@ -231,6 +231,7 @@ router.get('/orgpadmavatimata/:uMobile/:uPassword', async function (req, res, ne
 	myLogRec.isAdmin = isAdmin;
 	myLogRec.action = PRWSACTION.login;
 	myLogRec.data = '';
+	myLogRec.referenceId = 0;
 	myLogRec.status = true;
 	await myLogRec.save();
 	
@@ -296,12 +297,13 @@ router.get('/padmavatimata/:myData', async function (req, res, next) {
 	}
 	else {
 		myLogRec.mid = 0;
-		myLogRec.name = `Guest`;
+		myLogRec.name = `Guest ( ${userName} )`;
 		myLogRec.desc = `Login by Guest ( ${userName} )`;
 	}
 	myLogRec.isAdmin = isAdmin;
 	myLogRec.action = PRWSACTION.login;
 	myLogRec.data = '';
+	myLogRec.referenceId = 0;
 	myLogRec.status = true;
 	await myLogRec.save();
 	
@@ -331,6 +333,7 @@ router.get('/logout/:myData', async function (req, res, next) {
 	myLogRec.isAdmin = myData.isAdmin;
 	myLogRec.action = PRWSACTION.logout;
 	myLogRec.data = '';
+	myLogRec.referenceId = 0;
 	myLogRec.status = true;
 	await myLogRec.save();
 	//console.log(myLogRec);

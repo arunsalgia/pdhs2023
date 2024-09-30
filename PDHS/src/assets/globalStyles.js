@@ -468,11 +468,15 @@ const globalStyles = makeStyles((theme) => ({
     fontWeight: theme.typography.fontWeightBold,
     // color: yellow[900]
   },
- message22: {
+	message22: {
     fontSize: theme.typography.pxToRem(22),
     fontWeight: theme.typography.fontWeightBold,
     // color: yellow[900]
   },
+	message10Red: {
+    fontSize: '10px',
+    color: red[400],
+	},
 	button: {
     margin: theme.spacing(0, 1, 0),
   },
