@@ -115,8 +115,8 @@ router.get('/filterdata/:filterInfo', async function (req, res) {
 	let myData = await memberGetAll();
  	var clonedArray = _.cloneDeep(myData);
 	myData = clonedArray.filter(x => !x.ceased);
-	for (var i=0; i< filterInfo.filterData.length; ++i) {
-		var fItem = filterInfo.filterData[i];
+	for (var i=0; i< filterInfo.filterList.length; ++i) {
+		var fItem = filterInfo.filterList[i];
 		switch (fItem.item) {
 			case "FirstName": 
 				myData = myData.filter(x => x.firstName.toUpperCase().includes(fItem.value.toUpperCase()) );
@@ -165,8 +165,8 @@ router.get('/filterdata/:filterInfo', async function (req, res) {
 	var totalCount = myData.length;
 	
 	// If page number is -ve then full list is to be sent. Else give it only for page.
-	if (filterInfo.pageNumber >= 0)
-		myData = myData.slice(filterInfo.pageNumber* filterInfo.pageSize, (filterInfo.pageNumber+1)* filterInfo.pageSize);
+	if (filterInfo.currentPage >= 0)
+		myData = myData.slice(filterInfo.currentPage* filterInfo.pageSize, (filterInfo.currentPage+1)* filterInfo.pageSize);
 	
 	for (var i=0; i< myData.length; ++i) {
 		var tmp = dbdecrypt(myData[i].email);

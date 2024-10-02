@@ -128,25 +128,28 @@ var inputName="";
 
 const InitialContextParams = {show: false, x: 0, y: 0};
 
-
-
-var memberMasterArray = [];  function setMemberMasterArray(data) { memberMasterArray = data; }
 var radioMid = -1;
-
-var currentPage = 0;
-
-var menuMember = {};
-function setMenuMember(p) { menuMember = p; }
+var menuMember = {};    function setMenuMember(p) { menuMember = p; }
 
 export default function Prws() {
+	var DefaultFilterData = {
+		currentPage: 0,
+		pageSize:	NONMOBROWSPERPAGE,
+		filterList: []
+	};
+
+	if ("prwsFilter" in sessionStorage) {
+		DefaultFilterData = JSON.parse(sessionStorage.getItem("prwsFilter"));
+	}
+	
+	const [filterData, setFilterData] = useState(DefaultFilterData);
+	
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
   const [dispType, setDispType] = useState("lg");
-  const [ROWSPERPAGE, setROWSPERPAGE] = useState(NONMOBROWSPERPAGE);
+  const [ROWSPERPAGE, setROWSPERPAGE] = useState(DefaultFilterData.pageSize);
   
 	const loginHid = parseInt(sessionStorage.getItem("hid"), 10);
 	const loginMid = parseInt(sessionStorage.getItem("mid"), 10);
-	//const isMember = true //props.isMember;
-	//const adminInfo = getAdminInfo();
 		
 	const gClasses = globalStyles();
 	const alert = useAlert();
@@ -154,7 +157,6 @@ export default function Prws() {
 
 	const [radioRecord, setRadioRecord] = useState(0);
 
-	//const [memberMasterArray, setMemberMasterArray] = useState([]);
 	const [memberArray, setMemberArray] = useState([]);
 	const [memberCount, setMemberCount] = useState(0);
 	const [isDrawerOpened, setIsDrawerOpened] = useState("");
@@ -168,7 +170,6 @@ export default function Prws() {
 	const [inputFilterMode, setInputFilterMode] = useState(false);
 	const [inputValue, setInputValue] = useState("");
 	const [inputInfo, setInputInfo] = useState({});
-	const [filterList, setFilterList] = useState([]);
 	const [modMasterFilterItems, setModMasterFilterItems] = useState(MasterFilterItems);
 	//---  end of filter variables
 	
@@ -193,25 +194,9 @@ export default function Prws() {
 			//await getAllCities();
 			// now fetch all members
 			try {
-				var myData = [];
-				if (process.env.REACT_APP_PRWS_DB === "true") {
-					myData = JSON.parse(localStorage.getItem("prwsMemberList"));
-					setMemberMasterArray(myData);
-					setMemberArray(myData);
-				}
-				else if (process.env.REACT_APP_BACKENDFILTER === "true") {
-					await getMemeberPage([], 0);
-				}
-				else {
-					let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/list/all`;
-					let resp = await axios.get(myUrl);
-					var myData = resp.data;					
-					setMemberMasterArray(myData);
-					setMemberArray(myData);
-				}
+				await getMemeberPage(DefaultFilterData.filterList, DefaultFilterData.currentPage);
 			} catch (e) {
-				console.log("Error fetching member data");
-				//setMemberArray([]);		
+				console.log("Error fetching member data");		
 			}
 		}
 		
@@ -268,7 +253,7 @@ export default function Prws() {
 	function DisplayAllToolTips() {
 	return(
 		<div>
-		{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( t =>
+		{memberArray.map( t =>
 		  <DisplaySingleTip key={"MEMBETIP"+t.mid}  id={"MEMBER"+t.mid} />
 		)}
 		</div>
@@ -288,30 +273,26 @@ export default function Prws() {
 		if (tmp.options) 
 			tmp1 = "";   //tmp.options[0];
 		else {
-			tmp = filterList.find(x => x.item == newItem);
+			tmp = filterData.filterList.find(x => x.item == newItem);
 			tmp1 = (tmp) ? tmp.value : "";
 		}
 		setInputValue(tmp1);
 		setInputFilterMode(true);
 	}
 
-	async function getMemeberPage(filterList, pageNumber, save=true)  {
-		//console.log(save);
-		var myData = encodeURIComponent(JSON.stringify({
-			pageNumber: pageNumber,
-			pageSize:	ROWSPERPAGE,
-			filterData: filterList
-		}));
-
+	async function getMemeberPage(newFilterList, newPage, save=true)  {
+		var myFilterData = lodashCloneDeep(filterData);
+		myFilterData.currentPage = newPage;
+		myFilterData.filterList = newFilterList;
+	
+		var myDataStr = encodeURIComponent(JSON.stringify(myFilterData));
 		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/filterdata/${myData}`;
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/filterdata/${myDataStr}`;
 			let resp = await axios.get(myUrl);
-			//console.log(resp.data);
+			setFilterData(myFilterData);
 			if (save) {
-				currentPage = (process.env.REACT_APP_BACKENDFILTER === "true") ? 0 : pageNumber;
 				setMemberCount(resp.data.count);
 				setMemberArray(resp.data.data);
-				setMemberMasterArray(resp.data.data);
 			} 
 			else {
 				return (resp.data.data);
@@ -327,6 +308,7 @@ export default function Prws() {
 	function addFilterConfirm(tmpValue) {
 		
 		console.log("addFilterConfirm", tmpValue);
+		var currFilterData = lodashCloneDeep(filterData.filterList);
 		let finalFilter;
 		let userSelection = ""
 		if (tmpValue.length > 0) 
@@ -336,11 +318,12 @@ export default function Prws() {
 			userSelection = inputValue;
 		}
 		//console.log(inputValue);
-		let tmp = filterList.find(x => x.item === inputName);
+		console.log("AFC",inputName);
+		let tmp = currFilterData.find(x => x.item === inputName);
 		//console.log(tmp);
 		if (tmp) {
 			tmp.value = userSelection;
-			finalFilter = lodashCloneDe1ep(filterList);
+			finalFilter = currFilterData;
 			console.log(finalFilter);
 		} 
 		else {
@@ -348,9 +331,7 @@ export default function Prws() {
 			//console.log(MasterFilterItems[0]);
 			tmp = lodashCloneDeep(MasterFilterItems.find(x => x.item === inputName));
 			tmp.value = userSelection;
-			finalFilter = filterList.concat(tmp);
-			//console.log(finalFilter);
-			setFilterList(finalFilter);
+			finalFilter = currFilterData.concat(tmp);
 		}
 		// for testing blank on Mobile
 		if (finalFilter.length === 0) return;
@@ -358,26 +339,13 @@ export default function Prws() {
 		
 		setInputFilterMode(false);
 		updateFilterItems(finalFilter);
-		if (process.env.REACT_APP_BACKENDFILTER === "true") {
-			getMemeberPage(finalFilter, 0);
-		}
-		else {
-			updateMemberArray(finalFilter);
-		}
-		setPage(0);
+		getMemeberPage(finalFilter, 0);
 	}
 	
 	function removeFilter(item) {
-		let tmp = filterList.filter(x => x.item !== item);
-		setFilterList(tmp);	
+		let tmp = filterData.filterList.filter(x => x.item !== item);
 		updateFilterItems(tmp);
-		if (process.env.REACT_APP_BACKENDFILTER === "true") {
-			getMemeberPage(tmp, 0);
-		}
-		else {
-			updateMemberArray(tmp);
-		}
-		setPage(0);
+		getMemeberPage(tmp, 0);
 	}
 	
 	function updateFilterItems(fList) {
@@ -390,68 +358,18 @@ export default function Prws() {
 	}
 	
 
-	function updateMemberArray(fList) {
-		let tmp = lodashCloneDeep(memberMasterArray);
-		for(var i=0; i<fList.length; ++i) {
-			switch (fList[i].item) {
-				case "FirstName": 
-					tmp = tmp.filter(x => x.firstName.toUpperCase().includes(fList[i].value.toUpperCase()) );
-					break;
-				case "MiddleName":
-					tmp = tmp.filter(x => x.middleName.toUpperCase().includes(fList[i].value.toUpperCase()) );
-					break;
-				case "LastName":
-					tmp = tmp.filter(x => x.lastName.toUpperCase().includes(fList[i].value.toUpperCase()) );
-					break;
-				case "Marital Status":
-					if (fList[i].value.toUpperCase() === "MARRIED")
-						tmp = tmp.filter(x => !x.emsStatus.toUpperCase().includes("UNMARRIED"));
-					else
-						tmp = tmp.filter(x => x.emsStatus.toUpperCase().includes("UNMARRIED"));
-					break;
-				case "Gender":
-					tmp = tmp.filter(x => x.gender.toUpperCase().startsWith(fList[i].value.toUpperCase()) );
-					break;
-				case "Blood Group":
-					tmp = tmp.filter(x => x.bloodGroup.toUpperCase().includes(fList[i].value.toUpperCase()) );
-					break;	
-				case "City":
-					console.log(fList[i].value);
-					var xxx = cityArray.filter( x => x.city === fList[i].value);
-					xxx = lodashMap(xxx, 'hid');
-					console.log(xxx);
-					tmp = tmp.filter(x => xxx.includes(x.hid)  );
-					break;	
-				case "Age greater than":
-				case "Age less than":
-					// calculate dot based on age criteria
-					var d = new Date();
-					d.setFullYear(d.getFullYear() - fList[i].value);
-					// exclude all mebers whose dob is not available
-					tmp = tmp.filter(x => numberToDate(x.dob).getFullYear() != 1900 );
-					// now do the comparision
-					if (fList[i].item === "Age greater than")
-						tmp = tmp.filter( x => numberToDate(x.dob).getTime() <= d.getTime() );
-					else
-						tmp = tmp.filter( x => numberToDate(x.dob).getTime() >= d.getTime() );
-					break;
-			}
-		}
-		setMemberArray(tmp);
-	}
-	
 	function jumpFamily() {
-		 handlePrwsContextMenuClose();
-		 setGrpAnchorEl(null);
+		sessionStorage.setItem("prwsFilter", JSON.stringify(filterData));
+		handlePrwsContextMenuClose();
+		setGrpAnchorEl(null);
 		if (radioMid <= 0) return;
-		var tmp = memberMasterArray.find( x => x.mid === radioMid);
+		var tmp = memberArray.find( x => x.mid === radioMid);
 		console.log("Mem info", tmp.hid, tmp.mid);
-		//sessionStorage.setItem("memberHid", tmp.hid);
-		//sessionStorage.setItem("memberMid", tmp.mid);
-		//setTab(process.env.REACT_APP_MEMBER);
 		setDisplayPage(process.env.REACT_APP_FAMILY, tmp.hid, tmp.mid);
 	}
+	
 	function jumpPjym() {
+		sessionStorage.setItem("prwsFilter", JSON.stringify(filterData));
 		handlePrwsContextMenuClose();
 		setGrpAnchorEl(null);
 		//setTab(process.env.REACT_APP_PJYM);
@@ -461,6 +379,7 @@ export default function Prws() {
 	}
 
 	function jumpHumad() {
+		sessionStorage.setItem("prwsFilter", JSON.stringify(filterData));
 		handlePrwsContextMenuClose();
 		setGrpAnchorEl(null);
 		//setTab(process.env.REACT_APP_HUMAD);
@@ -468,12 +387,14 @@ export default function Prws() {
 	}
 	
 	function upgradeHumad() {
+		sessionStorage.setItem("prwsFilter", JSON.stringify(filterData));
 		handlePrwsContextMenuClose();
-		var memberRec = memberMasterArray.find( x => x.mid === radioMid);
+		var memberRec = memberArray.find( x => x.mid === radioMid);
 		selectCaller(APPLICATIONTYPES.humadUpgrade, "HumadUpgrade", memberRec);
 	}	
 	
 	function selectCaller(funCode, mode, memberRecord, humadRecord ) {
+		sessionStorage.setItem("prwsFilter", JSON.stringify(filterData));
 		var myFun = funCodeTable.find(x => x.fun === funCode);
 		if (myFun) {
 			var myData = JSON.stringify({
@@ -493,7 +414,6 @@ export default function Prws() {
 	}
 	
 
-
 	function handleHumadUpgradeBack(sts) {
 		if (sts.status === STATUS_INFO.ERROR) 
 			showError(sts.msg); 
@@ -509,20 +429,10 @@ export default function Prws() {
 		}
 		setIsDrawerOpened("");
 	}
-	function jumpGotra() {
-		handlePrwsContextMenuClose();
-		 setGrpAnchorEl(null);
-		//setTab(process.env.REACT_APP_GOTRA);
-		showError("Membership of PJYM to be implemented");
-	}
-	
-	
+
 	// pagination function 
 	const handleChangePage = (event, newPage) => {
-		if (process.env.REACT_APP_BACKENDFILTER === "true") {
-			getMemeberPage(filterList, newPage);
-		}
-    setPage(newPage);
+		getMemeberPage(filterData.filterList, newPage);
   };
 
 	function downloadPrwsData() {
@@ -573,7 +483,7 @@ export default function Prws() {
  
 	function PrwsContextMenu() {
 	//console.log(radioMid);
-		var tmp = memberMasterArray.find(x => x.mid === radioMid);
+		var tmp = memberArray.find(x => x.mid === radioMid);
 		setMenuMember(tmp);
 		//console.log(tmp);
     var myName = tmp.firstName + " " + tmp.lastName;
@@ -616,45 +526,6 @@ export default function Prws() {
 		<MenuItem disabled={!humadUpgradeAllowed} onClick={upgradeHumad}>
 			<Typography>Humad Membership</Typography>
 		</MenuItem>
-		{/*<Divider />
-		<MenuItem onClick={jumpGotra}>
-			<Typography>Gotra</Typography>
-		</MenuItem>
-		<MenuItem onClick={downloadPrwsData}>
-			<Typography>Export</Typography>
-		</MenuItem>*/}
-	</Menu>	
-	</div>
-	)}
-	
-	 
-	function MotWorking_PrwsContextMenu() {
-		console.log(contextParams);
-		var myStyle={top: contextParams.y+"px" , left: contextParams.x+"px" };
-		console.log(myStyle);
-		//anchorEl={grpAnchorEl}
-	return(
-	<div ref={menuRef}  style={myStyle}>
-	<Menu
-		id="prws-menu"
-		open={contextParams.show}
-		onClose={handlePrwsContextMenuClose}
-	>
-		<MenuItem onClick={jumpFamily}>
-			<Typography>Family</Typography>
-		</MenuItem>
-		{/*<MenuItem onClick={jumpPjym}>
-			<Typography>Pjym</Typography>
-		</MenuItem>
-		<MenuItem onClick={jumpHumad}>
-			<Typography>Humad</Typography>
-		</MenuItem>*/}
-		<MenuItem onClick={jumpGotra}>
-			<Typography>Gotra</Typography>
-		</MenuItem>
-		{/*<MenuItem onClick={downloadPrwsData}>
-			<Typography>Export</Typography>
-		</MenuItem>*/}
 	</Menu>	
 	</div>
 	)}
@@ -682,14 +553,8 @@ export default function Prws() {
 	</div>
 	);
 	
-	/*
-	<Typography style={{marginTop: "5px", marginRight: "10px" }} 
-				className={gClasses.message16Blue} 
-				onClick={downloadPrwsData} >Export</Typography>
-	*/
+
 	// If filter at back-end then we have only 1 page data
-	currentPage =(process.env.REACT_APP_BACKENDFILTER === "true") ? 0 : page;
-	
 	var cellPadStyle = {padding: "2px" };
 	return (
 	<div key="PRWS" className={gClasses.webPage} align="center" key="main">
@@ -719,7 +584,7 @@ export default function Prws() {
 					<div>
 					{(!inputFilterMode) &&
 						<Typography style={{paddingLeft: "5px"}}>
-						{filterList.map( (m, index) => {
+						{filterData.filterList.map( (m, index) => {
 							return (
 								<span key={"FILTER"+index} style={{marginLeft: "5px", paddingLeft: "5px"}} className={gClasses.filterItem} >
 									{m.item}: {m.value}
@@ -774,68 +639,36 @@ export default function Prws() {
 		</Box>
 		{/*<PersonalHeader dispType={dispType} />*/}
 		{/* display members here */}
-			{/*{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
-			if (m.ceased) return null;		
-			var memberCity = getMyCity(m.hid);
-			//console.log(memberCity);
-			//console.log(m.email);
-			return (
-			<PersonalMember key= {"PERSONALMEMBER"+index} m={m} dispType={dispType}  index={index} 
-				checked={radioRecord == m.mid}
-				datatip={getMemberTip(m, dispType, memberCity) } 
-				onClick={(event) => { radioMid = m.mid; handlePrwsContextMenu(event); }}
-			/>
-			)})}	*/}
 		<Box key="BOXPRWSFILTERTABLE"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
     <TableContainer>
 		<Table style={{padding: "2px" }} >
 		<PrwsHeaderBody key="PRWSHHHHHH" dispType={dispType} />
 		<TableBody>
-		{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
+		{memberArray.map( (m, index) => {
 				if (m.ceased) return null;		
 				var memberCity = getMyCity(m.hid);
 				//console.log(memberCity);
 				//console.log(m.email);
 				return (
-		<PrwsDataRow key={"PERSONALMEMBER"+index} index={index} m={m} dispType={dispType} memberCity={memberCity} 
-			datatip={getMemberTip(m, dispType, memberCity)} onClick={(event) => { radioMid = m.mid; handlePrwsContextMenu(event); }}
-		/>
+				<PrwsDataRow key={"PERSONALMEMBER"+index} index={index} m={m} dispType={dispType} memberCity={memberCity} 
+					datatip={getMemberTip(m, dispType, memberCity)} onClick={(event) => { radioMid = m.mid; handlePrwsContextMenu(event); }}
+				/>
 				)})}	
 		</TableBody>
 		</Table>
     </TableContainer>
-		</Box>	
-		
+		</Box>		
 		{/* Table pagination here */}
-		{((process.env.REACT_APP_BACKENDFILTER !== "true") && (memberArray.length > ROWSPERPAGE)) &&
-			<TablePagination
-				classes={gClasses.boxStyleEven}
-				align="right"
-				rowsPerPageOptions={[ROWSPERPAGE]}
-				component="div"
-				labelRowsPerPage="Members per page"
-				count={memberArray.length}
-				rowsPerPage={ROWSPERPAGE}
-				page={page}
-				onPageChange={handleChangePage}
-				//onRowsPerPageChange={handleChangeRowsPerPage}
-				//showFirstButton={true}
-			/>
-		}
-		{((process.env.REACT_APP_BACKENDFILTER === "true") && (memberCount > ROWSPERPAGE)) &&
-			<TablePagination
-				align="right"
-				rowsPerPageOptions={[ROWSPERPAGE]}
-				component="div"
-				labelRowsPerPage="Members per page"
-				count={memberCount}
-				rowsPerPage={ROWSPERPAGE}
-				page={page}
-				onPageChange={handleChangePage}
-				//onRowsPerPageChange={handleChangeRowsPerPage}
-				//showFirstButton={true}
-			/>
-		}
+		<TablePagination
+			align="right"
+			rowsPerPageOptions={[ROWSPERPAGE]}
+			component="div"
+			labelRowsPerPage="Members per page"
+			count={memberCount}
+			rowsPerPage={ROWSPERPAGE}
+			page={filterData.currentPage}
+			onPageChange={handleChangePage}
+		/>
 		<DisplayAllToolTips />
 		{contextParams.show && <PrwsContextMenu /> }
 		<Drawer style={{ width: "100%"}} anchor="top" variant="temporary" open={isDrawerOpened != ""} >

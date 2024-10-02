@@ -39,6 +39,7 @@ import lodashUniqBy from 'lodash/uniqBy';
 import IconButton from '@material-ui/core/IconButton';
 import CancelIcon from '@material-ui/icons/Cancel';
 import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 // styles
 import globalStyles from "assets/globalStyles";
@@ -216,7 +217,7 @@ export default function Country() {
 			<span style={{paddingLeft: "8px" }} align="left" className={gClasses.patientInfo2}>{d.country+" "}</span>
 			<span align="right">
         <EditIcon color="primary" size="small" onClick={() => {editCountry(d)}} />
-        <CancelIcon color="secondary" size="small" onClick={() => {delCountry(d)}} />
+        <DeleteIcon color="primary" size="small" onClick={() => {delCountry(d)}} />
 			</span>
 			</Typography>
 			</Box>

@@ -45,6 +45,8 @@ import CancelIcon from '@material-ui/icons/Cancel';
 import EditIcon from '@material-ui/icons/Edit';
 import InfoIcon   from 	'@material-ui/icons/Info';
 import VisibilityIcon from '@material-ui/icons/Visibility';
+import DeleteIcon from '@material-ui/icons/Delete';
+
 // styles
 import globalStyles from "assets/globalStyles";
 
@@ -339,7 +341,7 @@ export default function Application(props) {
 		</TableCell>
 		<TableCell style={{padding: "0px" }} align="center">
 			<VisibilityIcon size="small" color="primary" onClick={() => editApplicationPage(a)} />
-			<CancelIcon size="small" color="secondary" onClick={() => deleteApplication(a)} />
+			<DeleteIcon size="small" color='primary' onClick={() => deleteApplication(a)} />
 		</TableCell>
 		</TableRow>
 	)})}
@@ -359,11 +361,15 @@ export default function Application(props) {
 	async function deleteApplicationConfirm(appRec) {
 		//console.log(appRec);
 		try {
-			let myUrl =  `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/delete/${appRec.id}`;
+			let myUrl =  `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/delete/${loginMid}/${appRec.id}`;
 			let resp = await axios.get(myUrl);
 			showSuccess(`Successfully deleted application with id ${appRec.id}`);
-			setApplicationArray(applicationArray.filter(x => x.id !== appRec.id));
-			setApplicationMasterArray(applicationMasterArray.filter(x => x.id !== appRec.id));
+			getAllApplication(filterCond);
+			
+			//setApplicationArray(applicationArray.filter(x => x.id !== appRec.id));
+			//setApplicationMasterArray(applicationMasterArray.filter(x => x.id !== appRec.id));
+			// Get the current page from  backend
+			
 		} catch (e) {
 			console.log(e);
 			showError(`Error deleting application with id ${appRec.id}`);

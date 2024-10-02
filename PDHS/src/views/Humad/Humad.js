@@ -104,6 +104,7 @@ import {
 
 import {
 	setTab,
+	setDisplayPage,
 } from "CustomComponents/CricDreamTabs.js"
 
 
@@ -126,26 +127,31 @@ var MasterFilterItems = [
 		{item: "Age greater than",    value: 24, 		type: "number", Min: 0, Max: 1000},
 		{item: "Age less than",    		value: 24, 		type: "number", Min: 1, Max: 1000},
 	];
+	
 var inputName="";
-
 const InitialContextParams = {show: false, x: 0, y: 0};
-
-
-
-var memberMasterArray = [];  function setMemberMasterArray(data) { memberMasterArray = data; }
 var radioMid = -1;
-
-var currentPage = 0;
-
 var menuMember = {};
 function setMenuMember(p) { menuMember = p; }
 
 
 
-export default function Humad() {
+export default function Humad() {		
+	var DefaultFilterData = {
+		currentPage: 0,
+		pageSize:	NONMOBROWSPERPAGE,
+		filterList: []
+	};
+
+	if ("humadFilter" in sessionStorage) {
+		DefaultFilterData = JSON.parse(sessionStorage.getItem("humadFilter"));
+	}
+	
+	const [filterData, setFilterData] = useState(DefaultFilterData);
+  const [ROWSPERPAGE, setROWSPERPAGE] = useState(DefaultFilterData.pageSize);
+	
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
   const [dispType, setDispType] = useState("lg");
-  const [ROWSPERPAGE, setROWSPERPAGE] = useState(NONMOBROWSPERPAGE);
   
 	const loginHid = parseInt(sessionStorage.getItem("hid"), 10);
 	const loginMid = parseInt(sessionStorage.getItem("mid"), 10);
@@ -155,24 +161,23 @@ export default function Humad() {
 	const gClasses = globalStyles();
 	const alert = useAlert();
 
+	
 
 	const [radioRecord, setRadioRecord] = useState(0);
 
-	//const [memberMasterArray, setMemberMasterArray] = useState([]);
 	const [memberArray, setMemberArray] = useState([]);
 	const [memberCount, setMemberCount] = useState(0);
 	const [isDrawerOpened, setIsDrawerOpened] = useState("");
 	
 	//const [cityArray, setCityArray] = useState([]);
 	// pagination
-	const [page, setPage] = useState(0);
+	//const [page, setPage] = useState(0);
 	
 	// --- start of filter variables
 	const	[lastFilter, setLastFilter] = useState("");
 	const [inputFilterMode, setInputFilterMode] = useState(false);
 	const [inputValue, setInputValue] = useState("");
 	const [inputInfo, setInputInfo] = useState({});
-	const [filterList, setFilterList] = useState([]);
 	const [modMasterFilterItems, setModMasterFilterItems] = useState(MasterFilterItems);
 	//---  end of filter variables
 	
@@ -200,59 +205,7 @@ export default function Humad() {
 			setDispType(displayType(myDim.width));
 		}
 		
-		async function junked_getAllMembers() {
-			// first get all cities
-			//await getAllCities();
-			// now fetch all members
-			try {
-				var myData = [];
-				if (process.env.REACT_APP_PRWS_DB === "true") {
-					myData = JSON.parse(localStorage.getItem("prwsMemberList"));
-					setMemberMasterArray(myData);
-					setMemberArray(myData);
-				}
-				else if (process.env.REACT_APP_BACKENDFILTER === "true") {
-					await getMemeberPage([], 0);
-				}
-				else {
-					let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/list/all`;
-					let resp = await axios.get(myUrl);
-					var myData = resp.data;					
-					setMemberMasterArray(myData);
-					setMemberArray(myData);
-				}
-			} catch (e) {
-				console.log("Error fetching member data");
-				//setMemberArray([]);		
-			}
-		}
 
-		async function getAllHumad() {
-			if (process.env.REACT_APP_BACKENDFILTER === "true") {
-					await getHumadPage([], 0);
-			}
-			else {
-				try {
-				//console.log('in humad fetch', chrStr )
-					let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/humad/listwithnames`;
-					let resp = await axios.get(myUrl);
-					
-					setHumadArray(resp.data.humad);
-					setMemberArray(resp.data.member);
-					setMemberMasterArray(resp.data.member);
-					
-					//setCurrentChar(chrStr);
-				} 
-				catch (e) {
-					console.log(e);
-					alert.error(`Error fetching Humad details`);
-					setMemberArray([]);
-					setHumadArray([]);
-				}	
-			}
-		}
-
-		
 		async function getAllCities() {
 			// Update in Menu			
 			cityArray = await getHodCityList();
@@ -272,7 +225,7 @@ export default function Humad() {
 			}
 		}
 		
-		setPage(0);
+
 		
 		if ("humad_returnstatus" in sessionStorage) {
 			console.log("has return status");
@@ -284,7 +237,7 @@ export default function Humad() {
 
 		if (sessionStorage.getItem("isMember") === "true") {
 			getAllCities();
-			getAllHumad();
+			getHumadPage(DefaultFilterData.filterList, DefaultFilterData.currentPage);
 		}
 		
 		handleResize();
@@ -310,6 +263,7 @@ export default function Humad() {
 		<Grid align="center" item xs={3} sm={3} md={1} lg={1} >
 			<Typography className={gClasses.patientInfo2Brown}>Mem. Id</Typography>
 		</Grid>
+		
 		{( (dispType !== "xs") && (dispType !== "sm") ) &&
 		<Grid align="center" item md={1} lg={1} >
 			<Typography className={gClasses.patientInfo2Brown}>Med. Date</Typography>
@@ -327,23 +281,19 @@ export default function Humad() {
 		</Box>	
 	)};
 
-	async function getHumadPage(filterList, pageNumber)  {
-		var myData = encodeURIComponent(JSON.stringify({
-			pageNumber: pageNumber,
-			pageSize:	ROWSPERPAGE,
-			filterData: filterList
-		}));
+	async function getHumadPage(myFilterList, myPage)  {
+		var myFilterData = lodashCloneDeep(filterData)
+		myFilterData.filterList = myFilterList;
+		myFilterData.currentPage = myPage;
+		var myData = encodeURIComponent(JSON.stringify(myFilterData));
 
 		try {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/humad/filterdata/${myData}`;
-			//console.log(myUrl);
 			let resp = await axios.get(myUrl);
-			//console.log(resp.data);
-			currentPage = (process.env.REACT_APP_BACKENDFILTER === "true") ? 0 : pageNumber;
+			setFilterData(myFilterData);
 			setMemberArray(resp.data.member);
-			setMemberMasterArray(resp.data.member);
 			setHumadArray(resp.data.humad);
-			setHumadCount(resp.data.count);
+			setHumadCount(resp.data.totalCount);
 		} catch (e) {
 			console.log("Error fetching filter member data");
 			showError(`Error fetching member data of page ${pageNumber}`);
@@ -367,6 +317,8 @@ export default function Humad() {
 	}
 
 	function selectCaller(funCode, mode, memberRecord, humadRecord ) {
+		sessionStorage.setItem("humadFilter", JSON.stringify(filterData));
+		
 		var myFun = funCodeTable.find(x => x.fun === funCode);
 		if (myFun) {
 			var myData = JSON.stringify({
@@ -392,7 +344,7 @@ export default function Humad() {
 	function DisplayAllToolTips() {
 	return(
 		<div>
-		{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( t =>
+		{memberArray.map( t =>
 		  <DisplaySingleTip key={"MEMBETIP"+t.mid}  id={"MEMBER"+t.mid} />
 		)}
 		</div>
@@ -412,30 +364,28 @@ export default function Humad() {
 		if (tmp.options) 
 			tmp1 = "";   //tmp.options[0];
 		else {
-			tmp = filterList.find(x => x.item == newItem);
+			tmp = filterData.filterList.find(x => x.item == newItem);
 			tmp1 = (tmp) ? tmp.value : "";
 		}
 		setInputValue(tmp1);
 		setInputFilterMode(true);
 	}
 
-	async function getMemeberPage(filterList, pageNumber, save=true)  {
+	async function getMemberPage(filterList, pageNumber, save=true)  {
 		//console.log(save);
-		var myData = encodeURIComponent(JSON.stringify({
-			pageNumber: pageNumber,
-			pageSize:	ROWSPERPAGE,
-			filterData: filterList
-		}));
+		var myFilterData = lodashCloneDeep(filterData);
+		myFilterData.currentPage = pageNumber;
+		myFilterData.filterList = filterList;
+		var myData = encodeURIComponent(JSON.stringify(myFilterData));
 
 		try {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/filterdata/${myData}`;
 			let resp = await axios.get(myUrl);
 			//console.log(resp.data);
 			if (save) {
-				currentPage = (process.env.REACT_APP_BACKENDFILTER === "true") ? 0 : pageNumber;
 				setMemberCount(resp.data.count);
 				setMemberArray(resp.data.data);
-				setMemberMasterArray(resp.data.data);
+				//setMemberMasterArray(resp.data.data);
 			} 
 			else {
 				return (resp.data.data);
@@ -450,6 +400,7 @@ export default function Humad() {
 	
 	function addFilterConfirm(tmpValue) {
 		//console.log("addFilterConfirm", tmpValue);
+		var currFilterData = lodashCloneDeep(filterData.filterList);
 		let finalFilter;
 		let userSelection = ""
 		if (tmpValue.length > 0) 
@@ -459,44 +410,28 @@ export default function Humad() {
 			userSelection = inputValue;
 		}
 		//console.log(inputValue);
-		let tmp = filterList.find(x => x.item === inputName);
+		let tmp = currFilterData.find(x => x.item === inputName);
 		//console.log(tmp);
 		if (tmp) {
 			tmp.value = userSelection;
-			finalFilter = lodashCloneDe1ep(filterList);
+			finalFilter = lodashCloneDeep(currFilterData);
 			console.log(finalFilter);
 		} 
 		else {
-			//console.log(inputName, userSelection);
-			//console.log(MasterFilterItems[0]);
 			tmp = lodashCloneDeep(MasterFilterItems.find(x => x.item === inputName));
 			tmp.value = userSelection;
-			finalFilter = filterList.concat(tmp);
+			finalFilter = currFilterData.concat(tmp);
 			//console.log(finalFilter);
-			setFilterList(finalFilter);
 		}
 		setInputFilterMode(false);
 		updateFilterItems(finalFilter);
-		if (process.env.REACT_APP_BACKENDFILTER === "true") {
-			getHumadPage(finalFilter, 0);
-		}
-		else {
-			updateMemberArray(finalFilter);
-		}
-		setPage(0);
+		getHumadPage(finalFilter, 0);
 	}
 	
 	function removeFilter(item) {
-		let tmp = filterList.filter(x => x.item !== item);
-		setFilterList(tmp);	
+		let tmp = filterData.filterList.filter(x => x.item !== item);
 		updateFilterItems(tmp);
-		if (process.env.REACT_APP_BACKENDFILTER === "true") {
-			getHumadPage(tmp, 0);
-		}
-		else {
-			updateMemberArray(tmp);
-		}
-		setPage(0);
+		getHumadPage(tmp, 0);
 	}
 	
 	function updateFilterItems(fList) {
@@ -510,7 +445,7 @@ export default function Humad() {
 	
 
 	function updateMemberArray(fList) {
-		let tmp = lodashCloneDeep(memberMasterArray);
+		let tmp = []; //lodashCloneDeep(memberMasterArray);
 		for(var i=0; i<fList.length; ++i) {
 			switch (fList[i].item) {
 				case "FirstName": 
@@ -563,7 +498,8 @@ export default function Humad() {
 		 handlePrwsContextMenuClose();
 		 setGrpAnchorEl(null);
 		if (radioMid <= 0) return;
-		var tmp = memberMasterArray.find( x => x.mid === radioMid);
+		sessionStorage.setItem("humadFilter", JSON.stringify(filterData));
+		var tmp = memberArray.find( x => x.mid === radioMid);
 		console.log("Mem info", tmp.hid, tmp.mid);
 		//sessionStorage.setItem("memberHid", tmp.hid);
 		//sessionStorage.setItem("memberMid", tmp.mid);
@@ -615,20 +551,10 @@ export default function Humad() {
 		}
 		setIsDrawerOpened("");
 	}
-	function jumpGotra() {
-		handlePrwsContextMenuClose();
-		 setGrpAnchorEl(null);
-		//setTab(process.env.REACT_APP_GOTRA);
-		showError("Membership of PJYM to be implemented");
-	}
-	
 	
 	// pagination function 
 	const handleChangePage = (event, newPage) => {
-		if (process.env.REACT_APP_BACKENDFILTER === "true") {
-			getHumadPage(filterList, newPage);
-		}
-    setPage(newPage);
+		getHumadPage(filterData.filterList, newPage);
   };
 
 	function downloadPrwsData() {
@@ -642,7 +568,7 @@ export default function Humad() {
 	
 	async function downloadPrwsDataConfirm() {
 		
-		var myList = await getMemeberPage(filterList, -1, false);
+		var myList = await getMemberPage(filterList, -1, false);
 		console.log(myList.length);
 		var memData = "Name,Age,Gender,Mobile1,Mobile2,Email1,Email2\n";
 		var csvFileName = "prws.csv";
@@ -679,7 +605,7 @@ export default function Humad() {
  
 	function PrwsContextMenu() {
 	//console.log(radioMid);
-		var tmp = memberMasterArray.find(x => x.mid === radioMid);
+		var tmp = memberArray.find(x => x.mid === radioMid);
 		setMenuMember(tmp);
 		var tmpHumadRec = humadArray.find(x => x.mid === radioMid);
 		//console.log(tmp);
@@ -718,13 +644,6 @@ export default function Humad() {
 		<MenuItem disabled={!upgradeAllowed} onClick={upgradeHumad}>
 			<Typography>Upgrade</Typography>
 		</MenuItem>
-		{/*<Divider />
-		<MenuItem onClick={jumpGotra}>
-			<Typography>Gotra</Typography>
-		</MenuItem>
-		<MenuItem onClick={downloadPrwsData}>
-			<Typography>Export</Typography>
-		</MenuItem>*/}
 	</Menu>	
 	</div>
 	)}
@@ -752,13 +671,6 @@ export default function Humad() {
 	</div>
 	);
 	
-	/*
-	<Typography style={{marginTop: "5px", marginRight: "10px" }} 
-				className={gClasses.message16Blue} 
-				onClick={downloadPrwsData} >Export</Typography>
-	*/
-	// If filter at back-end then we have only 1 page data
-	currentPage =(process.env.REACT_APP_BACKENDFILTER === "true") ? 0 : page;
 	
 	return (
 	<div key="PRWS" className={gClasses.webPage} align="center" key="main">
@@ -778,13 +690,14 @@ export default function Humad() {
 			applyClick={() => { addFilterConfirm(""); } }
 			cancelClick={() => { setInputFilterMode(false); setLastFilter(""); } }
 			/>*/}
+
 		<Box key="BOXPRWSFILTER"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
 			<Grid key="PRWSFILTER" className={gClasses.noPadding} container>
 				<Grid align="left" item xs={10} sm={10} md={11} lg={11} >
 					<div>
 					{(!inputFilterMode) &&
 						<Typography style={{paddingLeft: "5px"}}>
-						{filterList.map( (m, index) => {
+						{filterData.filterList.map( (m, index) => {
 							return (
 								<span key={"FILTER"+index} style={{marginLeft: "5px", paddingLeft: "5px"}} className={gClasses.filterItem} >
 									{m.item}: {m.value}
@@ -843,7 +756,7 @@ export default function Humad() {
 		<HumadHeaderBody dispType={dispType} />
 		{/* display members here */}
 		<TableBody>
-		{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
+		{memberArray.map( (m, index) => {
 			if (m.ceased) return null;
 			let h = humadArray.find(x => x.mid === m.mid);
 			if (!h) return null;
@@ -862,34 +775,18 @@ export default function Humad() {
     </TableContainer>
 		</Box>	
 		{/* Table pagination here */}
-		{((process.env.REACT_APP_BACKENDFILTER !== "true") && (humadCount > ROWSPERPAGE)) &&
-			<TablePagination
-				align="right"
-				rowsPerPageOptions={[ROWSPERPAGE]}
-				component="div"
-				labelRowsPerPage="Members per page"
-				count={humadCount}
-				rowsPerPage={ROWSPERPAGE}
-				page={page}
-				onPageChange={handleChangePage}
-				//onRowsPerPageChange={handleChangeRowsPerPage}
-				//showFirstButton={true}
-			/>
-		}
-		{((process.env.REACT_APP_BACKENDFILTER === "true") && (humadCount > ROWSPERPAGE)) &&
-			<TablePagination
-				align="right"
-				rowsPerPageOptions={[ROWSPERPAGE]}
-				component="div"
-				labelRowsPerPage="Members per page"
-				count={humadCount}
-				rowsPerPage={ROWSPERPAGE}
-				page={page}
-				onPageChange={handleChangePage}
-				//onRowsPerPageChange={handleChangeRowsPerPage}
-				//showFirstButton={true}
-			/>
-		}
+		<TablePagination
+			align="right"
+			rowsPerPageOptions={[ROWSPERPAGE]}
+			component="div"
+			labelRowsPerPage="Members per page"
+			count={humadCount}
+			rowsPerPage={ROWSPERPAGE}
+			page={filterData.currentPage}
+			onPageChange={handleChangePage}
+			//onRowsPerPageChange={handleChangeRowsPerPage}
+			//showFirstButton={true}
+		/>
 		<DisplayAllToolTips />
 		{contextParams.show && <PrwsContextMenu /> }
 		<Drawer style={{ width: "100%"}} anchor="top" variant="temporary" open={isDrawerOpened != ""} >

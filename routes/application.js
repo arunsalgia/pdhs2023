@@ -168,12 +168,32 @@ router.get('/add/:appData', async function (req, res) {
 	sendok(res, aRec);
 });
 
-router.get('/delete/:id', async function (req, res) {
+router.get('/delete/:editorMid/:applicationId', async function (req, res) {
   setHeader(res);
-	var {id } = req.params;
+	var {editorMid, applicationId } = req.params;
 	
-	await M_Application.deleteOne({id: id});
+	// Create a log entry for the given Application
+	var editorRec = await memberGetByMidOne(Number(editorMid));
+	if (!editorRec) return senderr(res, 601, 'Invalid editor mid');
+	
+	var aRec = M_Application.findOne({id: applicationId});
+	if (!aRec) return senderr(res, 602, 'Invalid Application Id');
+	
+	await M_Application.deleteOne({id: applicationId});
 
+	let myLogRec = new M_PrwsLog();
+	myLogRec.date = new Date();
+	myLogRec.mid = editorRec.mid;
+	myLogRec.name = getMemberName(editorRec, false);
+	myLogRec.desc = "Application " + aRec.id + "deleted by " +  getMemberName(editorRec, false) ;
+	myLogRec.isAdmin = true;
+	myLogRec.action = "Delete";
+	myLogRec.data = "";
+	myLogRec.referenceId = aRec.id;
+	myLogRec.status = true;
+	await myLogRec.save();
+
+	
 	sendok(res, "Done");
 });
 

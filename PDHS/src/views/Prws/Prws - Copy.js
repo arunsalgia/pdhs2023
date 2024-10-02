@@ -9,6 +9,13 @@ import Menu from '@material-ui/core/Menu';
 import TextField from '@material-ui/core/TextField'; 
 import TablePagination from '@material-ui/core/TablePagination';
 
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -56,19 +63,21 @@ import InfoIcon  from 	'@material-ui/icons/Info';
 import CancelIcon from '@material-ui/icons/Cancel';
 import SearchIcon from '@material-ui/icons/Search';
 import ArrowDropDownCircle from '@material-ui/icons/ArrowDropDownCircle';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
+
 
 import {
 	BlankArea, DisplayPageHeader,
-	PersonalHeader, PersonalMember,
-	HumadMember,
+	DisplayMemberHeader,
+	PersonalHeader, PersonalMember, PersonalMemberTable,
 	DisplaySingleTip,
 	DisplayPrwsFilter,
+	PrwsHeaderBody, PrwsDataRow,
 } from "CustomComponents/CustomComponents.js"
 
 import {
 	ADMIN, APPLICATIONTYPES, SELECTSTYLE, NORMALSELECTSTYLE,
   PADSTYLE,
-	HUMADCATEGORY,
 	MEMBERTITLE, RELATION, SELFRELATION, GENDER, BLOODGROUP, MARITALSTATUS,
 	Options_Gender, Options_Marital_Status, Options_Blood_Group,
 	READMEMBERINITIAL,
@@ -95,6 +104,10 @@ import {
 	hasHumadpermission,
 } from "views/functions.js";
 
+
+const funCodeTable = [
+{fun: APPLICATIONTYPES.humadUpgrade, 					code: process.env.REACT_APP_HUMAD_UPGRADE},
+];
 
 var cityList = ["Mumbai"];
 var cityArray = [];
@@ -125,9 +138,7 @@ var currentPage = 0;
 var menuMember = {};
 function setMenuMember(p) { menuMember = p; }
 
-
-
-export default function Humad() {
+export default function Prws() {
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
   const [dispType, setDispType] = useState("lg");
   const [ROWSPERPAGE, setROWSPERPAGE] = useState(NONMOBROWSPERPAGE);
@@ -168,15 +179,7 @@ export default function Humad() {
 	const grpOpen = Boolean(grpAnchorEl);
 	
 	let menuRef = useRef();
-
-	//==============
-
-	const [humadArray, setHumadArray] = useState([]);
-	const [humadCount, setHumadCount] = useState(0);
-	const [humadRec, setHumadRec] = useState(null);
 	
-	//================
-
   useEffect(() => {	
 		function handleResize() {
 			let myDim = getWindowDimensions();
@@ -185,7 +188,7 @@ export default function Humad() {
 			setDispType(displayType(myDim.width));
 		}
 		
-		async function junked_getAllMembers() {
+		async function getAllMembers() {
 			// first get all cities
 			//await getAllCities();
 			// now fetch all members
@@ -211,32 +214,6 @@ export default function Humad() {
 				//setMemberArray([]);		
 			}
 		}
-
-		async function getAllHumad() {
-			if (process.env.REACT_APP_BACKENDFILTER === "true") {
-					await getHumadPage([], 0);
-			}
-			else {
-				try {
-				//console.log('in humad fetch', chrStr )
-					let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/humad/listwithnames`;
-					let resp = await axios.get(myUrl);
-					
-					setHumadArray(resp.data.humad);
-					setMemberArray(resp.data.member);
-					setMemberMasterArray(resp.data.member);
-					
-					//setCurrentChar(chrStr);
-				} 
-				catch (e) {
-					console.log(e);
-					alert.error(`Error fetching Humad details`);
-					setMemberArray([]);
-					setHumadArray([]);
-				}	
-			}
-		}
-
 		
 		async function getAllCities() {
 			// Update in Menu			
@@ -257,94 +234,37 @@ export default function Humad() {
 			}
 		}
 		
-		setPage(0);
-		
-		if (sessionStorage.getItem("isMember") === "true") {
-			getAllCities();
-			getAllHumad();
+		if ("humad_returnstatus" in sessionStorage) {
+			console.log("has return status");
+			var sts = JSON.parse(sessionStorage.getItem("humad_returnstatus"));
+			sessionStorage.removeItem("humad_returnstatus");
+			handlePrwsReturn(sts);
 		}
-		
+
+		setPage(0);
+		getAllCities();
+		if (sessionStorage.getItem("isMember") === "true") {
+			getAllMembers();
+		}
 		handleResize();
 		window.addEventListener('resize', handleResize);
 		//return () => window.removeEventListener('resize', handleResize); 
   }, []);
 
 
-//==========
-
-	function DisplayHumadHeader() {
-	return (
-		<Box  key={"MEMBOXHDR"} className={gClasses.boxStyleOdd} borderColor="black" borderRadius={30} border={1} >
-		<Grid key={"MEMGRIDHDR"} className={gClasses.noPadding} key={"SYMHDR"} container align="center" alignItems="center" >
-		<Grid align="left" item xs={8} sm={8} md={5} lg={5} >
-			<Typography className={gClasses.patientInfo2Brown}>Name</Typography>
-		</Grid>	
-		{( (dispType !== "xs") && (dispType !== "sm") ) &&
-		<Grid align="center" item xs={3} sm={3} md={2} lg={2} >
-			<Typography className={gClasses.patientInfo2Brown}>Mobile</Typography>
-		</Grid>
-		}
-		<Grid align="center" item xs={3} sm={3} md={1} lg={1} >
-			<Typography className={gClasses.patientInfo2Brown}>Mem. Id</Typography>
-		</Grid>
-		{( (dispType !== "xs") && (dispType !== "sm") ) &&
-		<Grid align="center" item md={1} lg={1} >
-			<Typography className={gClasses.patientInfo2Brown}>Med. Date</Typography>
-		</Grid>
-		}
-		{( (dispType !== "xs") && (dispType !== "sm") ) &&
-		<Grid align="center" item md={2} lg={2} >
-			<Typography className={gClasses.patientInfo2Brown}>Remarks</Typography>
-		</Grid>
-		}
-		<Grid align="center" item md={1} lg={1} >
-		<Typography className={gClasses.patientInfo2Brown}></Typography>
-		</Grid>
-		</Grid>
-		</Box>	
-	)};
-
-	async function getHumadPage(filterList, pageNumber)  {
-		var myData = encodeURIComponent(JSON.stringify({
-			pageNumber: pageNumber,
-			pageSize:	ROWSPERPAGE,
-			filterData: filterList
-		}));
-
-		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/humad/filterdata/${myData}`;
-			//console.log(myUrl);
-			let resp = await axios.get(myUrl);
-			//console.log(resp.data);
-			currentPage = (process.env.REACT_APP_BACKENDFILTER === "true") ? 0 : pageNumber;
-			setMemberArray(resp.data.member);
-			setMemberMasterArray(resp.data.member);
-			setHumadArray(resp.data.humad);
-			setHumadCount(resp.data.count);
-		} catch (e) {
-			console.log("Error fetching filter member data");
-			showError(`Error fetching member data of page ${pageNumber}`);
-		}
+	function handlePrwsReturn(sts) {
+		console.log(sts);
+		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
+		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
 		
+		if (sts.status == STATUS_INFO.SUCCESS) {
+		}
+		else {
+			console.log("Yaha kaise aaya");
+		}
+		setIsDrawerOpened("");
 	}
 	
-	function upgradeHumad() {
-		handlePrwsContextMenuClose();
-		// get Humad record
-		let tmpHumadRec = humadArray.find(x => x.mid === menuMember.mid);
-		let  myIndex = HUMADCATEGORY.map(e => e.short).indexOf(tmpHumadRec.membershipNumber.substr(0, 1));  //.find(x => x.short === );
-		if (myIndex === 0) {
-			showInfo(`${getMemberName(menuMember, false, false)} is already ${HUMADCATEGORY[0].desc} (highest upgrade)`);
-			return;
-		}
-		setHumadRec(tmpHumadRec);
-		setIsDrawerOpened("HumadUpgrade");
-	}
-
-
-//===================
-
-
 	function DisplayAllToolTips() {
 	return(
 		<div>
@@ -405,7 +325,8 @@ export default function Humad() {
 	
 	
 	function addFilterConfirm(tmpValue) {
-		//console.log("addFilterConfirm", tmpValue);
+		
+		console.log("addFilterConfirm", tmpValue);
 		let finalFilter;
 		let userSelection = ""
 		if (tmpValue.length > 0) 
@@ -431,10 +352,14 @@ export default function Humad() {
 			//console.log(finalFilter);
 			setFilterList(finalFilter);
 		}
+		// for testing blank on Mobile
+		if (finalFilter.length === 0) return;
+		
+		
 		setInputFilterMode(false);
 		updateFilterItems(finalFilter);
 		if (process.env.REACT_APP_BACKENDFILTER === "true") {
-			getHumadPage(finalFilter, 0);
+			getMemeberPage(finalFilter, 0);
 		}
 		else {
 			updateMemberArray(finalFilter);
@@ -447,7 +372,7 @@ export default function Humad() {
 		setFilterList(tmp);	
 		updateFilterItems(tmp);
 		if (process.env.REACT_APP_BACKENDFILTER === "true") {
-			getHumadPage(tmp, 0);
+			getMemeberPage(tmp, 0);
 		}
 		else {
 			updateMemberArray(tmp);
@@ -542,7 +467,33 @@ export default function Humad() {
 		setIsDrawerOpened("HumadUpgrade");
 	}
 	
+	function upgradeHumad() {
+		handlePrwsContextMenuClose();
+		var memberRec = memberMasterArray.find( x => x.mid === radioMid);
+		selectCaller(APPLICATIONTYPES.humadUpgrade, "HumadUpgrade", memberRec);
+	}	
 	
+	function selectCaller(funCode, mode, memberRecord, humadRecord ) {
+		var myFun = funCodeTable.find(x => x.fun === funCode);
+		if (myFun) {
+			var myData = JSON.stringify({
+				calledFrom: process.env.REACT_APP_PRWS,
+				memberRec: memberRecord,
+				humadRec: null,
+				mode: mode,
+				hodMid: 0,
+				selectedMid:  memberRecord.mid
+			});
+			sessionStorage.setItem("humad_props", myData);
+			setTab(myFun.code);
+		}
+		else {
+			setIsDrawerOpened(mode);
+		}
+	}
+	
+
+
 	function handleHumadUpgradeBack(sts) {
 		if (sts.status === STATUS_INFO.ERROR) 
 			showError(sts.msg); 
@@ -569,7 +520,7 @@ export default function Humad() {
 	// pagination function 
 	const handleChangePage = (event, newPage) => {
 		if (process.env.REACT_APP_BACKENDFILTER === "true") {
-			getHumadPage(filterList, newPage);
+			getMemeberPage(filterList, newPage);
 		}
     setPage(newPage);
   };
@@ -624,7 +575,6 @@ export default function Humad() {
 	//console.log(radioMid);
 		var tmp = memberMasterArray.find(x => x.mid === radioMid);
 		setMenuMember(tmp);
-		var tmpHumadRec = humadArray.find(x => x.mid === radioMid);
 		//console.log(tmp);
     var myName = tmp.firstName + " " + tmp.lastName;
 		//console.log(contextParams);
@@ -632,7 +582,9 @@ export default function Humad() {
 		//console.log(myStyle);
 		//console.log(menuRef);
 		//anchorEl={grpAnchorEl}
-		var upgradeAllowed = hasHumadpermission() && tmpHumadRec.membershipNumber.substr(0, 1) !== HUMADCATEGORY[0].short
+		// if not humad member and is humad admin then allowd humad upograde
+		var humadUpgradeAllowed = !tmp.humadMember && hasHumadpermission();
+		
 	return(
 	<div id="PRWSMENU" ref={menuRef} className='absolute z-20' style={myStyle}>
 	<Menu
@@ -658,14 +610,49 @@ export default function Humad() {
 			<Typography>{"Family"}</Typography>
 		</MenuItem>
 		<Divider />
-		<MenuItem disabled={!upgradeAllowed} onClick={upgradeHumad}>
-			<Typography>Upgrade</Typography>
+		<MenuItem disabled={tmp.pjymMember} onClick={jumpPjym}>
+			<Typography>Pjym Membership</Typography>
+		</MenuItem>
+		<MenuItem disabled={!humadUpgradeAllowed} onClick={upgradeHumad}>
+			<Typography>Humad Membership</Typography>
 		</MenuItem>
 		{/*<Divider />
 		<MenuItem onClick={jumpGotra}>
 			<Typography>Gotra</Typography>
 		</MenuItem>
 		<MenuItem onClick={downloadPrwsData}>
+			<Typography>Export</Typography>
+		</MenuItem>*/}
+	</Menu>	
+	</div>
+	)}
+	
+	 
+	function MotWorking_PrwsContextMenu() {
+		console.log(contextParams);
+		var myStyle={top: contextParams.y+"px" , left: contextParams.x+"px" };
+		console.log(myStyle);
+		//anchorEl={grpAnchorEl}
+	return(
+	<div ref={menuRef}  style={myStyle}>
+	<Menu
+		id="prws-menu"
+		open={contextParams.show}
+		onClose={handlePrwsContextMenuClose}
+	>
+		<MenuItem onClick={jumpFamily}>
+			<Typography>Family</Typography>
+		</MenuItem>
+		{/*<MenuItem onClick={jumpPjym}>
+			<Typography>Pjym</Typography>
+		</MenuItem>
+		<MenuItem onClick={jumpHumad}>
+			<Typography>Humad</Typography>
+		</MenuItem>*/}
+		<MenuItem onClick={jumpGotra}>
+			<Typography>Gotra</Typography>
+		</MenuItem>
+		{/*<MenuItem onClick={downloadPrwsData}>
 			<Typography>Export</Typography>
 		</MenuItem>*/}
 	</Menu>	
@@ -703,10 +690,14 @@ export default function Humad() {
 	// If filter at back-end then we have only 1 page data
 	currentPage =(process.env.REACT_APP_BACKENDFILTER === "true") ? 0 : page;
 	
+	var cellPadStyle = {padding: "2px" };
 	return (
 	<div key="PRWS" className={gClasses.webPage} align="center" key="main">
-		<DisplayPageHeader headerName={(dispType === "xs") ? "Humad Samaj" : "Humad Samaj"} />
-		<DisplayPrwsFilter 
+		{/*<DisplayPersonalButtons />*/}
+		<DisplayPageHeader headerName={(dispType === "xs") ? "PRWS" : "Pratapgarh Rajasthan Welfare Samiti"} 
+			button1={<VsButton style={{marginRight: "10px" }}  name="Export to CSV" onClick={downloadPrwsData} />}
+		/>
+		{/*<DisplayPrwsFilter 
 			inputFilterMode={inputFilterMode} 
 			inputName={inputName}
 			inputInfo={inputInfo}
@@ -720,31 +711,110 @@ export default function Humad() {
 			pdhsFilter={(event) => { addFilter(event.target.value); }}
 			applyClick={() => { addFilterConfirm(""); } }
 			cancelClick={() => { setInputFilterMode(false); setLastFilter(""); } }
-		/>
-		<DisplayHumadHeader dispType={dispType} />
+		/>*/}
+
+		<Box key="BOXPRWSFILTER"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
+			<Grid key="PRWSFILTER" className={gClasses.noPadding} container>
+				<Grid align="left" item xs={10} sm={10} md={11} lg={11} >
+					<div>
+					{(!inputFilterMode) &&
+						<Typography style={{paddingLeft: "5px"}}>
+						{filterList.map( (m, index) => {
+							return (
+								<span key={"FILTER"+index} style={{marginLeft: "5px", paddingLeft: "5px"}} className={gClasses.filterItem} >
+									{m.item}: {m.value}
+									<CancelIcon size="small" style={{paddingTop: "8px"}} color="secondary" onClick={() => removeFilter(m.item) } />
+								</span>
+							)
+						})}
+						</Typography>
+					}
+					{(inputFilterMode) &&
+						<div>
+							{ (inputInfo.options) &&
+								<VsSelect 
+									inputProps={{className: gClasses.dateTimeNormal}} style={NORMALSELECTSTYLE} 
+									label={inputName} options={inputInfo.options} value={inputValue} 
+									onChange={(event) => { setInputValue(event.target.value); addFilterConfirm(event.target.value); }} 
+								/>				
+							}
+							{ (!inputInfo.options) &&
+								<div>
+								{/*<TextField id="outlined-required" label={inputName}
+										value={inputValue} type={inputInfo.type}
+										onChange={(event) => { setInputValue(event.target.value); }}
+									/>
+									<VsButton name="Apply"  onClick={() => { addFilterConfirm(""); } } />
+									<VsButton name="Cancel" onClick={() => { setInputFilterMode(false); setLastFilter(""); }  } />
+								*/}
+								<ValidatorForm align="left" className={gClasses.form} onSubmit={() => { addFilterConfirm(""); }}>
+								<TextValidator 
+									id="outlined-required" label={inputName} required className={gClasses.vgSpacing}
+									type={inputInfo.type}
+									value={inputValue}
+									onChange={(event) => { setInputValue(event.target.value); }}
+								/>
+								<VsButton  name="Apply"  type="submit" />
+								<VsButton name="Cancel"  type="button" onClick={() => { setInputFilterMode(false); setLastFilter(""); }  } />
+								</ValidatorForm>
+								
+								</div>
+							}
+						</div>
+					}
+					</div>
+				</Grid>
+				<Grid align="left" item xs={2} sm={2} md={1} lg={1} >
+					<div style={{paddingLeft: "5px", paddingRight: "5px"}} >
+					<VsPdhsFilter style={SELECTSTYLE} options={modMasterFilterItems} field="item"
+					value={lastFilter} onChange={(event) => { addFilter(event.target.value); }} />			
+					</div>
+				</Grid>
+			</Grid>			
+		</Box>
+		{/*<PersonalHeader dispType={dispType} />*/}
 		{/* display members here */}
-		{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
-			if (m.ceased) return null;
-			let h = humadArray.find(x => x.mid === m.mid);
-			if (!h) return null;
+			{/*{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
+			if (m.ceased) return null;		
 			var memberCity = getMyCity(m.hid);
 			//console.log(memberCity);
 			//console.log(m.email);
 			return (
-			<HumadMember key= {"PERSONALMEMBER"+index} m={m} h={h} dispType={dispType}  index={index} 
+			<PersonalMember key= {"PERSONALMEMBER"+index} m={m} dispType={dispType}  index={index} 
 				checked={radioRecord == m.mid}
 				datatip={getMemberTip(m, dispType, memberCity) } 
 				onClick={(event) => { radioMid = m.mid; handlePrwsContextMenu(event); }}
 			/>
-			)})}	
+			)})}	*/}
+		<Box key="BOXPRWSFILTERTABLE"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
+    <TableContainer>
+		<Table style={{padding: "2px" }} >
+		<PrwsHeaderBody key="PRWSHHHHHH" dispType={dispType} />
+		<TableBody>
+		{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
+				if (m.ceased) return null;		
+				var memberCity = getMyCity(m.hid);
+				//console.log(memberCity);
+				//console.log(m.email);
+				return (
+		<PrwsDataRow key={"PERSONALMEMBER"+index} index={index} m={m} dispType={dispType} memberCity={memberCity} 
+			datatip={getMemberTip(m, dispType, memberCity)} onClick={(event) => { radioMid = m.mid; handlePrwsContextMenu(event); }}
+		/>
+				)})}	
+		</TableBody>
+		</Table>
+    </TableContainer>
+		</Box>	
+		
 		{/* Table pagination here */}
-		{((process.env.REACT_APP_BACKENDFILTER !== "true") && (humadCount > ROWSPERPAGE)) &&
+		{((process.env.REACT_APP_BACKENDFILTER !== "true") && (memberArray.length > ROWSPERPAGE)) &&
 			<TablePagination
+				classes={gClasses.boxStyleEven}
 				align="right"
 				rowsPerPageOptions={[ROWSPERPAGE]}
 				component="div"
 				labelRowsPerPage="Members per page"
-				count={humadCount}
+				count={memberArray.length}
 				rowsPerPage={ROWSPERPAGE}
 				page={page}
 				onPageChange={handleChangePage}
@@ -752,13 +822,13 @@ export default function Humad() {
 				//showFirstButton={true}
 			/>
 		}
-		{((process.env.REACT_APP_BACKENDFILTER === "true") && (humadCount > ROWSPERPAGE)) &&
+		{((process.env.REACT_APP_BACKENDFILTER === "true") && (memberCount > ROWSPERPAGE)) &&
 			<TablePagination
 				align="right"
 				rowsPerPageOptions={[ROWSPERPAGE]}
 				component="div"
 				labelRowsPerPage="Members per page"
-				count={humadCount}
+				count={memberCount}
 				rowsPerPage={ROWSPERPAGE}
 				page={page}
 				onPageChange={handleChangePage}
@@ -773,7 +843,7 @@ export default function Humad() {
 		<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
 		<VsCancel align="right" onClick={() => { setIsDrawerOpened("")}} />
 		{(isDrawerOpened === "HumadUpgrade") &&
-			<HumadUpgrade memberRec={menuMember} humadRec={humadRec} onReturn={handleHumadUpgradeBack} />
+			<HumadUpgrade memberRec={menuMember} humadRec={null} onReturn={handleHumadUpgradeBack} />
 		}
 		</Box>
 		</Container>

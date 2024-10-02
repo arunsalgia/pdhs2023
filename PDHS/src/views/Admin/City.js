@@ -28,6 +28,7 @@ import lodashSortBy from 'lodash/sortBy';
 // icons
 import CancelIcon from '@material-ui/icons/Cancel';
 import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 // styles
 import globalStyles from "assets/globalStyles";
@@ -195,7 +196,7 @@ export default function City() {
 			<span style={{paddingLeft: "8px" }} align="left" className={gClasses.patientInfo2}>{d.city+" "}</span>
 			<span align="right">
         <EditIcon color="primary" size="small" onClick={() => {editCity(d)}} />
-        <CancelIcon color="secondary" size="small" onClick={() => {delCity(d)}} />
+        <DeleteIcon color="primary" size="small" onClick={() => {delCity(d)}} />
 			</span>
 			</Typography>
 			</Box>
