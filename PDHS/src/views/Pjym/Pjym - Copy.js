@@ -9,6 +9,13 @@ import Menu from '@material-ui/core/Menu';
 import TextField from '@material-ui/core/TextField'; 
 import TablePagination from '@material-ui/core/TablePagination';
 
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -56,6 +63,7 @@ import InfoIcon  from 	'@material-ui/icons/Info';
 import CancelIcon from '@material-ui/icons/Cancel';
 import SearchIcon from '@material-ui/icons/Search';
 import ArrowDropDownCircle from '@material-ui/icons/ArrowDropDownCircle';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 import {
 	BlankArea, DisplayPageHeader,
@@ -755,9 +763,9 @@ export default function Pjym() {
 				</Grid>
 			</Grid>			
 		</Box>		
-		<PjymHeader dispType={dispType} />
+		{/*<PjymHeader dispType={dispType} />*/}
 		{/* display members here */}
-		{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
+		{/*{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
 			if (m.ceased) return null;	
 			let p = pjymArray.find(x => x.mid === m.mid);			
 			var memberCity = getMyCity(m.hid);
@@ -769,7 +777,100 @@ export default function Pjym() {
 				datatip={getMemberTip(m, dispType, memberCity) } 
 				onClick={(event) => { radioMid = m.mid; handlePrwsContextMenu(event); }}
 			/>
-			)})}	
+		)})}*/}
+<Box key="BOXPJYMFILTERTABLE"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
+<TableContainer>
+<Table style={{padding: "2px" }} >
+<TableHead>
+		<TableRow key={"MEMGRIDHDR"}  className={gClasses.boxStyleOdd} >
+		<TableCell style={{padding: "2px" }} >
+				<Typography style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2Brown } >
+					Member Name
+				</Typography>		
+		</TableCell>
+		<TableCell style={{padding: "2px" }} align="center" >
+				<Typography style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2Brown } >
+					Mobile
+				</Typography>		
+		</TableCell>
+			{((dispType != "xs") && (dispType != "sm") && (dispType != "md"))  &&
+		<TableCell style={{padding: "2px" }} align="center" >
+				<Typography style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2Brown } >
+					Mar. Sts. 
+				</Typography>		
+		</TableCell>
+			}
+			{((dispType != "xs") && (dispType != "sm") && (dispType != "md"))  &&
+		<TableCell style={{padding: "2px" }} align="center" >
+				<Typography style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2Brown } >
+					Blood Grp. 
+				</Typography>		
+		</TableCell>
+			}
+			{((dispType != "xs") && (dispType != "sm"))  &&
+		<TableCell style={{padding: "2px" }} align="center" >
+				<Typography style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2Brown } >
+					Membership
+				</Typography>		
+		</TableCell>
+			}
+		<TableCell style={{padding: "2px" }} align="center" >
+			<Typography className={gClasses.patientInfo2Brown}></Typography>
+		</TableCell>
+		</TableRow>
+</TableHead>
+<TableBody>
+{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
+	if (m.ceased) return null;	
+	let p = pjymArray.find(x => x.mid === m.mid);			
+	var memberCity = getMyCity(m.hid);
+	//console.log(memberCity);
+	//console.log(m.email);
+	return (
+	<TableRow key={"MEMGRID"+index}  className={((index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} >
+	<TableCell style={{padding: "2px" }} >
+		<Typography >
+			<span className={gClasses.patientInfo2}>{getMemberName(m) + ((dispType != "xs") ? " ("+dispAge(m.dob, m.gender)+")" : "") }</span>
+			<span align="left" data-for={"MEMBER"+m.mid} data-tip={getMemberTip(m, dispType, memberCity)} data-iscapture="true" >
+				<InfoIcon color="primary" size="small"/>
+			</span>
+		</Typography>
+	</TableCell>
+	<TableCell style={{padding: "2px" }} align="center" >
+		<Typography className={gClasses.patientInfo2}>{m.mobile}</Typography>
+	</TableCell>
+	{((dispType != "xs") && (dispType != "sm") && (dispType != "md") && false)  &&
+	<TableCell style={{padding: "2px" }} align="center" >
+			<Typography className={gClasses.patientInfo2}>{m.mid}</Typography>
+	</TableCell>
+	}
+	{((dispType != "xs") && (dispType != "sm") && (dispType != "md"))  &&
+	<TableCell style={{padding: "2px" }} align="center" >
+			<Typography className={gClasses.patientInfo2}>{capitalizeFirstLetter(m.emsStatus)}</Typography>
+	</TableCell>
+	}
+	{((dispType != "xs") && (dispType != "sm") && (dispType != "md"))  &&
+	<TableCell style={{padding: "2px" }} align="center" >
+			<Typography className={gClasses.patientInfo2}>{m.bloodGroup.toUpperCase()}</Typography>
+	</TableCell>
+	}
+	{((dispType != "xs") && (dispType != "sm"))  &&
+	<TableCell style={{padding: "2px" }} align="center" >
+			<Typography className={gClasses.patientInfo2}>{(p) ? p.membershipNumber : ""}</Typography>
+	</TableCell>
+	}
+	<TableCell style={{padding: "2px" }} align="center" >
+		<Typography>
+		 <span><MoreVertIcon color="primary" size="small" onClick={(event) => { radioMid = m.mid; handlePrwsContextMenu(event); }} id={m.id}	 /></span>
+		</Typography>
+	</TableCell>
+</TableRow>
+
+				)})}	
+		</TableBody>
+		</Table>
+    </TableContainer>
+		</Box>		
 		{/* Table pagination here */}
 		{((process.env.REACT_APP_BACKENDFILTER !== "true") && (memberArray.length > ROWSPERPAGE)) &&
 			<TablePagination

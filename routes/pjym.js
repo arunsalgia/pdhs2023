@@ -91,8 +91,8 @@ router.get('/filterdata/:filterInfo', async function (req, res) {
 	myData = clonedArray.filter(x => !x.ceased);
 	//console.log("Initial", myData.length);
 	
-	for (var i=0; i< filterInfo.filterData.length; ++i) {
-		var fItem = filterInfo.filterData[i];
+	for (var i=0; i< filterInfo.filterList.length; ++i) {
+		var fItem = filterInfo.filterList[i];
 		switch (fItem.item) {
 			case "FirstName": 
 				myData = myData.filter(x => x.firstName.toUpperCase().includes(fItem.value.toUpperCase()) );
@@ -140,7 +140,7 @@ router.get('/filterdata/:filterInfo', async function (req, res) {
 	
 	//console.log("Before", myData.length);
 	var totalPjym = myData.length;
-	myData = myData.slice(filterInfo.pageNumber* filterInfo.pageSize, (filterInfo.pageNumber+1)* filterInfo.pageSize);
+	myData = myData.slice(filterInfo.currentPage* filterInfo.pageSize, (filterInfo.currentPage+1)* filterInfo.pageSize);
 	//console.log("After", myData.length);
 	
 	
@@ -159,7 +159,7 @@ router.get('/filterdata/:filterInfo', async function (req, res) {
 
 	//var totalPjym = await memberGetPjymCount();  
 	
-	sendok(res, {pjym: myPjym, member: myData, count: totalPjym} );
+	sendok(res, {pjym: myPjym, member: myData, totalCount: totalPjym} );
 });		
 
 

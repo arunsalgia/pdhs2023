@@ -111,13 +111,13 @@ router.get('/filterlist/:filterData', async function (req, res) {
   setHeader(res);
 	var { filterData } = req.params;
 	filterData = JSON.parse(filterData);
-	console.log(filterData);
+	//console.log(filterData);
 	var cond = {owner: filterData.owner};
 	if (!filterData.adminPermission)
 		cond['mid'] = filterData.mid;
 	if (filterData.filterBy !== "All")
 		cond['status'] = filterData.filterBy;
-	console.log(cond);
+	//console.log(cond);
 	
 	let myData = await M_Application.find(cond).sort({id: 1}).skip(filterData.currentPage*filterData.pageSize).limit(filterData.pageSize);
 	let totalCount = await M_Application.countDocuments(cond);
@@ -176,16 +176,17 @@ router.get('/delete/:editorMid/:applicationId', async function (req, res) {
 	var editorRec = await memberGetByMidOne(Number(editorMid));
 	if (!editorRec) return senderr(res, 601, 'Invalid editor mid');
 	
-	var aRec = M_Application.findOne({id: applicationId});
+	var aRec = await M_Application.findOne({id: applicationId});
 	if (!aRec) return senderr(res, 602, 'Invalid Application Id');
 	
 	await M_Application.deleteOne({id: applicationId});
 
+	//console.log(aRec);
 	let myLogRec = new M_PrwsLog();
 	myLogRec.date = new Date();
 	myLogRec.mid = editorRec.mid;
 	myLogRec.name = getMemberName(editorRec, false);
-	myLogRec.desc = "Application " + aRec.id + "deleted by " +  getMemberName(editorRec, false) ;
+	myLogRec.desc = "Application " + aRec.id + " deleted by " +  getMemberName(editorRec, false) ;
 	myLogRec.isAdmin = true;
 	myLogRec.action = "Delete";
 	myLogRec.data = "";

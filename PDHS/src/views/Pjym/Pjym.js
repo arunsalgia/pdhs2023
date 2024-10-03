@@ -32,8 +32,8 @@ import VsButton from "CustomComponents/VsButton";
 import VsCancel from "CustomComponents/VsCancel";
 import VsRadio from "CustomComponents/VsRadio";
 import VsRadioSa from "CustomComponents/VsRadioSa";
-import VsRadioGroup from "CustomComponents/VsRadioGroup";
-import VsCheckBox from "CustomComponents/VsCheckBox";
+//import VsRadioGroup from "CustomComponents/VsRadioGroup";
+//import VsCheckBox from "CustomComponents/VsCheckBox";
 import VsSelect from "CustomComponents/VsSelect";
 import VsPdhsFilter from "CustomComponents/VsPdhsFilter";
 
@@ -56,14 +56,15 @@ import {setTab, setDisplayPage } from "CustomComponents/CricDreamTabs.js"
 import globalStyles from "assets/globalStyles";
 
 //icons
-import IconButton from '@material-ui/core/IconButton';
-import MoveUp    from '@material-ui/icons/ArrowUpwardRounded';
-import MoveDown  from '@material-ui/icons/ArrowDownwardRounded';
+//import IconButton from '@material-ui/core/IconButton';
+//import MoveUp    from '@material-ui/icons/ArrowUpwardRounded';
+//import MoveDown  from '@material-ui/icons/ArrowDownwardRounded';
+//import ArrowDropDownCircle from '@material-ui/icons/ArrowDropDownCircle';
 import InfoIcon  from 	'@material-ui/icons/Info';
 import CancelIcon from '@material-ui/icons/Cancel';
 import SearchIcon from '@material-ui/icons/Search';
-import ArrowDropDownCircle from '@material-ui/icons/ArrowDropDownCircle';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+
 
 import {
 	BlankArea, DisplayPageHeader,
@@ -124,23 +125,29 @@ const InitialContextParams = {show: false, x: 0, y: 0};
 
 
 
-var memberMasterArray = [];  function setMemberMasterArray(data) { memberMasterArray = data; }
 var radioMid = -1;
-
-var currentPage = 0;
-
 var menuMember = {};
 function setMenuMember(p) { menuMember = p; }
 
 export default function Pjym() {
+	var DefaultFilterData = {
+		currentPage: 0,
+		pageSize:	NONMOBROWSPERPAGE,
+		filterList: []
+	};
+
+	if ("pjymFilter" in sessionStorage) {
+		DefaultFilterData = JSON.parse(sessionStorage.getItem("pjymFilter"));
+	}
+
+	const [filterData, setFilterData] = useState(DefaultFilterData);
+	
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
   const [dispType, setDispType] = useState("lg");
-  const [ROWSPERPAGE, setROWSPERPAGE] = useState(NONMOBROWSPERPAGE);
+  const [ROWSPERPAGE, setROWSPERPAGE] = useState(DefaultFilterData.pageSize);
   
 	const loginHid = parseInt(sessionStorage.getItem("hid"), 10);
 	const loginMid = parseInt(sessionStorage.getItem("mid"), 10);
-	//const isMember = true //props.isMember;
-	//const adminInfo = getAdminInfo();
 		
 	const gClasses = globalStyles();
 	const alert = useAlert();
@@ -148,21 +155,16 @@ export default function Pjym() {
 
 	const [radioRecord, setRadioRecord] = useState(0);
 
-	//const [memberMasterArray, setMemberMasterArray] = useState([]);
 	const [memberArray, setMemberArray] = useState([]);
 	const [memberCount, setMemberCount] = useState(0);
 	const [isDrawerOpened, setIsDrawerOpened] = useState("");
-	
-	//const [cityArray, setCityArray] = useState([]);
-	// pagination
-	const [page, setPage] = useState(0);
-	
+		
 	// --- start of filter variables
 	const	[lastFilter, setLastFilter] = useState("");
 	const [inputFilterMode, setInputFilterMode] = useState(false);
 	const [inputValue, setInputValue] = useState("");
 	const [inputInfo, setInputInfo] = useState({});
-	const [filterList, setFilterList] = useState([]);
+	//const [filterList, setFilterList] = useState([]);
 	const [modMasterFilterItems, setModMasterFilterItems] = useState(MasterFilterItems);
 	//---  end of filter variables
 	
@@ -187,56 +189,7 @@ export default function Pjym() {
 			//console.log(displayType(myDim.width));
 			setDispType(displayType(myDim.width));
 		}
-		
-		async function junked_getAllMembers() {
-			// first get all cities
-			//await getAllCities();
-			// now fetch all members
-			try {
-				var myData = [];
-				if (process.env.REACT_APP_PRWS_DB === "true") {
-					myData = JSON.parse(localStorage.getItem("prwsMemberList"));
-					setMemberMasterArray(myData);
-					setMemberArray(myData);
-				}
-				else if (process.env.REACT_APP_BACKENDFILTER === "true") {
-					await getMemeberPage([], 0);
-				}
-				else {
-					let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/list/all`;
-					let resp = await axios.get(myUrl);
-					var myData = resp.data;					
-					setMemberMasterArray(myData);
-					setMemberArray(myData);
-				}
-			} catch (e) {
-				console.log("Error fetching member data");
-				//setMemberArray([]);		
-			}
-		}
 
-		async function getPjymList() {
-			if (process.env.REACT_APP_BACKENDFILTER === "true") {
-					await getPjymPage([], 0);
-			}
-			else {			
-				try {
-					let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/pjym/listwithnames`;
-					let axiosResp = await axios.get(myUrl);
-					//console.log(axiosResp.data.pjym);
-					setPjymArray(axiosResp.data.pjym);
-					//console.log(new Date());
-					setMemberMasterArray(axiosResp.data.member);
-					setMemberArray(axiosResp.data.member);
-					//console.log(new Date());
-				} 
-				catch (e) {
-					console.log(e);
-					alert.error(`Error fetching PJYM details`);
-				}	
-			}
-		}
-	
 		async function getAllCities() {
 			// Update in Menu			
 			cityArray = await getHodCityList();
@@ -256,12 +209,8 @@ export default function Pjym() {
 			}
 		}
 		
-		setPage(0);
 		getAllCities();
-		if (sessionStorage.getItem("isMember") === "true") {
-			//getAllMembers();
-			getPjymList();
-		}
+		getPjymPage(DefaultFilterData.filterList, DefaultFilterData.currentPage);
 		handleResize();
 		window.addEventListener('resize', handleResize);
 		//return () => window.removeEventListener('resize', handleResize); 
@@ -269,28 +218,28 @@ export default function Pjym() {
 
 //================
 
-	async function getPjymPage(filterList, pageNumber)  {
-		var myData = encodeURIComponent(JSON.stringify({
-			pageNumber: pageNumber,
-			pageSize:	ROWSPERPAGE,
-			filterData: filterList
-		}))  ;
+	async function getPjymPage(myFilterList, myPageNumber)  {
+		var myFilterData = lodashCloneDeep(filterData);
+		myFilterData.filterList = myFilterList;
+		myFilterData.currentPage = myPageNumber
+		//console.log(myFilterData);
+		var myData = encodeURIComponent(JSON.stringify(myFilterData))  ;
 
 		try {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/pjym/filterdata/${myData}`;
 			//console.log(myUrl);
 			let resp = await axios.get(myUrl);
+			//console.log(resp.data);
+			setFilterData(myFilterData);
 			//console.log(resp.data.member.length);
 			//console.log(resp.data);
-			currentPage = (process.env.REACT_APP_BACKENDFILTER === "true") ? 0 : pageNumber;
-			setPjymCount(resp.data.count);
+			setPjymCount(resp.data.totalCount);
 			setMemberArray(resp.data.member);
-			setMemberMasterArray(resp.data.member);
 			setPjymArray(resp.data.pjym);
 			//console.log(resp.data.pjym);
 		} catch (e) {
 			console.log("Error fetching filter member data");
-			showError(`Error fetching member data of page ${pageNumber}`);
+			showError(`Error fetching member data of page ${myPageNumber}`);
 		}
 		
 	}
@@ -301,7 +250,7 @@ export default function Pjym() {
 	function DisplayAllToolTips() {
 	return(
 		<div>
-		{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( t =>
+		{memberArray.map( t =>
 		  <DisplaySingleTip key={"MEMBETIP"+t.mid}  id={"MEMBER"+t.mid} />
 		)}
 		</div>
@@ -321,30 +270,29 @@ export default function Pjym() {
 		if (tmp.options) 
 			tmp1 = "";   //tmp.options[0];
 		else {
-			tmp = filterList.find(x => x.item == newItem);
+			tmp = filterData.filterList.find(x => x.item == newItem);
 			tmp1 = (tmp) ? tmp.value : "";
 		}
 		setInputValue(tmp1);
 		setInputFilterMode(true);
 	}
 
-	async function getMemeberPage(filterList, pageNumber, save=true)  {
+	async function getMemberPage(filterList, pageNumber, save=true)  {
 		//console.log(save);
 		var myData = encodeURIComponent(JSON.stringify({
-			pageNumber: pageNumber,
+			currentPage: pageNumber,
 			pageSize:	ROWSPERPAGE,
-			filterData: filterList
+			filterList: filterList
 		}));
 
 		try {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/filterdata/${myData}`;
 			let resp = await axios.get(myUrl);
-			//console.log(resp.data);
+			console.log(resp.data);
 			if (save) {
-				currentPage = (process.env.REACT_APP_BACKENDFILTER === "true") ? 0 : pageNumber;
 				setMemberCount(resp.data.count);
 				setMemberArray(resp.data.data);
-				setMemberMasterArray(resp.data.data);
+				//setMemberMasterArray(resp.data.data);
 			} 
 			else {
 				return (resp.data.data);
@@ -368,11 +316,11 @@ export default function Pjym() {
 			userSelection = inputValue;
 		}
 		//console.log(inputValue);
-		let tmp = filterList.find(x => x.item === inputName);
+		let tmp = filterData.filterList.find(x => x.item === inputName);
 		//console.log(tmp);
 		if (tmp) {
 			tmp.value = userSelection;
-			finalFilter = lodashCloneDe1ep(filterList);
+			finalFilter = lodashCloneDeep(filterData.filterList);
 			console.log(finalFilter);
 		} 
 		else {
@@ -380,33 +328,20 @@ export default function Pjym() {
 			//console.log(MasterFilterItems[0]);
 			tmp = lodashCloneDeep(MasterFilterItems.find(x => x.item === inputName));
 			tmp.value = userSelection;
-			finalFilter = filterList.concat(tmp);
+			finalFilter = filterData.filterList.concat(tmp);
 			//console.log(finalFilter);
-			setFilterList(finalFilter);
+			//setFilterList(finalFilter);
 		}
 		setInputFilterMode(false);
 		updateFilterItems(finalFilter);
-		if (process.env.REACT_APP_BACKENDFILTER === "true") {
-			//getMemeberPage(finalFilter, 0);
-			getPjymPage(finalFilter, 0);
-		}
-		else {
-			updateMemberArray(finalFilter);
-		}
-		setPage(0);
+		getPjymPage(finalFilter, 0);
 	}
 	
 	function removeFilter(item) {
-		let tmp = filterList.filter(x => x.item !== item);
-		setFilterList(tmp);	
+		let tmp = filterData.filterList.filter(x => x.item !== item);
+		//setFilterList(tmp);	
 		updateFilterItems(tmp);
-		if (process.env.REACT_APP_BACKENDFILTER === "true") {
-			getPjymPage(tmp, 0);
-		}
-		else {
-			updateMemberArray(tmp);
-		}
-		setPage(0);
+		getPjymPage(tmp, 0);
 	}
 	
 	function updateFilterItems(fList) {
@@ -470,32 +405,14 @@ export default function Pjym() {
 	}
 	
 	function jumpFamily() {
+		sessionStorage.setItem("pjymFilter", JSON.stringify(filterData));
 		 handlePrwsContextMenuClose();
 		 setGrpAnchorEl(null);
 		if (radioMid <= 0) return;
-		var tmp = memberMasterArray.find( x => x.mid === radioMid);
-		console.log("Mem info", tmp.hid, tmp.mid);
-		//sessionStorage.setItem("memberHid", tmp.hid);
-		//sessionStorage.setItem("memberMid", tmp.mid);
-		//setTab(process.env.REACT_APP_MEMBER);
+		var tmp = memberArray.find( x => x.mid === radioMid);
 		setDisplayPage(process.env.REACT_APP_FAMILY, tmp.hid, tmp.mid);
 	}
-	function jumpPjym() {
-		handlePrwsContextMenuClose();
-		setGrpAnchorEl(null);
-		//setTab(process.env.REACT_APP_PJYM);
-		console.log("Here");
-		showInfo("Membership of PJYM to be implemented");
-		console.log("Here again");
-	}
 
-	function jumpHumad() {
-		handlePrwsContextMenuClose();
-		setGrpAnchorEl(null);
-		//setTab(process.env.REACT_APP_HUMAD);
-		setIsDrawerOpened("HumadUpgrade");
-	}
-	
 	
 	function handleHumadUpgradeBack(sts) {
 		if (sts.status === STATUS_INFO.ERROR) 
@@ -512,20 +429,11 @@ export default function Pjym() {
 		}
 		setIsDrawerOpened("");
 	}
-	function jumpGotra() {
-		handlePrwsContextMenuClose();
-		 setGrpAnchorEl(null);
-		//setTab(process.env.REACT_APP_GOTRA);
-		showError("Membership of PJYM to be implemented");
-	}
-	
+
 	
 	// pagination function 
 	const handleChangePage = (event, newPage) => {
-		if (process.env.REACT_APP_BACKENDFILTER === "true") {
-			getPjymPage(filterList, newPage);
-		}
-    setPage(newPage);
+		getPjymPage(filterData.filterList, newPage);
   };
 
 	function downloadPrwsData() {
@@ -539,7 +447,7 @@ export default function Pjym() {
 	
 	async function downloadPrwsDataConfirm() {
 		
-		var myList = await getMemeberPage(filterList, -1, false);
+		var myList = await getMemberPage(filterData.filterList, -1, false);
 		console.log(myList.length);
 		var memData = "Name,Age,Gender,Mobile1,Mobile2,Email1,Email2\n";
 		var csvFileName = "prws.csv";
@@ -576,7 +484,7 @@ export default function Pjym() {
  
 	function PrwsContextMenu() {
 	//console.log(radioMid);
-		var tmp = memberMasterArray.find(x => x.mid === radioMid);
+		var tmp = memberArray.find(x => x.mid === radioMid);
 		setMenuMember(tmp);
 		//console.log(tmp);
     var myName = tmp.firstName + " " + tmp.lastName;
@@ -609,55 +517,11 @@ export default function Pjym() {
 		<MenuItem onClick={jumpFamily}>
 			<Typography>{"Family"}</Typography>
 		</MenuItem>
-		{/*<Divider />
-		<MenuItem disabled={tmp.pjymMember} onClick={jumpPjym}>
-			<Typography>Pjym Membership</Typography>
-		</MenuItem>
-		<MenuItem disabled={tmp.humadMember} onClick={jumpHumad}>
-			<Typography>Humad Membership</Typography>
-		</MenuItem>*/}
-		{/*<Divider />
-		<MenuItem onClick={jumpGotra}>
-			<Typography>Gotra</Typography>
-		</MenuItem>
-		<MenuItem onClick={downloadPrwsData}>
-			<Typography>Export</Typography>
-		</MenuItem>*/}
 	</Menu>	
 	</div>
 	)}
 	
 	 
-	function MotWorking_PrwsContextMenu() {
-		console.log(contextParams);
-		var myStyle={top: contextParams.y+"px" , left: contextParams.x+"px" };
-		console.log(myStyle);
-		//anchorEl={grpAnchorEl}
-	return(
-	<div ref={menuRef}  style={myStyle}>
-	<Menu
-		id="prws-menu"
-		open={contextParams.show}
-		onClose={handlePrwsContextMenuClose}
-	>
-		<MenuItem onClick={jumpFamily}>
-			<Typography>Family</Typography>
-		</MenuItem>
-		{/*<MenuItem onClick={jumpPjym}>
-			<Typography>Pjym</Typography>
-		</MenuItem>
-		<MenuItem onClick={jumpHumad}>
-			<Typography>Humad</Typography>
-		</MenuItem>*/}
-		<MenuItem onClick={jumpGotra}>
-			<Typography>Gotra</Typography>
-		</MenuItem>
-		{/*<MenuItem onClick={downloadPrwsData}>
-			<Typography>Export</Typography>
-		</MenuItem>*/}
-	</Menu>	
-	</div>
-	)}
 	
 	function getMyCity(hid) {
 		var myCity = "";
@@ -682,35 +546,20 @@ export default function Pjym() {
 	</div>
 	);
 	
+	//console.log(filterData);
 
 	// If filter at back-end then we have only 1 page data
-	currentPage =(process.env.REACT_APP_BACKENDFILTER === "true") ? 0 : page;
 	return (
 	<div key="PRWS" className={gClasses.webPage} align="center" key="main">
 		{/*<DisplayPersonalButtons />*/}
 		<DisplayPageHeader headerName={(dispType === "xs") ? "PJYM" : "Pratapgarh Jain Yuva Manch"} />
-			{/*<DisplayPrwsFilter 
-			inputFilterMode={inputFilterMode} 
-			inputName={inputName}
-			inputInfo={inputInfo}
-			inputValue={inputValue}
-			selectClick={(event) => { setInputValue(event.target.value); addFilterConfirm(event.target.value); }}
-			setInputValue={setInputValue}
-			filterList={filterList}
-			balanceFilterList={modMasterFilterItems}
-			lastFilter={lastFilter}
-			removeFilter={removeFilter}
-			pdhsFilter={(event) => { addFilter(event.target.value); }}
-			applyClick={() => { addFilterConfirm(""); } }
-			cancelClick={() => { setInputFilterMode(false); setLastFilter(""); } }
-			/>*/}
 		<Box key="BOXPRWSFILTER"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
 			<Grid key="PRWSFILTER" className={gClasses.noPadding} container>
 				<Grid align="left" item xs={10} sm={10} md={11} lg={11} >
 					<div>
 					{(!inputFilterMode) &&
 						<Typography style={{paddingLeft: "5px"}}>
-						{filterList.map( (m, index) => {
+						{filterData.filterList.map( (m, index) => {
 							return (
 								<span key={"FILTER"+index} style={{marginLeft: "5px", paddingLeft: "5px"}} className={gClasses.filterItem} >
 									{m.item}: {m.value}
@@ -765,19 +614,6 @@ export default function Pjym() {
 		</Box>		
 		{/*<PjymHeader dispType={dispType} />*/}
 		{/* display members here */}
-		{/*{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
-			if (m.ceased) return null;	
-			let p = pjymArray.find(x => x.mid === m.mid);			
-			var memberCity = getMyCity(m.hid);
-			//console.log(memberCity);
-			//console.log(m.email);
-			return (
-			<PjymMember key= {"PJYMMEMBER"+index} m={m} p={p} dispType={dispType}  index={index} 
-				checked={radioRecord == m.mid}
-				datatip={getMemberTip(m, dispType, memberCity) } 
-				onClick={(event) => { radioMid = m.mid; handlePrwsContextMenu(event); }}
-			/>
-		)})}*/}
 <Box key="BOXPJYMFILTERTABLE"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
 <TableContainer>
 <Table style={{padding: "2px" }} >
@@ -820,7 +656,7 @@ export default function Pjym() {
 		</TableRow>
 </TableHead>
 <TableBody>
-{memberArray.slice(currentPage*ROWSPERPAGE, (currentPage+1)*ROWSPERPAGE).map( (m, index) => {
+{memberArray.map( (m, index) => {
 	if (m.ceased) return null;	
 	let p = pjymArray.find(x => x.mid === m.mid);			
 	var memberCity = getMyCity(m.hid);
@@ -865,41 +701,24 @@ export default function Pjym() {
 		</Typography>
 	</TableCell>
 </TableRow>
-
 				)})}	
 		</TableBody>
 		</Table>
     </TableContainer>
 		</Box>		
 		{/* Table pagination here */}
-		{((process.env.REACT_APP_BACKENDFILTER !== "true") && (memberArray.length > ROWSPERPAGE)) &&
-			<TablePagination
-				align="right"
-				rowsPerPageOptions={[ROWSPERPAGE]}
-				component="div"
-				labelRowsPerPage="Members per page"
-				count={memberArray.length}
-				rowsPerPage={ROWSPERPAGE}
-				page={page}
-				onPageChange={handleChangePage}
-				//onRowsPerPageChange={handleChangeRowsPerPage}
-				//showFirstButton={true}
-			/>
-		}
-		{((process.env.REACT_APP_BACKENDFILTER === "true") && (pjymCount > ROWSPERPAGE) ) &&
-			<TablePagination
-				align="right"
-				rowsPerPageOptions={[ROWSPERPAGE]}
-				component="div"
-				labelRowsPerPage="Pjym Members per page"
-				count={pjymCount}
-				rowsPerPage={ROWSPERPAGE}
-				page={page}
-				onPageChange={handleChangePage}
-				//onRowsPerPageChange={handleChangeRowsPerPage}
-				//showFirstButton={true}
-			/>
-		}
+		<TablePagination
+			align="right"
+			rowsPerPageOptions={[ROWSPERPAGE]}
+			component="div"
+			labelRowsPerPage="Pjym Members per page"
+			count={pjymCount}
+			rowsPerPage={ROWSPERPAGE}
+			page={filterData.currentPage}
+			onPageChange={handleChangePage}
+			//onRowsPerPageChange={handleChangeRowsPerPage}
+			//showFirstButton={true}
+		/>
 		<DisplayAllToolTips />
 		{contextParams.show && <PrwsContextMenu /> }
 		<Drawer style={{ width: "100%"}} anchor="top" variant="temporary" open={isDrawerOpened != ""} >
