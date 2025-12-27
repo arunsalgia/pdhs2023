@@ -52,6 +52,7 @@ import {
 } from 'views/globals';
 
 import {
+   isFamilyLock,
 	isMobile, getWindowDimensions, displayType, decrypt, encrypt,
 	vsDialog, showError, showSuccess, showInfo,
 	getMemberName,
@@ -86,6 +87,15 @@ export default function ApplicationMarriage() {
 		console.log(appData);
 	}, [])
 
+
+function handleReapply() {
+   var tmp = JSON.parse(myProps.applicationRec.data);
+   if (isFamilyLock(tmp.hid)) return;
+
+   showInfo("Reapply selected");
+   return;
+
+}
 
 async function handleMemberAddEditSubmit() {
 	myProps.onReturn.call(this, {status: STATUS_INFO.ERROR, msg: `Error Add/Edit gotra`});
@@ -219,6 +229,9 @@ return (
 	{(hasPRWSpermission() && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
 		<YesNoButton title="" yesName="Approve" noName="Reject" yesClick={handleApplicationApprove} noClick={handleApplicationReject} />
 	}
+	{(false && (myProps.applicationRec.status === APPLICATIONSTATUS.rejected) && (sessionStorage.getItem("mid") == myProps.applicationRec.mid)) &&
+		<VsButton align="center" name="Re-Apply" onClick={handleReapply} />
+	}	
 	{((stage === "Approve") || (stage === "Reject")) && 
 		<YesNoButton title={`${stage} Application?`} yesName="Yes" noName="No" yesClick={() => setStage("Remarks") } noClick={() => setStage("INITIAL") } />
 	}

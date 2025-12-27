@@ -10,6 +10,7 @@ const { encrypt, decrypt, dbencrypt, dbdecrypt, dbToSvrText,
   getMaster, setMaster,
 } = require('./functions'); 
 
+
 const {
 	memberGetAll, memberGetHodMembers,
 	memberAddOne, memberAddMany,
@@ -288,24 +289,26 @@ router.get('/padmavatimata/:myData', async function (req, res, next) {
   sendok(res, {user: myMem, admin: myAdmin, isMember: isMember, userName: userName});
 
 	// Make logger entry of use login.
-	let myLogRec = new M_PrwsLog();
-	myLogRec.date = new Date();
-	if (myMem) {
-		myLogRec.mid = myMem.mid;
-		myLogRec.name = getMemberName(myMem);
-		myLogRec.desc = `Login by ${getMemberName(myMem)}`;
-	}
-	else {
-		myLogRec.mid = 0;
-		myLogRec.name = `Guest ( ${userName} )`;
-		myLogRec.desc = `Login by Guest ( ${userName} )`;
-	}
-	myLogRec.isAdmin = isAdmin;
-	myLogRec.action = PRWSACTION.login;
-	myLogRec.data = '';
-	myLogRec.referenceId = 0;
-	myLogRec.status = true;
-	await myLogRec.save();
+   if (LOG_LOGINLOGOUT) {
+      let myLogRec = new M_PrwsLog();
+      myLogRec.date = new Date();
+      if (myMem) {
+         myLogRec.mid = myMem.mid;
+         myLogRec.name = getMemberName(myMem);
+         myLogRec.desc = `Login by ${getMemberName(myMem)}`;
+      }
+      else {
+         myLogRec.mid = 0;
+         myLogRec.name = `Guest ( ${userName} )`;
+         myLogRec.desc = `Login by Guest ( ${userName} )`;
+      }
+      myLogRec.isAdmin = isAdmin;
+      myLogRec.action = PRWSACTION.login;
+      myLogRec.data = '';
+      myLogRec.referenceId = 0;
+      myLogRec.status = true;
+      await myLogRec.save();
+   }
 	
 });
 
@@ -330,12 +333,14 @@ router.get('/logout/:myData', async function (req, res, next) {
 		myLogRec.name = myData.name;
 		myLogRec.desc = `Logout by ${myData.name}`;
 	}
-	myLogRec.isAdmin = myData.isAdmin;
-	myLogRec.action = PRWSACTION.logout;
-	myLogRec.data = '';
-	myLogRec.referenceId = 0;
-	myLogRec.status = true;
-	await myLogRec.save();
+   if (LOG_LOGINLOGOUT) {
+      myLogRec.isAdmin = myData.isAdmin;
+      myLogRec.action = PRWSACTION.logout;
+      myLogRec.data = '';
+      myLogRec.referenceId = 0;
+      myLogRec.status = true;
+      await myLogRec.save();
+   }
 	//console.log(myLogRec);
 });
 

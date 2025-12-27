@@ -97,6 +97,7 @@ humadRouter = require('./routes/humad');
 pjymRouter = require('./routes/pjym');
 gotraRouter = require('./routes/gotra');
 cityRouter = require('./routes/city');
+stateRouter = require('./routes/state');
 countryRouter = require('./routes/country');
 adminRouter = require('./routes/admin');
 logRouter = require('./routes/logs');
@@ -137,6 +138,7 @@ app.use('/humad', humadRouter);
 app.use('/pjym', pjymRouter);
 app.use('/gotra', gotraRouter);
 app.use('/city', cityRouter);
+app.use('/state', stateRouter);
 app.use('/country', countryRouter);
 app.use('/pdhsadm', adminRouter);
 app.use('/log', logRouter);
@@ -190,6 +192,12 @@ CitySchema = mongoose.Schema({
 	enabled: Boolean
 });
 
+StateSchema = mongoose.Schema({
+	id: String,
+	state: String,
+	enabled: Boolean
+});
+
 CountrySchema = mongoose.Schema({
 	id: String,
 	country: String,
@@ -220,6 +228,8 @@ HodSchema = mongoose.Schema({
 	country: String,
 	resPhone1: String,
 	resPhone2: String,
+   applock: Boolean,
+   applockId: Number,
 	active:  Boolean
 });
 HodSchema.index({hid: 1});
@@ -364,6 +374,14 @@ ApplicationSchema = mongoose.Schema({
 	lockInfo: {isLocked: Boolean, lockedBy: String, applicationId: String, remarks: String}
 });
 
+MembershipInfoSchema = mongoose.Schema({
+	manch: String,
+	level: Number,
+	fees: Number,
+	desc: String,
+   short: String
+});
+
 // models
 User = mongoose.model("user", UserSchema);
 M_Admin = mongoose.model('admin', adminSchema);
@@ -373,11 +391,13 @@ M_Humad = mongoose.model('humad', HumadSchema);
 M_Pjym = mongoose.model('pjym', PjymSchema);
 M_Gotra = mongoose.model('gotra', GotraSchema);
 M_City  = mongoose.model('city', CitySchema);
+M_State  = mongoose.model('state', StateSchema);
 M_Country = mongoose.model('country', CountrySchema);
 M_Password = mongoose.model('password', PasswordSchema);
 M_PinCode = mongoose.model('pincode', PinCodeSchema);
 M_Application = mongoose.model('application', ApplicationSchema);
 M_PrwsLog = mongoose.model('prwslog', PrwsLogSchema);
+M_MembershipInfo = mongoose.model('membershipinfo', MembershipInfoSchema);
 
 router = express.Router();
 
@@ -599,3 +619,5 @@ EMSTYPES = {
 };
 
 ELIGIBLEMARRIAGEYEARS = 21;
+
+LOG_LOGINLOGOUT =  false;

@@ -9,6 +9,7 @@ import Box from '@material-ui/core/Box';
 
 import Gotra from "views/Admin/Gotra";
 import City from "views/Admin/City";
+import State from "views/Admin/State";
 import Country from "views/Admin/Country";
 import Logs from 'views/Admin/Logs'
 
@@ -71,6 +72,7 @@ export default function Admin(props) {
 		<Grid className={gClasses.noPadding} key="AllPatients" container align="center">
 			<DisplayFunctionItem item="Gotra" />
 			<DisplayFunctionItem item="City" />
+			<DisplayFunctionItem item="State" />
 			<DisplayFunctionItem item="Country" />
 			<DisplayFunctionItem item="Permissions" />
 			<DisplayFunctionItem item="Logs" />
@@ -101,6 +103,9 @@ export default function Admin(props) {
 		}
 		{(currentSelection === "City") &&
 			<City />
+		}
+		{(currentSelection === "State") &&
+			<State />
 		}
 		{(currentSelection === "Country") &&
 			<Country />

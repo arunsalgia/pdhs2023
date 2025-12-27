@@ -76,6 +76,7 @@ export default function MemberEditDom(props) {
 
 	useEffect(() => {
 		console.log(props.couple);
+      
 		if (!props.couple.dom.startsWith("1899"))
 			setEmurDate1(props.couple.momentDom);
 	}, [])
@@ -135,7 +136,7 @@ return (
 				timeFormat={false} 
 				initialValue={emurDate1}
 				value={emurDate1}
-				dateFormat="DD/MM/yyyy"
+				dateFormat="DD/MMM/yyyy"
 				isValidDate={disableFutureDt}
 				onClose={setEmurDate1}
 				closeOnSelect={true}

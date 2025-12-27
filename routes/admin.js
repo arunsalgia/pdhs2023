@@ -116,6 +116,21 @@ router.get('/update/:mid/:superA/:pjym/:humad/:prws/:pmm', async function(req, r
 	
 });
 
+router.get('/membershipinfo', async function(req, res, next) {
+  setHeader(res);
+  
+  /*tmp = new M_MembershipInfo();
+  tmp.manch = "PRJM";
+  tmp.desc = "PJYM Sadasya";
+  tmp.level = 1;
+  tmp.fees = 0;
+  await tmp.save();*/
+  
+  var result = await M_MembershipInfo.find({}).sort({manch: 1, level: -1});
+  console.log(result);
+  sendok(res, result);
+	
+});
 
 router.get('/delete/:mid', async function(req, res, next) {
   setHeader(res);

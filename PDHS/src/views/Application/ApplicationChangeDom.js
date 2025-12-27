@@ -53,11 +53,13 @@ import {
 } from 'views/globals';
 
 import {
+   isFamilyLock,
 	isMobile, getWindowDimensions, displayType, decrypt, encrypt,
 	vsDialog, showError, showSuccess, showInfo,
 	getMemberName,
-	dateString, disableFutureDt,
+	dateString, dateStringMMM, disableFutureDt,
 	hasPRWSpermission, 
+   getPersonelData,
 } from 'views/functions';
 
 import {
@@ -91,6 +93,30 @@ export default function ApplicationChangeDom(props) {
 			//setAppdata(JSON.parse(myProps.applicationRec.data));
 }, [])*/
 
+async function handleReapply() {
+   var tmp = JSON.parse(myProps.applicationRec.data);
+    if (isFamilyLock(tmp.hid)) return;
+
+   showInfo("Reppaly selected");
+   return;
+   
+  //console.log(tmp);
+   var persData = await getPersonelData(tmp.hid) ;
+   //console.log(persData);
+   var myData = JSON.stringify({
+      calledFrom: process.env.REACT_APP_APPLICATION,
+      mode: tmp.mode,
+      memberList: persData.familyRecs,
+      hodRec: persData.hodRec,
+      hodMid: persData.hodRec.mid,
+      memberRec: tmp.memberRec,
+      selectedMid:  tmp.memberRec.mid,
+      applicationRec: myProps.applicationRec
+   });
+   //console.log(myData);
+   sessionStorage.setItem("family_personal_props", myData);
+   setTab(process.env.REACT_APP_FAMILY_SPOUSE_DOMCHANGE);
+}
 
 async function handleMemberAddEditSubmit() {
 	myProps.onReturn.call(this, {status: STATUS_INFO.ERROR, msg: `Error Add/Edit gotra`});
@@ -176,7 +202,7 @@ return (
 		<br />
 		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Husband: ${appData.groomName}`}</Typography>
 		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`Wife:   ${(appData.brideName)}`}</Typography>
-		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`DOM: ${dateString(appData.dom)}`}</Typography>
+		<Typography align="left" style={{paddingTop: "5px" }} className={gClasses.patientInfo2Blue} >{`DOM: ${dateStringMMM(appData.dom)}`}</Typography>
 		<br />
 		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
 		<br />
@@ -186,6 +212,9 @@ return (
 	{(hasPRWSpermission() && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
 		<YesNoButton title="" yesName="Approve" noName="Reject" yesClick={handleApplicationApprove} noClick={handleApplicationReject} />
 	}
+	{(false && (myProps.applicationRec.status === APPLICATIONSTATUS.rejected) && (sessionStorage.getItem("mid") == myProps.applicationRec.mid)) &&
+		<VsButton align="center" name="Re-Apply" onClick={handleReapply} />
+	}	
 	{((stage === "Approve") || (stage === "Reject")) && 
 		<YesNoButton title={`${stage} Application?`} yesName="Yes" noName="No" yesClick={() => setStage("Remarks") } noClick={() => setStage("INITIAL") } />
 	}

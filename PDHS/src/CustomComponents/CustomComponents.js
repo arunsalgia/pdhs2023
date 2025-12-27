@@ -39,7 +39,7 @@ import {red, blue, green, deepOrange, yellow} from '@material-ui/core/colors';
 import {
   validateSpecialCharacters, validateEmail, validateMobile, validateInteger, validateUpi,
   encrypt, decrypt, 
-	dateString,
+	dateString, dateStringMMM,
   currentAPLVersion, latestAPLVersion,
 	getImageName,
 	dispOnlyAge, dispAge, dispEmail, dispMobile, capitalizeFirstLetter,
@@ -933,7 +933,7 @@ export function ApplHeader_org(props) {
 			<Typography className={gClasses.patientInfo2Blue}>{props.appl.mid}</Typography>
 			<Typography className={gClasses.patientInfo2Blue}>{props.appl.hid}</Typography>
 			<Typography className={gClasses.patientInfo2Blue}>{props.appl.desc}</Typography>
-			<Typography className={gClasses.patientInfo2Blue}>{dateString(props.appl.date)}</Typography>
+			<Typography className={gClasses.patientInfo2Blue}>{dateStringMMM(props.appl.date)}</Typography>
 		</Grid>		
 		</Grid>
 	</Box>
@@ -1184,7 +1184,7 @@ const gClasses = globalStyles();
 var dispType = props.dispType;
 var m = props.m;
 var h = props.h;
-let memDateStr = dateString(h.membershipDate);
+let memDateStr = dateStringMMM(h.membershipDate);
 return (
 <Box  key={"MEMBOX"+props.index} 
   className={((props.index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} 
@@ -1499,13 +1499,15 @@ export 	function DisplayPrwsFilter(props) {
 	
 export function DisplayApplicationNameValue(props) {
 	const gClasses = globalStyles();
+   var myStyle = (props.different) ? gClasses.pdhs_mod : gClasses.pdhs_value;
+   //console.log(myStyle);
 return (	
 	<Grid key={"APPLLINE"+props.name} className={gClasses.noPadding} container  alignItems="flex-start" >
 		<Grid item xs={5} sm={5} md={5} lg={5} >
 			<Typography style={(props.style) ? props.style : {}} className={gClasses.pdhs_name} >{props.name}</Typography>
 		</Grid>
 		<Grid item xs={7} sm={7} md={7} lg={7} >
-			<Typography style={(props.style) ? props.style : {}} className={gClasses.pdhs_value} >{props.value}</Typography>
+			<Typography style={(props.style) ? props.style : {}} className={myStyle} >{props.value}</Typography>
 		</Grid>
 	</Grid>
 )}
@@ -1560,12 +1562,12 @@ return (
 	}
 	<br />
 	<DisplayApplicationNameValue name="Appl. Id." value={props.applicationRec.id} style={{paddingTop: "5px" }}  />
-	<DisplayApplicationNameValue name="Appl. Date" value={dateString(props.applicationRec.date)} style={{paddingTop: "5px" }}  />
+	<DisplayApplicationNameValue name="Appl. Date" value={dateStringMMM(props.applicationRec.date)} style={{paddingTop: "5px" }}  />
 	<DisplayApplicationNameValue name="Applicant" value={props.applicationRec.name} style={{paddingTop: "5px" }}  />
 	<DisplayApplicationNameValue name="Family Head" value={props.applicationRec.hodName} style={{paddingTop: "5px" }}  />
 	<DisplayApplicationNameValue name="Appl. Status" value={props.applicationRec.status} style={{paddingTop: "5px" }}  />
 	{(props.applicationRec.status !== "Pending") &&
-	<DisplayApplicationNameValue name={(props.applicationRec.status === "Approved") ? "Approved on" : "Rejected on"}  value={dateString(props.applicationRec.approvalDate)} style={{paddingTop: "5px" }}  />
+	<DisplayApplicationNameValue name={(props.applicationRec.status === "Approved") ? "Approved on" : "Rejected on"}  value={dateStringMMM(props.applicationRec.approvalDate)} style={{paddingTop: "5px" }}  />
 	}	
 	{(props.applicationRec.status !== "Pending") &&
 	<DisplayApplicationNameValue name={(props.applicationRec.status === "Approved") ? "Approved by" : "Rejected by"} value={props.applicationRec.adminName} style={{paddingTop: "5px" }}  />	
@@ -1623,7 +1625,7 @@ return (
 }
 {((dispType !== "xs") && (dispType !== "sm"))  &&
 <TableCell style={{padding: "2px" }} >
-	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }} align="center" className={gClasses.patientInfo2Brown }>Occupation</Typography>
+	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }} align="center" className={gClasses.patientInfo2Brown }>Location</Typography>
 </TableCell>
 }
 <TableCell style={{padding: "2px" }} >
@@ -1651,14 +1653,14 @@ return (
 	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }}  align="center" className={gClasses.patientInfo2Brown }>Mem. Id.</Typography>
 </TableCell>
 }
-{((dispType !== "xs") && (dispType !== "sm"))  &&
+{(false && (dispType !== "xs") && (dispType !== "sm"))  &&
 <TableCell style={{padding: "2px" }} >
 	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }}  align="center" className={gClasses.patientInfo2Brown }>Mem. Date</Typography>
 </TableCell>
 }
 {((dispType !== "xs") && (dispType !== "sm"))  &&
 <TableCell style={{padding: "2px" }} >
-	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }} align="center" className={gClasses.patientInfo2Brown }>Remarks</Typography>
+	<Typography style={{marginLeft: "0px", paddingLeft: "5px" }} align="center" className={gClasses.patientInfo2Brown }>Location</Typography>
 </TableCell>
 }
 <TableCell style={{padding: "2px" }} ></TableCell>
@@ -1727,7 +1729,7 @@ return (
 	}
 	{((dispType !== "xs") && (dispType !== "sm") && (dispType !== "md")) &&
 	<TableCell style={{padding: "2px" }} align="center" >
-			<Typography className={gClasses.patientInfo2}>{m.occupation}</Typography>
+			<Typography className={gClasses.patientInfo2}>{props.memberLocation}</Typography>
 	</TableCell>
 	}
 	<TableCell style={{padding: "2px" }} align="center" >
@@ -1790,7 +1792,7 @@ const gClasses = globalStyles();
 var dispType = props.dispType;
 var m = props.m;
 var h = props.h;
-let memDateStr = dateString(h.membershipDate);
+let memDateStr = dateStringMMM(h.membershipDate);
 let index = props.index;
 return (
 	<TableRow key={"MEMGRID"+index}  className={((index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} >
@@ -1808,14 +1810,14 @@ return (
 	<TableCell style={{padding: "2px" }} align="center" >
 		<Typography className={gClasses.patientInfo2}>{h.membershipNumber}</Typography>
 	</TableCell>
-	{( (dispType !== "xs") && (dispType !== "sm") ) &&
+	{( false && (dispType !== "xs") && (dispType !== "sm") ) &&
 	<TableCell style={{padding: "2px" }} align="center" >
 		<Typography className={gClasses.patientInfo2}>{memDateStr}</Typography>
 	</TableCell>
 	}
 	{( (dispType !== "xs") && (dispType !== "sm") ) &&
 	<TableCell style={{padding: "2px" }} align="center" >
-		<Typography className={gClasses.patientInfo2}>{h.remarks}</Typography>
+		<Typography className={gClasses.patientInfo2}>{props.memberLocation}</Typography>
 	</TableCell>
 	}
 	<TableCell style={{padding: "2px" }} align="center" >

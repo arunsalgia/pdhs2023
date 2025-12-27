@@ -128,6 +128,13 @@ export default function TransferMember() {
 	const [isDrawerOpened, setIsDrawerOpened] = useState("");
 
 	useEffect(() => {
+      var reapplyData = null; 
+      if (myProps.applicationRec) {
+         console.log(myProps.applicationRec);
+        reapplyData = JSON.parse(myProps.applicationRec.data);
+        console.log(reapplyData);
+        //setMemberList(myProps.memberList);
+      }
 		async function fetchFamilyHodNames() {
 		// Now get the list of all HOD if not available with us
 		try {
@@ -143,6 +150,11 @@ export default function TransferMember() {
 				//setHodMasterMemberList(tmpList);
 				
 				setHodMemberList(tmpList);
+            if (myProps.applicationRec) {
+               var xxx = tmpList.filter(x => x.hid === reapplyData.mergedFamilyHid);
+               if (xxx.length > 0) setFamilyHodRec(xxx[0]);
+            }
+            
 				//setFamilyHod(tmpList[0].mergedName);
 			}
 			else {
@@ -166,30 +178,60 @@ export default function TransferMember() {
 		setRelation(tmpRelation);
 		var tmpCbArray = [];
 		for(var i=0; i< myProps.memberList.length; ++i) {
-			tmpCbArray.push( (myProps.memberList[i].mid === myProps.selectedMid) ? myProps.selectedMid : 0);
+         if (myProps.applicationRec)
+           tmpCbArray.push( (reapplyData.transferMidList.includes(myProps.memberList[i].mid)) ? myProps.memberList[i].mid : 0);
+         else
+			  tmpCbArray.push( (myProps.memberList[i].mid === myProps.selectedMid) ? myProps.selectedMid : 0);
 		}
 		setCbArray(tmpCbArray);
 		
 		// Is HOD selected for transfer then set accordingly
-		if (myProps.selectedMid === myProps.hodMid) {
-			setHodTransfer(true);
+		if (false) {
+			
 			//setMergeOrCreate("MERGE");
 			//set
 		}
 		else {
 			setHodTransfer(false);
 		}
-		
+      
 		fetchFamilyHodNames();				// required for merge
 		
-		//console.log(myProps.selectedMid);
-		//console.log(myProps.memberList);
-		//console.log(myProps.memberList.filter(x => x.mid !== myProps.selectedMid));
-		setTransferMemberList(myProps.memberList.filter(x => x.mid === myProps.selectedMid));
-		var tmpBalance = myProps.memberList.filter(x => x.mid !== myProps.selectedMid);
-		if (tmpBalance.length > 0) 
-			setBalanceHod(tmpBalance[0].mid);
-		setBalanceMemberList (tmpBalance);
+      if (!myProps.applicationRec) {
+         setHodTransfer(myProps.selectedMid === myProps.hodMid);
+         setTransferMemberList(myProps.memberList.filter(x => x.mid === myProps.selectedMid));
+         var tmpBalance = myProps.memberList.filter(x => x.mid !== myProps.selectedMid);
+         if (tmpBalance.length > 0) 
+            setBalanceHod(tmpBalance[0].mid);
+         setBalanceMemberList (tmpBalance);
+      }
+      else {
+         setNewHod(reapplyData.newHodMid);
+         setHodTransfer(reapplyData.transferMidList.includes(myProps.hodMid));
+         setMergeOrCreate(reapplyData.createNewFamily ? "CREATE" : "MERGE");
+         setTransferMemberList(myProps.memberList.filter(x =>  reapplyData.transferMidList.includes(x.mid)));
+         setBalanceMemberList(myProps.memberList.filter(x =>  !reapplyData.transferMidList.includes(x.mid)));
+         setBalanceHod(reapplyData.balanceFamilyHodMid);
+         // create RELATION
+         var tmp = [];
+         var idx = -1;
+         var myRel = "";
+         for (var i=0; i<myProps.memberList.length; ++i) {
+           idx = reapplyData.transferMidList.indexOf(myProps.memberList[i].mid);
+           if (idx >= 0) {
+              myRel = (reapplyData.transferRelation[idx] !== "Self")
+               ? reapplyData.transferRelation[idx] 
+               : myProps.memberList[i].relation;
+           } 
+           else {
+              myRel = myProps.memberList[i].relation;
+           }
+           tmp.push(myRel)
+         }
+         console.log(tmp);
+         setRelation(tmp);
+      }
+      
 		//setStage("SELECTMEMBERS");
 	}, [])
 
@@ -329,6 +371,7 @@ function handleSubmit() {
 
 
 function handleNewRelation(rel, idx) {
+   //console.log(relation);
 	//console.log(rel, idx);	
 	var tmp = [].concat(relation);
 	tmp[idx] = rel;
@@ -413,6 +456,7 @@ async function handleFinalStageSubmit() {
 		newHodName: "",
 		// Required if MERGED		
 		mergedFamilyHid: 0, 	
+      mergedFamilyHodMid: 0,
 		mergedFamilyHeadName: "",
 		// Required if HOD also transfer
 		balanceFamilyHodMid: 0,
@@ -439,7 +483,9 @@ async function handleFinalStageSubmit() {
 	else {
 		//var tmpRec = hodMemberList.find(x => x.mergedName === familyHod);
 		//myData.mergedFamilyHid = tmpRec.hid;
-		myData.mergedFamilyHeadName = familyHodRec.mergedName;		
+		myData.mergedFamilyHeadName = familyHodRec.mergedName;	
+      myData.mergedFamilyHid = familyHodRec.hid;
+      myData.mergedFamilyHodMid = familyHodRec.mid;
 	}
 	
 	if (cbArray.includes(newHod)) {
@@ -460,7 +506,8 @@ async function handleFinalStageSubmit() {
 		
 	}
 	console.log(myData);
-
+   //return;
+   
 	let myMsg = '';
 	let myStatus;
 	let tmp = encodeURIComponent(JSON.stringify(myData));
@@ -476,14 +523,15 @@ async function handleFinalStageSubmit() {
 		myStatus = STATUS_INFO.ERROR;
 	}
 	var returnStatus = {status: myStatus, msg: myMsg };
-	sessionStorage.setItem("family_personal_returnstatus", JSON.stringify(returnStatus));
+   sessionStorage.setItem(myProps.applicationRec ? "application_returnstatus" : "family_personal_returnstatus", JSON.stringify(returnStatus));
 	sessionStorage.setItem("family_currentSelection", "Personal");
-	setTab(process.env.REACT_APP_FAMILY);
+	setTab(myProps.calledFrom);
 	//myProps.onReturn.call(this, {status: myStatus,  msg: myMsg});
 }
 
 
 function Display_select_to_transfer() {
+//console.log(cbArray);
 return (	
 <div>
 	<Grid key="SELECTMEMBERS" className={gClasses.noPadding} container  alignItems="flex-start" >
@@ -755,7 +803,9 @@ return (
 
 function getTransferMembers() {
 	var myData = [];
+   //console.log(memberList[i], cbArray);
 	for(var i=0; i<memberList.length; ++i) {
+      
 		if (cbArray[i] !== 0) myData.push(memberList[i].firstName);
 	}
 	return myData.join(", ");
@@ -772,9 +822,10 @@ function getHodName(midNumber) {
 
 function handleCancel() {
 	sessionStorage.setItem("family_currentSelection", "Personal");
-	setTab(process.env.REACT_APP_FAMILY);
+	setTab(myProps.calledFrom);
 }
 
+//console.log(cbArray);
 
 return (
 	<div className={gClasses.webPage} >
@@ -818,7 +869,7 @@ return (
 		<Accordion expanded={expandedPanel === "select_hod_for_new_family"} onChange={handleAccordionChange("select_hod_for_new_family")}>
 		<Box align="right" className={(expandedPanel === "select_hod_for_new_family") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
-			<Typography align="left">{"New family F.Head " + getHodName(newHod)}</Typography>
+			<Typography align="left">{"New family head " + getHodName(newHod)}</Typography>
 		</AccordionSummary>
 		</Box>
 		<Display_select_hod_for_new_family />

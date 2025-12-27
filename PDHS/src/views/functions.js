@@ -21,13 +21,33 @@ var ifscsystem = require('ifsc-finder');
 
 var aadhar = require('aadhaar-validator')
 
+var membershipInfo = [];
 
 import {
-	ADMIN, DATESTR, MONTHNUMBERSTR,
+	readAllMembers, memberGetByHidMany,
+} from "views/clientdbfunctions";
+
+import { 
+	ADMIN, DATESTR, MONTHNUMBERSTR, SHORTMONTHSTR,
 	APPLICATIONSTATUS,
 	HUMADCATEGORY,
 	HOURSTR, MINUTESTR,
 } from "views/globals.js";
+
+export async function getMembershipInfo() {
+   if (membershipInfo.length > 0) return (membershipInfo);
+   try {
+    let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/pdhsadm/membershipinfo`;
+    let resp = await axios.get(myUrl);
+    membershipInfo = resp.data;
+    return(membershipInfo);
+  } catch(err)  {
+    console.log("---------memberiship info detail error");
+    console.log(err);
+    return ([]);
+  }
+}    
+
 
 export function applicationSuccess(rec) {
 	console.log(rec);
@@ -76,10 +96,66 @@ export function dateString(dStr) {
 	return memDateStr;
 }
 
+export async function getHodRecord(hid) {
+   var retVal = null;
+   try {
+      let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/hod/get/${hid}`
+      let resp = await axios.get(myUrl);
+      retVal = resp.data
+   } catch (e) {
+      console.log(e);
+      showError(`Error fetching HOD details of ${hid}`);
+      //setCurrentHod({});
+   }	
+   return retVal;
+}
+
+export async function getFamilyRecords(hid) {
+   var myData = [];
+   try {
+      if (process.env.REACT_APP_PRWS_DB === "true") {
+         myData = memberGetByHidMany(hid);		
+      }
+      else {
+         let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/hod/${hid}`;
+         let resp = await axios.get(myUrl);
+         myData = resp.data;
+         myData = lodashSortBy(myData, 'order');
+      }
+   } catch (e) {
+      console.log(e);
+      showError(`Error fetching Member details of HOD ${hid}`);
+      //setMemberArray([]);
+   }
+   return myData;	   
+}
+
+export async function getPersonelData(hid) {
+   var myHodRec = await getHodRecord(hid);
+   var myFamily = await getFamilyRecords(hid);
+   return {hodRec: myHodRec, familyRecs: myFamily};
+}
+
+export function dateStringMMM(dStr) {
+	let d = new Date(dStr);
+	let memDateStr = (d.getFullYear() !== 1900)
+		? `${DATESTR[d.getDate()]}/${SHORTMONTHSTR[d.getMonth()]}/${d.getFullYear()}`
+		: "";
+	return memDateStr;
+}
+
 export function dateTimeString(dStr) {
 	let d = new Date(dStr);
 	let memDateStr = (d.getFullYear() !== 1900)
 		? `${DATESTR[d.getDate()]}/${MONTHNUMBERSTR[d.getMonth()]}/${d.getFullYear()} ${HOURSTR[d.getHours()]}:${MINUTESTR[d.getMinutes()]}`
+		: "";
+	return memDateStr;
+}
+
+export function dateTimeStringMMM(dStr) {
+	let d = new Date(dStr);
+	let memDateStr = (d.getFullYear() !== 1900)
+		? `${DATESTR[d.getDate()]}/${SHORTMONTHSTR[d.getMonth()]}/${d.getFullYear()} ${HOURSTR[d.getHours()]}:${MINUTESTR[d.getMinutes()]}`
 		: "";
 	return memDateStr;
 }
@@ -241,6 +317,18 @@ const notToConvert = ['XI', 'ARUN']
 export function cricTeamName(t) {
   var tmp = t.split(' ');
   for(i=0; i < tmp.length; ++i)  {
+    var x = tmp[i].trim().toUpperCase();
+    if (notToConvert.includes(x))
+      tmp[i] = x;
+    else
+      tmp[i] = x.substr(0, 1) + x.substr(1, x.length - 1).toLowerCase();
+  }
+  return tmp.join(' ');
+}
+
+export function correctName(t) {
+  var tmp = t.split(' ');
+  for(var i=0; i < tmp.length; ++i)  {
     var x = tmp[i].trim().toUpperCase();
     if (notToConvert.includes(x))
       tmp[i] = x;
@@ -1127,13 +1215,32 @@ export function showInfo(msg) {
 	toast.info(msg, { autoClose: TOAST_TIMEOUT });
 }
 
+export async function isFamilyLockByHid(hid, dispMsg=true) {
+  var tmpHodRec = await getHodRecord(hid);
+  if (tmpHodRec) {
+   return  isFamilyLock(tmpHodRec, dispMsg);
+  } 
+  else {
+    console.log(`Erro getting Hod record of ${hid}`);
+    return true;
+  }
+}
+
+
+export function isFamilyLock(hodRec, dispMsg=true) {
+   console.log("Family lock....");
+  if ((hodRec.applockId >0) &&  dispMsg) {
+    showInfo(`Family application ${hodRec.applockId} already pending. Further application for the family not permitted.`);
+  } 
+  return (hodRec.applockId > 0)? true : false;
+}
 
 export function setCityArray(myArray) {
 	cityArray = myArray;
 }
 
 export async function getHodCityList() {
-	var cityArray = [];
+	//var cityArray = [];
 	try {
 		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/city/all`;
 		let resp = await axios.get(myUrl);
@@ -1143,6 +1250,23 @@ export async function getHodCityList() {
 			return [];
 		}			
 }
+
+export async function getHodLocationList() {
+	//var cityArray = [];
+	try {
+      //console.log("in loc");
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/location/all`;
+      //console.log(myUrl);
+		let resp = await axios.get(myUrl);
+      //console.log(resp.data);
+		return resp.data;		
+	} catch (e) {
+      console.log("Error fetching location data");
+      console.log(e);
+      return [];
+   }			
+}
+
 
 export async function getCityList() {
 	var tmpArray =  await fetchCityList();  //JSON.parse(sessionStorage.getItem("cityArray"));	
@@ -1176,7 +1300,31 @@ export function hasAnyAdminPermission() {
 	return (tmp.superAdmin || tmp.prwsAdmin || tmp.pjymAdmin || tmp.humadAdmin || tmp.pmmAdmin);
 };
 
+export function canUpgradeHumad(memRec) {
+   //getMembershipInfo();
+   //console.log(memRec.humadMember);
+  
+   var perm = false;
+   if (!memRec.humadMember) {
+     if ((memRec.hid == sessionStorage.getItem("hid")) || hasHumadpermission())
+        perm = true;
+   }
+	return (perm);
+   
+}
 
+export function canUpgradePjym(memRec) {
+   //getMembershipInfo();
+   //console.log(memRec.pjymMember);
+  
+   var perm = false;
+   if (!memRec.humadMember) {
+     if ((memRec.hid == sessionStorage.getItem("hid")) || hasPJYMpermission())
+        perm = true;
+   }
+	return (perm);
+   
+}
 export function isEligibleForMarriage(memRec) {
 	//console.log(memRec);
 	//console.log(getAge(memRec.dob))
@@ -1209,7 +1357,7 @@ export function isAppApprovePermitted(applicationRec) {
 }
 
 export function getHumadMembershipName(receipt) {
-	console.log(receipt);
+	//console.log(receipt);
 	//var myArray = HUMADCATEGORY.slice(0, HUMADCATEGORY.map(e => e.short).indexOf(myProps.humadRec.membershipNumber.substr(0, 1))); 
 	var tmpRec = HUMADCATEGORY.find(m => m.short === receipt.substr(0, 1));
 	return tmpRec.desc;

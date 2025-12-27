@@ -101,7 +101,10 @@ import {
 	getAdminInfo,
 	applicationSuccess,
 	getHodCityList,
-	hasHumadpermission,
+   getHodLocationList,
+	hasHumadpermission, 
+   hasPJYMpermission,
+   canUpgradeHumad, canUpgradePjym,
 } from "views/functions.js";
 
 
@@ -119,8 +122,8 @@ var MasterFilterItems = [
 		{item: "LastName", 						value: "",   		type: "text"},
 		{item: "Gender",    					value: "", 			type: "text", options: Options_Gender },
 		{item: "Marital Status",    	value: "", 			type: "text", options: Options_Marital_Status },
+      {item: "City",    						value: "Mumbai", 		type: "text", options: cityList },
 		{item: "Blood Group",    			value: "", 			type: "text", options: Options_Blood_Group },
-		{item: "City",    						value: "Mumbai", 		type: "text", options: cityList },
 		{item: "Age greater than",    value: 24, 		type: "number", Min: 0, Max: 1000},
 		{item: "Age less than",    		value: 24, 		type: "number", Min: 1, Max: 1000},
 	];
@@ -148,6 +151,7 @@ export default function Prws() {
   const [dispType, setDispType] = useState("lg");
   const [ROWSPERPAGE, setROWSPERPAGE] = useState(DefaultFilterData.pageSize);
   
+  const [membershipInfo, setMembershipInfo] = useState([]);
 	const loginHid = parseInt(sessionStorage.getItem("hid"), 10);
 	const loginMid = parseInt(sessionStorage.getItem("mid"), 10);
 		
@@ -160,6 +164,7 @@ export default function Prws() {
 	const [memberArray, setMemberArray] = useState([]);
 	const [memberCount, setMemberCount] = useState(0);
 	const [isDrawerOpened, setIsDrawerOpened] = useState("");
+   const [locationArray, setLocationArray] = useState([]);
 	
 	//const [cityArray, setCityArray] = useState([]);
 	// pagination
@@ -207,6 +212,18 @@ export default function Prws() {
 			cityList = lodashMap(cityArray, 'city');
 			tmp.options = cityList;
 		}
+      
+      async function getAllLocation() {
+			// Update in Menu			
+			var locArray = await getHodLocationList();
+			setLocationArray(locArray);
+		}
+
+		async function getMIInfo() {
+			var tmp = await getMembershipInfo();
+         console.log(tmp);
+         setMembershipInfo(tmp);
+		}
 		// use effects start here
 		//getDetails();
 		
@@ -227,7 +244,9 @@ export default function Prws() {
 		}
 
 		setPage(0);
+      getAllLocation();
 		getAllCities();
+      //getMIInfo();
 		if (sessionStorage.getItem("isMember") === "true") {
 			getAllMembers();
 		}
@@ -359,6 +378,7 @@ export default function Prws() {
 	
 
 	function jumpFamily() {
+      sessionStorage.setItem("previousPage", process.env.REACT_APP_PRWS);
 		sessionStorage.setItem("prwsFilter", JSON.stringify(filterData));
 		handlePrwsContextMenuClose();
 		setGrpAnchorEl(null);
@@ -481,20 +501,20 @@ export default function Prws() {
  function handleMenu() { handlePrwsContextMenuClose(); console.log("In menu"); }
  
  
-	function PrwsContextMenu() {
+ function PrwsContextMenu() {
 	//console.log(radioMid);
 		var tmp = memberArray.find(x => x.mid === radioMid);
 		setMenuMember(tmp);
 		//console.log(tmp);
-    var myName = tmp.firstName + " " + tmp.lastName;
+      var myName = tmp.firstName + " " + tmp.lastName;
 		//console.log(contextParams);
 		var myStyle={top: `${contextParams.y}px` , left: `${contextParams.x}px` };
-		//console.log(myStyle);
-		//console.log(menuRef);
-		//anchorEl={grpAnchorEl}
-		// if not humad member and is humad admin then allowd humad upograde
-		var humadUpgradeAllowed = !tmp.humadMember && hasHumadpermission();
-		
+
+		// if not humad member and login is family member or humad admin then allowed humad upgrade
+      var humadUpgradeAllowed = canUpgradeHumad(tmp);
+      var pjymUpgradeAllowed = canUpgradePjym(tmp);
+      
+		//console.log(humadUpgradeAllowed);
 	return(
 	<div id="PRWSMENU" ref={menuRef} className='absolute z-20' style={myStyle}>
 	<Menu
@@ -520,7 +540,7 @@ export default function Prws() {
 			<Typography>{"Family"}</Typography>
 		</MenuItem>
 		<Divider />
-		<MenuItem disabled={tmp.pjymMember} onClick={jumpPjym}>
+		<MenuItem disabled={!pjymUpgradeAllowed} onClick={jumpPjym}>
 			<Typography>Pjym Membership</Typography>
 		</MenuItem>
 		<MenuItem disabled={!humadUpgradeAllowed} onClick={upgradeHumad}>
@@ -532,6 +552,7 @@ export default function Prws() {
 	
 	function getMyCity(hid) {
 		var myCity = "";
+      //console.log(cityArray);
 		for(var i=0; i<cityArray.length; ++i) {
 			//console.log(cityArray[i]);
 			if (cityArray[i].hidList.includes(hid)) {
@@ -541,6 +562,13 @@ export default function Prws() {
 		}
 		return myCity;
 	}
+   
+   function getMyLocation(hid) {
+      var tmp = locationArray.find( x => x.hid === hid);
+      var myLoc = '';
+      if (tmp) myLoc = (tmp.city.toLowerCase() === 'mumbai') ? tmp.suburb : tmp.city;
+      return myLoc
+   }
 	
 	if (sessionStorage.getItem("isMember") === "false") 
 	return (
@@ -647,10 +675,11 @@ export default function Prws() {
 		{memberArray.map( (m, index) => {
 				if (m.ceased) return null;		
 				var memberCity = getMyCity(m.hid);
-				//console.log(memberCity);
+            var memberLocation = getMyLocation(m.hid);
+				console.log(memberLocation);
 				//console.log(m.email);
 				return (
-				<PrwsDataRow key={"PERSONALMEMBER"+index} index={index} m={m} dispType={dispType} memberCity={memberCity} 
+				<PrwsDataRow key={"PERSONALMEMBER"+index} index={index} m={m} dispType={dispType} memberCity={memberCity} memberLocation={memberLocation}
 					datatip={getMemberTip(m, dispType, memberCity)} onClick={(event) => { radioMid = m.mid; handlePrwsContextMenu(event); }}
 				/>
 				)})}	

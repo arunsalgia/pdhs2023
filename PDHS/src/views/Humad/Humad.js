@@ -74,7 +74,7 @@ import {
 import {
 	ADMIN, APPLICATIONTYPES, SELECTSTYLE, NORMALSELECTSTYLE,
   PADSTYLE,
-	HUMADCATEGORY,
+	//HUMADCATEGORY,
 	MEMBERTITLE, RELATION, SELFRELATION, GENDER, BLOODGROUP, MARITALSTATUS,
 	Options_Gender, Options_Marital_Status, Options_Blood_Group,
 	READMEMBERINITIAL,
@@ -97,6 +97,8 @@ import {
 	getAdminInfo,
 	applicationSuccess,
 	getHodCityList,
+   getHodLocationList,
+   getMembershipInfo,
 	hasHumadpermission,
 	showSuccess, showError, showInfo,
 
@@ -143,9 +145,11 @@ export default function Humad() {
 		filterList: []
 	};
 
+
 	if ("humadFilter" in sessionStorage) {
 		DefaultFilterData = JSON.parse(sessionStorage.getItem("humadFilter"));
 	}
+   const [HUMADCATEGORY, setHUMADCATEGORY] = useState([]);
 	
 	const [filterData, setFilterData] = useState(DefaultFilterData);
   const [ROWSPERPAGE, setROWSPERPAGE] = useState(DefaultFilterData.pageSize);
@@ -167,6 +171,8 @@ export default function Humad() {
 
 	const [memberArray, setMemberArray] = useState([]);
 	const [memberCount, setMemberCount] = useState(0);
+   const [locationArray, setLocationArray] = useState([]);
+   
 	const [isDrawerOpened, setIsDrawerOpened] = useState("");
 	
 	//const [cityArray, setCityArray] = useState([]);
@@ -213,6 +219,19 @@ export default function Humad() {
 			cityList = lodashMap(cityArray, 'city');
 			tmp.options = cityList;
 		}
+ 
+      async function getAllLocation() {
+			// Update in Menu			
+			var locArray = await getHodLocationList();
+			setLocationArray(locArray);
+		}
+      
+      async function getMIInfo() {
+         var tmp = await getMembershipInfo();
+         console.log(tmp);
+         setHUMADCATEGORY(tmp.filter(x => x.manch === "Humad"));
+      }
+
 		// use effects start here
 		//getDetails();
 		
@@ -236,7 +255,9 @@ export default function Humad() {
 		}
 
 		if (sessionStorage.getItem("isMember") === "true") {
+         getAllLocation();
 			getAllCities();
+         getMIInfo();
 			getHumadPage(DefaultFilterData.filterList, DefaultFilterData.currentPage);
 		}
 		
@@ -495,6 +516,7 @@ export default function Humad() {
 	}
 	
 	function jumpFamily() {
+      sessionStorage.setItem("previousPage", process.env.REACT_APP_HUMAD);
 		 handlePrwsContextMenuClose();
 		 setGrpAnchorEl(null);
 		if (radioMid <= 0) return;
@@ -615,7 +637,19 @@ export default function Humad() {
 		//console.log(myStyle);
 		//console.log(menuRef);
 		//anchorEl={grpAnchorEl}
-		var upgradeAllowed = hasHumadpermission() && tmpHumadRec.membershipNumber.substr(0, 1) !== HUMADCATEGORY[0].short
+		//var upgradeAllowed = hasHumadpermission() && tmpHumadRec.membershipNumber.substr(0, 1) !== HUMADCATEGORY[0].short
+
+         var myShortMembership = tmpHumadRec.membershipNumber.substr(0, 1);
+         console.log(myShortMembership);
+         console.log(HUMADCATEGORY);
+         var shortLevelArray = HUMADCATEGORY.map(e => e.short);
+         console.log(shortLevelArray);
+         var myIndex = HUMADCATEGORY.map(e => e.short).indexOf(tmpHumadRec.membershipNumber.substr(0, 1));
+         console.log(myIndex);
+			//var myArray = HUMADCATEGORY.slice(0, HUMADCATEGORY.map(e => e.short).indexOf(myProps.humadRec.membershipNumber.substr(0, 1))); 
+         //console.log(myArray);
+			var upgradeAllowed = (myIndex > 0);
+         if (upgradeAllowed) upgradeAllowed =  (tmp.hid == loginHid) || hasHumadpermission();
 	return(
 	<div id="PRWSMENU" ref={menuRef} className='absolute z-20' style={myStyle}>
 	<Menu
@@ -659,6 +693,14 @@ export default function Humad() {
 		}
 		return myCity;
 	}
+
+   function getMyLocation(hid) {
+      var tmp = locationArray.find( x => x.hid === hid);
+      var myLoc = '';
+      if (tmp) myLoc = (tmp.city.toLowerCase() === 'mumbai') ? tmp.city : tmp.city;
+      return myLoc
+   }
+	
 	
 	if (sessionStorage.getItem("isMember") === "false") 
 	return (
@@ -674,7 +716,7 @@ export default function Humad() {
 	
 	return (
 	<div key="PRWS" className={gClasses.webPage} align="center" key="main">
-		<DisplayPageHeader headerName={(dispType === "xs") ? "Humad Samaj" : "Humad Samaj"} />
+		<DisplayPageHeader headerName={(dispType === "xs") ? "Humad Samaj (Mumbai)" : "Humad Samaj (Mumbai)"} />
 			{/*<DisplayPrwsFilter 
 			inputFilterMode={inputFilterMode} 
 			inputName={inputName}
@@ -761,10 +803,11 @@ export default function Humad() {
 			let h = humadArray.find(x => x.mid === m.mid);
 			if (!h) return null;
 			var memberCity = getMyCity(m.hid);
+         var memberLocation = getMyLocation(m.hid);
 			//console.log(memberCity);
 			//console.log(m.email);
 			return (
-			<HumadDataRow key= {"PERSONALMEMBER"+index} m={m} h={h} dispType={dispType}  index={index} 
+			<HumadDataRow key= {"PERSONALMEMBER"+index} m={m} h={h} dispType={dispType}  index={index} memberLocation={memberLocation}
 				checked={radioRecord == m.mid}
 				datatip={getMemberTip(m, dispType, memberCity) } 
 				onClick={(event) => { radioMid = m.mid; handlePrwsContextMenu(event); }}

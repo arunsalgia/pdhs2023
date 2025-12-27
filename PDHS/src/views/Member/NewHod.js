@@ -99,13 +99,20 @@ export default function NewHod() {
 		// get current HOD record
 		memRec = myProps.memberList.find(x => x.mid === myProps.hodMid);
 		setOldHodRec(memRec);
-		// Change the relation from "Self" to Brother/Sister"
-		memRec.relation = (memRec.gender === "Female") ? "Sister" : "Brother";
-		
-		// balance members and relation
-		var tmpArray = myProps.memberList.filter(x => x.mid !== myProps.selectedMid);
-		setRelation(lodashMap(tmpArray, 'relation'));
-		setMemberList(tmpArray);
+      
+      if (!myProps.applicationRec) {
+         // Change the relation from "Self" to Brother/Sister"
+         memRec.relation = (memRec.gender === "Female") ? "Sister" : "Brother";
+         // balance members and relation
+         var tmpArray = myProps.memberList.filter(x => x.mid !== myProps.selectedMid);
+         setRelation(lodashMap(tmpArray, 'relation'));
+         setMemberList(tmpArray);
+      }
+      else {
+        var myData = JSON.parse(myProps.applicationRec.data);
+        setRelation(myData.relationList); 
+        setMemberList(myProps.memberList.filter(x => myData.midList.includes(x.mid)));
+      }
 	}, [])
 
 
@@ -148,9 +155,10 @@ async function handleNewHodSubmit() {
 			data: resp.data,
 			msg: `Successfully applied for ${getMemberName(newHodRec)} as new F.Head. Your application id ref. ${resp.data.id}`
 		};
-		sessionStorage.setItem("family_personal_returnstatus", JSON.stringify(returnStatus));
+      sessionStorage.setItem(myProps.applicationRec ? "application_returnstatus" : "family_personal_returnstatus", JSON.stringify(returnStatus));
+		//sessionStorage.setItem("family_personal_returnstatus", JSON.stringify(returnStatus));
 		sessionStorage.setItem("family_currentSelection", "Personal");
-		setTab(process.env.REACT_APP_FAMILY);
+		setTab(myProps.calledFrom);
 		
 		//myProps.onReturn.call(this, {
 		//	status: STATUS_INFO.SUCCESS,
@@ -163,9 +171,10 @@ async function handleNewHodSubmit() {
 			status: STATUS_INFO.ERROR,  
 			msg: `Error setting ${getMemberName(newHodRec)} as new F.Head.`
 			};
-		sessionStorage.setItem("family_personal_returnstatus", JSON.stringify(returnStatus));
+      sessionStorage.setItem(myProps.applicationRec ? "application_returnstatus" : "family_personal_returnstatus", JSON.stringify(returnStatus));
+		//sessionStorage.setItem("family_personal_returnstatus", JSON.stringify(returnStatus));
 		sessionStorage.setItem("family_currentSelection", "Personal");
-		setTab(process.env.REACT_APP_FAMILY);
+		setTab(myProps.calledFrom);
 		//myProps.onReturn.call(this, {status: STATUS_INFO.ERROR,  msg: `Error setting ${getMemberName(newHodRec)} as new F.Head.`});
 	}	
 	return;
@@ -173,7 +182,7 @@ async function handleNewHodSubmit() {
 
 function handleCancel() {
 	sessionStorage.setItem("family_currentSelection", "Personal");
-	setTab(process.env.REACT_APP_FAMILY);
+	setTab(myProps.calledFrom);
 }
 
 

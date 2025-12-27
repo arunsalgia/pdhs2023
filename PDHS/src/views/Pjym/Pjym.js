@@ -101,6 +101,7 @@ import {
 	getAdminInfo,
 	applicationSuccess,
 	getHodCityList,
+   canUpgradeHumad, canUpgradePjym,
 } from "views/functions.js";
 
 
@@ -123,6 +124,10 @@ var inputName="";
 
 const InitialContextParams = {show: false, x: 0, y: 0};
 
+
+const funCodeTable = [
+   {fun: APPLICATIONTYPES.humadUpgrade, 					code: process.env.REACT_APP_HUMAD_UPGRADE},
+];
 
 
 var radioMid = -1;
@@ -405,6 +410,7 @@ export default function Pjym() {
 	}
 	
 	function jumpFamily() {
+      sessionStorage.setItem("previousPage", process.env.REACT_APP_PJYM);
 		sessionStorage.setItem("pjymFilter", JSON.stringify(filterData));
 		 handlePrwsContextMenuClose();
 		 setGrpAnchorEl(null);
@@ -467,6 +473,34 @@ export default function Pjym() {
 		showInfo(`Successfully downloaded generated filtered list as csv file ${csvFileName}.`);
  }
  
+ 	function upgradeHumad() {
+      sessionStorage.setItem("pjymFilter", JSON.stringify(filterData));
+      handlePrwsContextMenuClose();
+      setGrpAnchorEl(null);
+      if (radioMid <= 0) return;
+      var memberRec = memberArray.find( x => x.mid === radioMid);
+      selectCaller(APPLICATIONTYPES.humadUpgrade, "HumadUpgrade", memberRec);
+	}	
+	function selectCaller(funCode, mode, memberRecord, humadRecord ) {
+		sessionStorage.setItem("pjymFilter", JSON.stringify(filterData));
+		var myFun = funCodeTable.find(x => x.fun === funCode);
+		if (myFun) {
+			var myData = JSON.stringify({
+				calledFrom: process.env.REACT_APP_PJYM,
+				memberRec: memberRecord,
+				humadRec: null,
+				mode: mode,
+				hodMid: 0,
+				selectedMid:  memberRecord.mid
+			});
+			sessionStorage.setItem("humad_props", myData);
+			setTab(myFun.code);
+		}
+		else {
+			setIsDrawerOpened(mode);
+		}
+	}
+	  
  const handlePrwsContextMenu = (e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) => {
 	 e.preventDefault();
 	setGrpAnchorEl(e.currentTarget);
@@ -493,6 +527,10 @@ export default function Pjym() {
 		//console.log(myStyle);
 		//console.log(menuRef);
 		//anchorEl={grpAnchorEl}
+      var humadUpgradeAllowed = canUpgradeHumad(tmp);
+      //var pjymUpgradeAllowed = canUpgradePjym(tmp);
+  
+
 	return(
 	<div id="PRWSMENU" ref={menuRef} className='absolute z-20' style={myStyle}>
 	<Menu
@@ -517,7 +555,10 @@ export default function Pjym() {
 		<MenuItem onClick={jumpFamily}>
 			<Typography>{"Family"}</Typography>
 		</MenuItem>
-	</Menu>	
+		<Divider />
+		<MenuItem disabled={!humadUpgradeAllowed} onClick={upgradeHumad}>
+			<Typography>Humad Membership</Typography>
+		</MenuItem>	</Menu>	
 	</div>
 	)}
 	
@@ -525,6 +566,7 @@ export default function Pjym() {
 	
 	function getMyCity(hid) {
 		var myCity = "";
+      console.log(cityArray[0]);
 		for(var i=0; i<cityArray.length; ++i) {
 			//console.log(cityArray[i]);
 			if (cityArray[i].hidList.includes(hid)) {
@@ -552,7 +594,7 @@ export default function Pjym() {
 	return (
 	<div key="PRWS" className={gClasses.webPage} align="center" key="main">
 		{/*<DisplayPersonalButtons />*/}
-		<DisplayPageHeader headerName={(dispType === "xs") ? "PJYM" : "Pratapgarh Jain Yuva Manch"} />
+		<DisplayPageHeader headerName={(dispType === "xs") ? "PJYM" : "Pratapgarh Jain Yuva Manch (Mumbai)"} />
 		<Box key="BOXPRWSFILTER"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
 			<Grid key="PRWSFILTER" className={gClasses.noPadding} container>
 				<Grid align="left" item xs={10} sm={10} md={11} lg={11} >

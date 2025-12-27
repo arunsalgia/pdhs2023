@@ -72,6 +72,10 @@ export default function ApplicationEditGotra() {
 	//}, [])
 
 
+function handleReapply() {
+   showInfo("Reppaly selected");
+}
+
 async function handleMemberAddEditSubmit() {
 	myProps.onReturn.call(this, {status: STATUS_INFO.ERROR, msg: `Error Add/Edit gotra`});
 	return;
@@ -192,6 +196,9 @@ return (
 	{(hasPRWSpermission() && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
 		<YesNoButton title="" yesName="Approve" noName="Reject" yesClick={handleApplicationApprove} noClick={handleApplicationReject} />
 	}
+	{(false && (myProps.applicationRec.status === APPLICATIONSTATUS.rejected) && (sessionStorage.getItem("mid") == myProps.applicationRec.mid)) &&
+		<VsButton align="center" name="Re-Apply" onClick={handleReapply} />
+	}	
 	{((stage === "Approve") || (stage === "Reject")) && 
 		<YesNoButton title={`${stage} Application?`} yesName="Yes" noName="No" yesClick={() => setStage("Remarks") } noClick={() => setStage("INITIAL") } />
 	}

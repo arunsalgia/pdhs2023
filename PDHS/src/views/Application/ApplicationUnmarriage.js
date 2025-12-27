@@ -52,11 +52,13 @@ import {
 } from 'views/globals';
 
 import {
+   isFamilyLock,
 	isMobile, getWindowDimensions, displayType, decrypt, encrypt,
 	vsDialog, showError, showSuccess, showInfo,
 	getMemberName,
 	dateString, disableFutureDt,
 	hasPRWSpermission, 
+   getPersonelData,
 } from 'views/functions';
 
 import {
@@ -66,8 +68,9 @@ import {
 export default function ApplicationUnmarriage() {
 	const gClasses = globalStyles();
 	const myProps = JSON.parse(sessionStorage.getItem("application_appRec"));
-	//console.log(myProps);
-	
+	console.log(myProps);
+	console.log(JSON.parse(myProps.applicationRec.data));
+   
 	//const [registerStatus, setRegisterStatus] = useState(0);
 	const [appData, setAppdata] = useState(JSON.parse(myProps.applicationRec.data));
 	const [spouseMemberRec, setSpouseMemberRec] = useState(JSON.parse(myProps.applicationRec.data).spouseMemberRec);
@@ -102,12 +105,32 @@ export default function ApplicationUnmarriage() {
 			}
 		}
 		
-		//console.log(appData);
-		//console.log(JSON.parse(myProps.applicationRec.data).spouseMemberRec);
+	
 		getSpouseRecord();
 
 	}, [])
 
+async function handleReapply() {
+   var tmp = JSON.parse(myProps.applicationRec.data);
+   console.log(tmp);
+   if (isFamilyLock(tmp.hid)) return;
+   
+   var persData = await getPersonelData(tmp.memberRec.hid) ;
+   console.log(persData);
+   var myData = JSON.stringify({
+      calledFrom: process.env.REACT_APP_APPLICATION,
+      mode: tmp.mode,
+      memberList: persData.familyRecs,
+      hodRec: persData.hodRec,
+      hodMid: persData.hodRec.mid,
+      memberRec: tmp.memberRec,
+      selectedMid:  tmp.memberRec.mid,
+      applicationRec: myProps.applicationRec
+   });
+   //console.log(myData);
+   sessionStorage.setItem("family_personal_props", myData);
+   setTab(process.env.REACT_APP_FAMILY_PERSONAL_UNMARRIAGE);
+}
 
 async function handleMemberAddEditSubmit() {
 	myProps.onReturn.call(this, {status: STATUS_INFO.ERROR, msg: `Error Add/Edit gotra`});
@@ -194,6 +217,9 @@ return (
 	{(hasPRWSpermission() && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
 		<YesNoButton title="" yesName="Approve" noName="Reject" yesClick={handleApplicationApprove} noClick={handleApplicationReject} />
 	}
+	{(false && (myProps.applicationRec.status === APPLICATIONSTATUS.rejected) && (sessionStorage.getItem("mid") == myProps.applicationRec.mid)) &&
+		<VsButton align="center" name="Re-Apply" onClick={handleReapply} />
+	}	
 	{((stage === "Approve") || (stage === "Reject")) && 
 		<YesNoButton title={`${stage} Application?`} yesName="Yes" noName="No" yesClick={() => setStage("Remarks") } noClick={() => setStage("INITIAL") } />
 	}

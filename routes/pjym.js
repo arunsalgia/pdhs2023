@@ -9,6 +9,7 @@ const {
 	memberAddOne, memberAddMany,
 	memberUpdateOne, memberUpdateMany,
 	memberGetAllPjym, memberGetPjymCount,
+   getHodCityList,
 } = require('./dbfunctions');
 
 var router = express.Router();

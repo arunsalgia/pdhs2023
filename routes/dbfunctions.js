@@ -7,10 +7,23 @@ const {
 
 var allMemberlist = [];
 var allHodList = [];
-var hodCityArray = []
+var updateStateInHod = []
 let debugTest = true;
 
 
+async function getHodCityList() {
+	console.log("Reading city list from database");
+	let myData = await M_Hod.find({active: true, city: {"$ne": ""} },{hid: 1, city:1,_id:0}).sort({city: 1,});
+	// Now get all the cities
+	var allCity = _.map(myData, 'city');
+	allCity = _.uniqBy(allCity);
+	
+	hodCityArray = [];
+	for (var i=0; i<allCity.length; ++i) {
+		var tmp = myData.filter(x => x.city === allCity[i]);
+		hodCityArray.push({ city: allCity[i], hidList: _.map(tmp, 'hid') });
+	}	
+}
 
 async function memberGetAll() {
 	
@@ -156,33 +169,34 @@ async function memberGetAlive() {
 	return _.cloneDeep(memberRecArray);	
 }
 
-async function readHodCityList() {
-	console.log("Reading city list from database");
-	let myData = await M_Hod.find({active: true, city: {"$ne": ""} },{hid: 1, city:1,_id:0}).sort({city: 1,});
+async function readHodStateList() {
+	console.log("Reading state list from database");
+	let myData = await M_Hod.find({active: true, state: {"$ne": ""} },{hid: 1, state:1,_id:0}).sort({state: 1,});
 	// Now get all the cities
-	var allCity = _.map(myData, 'city');
-	allCity = _.uniqBy(allCity);
+	var allState = _.map(myData, 'state');
+	allState = _.uniqBy(allState);
 	
-	hodCityArray = [];
-	for (var i=0; i<allCity.length; ++i) {
-		var tmp = myData.filter(x => x.city === allCity[i]);
-		hodCityArray.push({ city: allCity[i], hidList: _.map(tmp, 'hid') });
+	updateStateInHod = [];
+	for (var i=0; i<allState.length; ++i) {
+		var tmp = myData.filter(x => x.state === allState[i]);
+		updateStateInHod.push({ state: allState[i], hidList: _.map(tmp, 'hid') });
 	}	
 }
 
-async function getHodCityList() {
-	if (hodCityArray.length === 0) {
-		await readHodCityList();
-		return hodCityArray;
+async function getHodStateList() {
+	if (updateStateInHod.length === 0) {
+		await readHodStateList();
+		return updateStateInHod;
 	}
 	else {
-		return hodCityArray;
+		return updateStateInHod;
 	}
 }
 
 async function memberGetCount() {
 	if (allMemberlist.length === 0) await memberGetAll();
-	return allMemberlist.length;
+	//return allMemberlist.length;
+   return allMemberlist.filter(x => x.prwsMember).length;
 }
 
 async function memberGetAllHumad() {
@@ -205,6 +219,30 @@ async function memberGetPjymCount() {
 	return allMemberlist.filter(x => x.pjymMember).length;
 }
 
+
+async function set_hod_applock(hid, lockId) { 
+  await update_hod_applock(hid, lockId);
+  return;
+}
+
+async function clear_hod_applock(hid) { 
+  await update_hod_applock(hid, 0);
+  return;
+}
+
+
+async function update_hod_applock(hid, newLockstate) {
+  var hodRec = await M_Hod.findOne({hid: hid});
+  if (hodRec) {
+     hodRec.applockId = newLockstate;  
+     await hodRec.save();
+  }
+  else {
+   console.log(`hod record of hid ${hid} not found`);  
+  }
+  return;
+}
+
 module.exports = {
 	memberGetAll, memberGetHodMembers,
 	memberAddOne, memberAddMany,
@@ -215,6 +253,8 @@ module.exports = {
 	memberGetAlive,
 	memberGetAllHumad, memberGetHumadCount,
 	memberGetAllPjym,
-	getHodCityList, memberGetPjymCount,
+	getHodStateList, memberGetPjymCount,
+   getHodCityList,
+   set_hod_applock, clear_hod_applock,
 }; 
 

@@ -61,7 +61,7 @@ import {DisplayPageHeader, ValidComp, BlankArea,
 import { 
 	vsDialog,
 	getWindowDimensions, displayType,
-	dateString, dateTimeString, compareDate,
+	dateString, dateTimeString, dateTimeStringMMM, compareDate,
 	disableFutureDt,
 	showError, showSuccess, showInfo,
 } from "views/functions.js";
@@ -234,7 +234,7 @@ export default function Logs() {
 		return (
 		<TableRow key={"MEMGRID"+index}  className={((index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} >
 		<TableCell style={{padding: "0px"}} align="center">
-			<Typography className={gClasses.patientInfo2 }>{dateTimeString(l.date)}</Typography>		
+			<Typography className={gClasses.patientInfo2 }>{dateTimeStringMMM(l.date)}</Typography>		
 		</TableCell>
 		<TableCell style={{padding: "0px"}} align="center">
 			<Typography className={gClasses.patientInfo2}>{l.action}</Typography>
@@ -353,13 +353,13 @@ export default function Logs() {
 		<CssBaseline />
 		<DisplayPageHeader headerName="PRWS logs" groupName="" tournament=""/>
 		<Grid key={"FIKTER"} className={gClasses.noPadding} container justifyContent="center" alignItems="center" >
-			<Grid align="center" item xs={12} sm={12} md={6} lg={6} >
+			{/*<Grid align="center" item xs={12} sm={12} md={6} lg={6} >
 			<VsRadioGroup radioList={FILTERLIST} value={filterBy} onChange={(event) => setNewFilter(event.target.value)} />
-			</Grid>
-			<Grid align="center" item xs={12} sm={12} md={2} lg={2} >
+			</Grid>*/}
+			<Grid align="center" item xs={2} sm={2} md={2} lg={2} >
 				<VsCheckBox label="TimeRange" checked={timeRange} onClick={() => enableTimeRange(!timeRange) }  />			
 			</Grid>
-			<Grid align="center" item xs={12} sm={12} md={2} lg={2} >
+			<Grid align="center" item xs={5} sm={5} md={2} lg={2} >
 			{(timeRange) &&
 			<Datetime 
 				className={gClasses.dateTimeBlock}
@@ -367,14 +367,14 @@ export default function Logs() {
 				timeFormat={false} 
 				initialValue={time1}
 				value={time1}
-				dateFormat="DD/MM/yyyy"
+				dateFormat="DD/MMM/yyyy"
 				isValidDate={disableFutureDt}
 				onClose={(date) => enableDate1(date)}
 				closeOnSelect={true}
 			/>
 			}
 			</Grid >
-			<Grid align="center" item xs={12} sm={12} md={2} lg={2} >
+			<Grid align="center" item xs={5} sm={5} md={2} lg={2} >
 				{(timeRange) &&
 				<Datetime 
 				className={gClasses.dateTimeBlock}
@@ -382,7 +382,7 @@ export default function Logs() {
 				timeFormat={false} 
 				initialValue={time2}
 				value={time2}
-				dateFormat="DD/MM/yyyy"
+				dateFormat="DD/MMM/yyyy"
 				isValidDate={disableFutureDt}
 				onClose={(date) => enableDate2(date)}
 				closeOnSelect={true}

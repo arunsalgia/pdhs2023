@@ -52,11 +52,13 @@ import {
 } from 'views/globals';
 
 import {
+   isFamilyLock, isFamilyLockByHid,
 	isMobile, getWindowDimensions, displayType, decrypt, encrypt,
 	vsDialog, showError, showSuccess, showInfo,
 	getMemberName,
-	dateString, disableFutureDt,
+	dateString, dateStringMMM, disableFutureDt,
 	hasPRWSpermission, 
+   getPersonelData,
 } from 'views/functions';
 
 import {
@@ -80,7 +82,8 @@ export default function ApplicationAddEditMember() {
 	
 	//const [registerStatus, setRegisterStatus] = useState(0);
 	const [appData, setAppdata] = useState(JSON.parse(myProps.applicationRec.data));
-	
+	const [hasFamilyLock, SetHasFamilyLock] = useState(true);
+   
 	// show in accordion
 	const [expandedPanel, setExpandedPanel] = useState("");
 	const handleAccordionChange = (panel) => (event, isExpanded) => {
@@ -92,14 +95,47 @@ export default function ApplicationAddEditMember() {
 	const [remarks, setRemarks] = useState("");
 	const [action, setAction] = useState("");
 	const [stage, setStage] = useState("INITIAL");
-	
+
+   
 	//console.log(appData.oldMemberRec.email)
 	//console.log(appData.memberRec.email)
-	//useEffect(() => {
-	//		console.log(myProps.applicationRec);
-	//		setAppdata(JSON.parse(myProps.applicationRec.data));
-	//}, [])
+   
+   async function checkLock() {
+     var tmpData = JSON.parse(myProps.applicationRec.data);
+      console.log(tmpData);
+      var sts = await isFamilyLockByHid(tmpData.hid, false);
+      SetHasFamilyLock(sts);
+   }
+   
+	useEffect(() => {
+      checkLock();
+      
+	}, [])
 
+
+async function handleReapply() {    
+
+   var tmp = JSON.parse(myProps.applicationRec.data);
+   //console.log(tmp);
+   
+   //if (isFamilyLock(tmp.hid)) return;
+
+   var persData = await getPersonelData(tmp.hid) ;
+   console.log(persData);
+   var myData = JSON.stringify({
+      calledFrom: process.env.REACT_APP_APPLICATION,
+      mode: tmp.mode,
+      memberList: persData.familyRecs,
+      hodRec: persData.hodRec,
+      hodMid: persData.hodRec.mid,
+      memberRec: tmp.memberRec,
+      selectedMid:  tmp.memberRec.mid,
+      applicationRec: myProps.applicationRec
+   });
+   //console.log(myData);
+   sessionStorage.setItem("family_personal_props", myData);
+   setTab(process.env.REACT_APP_FAMILY_PERSONAL_ADD);
+}
 
 async function handleMemberAddEditSubmit() {
 	myProps.onReturn.call(this, {status: STATUS_INFO.ERROR, msg: `Error Add/Edit gotra`});
@@ -258,9 +294,9 @@ return (
 		{((appData.mode === "EDIT") && hasPersonalChanged()) &&
 		<div>
 			<DisplayApplicationNameValue name={`Relation`} value={appData.oldMemberRec.relation} style={{paddingTop: "5px" }}  />
-			<DisplayApplicationNameValue name={`Gender`} value={appData.oldMemberRec.gender} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name={`Gender`} value={appData.oldMemberRec.gender} style={{paddingTop: "5px" }} />
 			<DisplayApplicationNameValue name="Blood group" value={appData.oldMemberRec.bloodGroup} style={{paddingTop: "5px" }}  />
-			<DisplayApplicationNameValue name="DOB" value={dateString(appData.oldMemberRec.dob)} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name="DOB" value={dateStringMMM(appData.oldMemberRec.dob)} style={{paddingTop: "5px" }}  />
 			<DisplayApplicationNameValue name={`Mobile 1`} value={appData.oldMemberRec.mobile} style={{paddingTop: "5px" }}  />
 			<DisplayApplicationNameValue name={`Mobile 2`} value={appData.oldMemberRec.mobile1} style={{paddingTop: "5px" }}  />
 			<DisplayApplicationNameValue name="Email" value={decrypt(appData.oldMemberRec.email)} style={{paddingTop: "5px" }}  />
@@ -272,7 +308,7 @@ return (
 		<DisplayApplicationNameValue name={`Relation`} value={appData.memberRec.relation} style={{paddingTop: "5px" }}  />
 		<DisplayApplicationNameValue name={`Gender`} value={appData.memberRec.gender} style={{paddingTop: "5px" }}  />
 		<DisplayApplicationNameValue name="Blood group" value={appData.memberRec.bloodGroup} style={{paddingTop: "5px" }}  />
-		<DisplayApplicationNameValue name="DOB" value={dateString(appData.memberRec.dob)} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name="DOB" value={dateStringMMM(appData.memberRec.dob)} style={{paddingTop: "5px" }}  />
 		<DisplayApplicationNameValue name={`Mobile 1`} value={appData.memberRec.mobile} style={{paddingTop: "5px" }}  />
 		<DisplayApplicationNameValue name={`Mobile 2`} value={appData.memberRec.mobile1} style={{paddingTop: "5px" }}  />
 		<DisplayApplicationNameValue name="Email" value={decrypt(appData.memberRec.email)} style={{paddingTop: "5px" }}  />
@@ -312,7 +348,10 @@ return (
 	{(hasPRWSpermission() && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL") && (!readOnly)) &&
 		<YesNoButton title="" yesName="Approve" noName="Reject" yesClick={handleApplicationApprove} noClick={handleApplicationReject} />
 	}
-	{((stage === "Approve") || (stage === "Reject")) && 
+	{(false && (myProps.applicationRec.status === APPLICATIONSTATUS.rejected) && (sessionStorage.getItem("mid") == myProps.applicationRec.mid) && (!hasFamilyLock)) &&
+		<VsButton align="center" name="Re-Apply" onClick={handleReapply} />
+	}	
+   {((stage === "Approve") || (stage === "Reject")) && 
 		<YesNoButton title={`${stage} Application?`} yesName="Yes" noName="No" yesClick={() => setStage("Remarks") } noClick={() => setStage("INITIAL") } />
 	}
 	{((stage === "Remarks") && (myProps.applicationRec.status === "Pending")) &&

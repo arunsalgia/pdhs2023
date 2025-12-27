@@ -658,6 +658,11 @@ const globalStyles = makeStyles((theme) => ({
 		fontWeight: theme.typography.fontWeightBold,
 		color: 'blue',
 	},		
+	pdhs_mod: {
+		fontSize: theme.typography.pxToRem(16),
+		fontWeight: theme.typography.fontWeightBold,
+		color: 'green',
+	},		
 }));
 
 export default globalStyles;

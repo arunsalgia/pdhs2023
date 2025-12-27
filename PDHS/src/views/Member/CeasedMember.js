@@ -100,16 +100,27 @@ export default function CeasedMember() {
 
 
 	useEffect(() => {
+      console.log(myProps);
+      console.log(myProps.applicationRec);
 		let memRec = myProps.memberList.find(x => x.mid === myProps.selectedMid);
 		setCeasedName(getMemberName(memRec, false, false));
 		setHeader("Apply for ceased " + getMemberName(memRec, false, false) );
 		if ((myProps.selectedMid === myProps.hodMid) && (myProps.memberList.length > 1)) {
 			setStage2Ref(true);
-			var tmp = myProps.memberList.filter (x => x.mid !== myProps.selectedMid);
-			setMemberList(tmp);
-			setNewHod(tmp[0]);
-			setNewHod(tmp[0].mid);			
-			setRelation(lodashMap(tmp, 'relation'));
+         var tmp = myProps.memberList.filter (x => x.mid !== myProps.selectedMid);
+         setMemberList(tmp);
+         if (!myProps.applicationRec) {
+            //setNewHod(tmp[0]);
+            setNewHod(tmp[0].mid);			
+            setRelation(lodashMap(tmp, 'relation'));
+         }
+         else {
+            var myData = JSON.parse(myProps.applicationRec.data);
+            console.log(myData);
+            setNewHod(myData.newHodMid);			
+            setRelation(myData.relationList);
+            setEmurDate1(moment(myData.ceasedDate));
+         }
 		}
 	}, [])
 
@@ -249,9 +260,10 @@ async function handleCeasedSubmit() {
 			data: resp.data,
 			msg: `Successfully applied for ${ceasedName} as ceased. Your application id ref. ${resp.data.id}`
 		};
-		sessionStorage.setItem("family_personal_returnstatus", JSON.stringify(returnStatus));
+      sessionStorage.setItem(myProps.applicationRec ? "application_returnstatus" : "family_personal_returnstatus", JSON.stringify(returnStatus));
+		//sessionStorage.setItem("family_personal_returnstatus", JSON.stringify(returnStatus));
 		sessionStorage.setItem("family_currentSelection", "Personal");
-		setTab(process.env.REACT_APP_FAMILY);
+		setTab(myProps.calledFrom);
 		
 		//myProps.onReturn.call(this, {
 		//	status: STATUS_INFO.SUCCESS,
@@ -264,9 +276,10 @@ async function handleCeasedSubmit() {
 			status: STATUS_INFO.ERROR,  
 			msg: `Error setting ${ceasedName} as ceased.`
 		};
-		sessionStorage.setItem("family_personal_returnstatus", JSON.stringify(returnStatus));
+      sessionStorage.setItem(myProps.applicationRec ? "application_returnstatus" : "family_personal_returnstatus", JSON.stringify(returnStatus));
+		//sessionStorage.setItem("family_personal_returnstatus", JSON.stringify(returnStatus));
 		sessionStorage.setItem("family_currentSelection", "Personal");
-		setTab(process.env.REACT_APP_FAMILY);
+		setTab(myProps.calledFrom);
 		//myProps.onReturn.call(this, {status: STATUS_INFO.ERROR,  msg: `Error setting ${ceasedName} as ceased.`});
 	}	
 	return;
@@ -385,11 +398,11 @@ return (
 </Grid>
 )}
 
-console.log(newHod);
+//console.log(newHod);
 
 function handleCancel() {
-	sessionStorage.setItem("family_currentSelection", "Personal");
-	setTab(process.env.REACT_APP_FAMILY);
+	//sessionStorage.setItem("family_currentSelection", "Personal");
+	setTab(myProps.calledFrom);
 }
 
 

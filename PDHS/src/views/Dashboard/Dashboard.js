@@ -192,15 +192,16 @@ import {
 const IMAGESIZE = 75;
 let first =  true;
 
-var countInfo = null;
+//var countInfo = null;
 
 export default function Dashboard() {
   const gClasses = globalStyles();
   //const classes = useStyles();
   //const dashClasses = useDashStyles();
 
-  //const [countInfo, setCountInfoLocal] = useState(null);
+   const [countInfo, setCountInfoLocal] = useState(null);
 	const [loginUserRec, setLoginUserRec] = useState(JSON.parse(sessionStorage.getItem("memberRec")));
+   const [userName, setuserName] = useState(sessionStorage.getItem("userName"));
 	const [applMsg, setApplMsg] = useState("");
 	const adminRec = getAdminRec();
 	
@@ -208,9 +209,9 @@ export default function Dashboard() {
 		async function getMemberCount() {
 			try {
 				var myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/count/all/${sessionStorage.getItem("mid")}`;
-				const resp = await axios.get(myUrl);
-				//setCountInfoLocal(resp.data);
-				countInfo = resp.data;
+				var resp = await axios.get(myUrl);
+				setCountInfoLocal(resp.data);
+				//countInfo = resp.data;
 				setApplMsg(resp.data.application + " application" + ((resp.data.application > 1) ? "s" : ""));
 			}
 			catch (e) {
@@ -222,6 +223,7 @@ export default function Dashboard() {
 	}, []);
 
 
+   
 	function jumpToPrws() {
 		setTab(process.env.REACT_APP_PRWS);
 	}
@@ -257,12 +259,34 @@ export default function Dashboard() {
 	function jumpToTestValidator() {
 		setDisplayPage(process.env.REACT_APP_VALIDATOR, 0, 0);
 	}
-	
-	//console.log(loginUserRec);
+
+   function applyMembership(mType) {
+     console.log(mType);
+     var myData = JSON.stringify({
+       calledFrom: process.env.REACT_APP_DASH,
+       membershipType:  mType
+     });
+     console.log(myData)
+     sessionStorage.setItem("membershipApplication", myData);
+     setTab(process.env.REACT_APP_NEWMEMBERSHIP)
+   }
+   
+	console.log(countInfo);
 	if (!countInfo) return false;
 	return (
 	<div style={{padding: "10px"}} >
-      <GridContainer key="db_gc_ub">
+      <GridContainer key="db_gc_ub0">
+        <GridItem align= "right" key="db_buttons1" xs={12} sm={12} md={12} lg={12} >
+           {((userName === "Guest") || (!loginUserRec.prwsMember && !loginUserRec.humadMember && !loginUserRec.pjymMember)) &&
+             <VsButton name="Apply for PRWS" onClick={() => {applyMembership("PRWS"); } } />
+           }
+           {((userName === "Guest") || (!loginUserRec.prwsMember && !loginUserRec.humadMember)) &&
+             <VsButton name="Apply for Humad" onClick={() => {applyMembership("HUMAD"); } }  />
+           }
+           {((userName === "Guest") || (!loginUserRec.prwsMember && !loginUserRec.pjymMember)) &&
+             <VsButton name="Apply for PJYM" onClick={() => {applyMembership("PJYM"); } } />
+           }     
+        </GridItem>  
         <GridItem key="db_gi_ub1" xs={12} sm={6} md={4} lg={3}>
 					<a href='/' > 
           <Card key="db_card_ub1" onClick={jumpToPrws} >

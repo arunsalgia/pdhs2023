@@ -57,6 +57,7 @@ import {
 
 
 import { 
+   isFamilyLock,
 	hasPRWSpermission,
 	getImageName,
 	vsDialog, vsInfo,
@@ -102,6 +103,7 @@ export default function MemberGeneral (props) {
 	const [currentMemberData, setCurrentMemberData] = useState({});
 	const [gotraArray, setGotraArray] = useState([]);
 	const [cityArray, setCityArray] = useState([]);
+   const [stateArray, setStateArray] = useState([]);
 	const [countryArray, setCountryArray] = useState([]);
 	const [gotraFilterArray, setGotraFilterArray] = useState([]);
 		
@@ -165,6 +167,7 @@ export default function MemberGeneral (props) {
 		setIsFamily(currentHod.hid === loginHid);
 		getGotraList();
 		getCityList(); 
+      getStateList(); 
 		getCountryList(); 
   }, []);
 
@@ -210,17 +213,34 @@ export default function MemberGeneral (props) {
 		}	
 	}
 
+
+	async function getStateList() {
+		//console.log("Hi");
+		try {
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/state/list`
+			let resp = await axios.get(myUrl);
+         //console.log(resp.data);
+			setStateArray(resp.data);
+			//setCurrentMember()
+		} catch (e) {
+			console.log(e);
+			showError(`Error fetching state List`);
+			setStateArray([]);
+		}	
+	}
+
 	async function getCountryList() {
 		//console.log("Hi");
 		try {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/country/list`
 			let resp = await axios.get(myUrl);
-			setCountryArray(resp.data);
+         var tmp = resp.data;  //.concat([{country: "Add new Country"}]);
+			setCountryArray(tmp);
 			//setCurrentMember()
 		} catch (e) {
 			console.log(e);
 			showError(`Error fetching Country List`);
-			setCityArray([]);
+			setCountryArray([]);
 		}	
 	}
 
@@ -293,7 +313,8 @@ export default function MemberGeneral (props) {
 	// Apply / Edit for General details
 
 	function editGeneralDetials() {
-		
+		if (isFamilyLock(currentHod)) return;
+      
 		setHeader("Edit Details");
 		setEmurGotra(currentHod.gotra);
 		setGotraFilterArray([{name: currentHod.gotra}])
@@ -322,6 +343,7 @@ export default function MemberGeneral (props) {
 		var myData = JSON.stringify({
 			calledFrom: "General",
 			cityList: cityArray,
+         stateList: stateArray,
 			countryList: countryArray,
 			hodRec: currentHod,
 			//mode: mode,
@@ -380,6 +402,8 @@ export default function MemberGeneral (props) {
 	
 	// Apply / Edit for Gotra caste change
 	function editGotraDetails() {
+      if (isFamilyLock(currentHod)) return;
+
 		setHeader("Apply to change Gotra & Caste");
 		setCurrentGotra(currentHod.gotra);
 		var tmp = gotraArray.find(x => x.gotra === currentHod.gotra);
@@ -466,11 +490,14 @@ export default function MemberGeneral (props) {
 		{(currentHod.resAddr4 !== "") &&
 		<DisplaySingleLine msg1="" msg2={currentHod.resAddr4} />
 		}
-		{(currentHod.resAddr5 !== "") &&
-		<DisplaySingleLine msg1="" msg2={currentHod.resAddr5} />
-		}
-		{(!currentHod.indianResident) &&
-		<DisplaySingleLine msg1="Country" msg2={currentHod.country} />
+      {(currentHod.resAddr5 !== "") &&
+      <DisplaySingleLine msg1="" msg2={currentHod.resAddr5} />
+      }
+      {(!currentHod.indianResident) &&
+		<div>       
+         <DisplaySingleLine msg1="Zip Code" msg2={(currentHod.pinCode > 0) ? currentHod.pinCode : "-"} />		
+         <DisplaySingleLine msg1="Country" msg2={currentHod.country} />
+		</div>
 		}
 		{(currentHod.indianResident) &&
 		<div>

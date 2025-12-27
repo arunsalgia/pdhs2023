@@ -1,0 +1,686 @@
+import React, { useState, useContext, useEffect, useRef } from 'react';
+import {  CssBaseline } from '@material-ui/core';
+import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
+import Container from '@material-ui/core/Container';
+
+import Divider from '@material-ui/core/Divider';
+import Tooltip from "react-tooltip";
+import Select from "@material-ui/core/Select";
+import MenuItem from '@material-ui/core/MenuItem'; 
+import Menu from '@material-ui/core/Menu'; 
+//import SubMenu from '@material-ui/core/SubMenu'; 
+//import Avatar from '@material-ui/core/Avatar';
+import lodashCloneDeep from 'lodash/cloneDeep';
+import lodashSortBy from "lodash/sortBy";
+import lodashMap from "lodash/map";
+//import IconButton from '@material-ui/core/IconButton';
+
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+
+
+import VsButton from "CustomComponents/VsButton";
+import VsCancel from "CustomComponents/VsCancel";
+import VsRadio from "CustomComponents/VsRadio";
+import VsRadioGroup from "CustomComponents/VsRadioGroup";
+import VsCheckBox from "CustomComponents/VsCheckBox";
+import VsSelect from "CustomComponents/VsSelect";
+
+//import { useLoading, Audio } from '@agney/react-loading';
+import axios from "axios";
+import Drawer from '@material-ui/core/Drawer';
+//import { useAlert } from 'react-alert'
+
+import Grid from "@material-ui/core/Grid";
+import Typography from '@material-ui/core/Typography';
+import Box from '@material-ui/core/Box';
+import 'react-step-progress/dist/index.css';
+import Datetime from "react-datetime";
+import "react-datetime/css/react-datetime.css";
+import moment from "moment";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
+// styles
+import globalStyles from "assets/globalStyles";
+
+//icons
+//import MoveUp    from '@material-ui/icons/ArrowUpwardRounded';
+//import MoveDown  from '@material-ui/icons/ArrowDownwardRounded';
+//import InfoIcon  from 	'@material-ui/icons/Info';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
+
+import {
+	BlankArea,
+	DisplayMemberHeader, PersonalHeader, PersonalMember, DisplaySingleTip,
+	PrwsHeaderBody, PrwsDataRow,
+} from "CustomComponents/CustomComponents.js"
+
+import {
+	ADMIN, APPLICATIONTYPES, SELECTSTYLE,
+  PADSTYLE,
+	MEMBERTITLE, RELATION, SELFRELATION, GENDER, BLOODGROUP, MARITALSTATUS,
+	STATUS_INFO,
+} from "views/globals.js";
+
+
+import { 
+  displayType, getWindowDimensions,
+	decrypt, dispMobile, dispEmail, disableFutureDt,
+	isMobile, 
+	dateString,
+	getImageName,
+	vsDialog, vsInfo,
+	getMemberName, isEligibleForMarriage,
+	getRelation, dispAge, capitalizeFirstLetter,
+	getMemberTip,
+	getAdminInfo,
+	applicationSuccess,
+	showSuccess, showError, showInfo,
+	callYesNo,
+   canUpgradeHumad, canUpgradePjym,
+} from "views/functions.js";
+
+import SplitFamily from "views/Member/SplitFamily";
+import CeasedMember from "views/Member/CeasedMember";
+import TransferMember from "views/Member/TransferMember";
+import NewHod from "views/Member/NewHod";
+import MemberAddEdit from "views/Member/MemberAddEdit";
+import MemberMarriage from "views/Member/MemberMarriage";
+
+
+import {
+	readAllMembers, memberGetByHidMany, memberUpdateMany,
+} from "views/clientdbfunctions";
+
+import {
+	setTab,
+} from "CustomComponents/CricDreamTabs.js"
+
+
+
+const InitialContextParams = {show: false, x: 0, y: 0};
+var radioMid = -1;
+//var familyCity = "";
+
+const funCodeTable = [
+{fun: APPLICATIONTYPES.newHod, 					code: process.env.REACT_APP_FAMILY_PERSONAL_NEWHOD},
+{fun: APPLICATIONTYPES.addMember, 			code: process.env.REACT_APP_FAMILY_PERSONAL_ADD},
+{fun: APPLICATIONTYPES.editMember, 			code: process.env.REACT_APP_FAMILY_PERSONAL_EDIT},
+{fun: APPLICATIONTYPES.transferMember, 	code: process.env.REACT_APP_FAMILY_PERSONAL_TRANSFER},
+{fun: APPLICATIONTYPES.marriage, 				code: process.env.REACT_APP_FAMILY_PERSONAL_MARRIAGE},
+// Managed locally. No page required for this {fun: APPLICATIONTYPES.unMarriage, 			code: process.env.REACT_APP_FAMILY_PERSONAL_UNMARRIAGE},
+{fun: APPLICATIONTYPES.memberCeased, 		code: process.env.REACT_APP_FAMILY_PERSONAL_CEASED},
+{fun: APPLICATIONTYPES.humadUpgrade, 					code: process.env.REACT_APP_HUMAD_UPGRADE},
+];
+
+
+export default function MemberPersonal(props) {
+	//console.log(props);
+  const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
+  const [dispType, setDispType] = useState("lg");
+  
+	const loginHid = parseInt(sessionStorage.getItem("hid"), 10);
+	const loginMid = parseInt(sessionStorage.getItem("mid"), 10);
+	const isMember = props.isMember;
+	const adminInfo = getAdminInfo();
+		
+	const gClasses = globalStyles();
+	//const alert = useAlert();
+
+	const [hodRec, setHodRec] = useState({});
+	const [memberArray, setMemberArray] = useState([])
+	const [selMember, setSelMember] = useState({mid: 0});
+
+	const [hodNamesArray, setHodNamesArray] = useState([])
+	const [groomArray, setGroomArray] = useState([])
+	const [brideArray, setBrideArray] = useState([])
+	const [domArray, setDomArray] = useState([])
+	const [domMomemtArray, setDomMomemtArray] = useState([])
+	const [unLinkedLadies, setUnLinkedLadies] = useState([]);
+	const [radioRecord, setRadioRecord] = useState(0);
+	const [emurDate1, setEmurDate1] = useState(moment());
+	const [currentSelection, setCurrentSelection] = useState("");
+
+	const [emurGroomArray, setEmurGroomArray] = useState([]);
+	const [emurBrideArray, setEmurBrideArray] = useState([]);
+	const [emurDomArray, setEmurDomArray] = useState([]);
+
+
+	const [hodRadio, setHodRadio] = useState(1);
+	const [emurList, setEmurList] = useState([]);
+	const [isDrawerOpened, setIsDrawerOpened] = useState("");
+	
+	const [emurGotra, setEmurGotra] = useState("");
+	const [emurVillage, setEmurVillage] = useState("");
+	const [emurPinCode, setEmurPincCode] = useState("");
+	const [emurResPhone1, setEmurResPhone1] = useState("");
+	const [emurResPhone2, setEmurResPhone2] = useState("");
+	const [emurPinResp, setEmurPinResp] = useState({});
+
+	const [emurAddr1, setEmurAddr1] = useState("");
+	const [emurAddr2, setEmurAddr2] = useState("");
+	const [emurAddr3, setEmurAddr3] = useState("");
+	const [emurAddr4, setEmurAddr4] = useState("");
+	const [emurAddr5, setEmurAddr5] = useState("");
+	const [emurAddr6, setEmurAddr6] = useState("");
+	const [emurAddr7, setEmurAddr7] = useState("");
+	const [emurAddr8, setEmurAddr8] = useState("");
+	const [emurAddr9, setEmurAddr9] = useState("");
+	const [emurAddr10, setEmurAddr10] = useState("");
+	const [emurAddr11, setEmurAddr11] = useState("");
+	const [emurAddr12, setEmurAddr12] = useState("");
+	const [emurAddr13, setEmurAddr13] = useState("");
+
+
+	const [registerStatus, setRegisterStatus] = useState(0);
+
+	
+	const [contextParams, setContextParams] = useState(InitialContextParams);
+	const [grpAnchorEl, setGrpAnchorEl] = React.useState(null);
+	const grpOpen = Boolean(grpAnchorEl);
+	let menuRef = useRef(null);
+	let newMenuRef = useRef();
+	
+	
+  useEffect(() => {	
+		function handleResize() {
+			let myDim = getWindowDimensions();
+      setWindowDimensions(myDim);
+      //console.log(displayType(myDim.width));
+      setDispType(displayType(myDim.width));
+		}
+		const getDetails = async () => {
+			var myHodRec = JSON.parse(sessionStorage.getItem("member_hod"));
+			setHodRec(myHodRec);
+			var myMemArray = JSON.parse(sessionStorage.getItem("member_members"));
+			setMemberArray(myMemArray);
+			var ccc = myMemArray.find(x => x.mid === myHodRec.mid);
+			if (!ccc) showError(`Family Head of family ${myHodRec.hid} not in list. May be ceased`);
+		}
+
+		if ("family_personal_returnstatus" in sessionStorage) {
+			console.log("has return status");
+			var sts = JSON.parse(sessionStorage.getItem("family_personal_returnstatus"));
+			//console.log(sts);
+			sessionStorage.removeItem("family_personal_returnstatus");
+			handlePersonalReturn(sts);
+		}
+
+		getDetails();
+		
+		handleResize();
+		window.addEventListener('resize', handleResize);
+		let handler = (e) => {
+			console.log("In handler");
+			if (menuRef.current.contains(e.target)) {
+				console.log("Inside");
+				setContextParams({show: false});
+				console.log(menuRef);		
+			}
+		}
+		
+    return () => window.removeEventListener('resize', handleResize);
+    
+  }, []);
+
+	function DisplayRegisterStatus() {
+    // console.log(`Status is ${registerStatus}`);
+		let regerr = true;
+    let myMsg;
+    switch (registerStatus) {
+      case 0:
+        myMsg = "";
+				regerr = false;
+        break;
+      case 1001:
+        myMsg = `Invalid Pin Code`;
+        break;
+      case 1002:
+        myMsg = `Unknown Family Head update error`;
+        break;
+			case 2001:
+				myMsg = `No Family Head selected for new family`;
+				break;
+			case 2002:
+				myMsg = `No member(s) selected for new family`;
+				break;
+				default:
+          myMsg = "Unknown Error";
+          break;
+    }
+    return(
+      <div>
+        <Typography className={(regerr) ? gClasses.error : gClasses.nonerror}>{myMsg}</Typography>
+      </div>
+    )
+  }
+
+	// move up / down member 
+	async function handleScrollUpMember(memRec) {
+		//handleMemPerContextMenuClose();
+		//console.log(radioMid);
+		//let index = memberArray.findIndex(x => x.mid === memRec.mid);
+		//let tmpArray = [].concat(memberArray);
+		try {
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/scrollup/${memRec.mid}`
+			var resp = await axios.get(myUrl);
+			//showSuccess("Successfuly");
+			setMemberArray(resp.data);
+			memberUpdateMany(resp.data);
+			sessionStorage.removeItem("member_members");
+			sessionStorage.setItem("member_members", JSON.stringify(resp.data));
+		} catch (e) {
+			console.log(e);
+			showError(`Error moving up member`);
+		}	
+	}
+
+	async function handleScrollDownMember(memRec) {
+		//handleMemPerContextMenuClose();
+		//let index = radioRecord;
+		//let index = memberArray.findIndex(x => x.mid === radioMid);
+		//let tmpArray = [].concat(memberArray);
+		try {
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/scrolldown/${memRec.mid}`
+			var resp = await axios.get(myUrl);
+			//showSuccess("Successfuly");
+			//console.log(resp.data);
+			setMemberArray(resp.data);
+			memberUpdateMany(resp.data);
+			sessionStorage.removeItem("member_members");
+			sessionStorage.setItem("member_members", JSON.stringify(resp.data));
+		} catch (e) {
+			console.log(e);
+			showError(`Error scrolling down member`);
+		}	
+	}
+
+
+
+function DisplayPersonalInformation() {
+	if (memberArray.length === 0) return false;
+	return (
+	<div key="MEMBERLIST">
+	<PersonalHeader dispType={dispType} />
+	{memberArray.map( (m, index) => {
+		if (m.ceased) return null;
+		return (
+			<PersonalMember  key={"PERSONALMEMBER"+index} m={m} dispType={dispType}  index={index} id={"PERSONALMEMBER"+index}
+					onClick={(event) => { radioMid = m.mid; handleMemberPersonalContextMenu(event,`PERSONALMEMBER${index}`); }}
+					datatip={getMemberTip(m, dispType, props.city)} />
+		)}
+	)}
+	</div>	
+	)}
+
+
+
+ 
+	function MemberPersonalContextMenu() {
+		//console.log(contextParams);
+		var myStyle={top: `${contextParams.y}px`, left: `${contextParams.x}px` };
+		//console.log(myStyle);
+		//console.log(newMenuRef);
+		var memberRecord = memberArray.find(x => x.mid === radioMid);
+		if (!memberRecord) return;
+		//console.log(hodRec);
+		//console.log(memberRecord);
+		var myIndex = memberArray.findIndex(x => x.mid === radioMid);
+		//console.log(myIndex);
+		let isFamilyMember = (memberArray[0].hid === loginHid);
+		let admin = ((adminInfo & (ADMIN.superAdmin | ADMIN.prwsAdmin)) !== 0);
+		let isEligible = isEligibleForMarriage(memberRecord);
+      var humadUpgradeAllowed = canUpgradeHumad(memberRecord);
+		//console.log(newMenuRef);
+	return(
+	<div id="MEMPERSMENU" ref={newMenuRef} className='absolute z-20' style={myStyle}>
+	<Menu
+		id="memberpersonal-menu1"
+		anchorEl={grpAnchorEl}
+		anchorOrigin={{
+			vertical: 'top',
+			horizontal: 'center',
+		}}
+		// keepMounted
+		transformOrigin={{
+			vertical: 'top',
+			horizontal: 'center',
+		}}
+		open={contextParams.show}
+		onClose={handleMemPerContextMenuClose}
+	>
+		<Typography className={gClasses.patientInfo2Blue} style={{paddingLeft: "5px", paddingRight: "5px"}}>{memberRecord.firstName + " " + memberRecord.lastName}</Typography>
+		<Divider />
+		<MenuItem disabled={!isFamilyMember && !admin} onClick={() => { handleMemPerContextMenuClose(); handlePersonalEdit(memberRecord) } }>
+			<Typography>Edit</Typography>
+		</MenuItem>
+		<MenuItem disabled={(myIndex <= 1) || (!isFamilyMember && !admin)} onClick={() => {handleMemPerContextMenuClose(); handleScrollUpMember(memberRecord) } }>
+			<Typography>Scroll Up</Typography>
+		</MenuItem>	
+		<MenuItem disabled={(myIndex == 0) || (myIndex == (memberArray.length -1)) || (!isFamilyMember && !admin) } onClick={() => {handleMemPerContextMenuClose();  handleScrollDownMember(memberRecord)} }>
+			<Typography>Scroll Down</Typography>
+		</MenuItem>	
+		<MenuItem disabled={(!isFamilyMember && !admin)} onClick={() => { handleMemPerContextMenuClose(); handlePersonalTransfer(memberRecord) } }>
+			<Typography>Move</Typography>
+		</MenuItem>
+		{(memberRecord.emsStatus.toUpperCase() !== "MARRIED") &&
+		<MenuItem disabled={!(isEligible && (isFamilyMember || admin))} onClick={() => {handleMemPerContextMenuClose(); handleMarriage(memberRecord); } } >
+			<Typography>Marriage</Typography>
+		</MenuItem>
+		}
+		{(memberRecord.emsStatus.toUpperCase() === "MARRIED") &&
+		<MenuItem disabled={!(true && (isFamilyMember || admin))} onClick={() => {handleMemPerContextMenuClose(); handleUnMarriage(memberRecord); } } >
+			<Typography>Change Marital Status</Typography>
+		</MenuItem>
+		}		
+		<MenuItem disabled={(!isFamilyMember && !admin) || (hodRec.mid === memberRecord.mid)} onClick={() => { handleMemPerContextMenuClose(); newHOD(memberRecord) } }>
+			<Typography>New Family Head</Typography>
+		</MenuItem>
+		<MenuItem disabled={!isFamilyMember && !admin} onClick={() => {handleMemPerContextMenuClose(); ceasedMember(memberRecord); } } >
+			<Typography>Ceased</Typography>
+      </MenuItem>
+		<Divider />
+		<MenuItem disabled={!humadUpgradeAllowed} onClick={() => { handleMemPerContextMenuClose(); upgradeHumad(memberRecord); } }>
+			<Typography>Humad Membership</Typography>
+		</MenuItem>
+	</Menu>	
+	</div>
+	)}
+	
+	const handleMemberPersonalContextMenu = (e,id) => {
+		e.preventDefault();
+		//console.log(e.currentTarget);
+		setGrpAnchorEl(e.currentTarget);
+		const {pageX, pageY } = e;
+		//console.log(pageX, pageY);
+		setContextParams({show: false, x: pageX, y: pageY});
+		setContextParams({x: pageX, y: pageY, show: true});
+	}
+	
+	 
+ function handleMemPerContextMenuClose() { setContextParams({show: false, x: 0, y: 0}); }
+
+	function DisplayAllToolTips() {
+	return(
+		<div>
+		{memberArray.map( t =>
+			<DisplaySingleTip key={"MEMBERTIP"+t.mid} id={"MEMBER"+t.mid} />
+		)}
+		</div>
+	)}
+	
+	function handleMarriage(memRec) {
+		setSelMember(memRec);
+		selectCaller(APPLICATIONTYPES.marriage, "MARRIAGE", memberArray, hodRec, memRec);
+		//setIsDrawerOpened("MARRIAGE");
+	}
+	
+  function handleUnMarriage(memRec) {
+		//console.log(memRec.spouseMid);
+		var msg = (memRec.spouseMid !== 0) ?
+			`Set ${getMemberName(memRec, false, false)} along with spouse as Unmarried?` :
+			`Set ${getMemberName(memRec, false, false)} as Unmarried?`;
+		//console.log(msg);
+		vsDialog("Change Marital Status", msg,
+		{label: "Yes", onClick: () => unMarriageConfirm(memRec) },
+		{label: "No" }
+		);
+	}
+	
+	async function unMarriageConfirm(memRec) {
+		//console.log(memRec);
+		let myData = {
+			memberRec: memRec,
+			spouseMemberRec: memberArray.find(x => x.mid === memRec.spouseMid)
+		}
+		let tmp = encodeURIComponent(JSON.stringify(myData));
+		try {
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/unmarriage/${hodRec.mid}/${sessionStorage.getItem('mid')}/${tmp}`;
+			let resp = await axios.get(myUrl);
+			showSuccess(`Successfully applied for marital status change. Application reference ${resp.data.id}.`);
+		} catch (e) {
+			console.log(e);
+			showError(`Error applying for for marital status change`);
+		}
+	}
+	
+	function handleMarriageBack(sts) {
+		if (sts.status === STATUS_INFO.ERROR) 
+			showError(sts.msg); 
+		else if (sts.status === STATUS_INFO.SUCCESS) {
+			showSuccess(sts.msg); 
+			// update member list
+		}
+		else if (sts.status === STATUS_INFO.INFO) {
+			console.log("In info");
+			vsInfo("Applied for ceased", sts.msg,
+				{label: "Okay"}
+			);
+		}
+		setIsDrawerOpened("");
+	}
+				
+
+	// Ceased Member
+	function ceasedMember(memRec) {
+		//let m = memberArray.find(x => x.mid === memRec.mid);
+		vsDialog("Ceased", `Are you sure you want to set ${getMemberName(memRec)} as ceased?`,
+		{label: "Yes", onClick: () => ceasedMemberConfirm(memRec) },
+		{label: "No" }
+		);
+	}
+	
+	function ceasedMemberConfirm(m) {
+		setSelMember(m);
+		selectCaller(APPLICATIONTYPES.memberCeased, "CEASED", memberArray, hodRec, m);
+		//setIsDrawerOpened("CEASED");
+	}
+
+ 	function upgradeHumad(m) {
+      //sessionStorage.setItem("pjymFilter", JSON.stringify(filterData));
+      //handlePrwsContextMenuClose();
+      setSelMember(m);
+      selectCaller(APPLICATIONTYPES.humadUpgrade, "HumadUpgrade", null, null, m);
+	}	
+   
+	function handleCeasedMemberBack(sts) {
+		if (sts.status === STATUS_INFO.ERROR) 
+			showError(sts.msg); 
+		else if (sts.status === STATUS_INFO.SUCCESS) {
+			showSuccess(sts.msg); 
+			// update member list
+		}
+		else if (sts.status === STATUS_INFO.INFO) {
+			console.log("In info");
+			vsInfo("Applied for ceased", sts.msg,
+				{label: "Okay"}
+			);
+		}
+		setIsDrawerOpened("");
+	}
+				
+
+	
+	// --- New Hod
+	
+	function newHOD(rec) {
+		vsDialog("New Family Head", `Are you sure you want to set ${getMemberName(rec)} as Family Head?`,
+		{label: "Yes", onClick: () => newHODConfirm(rec) },
+		{label: "No" }
+		);
+	} 
+
+	function newHODConfirm(rec) {	
+		setSelMember(rec);
+		selectCaller(APPLICATIONTYPES.newHod, "NEWHOD", memberArray, hodRec, rec);
+		//setIsDrawerOpened("NEWHOD");
+	}
+
+	function handleNewHodBack(sts) {
+		//console.log(sts);
+		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
+		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
+		
+		if (sts.status == STATUS_INFO.SUCCESS) {
+		}
+		else {
+			console.log("Yaha kaise aaya");
+		}
+		setIsDrawerOpened("");
+	}
+	
+	
+		// Transfer member(s) to another family
+	function handlePersonalTransfer(rec) {
+		setSelMember(rec);
+		selectCaller(APPLICATIONTYPES.transferMember, "TRANSFER", memberArray, hodRec, rec);
+		//setIsDrawerOpened("TRANSFER");
+	}
+	
+	function handlePersonalTransferBack(sts) {
+		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
+		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
+		
+		if (sts.status == STATUS_INFO.SUCCESS) {
+		}
+		else {
+			console.log("Yaha kaise aaya");
+		}
+		setIsDrawerOpened("");
+	}
+	// edit member details
+
+	/// Add new member or edit member
+	function handlePersonalAdd() {
+		//setSelMember(null);
+		setSelMember({hid: memberArray[0].hid, mid: 0, lastName: memberArray[0].lastName, firstName: ""});
+		selectCaller(APPLICATIONTYPES.addMember, "ADD", memberArray, hodRec, {hid: memberArray[0].hid, lastName: memberArray[0].lastName, firstName: ""});
+		//setIsDrawerOpened("ADD");
+	}
+	
+	// edit personal details
+	function handlePersonalEdit(m) {
+		setSelMember(m);
+		selectCaller(APPLICATIONTYPES.editMember, "EDIT", memberArray, hodRec, m);
+		//setIsDrawerOpened("EDIT");
+	}
+
+	function handleAddEditBack(sts) {
+		console.log(sts);
+		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
+		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
+		
+		if (sts.status == STATUS_INFO.SUCCESS) {
+		}
+		else {
+			console.log("Yaha kaise aaya");
+		}
+		setIsDrawerOpened("");
+	}
+	
+	function handlePersonalReturn(sts) {
+		console.log(sts);
+		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
+		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
+		
+		if (sts.status == STATUS_INFO.SUCCESS) {
+		}
+		else {
+			console.log("Yaha kaise aaya");
+		}
+		setIsDrawerOpened("");
+	}
+	
+	
+	function selectCaller(funCode, mode, memberList, hodRecord, memberRecord) {
+      var myFun = funCodeTable.find(x => x.fun === funCode);
+      if (myFun) {
+         if (myFun.fun === APPLICATIONTYPES.humadUpgrade) {
+            var myData = JSON.stringify({
+            calledFrom: process.env.REACT_APP_FAMILY,
+            memberRec: memberRecord,
+            humadRec: null,
+            mode: mode,
+            hodMid: 0,
+            selectedMid:  memberRecord.mid
+            });
+            sessionStorage.setItem("humad_props", myData);          
+         } else {
+            var myData = JSON.stringify({
+               calledFrom: process.env.REACT_APP_FAMILY,
+               mode: mode,
+               memberList: memberList,
+               hodRec: hodRecord,
+               hodMid: hodRecord.mid,
+               memberRec: memberRecord,
+               selectedMid:  memberRecord.mid
+            });
+            sessionStorage.setItem("family_personal_props", myData);
+         }
+         setTab(myFun.code);
+      }
+      else {
+         setIsDrawerOpened(mode);
+      }
+	}
+	
+	//console.log(isDrawerOpened);
+	return (
+	<div className={gClasses.webPage} align="center" key="main">
+	<Typography align="right" style={{paddingRight: "10px"}}  className={gClasses.patientInfo2Blue} onClick={handlePersonalAdd} >Add Member</Typography>
+	{/*<DisplayPersonalInformation />*/}
+	<Box key="BOXPRWSFILTERTABLE"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
+	<TableContainer>
+	<Table style={{padding: "2px" }} >
+	<PrwsHeaderBody dispType={dispType} />
+	<TableBody>
+	{memberArray.map( (m, index) => {
+		if (m.ceased) return null;
+		var memberCity = "";		//getMyCity(m.hid);
+		return (
+			<PrwsDataRow key={"PERSONALMEMBER"+index} index={index} m={m} dispType={dispType} memberCity={memberCity} 
+				datatip={getMemberTip(m, dispType, memberCity)} 
+				onClick={(event) => { radioMid = m.mid; handleMemberPersonalContextMenu(event,`PERSONALMEMBER${index}`); }}
+			/>
+		)}
+	)}	
+	</TableBody>
+	</Table>
+	</TableContainer>
+	</Box>	
+	{contextParams.show && 
+		<MemberPersonalContextMenu /> 
+	}		
+	<DisplayAllToolTips />
+	<Drawer style={{ width: "100%"}} anchor="top" variant="temporary" open={isDrawerOpened != ""} >
+	<Container component="main" maxWidth="xs">	
+	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
+	<VsCancel align="right" onClick={() => { setIsDrawerOpened("")}} />
+	{(isDrawerOpened === "CEASED") &&
+		<CeasedMember memberList={memberArray} hodMid={hodRec.mid} selectedMid={selMember.mid} onReturn={handleCeasedMemberBack} />
+	}
+	{(isDrawerOpened === "TRANSFER") &&
+		<TransferMember memberList={memberArray} hodMid={hodRec.mid} selectedMid={selMember.mid} onReturn={handlePersonalTransferBack} />
+	}
+	{(isDrawerOpened === "NEWHOD") &&
+		<NewHod memberList={memberArray} hodMid={hodRec.mid} selectedMid={selMember.mid} onReturn={handleNewHodBack} />
+	}
+	{((isDrawerOpened === "ADD") || (isDrawerOpened === "EDIT")) &&
+		<MemberAddEdit mode={isDrawerOpened} hodMid={hodRec.mid} memberRec={selMember} onReturn={handleAddEditBack}/>
+	}
+	{(isDrawerOpened === "MARRIAGE") &&
+		<MemberMarriage hodRec={hodRec} memberRec={selMember} onReturn={handleMarriageBack}/>
+	}
+	</Box>
+	</Container>
+	</Drawer>
+	<ToastContainer />
+  </div>
+  );    
+}

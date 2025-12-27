@@ -12,6 +12,7 @@ const {
 	memberAddOne, memberAddMany,
 	memberUpdateOne, memberUpdateMany,
 	memberGetAllHumad, memberGetHumadCount,
+   getHodCityList,
 } = require('./dbfunctions');
 
 var router = express.Router();

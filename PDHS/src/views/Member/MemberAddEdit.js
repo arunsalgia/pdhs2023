@@ -64,7 +64,7 @@ import {
 
 import {
 	getMemberName,
-	dateString, disableFutureDt,
+	dateString, dateStringMMM, disableFutureDt,
 	
 } from 'views/functions';
 
@@ -163,40 +163,45 @@ export default function MemberAddEdit() {
 			return 
 		}
 
+      
 		var myHeader = "";
-		if (myProps.mode == "ADD") {
-			myHeader = "Add new family member";
-			//console.log(myProps.memberRec);
-			setEmurAddr2(myProps.memberRec.lastName);
-		}
-		else {
-			//console.log(myProps);
-			myHeader = `Edit details of ${getMemberName(myProps.memberRec)}`;
-			setEmurAddr1(myProps.memberRec.title);
-			setEmurAddr2(myProps.memberRec.lastName);
-			setEmurAddr3(myProps.memberRec.firstName);
-			setEmurAddr4(myProps.memberRec.middleName);
-			setEmurAddr5(myProps.memberRec.alias)
-			setEmurAddr6(myProps.memberRec.relation);
-			setEmurAddr7(myProps.memberRec.gender)
-			setEmurAddr8(myProps.memberRec.emsStatus)
-			setEmurAddr9(myProps.memberRec.bloodGroup);
-			setEmurAddr11(myProps.memberRec.mobile);
-			setEmurAddr12(myProps.memberRec.mobile1);
-			var xxx = decrypt(myProps.memberRec.email);
+      
+      // If reapplied then application record will be available
+      var tmpMemberRec = myProps.memberRec;
+      if (myProps.applicationRec) {
+         //console.log(myProps.applicationRec);
+         var tmpData = JSON.parse(myProps.applicationRec.data);
+         console.log(tmpData);
+         tmpMemberRec = tmpData.memberRec; 
+		} 
+      myHeader = (myProps.mode == "ADD") ? "Add new family member" : `Edit details of ${getMemberName(tmpMemberRec)}`;
+      setEmurAddr2(tmpMemberRec.lastName);
+      if ((myProps.mode != "ADD") || myProps.applicationRec)  {
+			setEmurAddr1(tmpMemberRec.title);
+			setEmurAddr2(tmpMemberRec.lastName);
+			setEmurAddr3(tmpMemberRec.firstName);
+			setEmurAddr4(tmpMemberRec.middleName);
+			setEmurAddr5(tmpMemberRec.alias)
+			setEmurAddr6(tmpMemberRec.relation);
+			setEmurAddr7(tmpMemberRec.gender)
+			setEmurAddr8(tmpMemberRec.emsStatus);
+         setEmurAddr9(tmpMemberRec.bloodGroup == '' ? 'NotKnown' : tmpMemberRec.bloodGroup);
+			setEmurAddr11(tmpMemberRec.mobile);
+			setEmurAddr12(tmpMemberRec.mobile1);
+			var xxx = decrypt(tmpMemberRec.email);
 			if (xxx === "-") xxx = "";
 			setEmurAddr13(xxx);
-			setEmurDate1(moment(myProps.memberRec.dob));
-			setEmurDate2(moment(myProps.memberRec.dateOfMarriage));
-			setIsMemberHod(myProps.memberRec.mid === myProps.hodMid);
+			setEmurDate1(moment(tmpMemberRec.dob));
+			setEmurDate2(moment(tmpMemberRec.dateOfMarriage));
+			setIsMemberHod(tmpMemberRec.mid === myProps.hodMid);
 			// Office details
-			setEmurAddr10(myProps.memberRec.occupation);
-			setEducation(myProps.memberRec.education);
-			setCompany(myProps.memberRec.officeName);
-			setOfficePhone(myProps.memberRec.officePhone);
+			setEmurAddr10(tmpMemberRec.occupation);
+			setEducation(tmpMemberRec.education);
+			setCompany(tmpMemberRec.officeName);
+			setOfficePhone(tmpMemberRec.officePhone);
 			
 			
-			getAllMembers(myProps.memberRec.hid, myProps.memberRec.spouseMid);
+			getAllMembers(tmpMemberRec.hid, tmpMemberRec.spouseMid);
 			//console.log(myProps.memberRec.dob);
 			
 		}
@@ -267,7 +272,7 @@ async function handleMemberAddEditSubmit() {
 	// update personal details
 	tmpRec["relation"] = emurAddr6;
 	tmpRec["gender"] = emurAddr7;
-	tmpRec["bloodGroup"] = emurAddr9;
+	tmpRec["bloodGroup"] = (emurAddr9 !== 'NotKnown') ? emurAddr9 : '' ;
 	// other details
 	tmpRec["mobile"] = emurAddr11;
 	tmpRec["mobile1"] = emurAddr12;
@@ -306,16 +311,14 @@ async function handleMemberAddEditSubmit() {
 		myStatus = STATUS_INFO.ERROR;
 	}
 	var returnStatus = {status: myStatus,  msg: myMsg};
-	sessionStorage.setItem("family_personal_returnstatus", JSON.stringify(returnStatus));
-	sessionStorage.setItem("family_currentSelection", myProps.calledFrom);
-	setTab(process.env.REACT_APP_FAMILY);
-	//myProps.onReturn.call(this, {status: myStatus,  msg: myMsg});
+	sessionStorage.setItem(myProps.applicationRec ? "application_returnstatus" : "family_personal_returnstatus", JSON.stringify(returnStatus));
+	//notreq sessionStorage.setItem("family_currentSelection", myProps.calledFrom);
+	setTab(myProps.calledFrom);
 	return;
 }
 
 function handleCancel() {
-	sessionStorage.setItem("family_currentSelection", myProps.calledFrom);
-	setTab(process.env.REACT_APP_FAMILY);
+	setTab(myProps.calledFrom);
 }
 
 return (
@@ -419,7 +422,7 @@ return (
 						timeFormat={false} 
 						initialValue={emurDate1}
 						value={emurDate1}
-						dateFormat="DD/MM/yyyy"
+						dateFormat="DD/MMM/yyyy"
 						isValidDate={disableFutureDt}
 						onClose={setEmurDate1}
 						closeOnSelect={true}

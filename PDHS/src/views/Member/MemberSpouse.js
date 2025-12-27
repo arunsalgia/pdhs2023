@@ -58,10 +58,11 @@ STATUS_INFO,
 
 
 import { 
+   isFamilyLock,
 	getImageName,
 	vsDialog, applicationSuccess,
 	getMemberName,
-	dispAge, getAdminInfo, dateString,
+	dispAge, getAdminInfo, dateString, dateStringMMM,
 	decrypt, dispMobile, dispEmail, disableFutureDt, 
 	showError, showSuccess,
 } from "views/functions.js";
@@ -79,6 +80,7 @@ export default function MemberSpouse(props) {
 	const gClasses = globalStyles();
 	//const alert = useAlert();
 
+   const [hodRec, SetHodRec] = useState(JSON.parse(sessionStorage.getItem("member_hod")));
 	const [memberArray, setMemberArray] = useState(JSON.parse(sessionStorage.getItem("member_members")));
 	//const [directory, setDirectory] = useState(JSON.parse(sessionStorage.getItem("MemberData")));
 	
@@ -309,6 +311,7 @@ export default function MemberSpouse(props) {
 	}
 	
 	function handleDOM(couple) {
+      if (isFamilyLock(hodRec)) return null;
 		//console.log(couple.gMid, couple.bMid);
 		setCoupleRec(couple);
 		setIsTopDrawerOpened("EDITDOM");
@@ -388,7 +391,7 @@ export default function MemberSpouse(props) {
 </TableHead>
 <TableBody>
 		{coupleArray.map( (c, index) => {
-			let myDate = dateString(c.dom);
+			let myDate = dateStringMMM(c.dom);
 			if (myDate === "") myDate = "N.A.";
 			//console.log(c);
 			return (

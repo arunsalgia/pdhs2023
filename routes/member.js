@@ -114,7 +114,7 @@ router.get('/filterdata/:filterInfo', async function (req, res) {
 
 	let myData = await memberGetAll();
  	var clonedArray = _.cloneDeep(myData);
-	myData = clonedArray.filter(x => !x.ceased);
+	myData = clonedArray.filter(x => x.prwsMember && !x.ceased);
 	for (var i=0; i< filterInfo.filterList.length; ++i) {
 		var fItem = filterInfo.filterList[i];
 		switch (fItem.item) {
@@ -213,13 +213,28 @@ router.get('/city/all', async function (req, res) {
   setHeader(res);
   var {fName, mName, lName } = req.params;
 
-	/*console.log("getting list");
+console.log("getting city list");
+	/*
 	let filterQuery;
 	filterQuery = {};
 	filterQuery["ceased"] = false;
 	//console.log(filterQuery);*/
 	
 	let myData = await getHodCityList();
+	sendok(res, myData);
+});
+
+router.get('/location/all', async function (req, res) {
+  setHeader(res);
+  var {fName, mName, lName } = req.params;
+
+	console.log("getting location list");
+	/*let filterQuery;
+	filterQuery = {};
+	filterQuery["ceased"] = false;
+	//console.log(filterQuery);*/
+
+   var myData = await M_Hod.find({}, {hid: 1, suburb: 1, city: 1}).sort({hid: 1})
 	sendok(res, myData);
 });
 

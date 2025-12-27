@@ -41,7 +41,7 @@ export const WEEKSTR = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", 
 export const SHORTWEEKSTR = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 export const MONTHSTR = ["January", "February", "March", "April", "May", "June",
 							"July", "August", "September", "October", "November", "December"];	
-export const SHORTMONTHSTR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oc", "Nov", "Dec"];	
+export const SHORTMONTHSTR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];	
 
 export const HOURSTR = [
 "00", 
@@ -105,7 +105,7 @@ export const MEMBERTITLE = ["Shri", "Smt.", "Mast", "Ms.", "Dr."];
 
 export const GENDER = ["Male", "Female", "Other"];
 
-export const BLOODGROUP = ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"];
+export const BLOODGROUP = ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-", "NotKnown"];
 
 export const MARITALSTATUS = ["Married", "Unmarried", "Widower", "Widow", "Divorcee"];
 

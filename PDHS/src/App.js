@@ -53,7 +53,7 @@ import MemberAddEdit from 'views/Member/MemberAddEdit'
 import TransferMember from 'views/Member/TransferMember'
 import CeasedMember from "views/Member/CeasedMember";
 import MemberMarriage from "views/Member/MemberMarriage";
-
+import MemberNewMemberhsip from "views/Member/MemberNewMemberhsip";
 import MemberEditGotra from "views/Member/MemberEditGotra";
 import MemberEditGeneral from "views/Member/MemberEditGeneral";
 
@@ -199,6 +199,7 @@ function AppRouter() {
   var showLanding = ((typeof myStatus === 'undefined') || (myStatus == null) || (myStatus === ""));
 	//sessionStorage.removeItem("prwsMemberList");
 	//readAllMembers();
+  console.log(sessionStorage.getItem("menuValue") );
   return (
     <Router history={hist}> 
     <UserContext.Provider value={value}>
@@ -216,7 +217,7 @@ function AppRouter() {
         <Grid key="SUBMITMOBILE" container>
         <Grid align="left" item xs={6} sm={6} md={6} lg={6} >	
 					<Typography>
-						<span onClick={handleDashBoard}  className={gClasses.message14} >{"PRWS"}</span>
+						<span onClick={handleDashBoard}  className={gClasses.message14} >{"Home"}</span>
 					</Typography>
         </Grid>
         <Grid align="right" item xs={6} sm={6} md={6} lg={6} >	
@@ -240,6 +241,9 @@ function AppRouter() {
 			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_PJYM) &&
 				<Pjym />
 			}			
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_NEWMEMBERSHIP) &&
+				<MemberNewMemberhsip />
+			}
 			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_FAMILY) &&
 				<Member 
 					hid={Number(sessionStorage.getItem("menuHid"))} 

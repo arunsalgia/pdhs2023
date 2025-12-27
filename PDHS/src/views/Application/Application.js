@@ -86,7 +86,7 @@ import {
 	showError, showSuccess,
 } from "views/functions.js";
 
-import { getMemberName, dateString } from 'views/functions';
+import { getMemberName, dateString, dateStringMMM } from 'views/functions';
 
 //var loginHid, loginMid;
 
@@ -172,9 +172,9 @@ export default function Application(props) {
 		//DefaultFilterCond.adminPermission = hasAnyAdminPermission();
 		getAllApplication(DefaultFilterCond);
 		if ("application_returnstatus" in sessionStorage) {
-			console.log("has return status");
+			//console.log("has return status");
 			var sts = JSON.parse(sessionStorage.getItem("application_returnstatus"));
-			console.log(sts);
+			//console.log(sts);
 			sessionStorage.removeItem("application_returnstatus");
 			handleApplictionEditBack(sts);
 		}
@@ -316,16 +316,17 @@ export default function Application(props) {
 	</TableHead>
 	<TableBody>
 	{applicationArray.map( (a, index) => {
-		let myInfo = "HID: " + a.hid + "<br />";
-		myInfo += "MID: " + a.mid + "<br />";
-		myInfo += "AppId:" + a.id + "<br />";
-		myInfo += "Name:" + a.name + "<br />";
-		myInfo += "Status:" + a.status + "<br />";
+		//let myInfo = "HID: " + a.hid + "<br />";
+		//myInfo += "MID: " + a.mid + "<br />";
+		//myInfo += "AppId:" + a.id + "<br />";
+		//myInfo += "Name:" + a.name + "<br />";
+		//myInfo += "Status:" + a.status + "<br />";
 		//myInfo += "Admin:" + a.adminName + "<br />";
+      //console.log(dateStringMMM(a.date), a.desc);
 		return (
 		<TableRow key={"MEMGRID"+index}  className={((index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} >
 		<TableCell style={{padding: "0px" }} align="center">
-			<Typography className={gClasses.patientInfo2}><span>{dateString(a.date)}</span></Typography>
+			<Typography className={gClasses.patientInfo2}><span>{dateStringMMM(a.date)}</span></Typography>
 		</TableCell>
 		<TableCell style={{padding: "0px" }} align="center">
 			<Typography className={gClasses.patientInfo2}>{a.id}</Typography>

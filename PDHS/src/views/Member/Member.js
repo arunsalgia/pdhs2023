@@ -56,6 +56,7 @@ import {
 	VALUEDIRECTION,
 } from "views/globals.js";
 
+import {setTab, setDisplayPage } from "CustomComponents/CricDreamTabs.js"
 
 var isMember = false;
 
@@ -192,7 +193,10 @@ export default function Member(props) {
 		getDetails(currentHod.hid, 0, direction);
 	}
 	
-	
+	function previousPage() {
+     var prevPageNumber =  parseInt(sessionStorage.getItem("previousPage"), 10);
+     setDisplayPage(prevPageNumber, loginHid, loginMid);
+   }
 	async function setSelection(item) {
 		//setRadioRecord(0);
 		//sessionStorage.setItem("hod", JSON.stringify(currentHod));
@@ -206,16 +210,16 @@ export default function Member(props) {
 	function DisplayFunctionHeader() {
 		return (
 		<Grid className={gClasses.noPadding} key="AllPatients" container align="center">
-			<Grid  item xs={6} sm={3} md={2} lg={2} >	
+			{/*<Grid  item xs={6} sm={3} md={2} lg={2} >	
 				<VsButton align="center" name="Prev. Family"  onClick={() => getNewFamily(VALUEDIRECTION.previous) } />
-			</Grid>
+   </Grid>*/}
 			<DisplayFunctionItem item="General" />
 			<DisplayFunctionItem item="Personal" />
 			<DisplayFunctionItem item="Office" />
 			<DisplayFunctionItem item="Spouse" />
-			<Grid  item xs={6} sm={3} md={2} lg={2} >	
+			{/*<Grid  item xs={6} sm={3} md={2} lg={2} >	
 				<VsButton align="center" name="Next. Family"  onClick={() => getNewFamily(VALUEDIRECTION.next) } />
-			</Grid>
+</Grid>*/}
 		</Grid>	
 	)}
 	
@@ -237,7 +241,9 @@ export default function Member(props) {
 	
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
-	<DisplayPageHeader headerName={"Family details of " + currentHod.hid} />
+   <DisplayPageHeader headerName={"Family details"} 
+			button1={<VsButton style={{marginRight: "10px" }}  name="Back" onClick={previousPage} />}
+		/>
 	<DisplayFunctionHeader />
 	{(currentSelection === "General") &&
 		<MemberGeneral  isMember={isMember}  />

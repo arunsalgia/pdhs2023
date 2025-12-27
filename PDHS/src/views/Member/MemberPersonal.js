@@ -70,7 +70,8 @@ import {
 
 
 import { 
-  displayType, getWindowDimensions,
+   isFamilyLock,
+   displayType, getWindowDimensions,
 	decrypt, dispMobile, dispEmail, disableFutureDt,
 	isMobile, 
 	dateString,
@@ -83,6 +84,7 @@ import {
 	applicationSuccess,
 	showSuccess, showError, showInfo,
 	callYesNo,
+   canUpgradeHumad, canUpgradePjym,
 } from "views/functions.js";
 
 import SplitFamily from "views/Member/SplitFamily";
@@ -115,6 +117,7 @@ const funCodeTable = [
 {fun: APPLICATIONTYPES.marriage, 				code: process.env.REACT_APP_FAMILY_PERSONAL_MARRIAGE},
 // Managed locally. No page required for this {fun: APPLICATIONTYPES.unMarriage, 			code: process.env.REACT_APP_FAMILY_PERSONAL_UNMARRIAGE},
 {fun: APPLICATIONTYPES.memberCeased, 		code: process.env.REACT_APP_FAMILY_PERSONAL_CEASED},
+{fun: APPLICATIONTYPES.humadUpgrade, 					code: process.env.REACT_APP_HUMAD_UPGRADE},
 ];
 
 
@@ -261,7 +264,7 @@ export default function MemberPersonal(props) {
 
 	// move up / down member 
 	async function handleScrollUpMember(memRec) {
-		//handleMemPerContextMenuClose();
+		if (isFamilyLock(hodRec)) return;
 		//console.log(radioMid);
 		//let index = memberArray.findIndex(x => x.mid === memRec.mid);
 		//let tmpArray = [].concat(memberArray);
@@ -280,7 +283,7 @@ export default function MemberPersonal(props) {
 	}
 
 	async function handleScrollDownMember(memRec) {
-		//handleMemPerContextMenuClose();
+		if (isFamilyLock(hodRec)) return;
 		//let index = radioRecord;
 		//let index = memberArray.findIndex(x => x.mid === radioMid);
 		//let tmpArray = [].concat(memberArray);
@@ -318,9 +321,11 @@ function DisplayPersonalInformation() {
 	)}
 
 
+
  
 	function MemberPersonalContextMenu() {
 		//console.log(contextParams);
+      if (isFamilyLock(hodRec)) return null;
 		var myStyle={top: `${contextParams.y}px`, left: `${contextParams.x}px` };
 		//console.log(myStyle);
 		//console.log(newMenuRef);
@@ -333,6 +338,7 @@ function DisplayPersonalInformation() {
 		let isFamilyMember = (memberArray[0].hid === loginHid);
 		let admin = ((adminInfo & (ADMIN.superAdmin | ADMIN.prwsAdmin)) !== 0);
 		let isEligible = isEligibleForMarriage(memberRecord);
+      var humadUpgradeAllowed = canUpgradeHumad(memberRecord);
 		//console.log(newMenuRef);
 	return(
 	<div id="MEMPERSMENU" ref={newMenuRef} className='absolute z-20' style={myStyle}>
@@ -380,7 +386,11 @@ function DisplayPersonalInformation() {
 		</MenuItem>
 		<MenuItem disabled={!isFamilyMember && !admin} onClick={() => {handleMemPerContextMenuClose(); ceasedMember(memberRecord); } } >
 			<Typography>Ceased</Typography>
-	</MenuItem>
+      </MenuItem>
+		<Divider />
+		<MenuItem disabled={!humadUpgradeAllowed} onClick={() => { handleMemPerContextMenuClose(); upgradeHumad(memberRecord); } }>
+			<Typography>Humad Membership</Typography>
+		</MenuItem>
 	</Menu>	
 	</div>
 	)}
@@ -474,6 +484,13 @@ function DisplayPersonalInformation() {
 		//setIsDrawerOpened("CEASED");
 	}
 
+ 	function upgradeHumad(m) {
+      //sessionStorage.setItem("pjymFilter", JSON.stringify(filterData));
+      //handlePrwsContextMenuClose();
+      setSelMember(m);
+      selectCaller(APPLICATIONTYPES.humadUpgrade, "HumadUpgrade", null, null, m);
+	}	
+   
 	function handleCeasedMemberBack(sts) {
 		if (sts.status === STATUS_INFO.ERROR) 
 			showError(sts.msg); 
@@ -544,6 +561,7 @@ function DisplayPersonalInformation() {
 	/// Add new member or edit member
 	function handlePersonalAdd() {
 		//setSelMember(null);
+      if (isFamilyLock(hodRec)) return;
 		setSelMember({hid: memberArray[0].hid, mid: 0, lastName: memberArray[0].lastName, firstName: ""});
 		selectCaller(APPLICATIONTYPES.addMember, "ADD", memberArray, hodRec, {hid: memberArray[0].hid, lastName: memberArray[0].lastName, firstName: ""});
 		//setIsDrawerOpened("ADD");
@@ -584,30 +602,43 @@ function DisplayPersonalInformation() {
 	
 	
 	function selectCaller(funCode, mode, memberList, hodRecord, memberRecord) {
-		var myFun = funCodeTable.find(x => x.fun === funCode);
-		if (myFun) {
-			var myData = JSON.stringify({
-				calledFrom: "Personal",
-				mode: mode,
-				memberList: memberList,
-				hodRec: hodRecord,
-				hodMid: hodRecord.mid,
-				memberRec: memberRecord,
-				selectedMid:  memberRecord.mid
-			});
-			sessionStorage.setItem("family_personal_props", myData);
-			//sessionStorage.setItem("family_currentSelection", "Personal");
-			setTab(myFun.code);
-		}
-		else {
-			setIsDrawerOpened(mode);
-		}
+      if (isFamilyLock(hodRecord)) return;
+      var myFun = funCodeTable.find(x => x.fun === funCode);
+      if (myFun) {
+         if (myFun.fun === APPLICATIONTYPES.humadUpgrade) {
+            var myData = JSON.stringify({
+            calledFrom: process.env.REACT_APP_FAMILY,
+            memberRec: memberRecord,
+            humadRec: null,
+            mode: mode,
+            hodMid: 0,
+            selectedMid:  memberRecord.mid
+            });
+            sessionStorage.setItem("humad_props", myData);          
+         } else {
+            var myData = JSON.stringify({
+               calledFrom: process.env.REACT_APP_FAMILY,
+               mode: mode,
+               memberList: memberList,
+               hodRec: hodRecord,
+               hodMid: hodRecord.mid,
+               memberRec: memberRecord,
+               selectedMid:  memberRecord.mid,
+               applicationRec: null
+            });
+            sessionStorage.setItem("family_personal_props", myData);
+         }
+         setTab(myFun.code);
+      }
+      else {
+         setIsDrawerOpened(mode);
+      }
 	}
 	
 	//console.log(isDrawerOpened);
 	return (
 	<div className={gClasses.webPage} align="center" key="main">
-	<Typography align="right" style={{paddingRight: "10px"}}  className={gClasses.patientInfo2Blue} onClick={handlePersonalAdd} >Add Member</Typography>
+	<Typography align="right" style={{paddingRight: "10px"}} className={gClasses.patientInfo2Blue} onClick={handlePersonalAdd} >Add Member</Typography>
 	{/*<DisplayPersonalInformation />*/}
 	<Box key="BOXPRWSFILTERTABLE"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
 	<TableContainer>

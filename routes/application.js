@@ -8,6 +8,7 @@ const {
 const { 
 	memberGetByMidOne, memberUpdateOne,
 	memberGetByHidMany,memberUpdateMany,
+   set_hod_applock, clear_hod_applock,
 } = require('./dbfunctions'); 
 
 var router = express.Router();
@@ -181,6 +182,11 @@ router.get('/delete/:editorMid/:applicationId', async function (req, res) {
 	
 	await M_Application.deleteOne({id: applicationId});
 
+   // Now remove the family lock
+   var tmp = JSON.parse(aRec.data);
+   await clear_hod_applock(tmp.hid);
+   
+
 	//console.log(aRec);
 	let myLogRec = new M_PrwsLog();
 	myLogRec.date = new Date();
@@ -235,6 +241,10 @@ router.get('/editfamilydetails/:editor_hodmid/:editor_mid/:appData', async funct
   setHeader(res);
 	var {editor_mid, editor_hodmid, appData } = req.params;
 	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.editGeneral, OWNER.prws);	
+
+   // set the family lock
+   var xxx = JSON.parse(appData);
+   await set_hod_applock(xxx.hid, myRec.id);   
 	sendok(res, myRec);
 });
 
@@ -242,6 +252,10 @@ router.get('/updategotra/:editor_hodmid/:editor_mid/:appData', async function (r
   setHeader(res);
 	var {editor_mid, editor_hodmid, appData } = req.params;
 	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.editGotra, OWNER.prws);	
+
+   // set the family lock
+   var xxx = JSON.parse(appData);
+   await set_hod_applock(xxx.hid, myRec.id);   
 	sendok(res, myRec);
 });
 
@@ -257,6 +271,10 @@ router.get('/ceased/:editor_hodmid/:editor_mid/:appData', async function (req, r
   setHeader(res);
 	var {editor_hodmid, editor_mid, appData } = req.params;
 	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.memberCeased, OWNER.prws);	
+
+   // set the family lock
+   var xxx = JSON.parse(appData);
+   await set_hod_applock(xxx.hid, myRec.id);   
 	sendok(res, myRec);
 });
 
@@ -265,6 +283,10 @@ router.get('/marriage/:editor_hodmid/:editor_mid/:appData', async function (req,
   setHeader(res);
 	var {editor_hodmid, editor_mid, appData } = req.params;
 	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.marriage, OWNER.prws);	
+
+   // set the family lock
+   var xxx = JSON.parse(appData);
+   await set_hod_applock(xxx.hid, myRec.id);   
 	sendok(res, myRec);
 });
 
@@ -272,6 +294,10 @@ router.get('/unmarriage/:editor_hodmid/:editor_mid/:appData', async function (re
   setHeader(res);
 	var {editor_hodmid, editor_mid, appData } = req.params;
 	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.unMarriage, OWNER.prws);	
+
+   // set the family lock
+   var xxx = JSON.parse(appData);
+   await set_hod_applock(xxx.hid, myRec.id);   
 	sendok(res, myRec);
 });
 
@@ -280,6 +306,10 @@ router.get('/changedom/:editor_hodmid/:editor_mid/:appData', async function (req
   setHeader(res);
 	var {editor_hodmid, editor_mid, appData } = req.params;
 	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.changeDom, OWNER.prws);	
+
+   // set the family lock
+   var xxx = JSON.parse(appData);
+   await set_hod_applock(xxx.hid, myRec.id);   
 	sendok(res, myRec);
 });
 
@@ -287,6 +317,10 @@ router.get('/newhod/:editor_hodmid/:editor_mid/:appData', async function (req, r
   setHeader(res);
 	var {editor_hodmid, editor_mid, appData } = req.params;
 	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.newHod, OWNER.prws);	
+
+   // set the family lock
+   var xxx = JSON.parse(appData);
+   await set_hod_applock(xxx.hid, myRec.id);   
 	sendok(res, myRec);
 });
 
@@ -294,6 +328,10 @@ router.get('/movemember/:editor_hodmid/:editor_mid/:appData', async function (re
   setHeader(res);
 	var {editor_mid, editor_hodmid, appData } = req.params;
 	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.transferMember, OWNER.prws);	
+
+   // set the family lock
+   var xxx = JSON.parse(appData);
+   await set_hod_applock(xxx.hid, myRec.id);   
 	sendok(res, myRec);
 });
 
@@ -304,7 +342,9 @@ router.get('/addeditpersonal/:editor_hodmid/:editor_mid/:appData', async functio
 	var xxx = JSON.parse(appData);
 	var myRec = await addApplication(editor_hodmid, editor_mid, appData, 
 														(xxx.mode === "ADD") ? APPLICATIONTYPES.addMember : APPLICATIONTYPES.editMember, 
-														OWNER.prws);	
+														OWNER.prws);
+   console.log(xxx.hid);                                         
+   await set_hod_applock(xxx.hid, myRec.id);
 	sendok(res, myRec);
 });
 
@@ -312,6 +352,10 @@ router.get('/editgotra/:editor_hodmid/:editor_mid/:appData', async function (req
   setHeader(res);
 	var {editor_hodmid, editor_mid, appData } = req.params;
 	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.editGotra, OWNER.prws);	
+
+   // set the family lock
+   var xxx = JSON.parse(appData);
+   await set_hod_applock(xxx.hid, myRec.id);   
 	sendok(res, myRec);
 });
 
@@ -333,13 +377,17 @@ router.get('/reject/:id/:adminMid/:comments', async function (req, res) {
 	sendok(res, aRec);
 	await aRec.save();
 	
+   // Now remove the family lock
+   var tmp = JSON.parse(aRec.data);
+   await clear_hod_applock(tmp.hid);
+   
 	// Now Log the approve action.	
 	let myLogRec = new M_PrwsLog();
 	myLogRec.date = new Date();
 	myLogRec.mid = adminMid;
 	myLogRec.name = getMemberName(adminRec, false);
 	myLogRec.desc = "Application " + aRec.id + " rejected by " +  getMemberName(adminRec, false)  + " for \"" + aRec.desc + "\"" ;
-	myLogRec.isAdmin = isAdmin;
+	myLogRec.isAdmin = true; //isAdmin;
 	myLogRec.action = aRec.desc;
 	myLogRec.data = JSON.stringify(aRec);
 	myLogRec.referenceId = aRec.id;
@@ -396,7 +444,7 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
 	myLogRec.mid = adminMid;
 	myLogRec.name = getMemberName(adminRec, false);
 	myLogRec.desc = "Application " + aRec.id + " approved by " +  getMemberName(adminRec, false)  + " for \"" + aRec.desc + "\"" ;
-	myLogRec.isAdmin = isAdmin;
+	myLogRec.isAdmin = true;  //isAdmin;
 	myLogRec.action = aRec.desc;
 	myLogRec.data = JSON.stringify(aRec);
 	myLogRec.referenceId = aRec.id;

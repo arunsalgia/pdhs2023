@@ -80,6 +80,7 @@ import {
 
 
 import { 
+  isFamilyLock,
   displayType, getWindowDimensions,
   isMobile,
 	getAdminInfo,
@@ -282,6 +283,7 @@ export default function MemberOffice(props) {
 	}
 	
 	function selectCaller(funCode, mode, memberList, hodRecord, memberRecord) {
+      if (isFamilyLock(hodRecord)) return;
 		var myFun = funCodeTable.find(x => x.fun === funCode);
 		if (myFun) {
 			var myData = JSON.stringify({
@@ -358,6 +360,7 @@ export default function MemberOffice(props) {
  
   
 	function MemberOfficeContextMenu() {
+      if (isFamilyLock(hodRec)) return null;
 		/*let family = (memberArray[0].hid === loginHid);
 		let admin = ((adminInfo & (ADMIN.superAdmin | ADMIN.prwsAdmin)) !== 0);
 		//console.log(myIndex, family, admin);

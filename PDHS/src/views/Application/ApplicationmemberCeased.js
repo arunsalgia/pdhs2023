@@ -52,11 +52,13 @@ import {
 } from 'views/globals';
 
 import {
+   isFamilyLock,
 	isMobile, getWindowDimensions, displayType, decrypt, encrypt,
 	vsDialog, showError, showSuccess, showInfo,
 	getMemberName,
-	dateString, disableFutureDt,
+	dateString, dateStringMMM, disableFutureDt,
 	hasPRWSpermission, 
+   getPersonelData,
 } from 'views/functions';
 
 import {
@@ -86,6 +88,30 @@ export default function ApplicationMemberCeased() {
 			//console.log(myProps.applicationRec.data);
 	//		setAppdata(JSON.parse(myProps.applicationRec.data));
 	//}, [])
+async function handleReapply() {
+   var tmp = JSON.parse(myProps.applicationRec.data);
+   //console.log(tmp);
+   if (isFamilyLock(tmp.hid)) return;
+
+
+   var persData = await getPersonelData(tmp.hid) ;
+   //console.log(persData);
+   var ceasedMemberRec = persData.familyRecs.find(x => x.mid === tmp.ceasedMid);
+   //console.log(tmp.ceasedMid, ceasedMemberRec);
+   var myData = JSON.stringify({
+      calledFrom: process.env.REACT_APP_APPLICATION,
+      mode: tmp.mode,
+      memberList: persData.familyRecs,
+      hodRec: persData.hodRec,
+      hodMid: persData.hodRec.mid,
+      memberRec: ceasedMemberRec,
+      selectedMid:  ceasedMemberRec.mid,
+      applicationRec: myProps.applicationRec
+   });
+   //console.log(myData);
+   sessionStorage.setItem("family_personal_props", myData);
+   setTab(process.env.REACT_APP_FAMILY_PERSONAL_CEASED);
+}
 
 
 async function handleMemberAddEditSubmit() {
@@ -174,7 +200,7 @@ return (
 		</Box>
 		<br />
 		<DisplayApplicationNameValue name={"Ceased member"} value={appData.ceasedName} style={{paddingTop: "5px" }}  />
-		<DisplayApplicationNameValue name={"Ceased date"} value={dateString(appData.ceasedDate)} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name={"Ceased date"} value={dateStringMMM(appData.ceasedDate)} style={{paddingTop: "5px" }}  />
 		<br />
 	</Accordion>
 	}
@@ -216,6 +242,9 @@ return (
 	{(hasPRWSpermission() && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
 		<YesNoButton title="" yesName="Approve" noName="Reject" yesClick={handleApplicationApprove} noClick={handleApplicationReject} />
 	}
+	{(false && (myProps.applicationRec.status === APPLICATIONSTATUS.rejected) && (sessionStorage.getItem("mid") == myProps.applicationRec.mid)) &&
+		<VsButton align="center" name="Re-Apply" onClick={handleReapply} />
+	}	
 	{((stage === "Approve") || (stage === "Reject")) && 
 		<YesNoButton title={`${stage} Application?`} yesName="Yes" noName="No" yesClick={() => setStage("Remarks") } noClick={() => setStage("INITIAL") } />
 	}

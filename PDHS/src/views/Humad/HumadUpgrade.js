@@ -68,7 +68,7 @@ import {setTab } from "CustomComponents/CricDreamTabs.js"
 
 
 import {
-	HUMADCATEGORY,
+	//HUMADCATEGORY,
 	STATUS_INFO,
 } from 'views/globals';
 
@@ -76,6 +76,7 @@ import {
 	getMemberName,
 	hasPRWSpermission,
 	getHumadMembershipName,
+   getMembershipInfo,
 } from 'views/functions';
 
 const MERGECREATEARRAY = [
@@ -91,8 +92,10 @@ export default function HumadUpgrade() {
 	//const classes = useStyles();
 	const gClasses = globalStyles();
 	const myProps = JSON.parse(sessionStorage.getItem("humad_props"));
-	//console.log(myProps);
-	
+   console.log(myProps);
+	var HUMADCATEGORY = [];
+
+   
 	const [hodRec, setHodRec] = useState(null);
 	const [remarks, setRemarks] = useState("");
 	const [newUpgrade, setNewUpgrade] = useState(myProps.selectedMid);
@@ -149,21 +152,35 @@ export default function HumadUpgrade() {
 	}		
 
 		// Get HOD record
-		getHodRec();
-
-		// Update humad upgrade details
-		
+   async function getMIInfo() {
+      var tmp = await getMembershipInfo();
+      HUMADCATEGORY = tmp.filter(x => x.manch === "Humad");;
+      console.log(HUMADCATEGORY);
 		if (myProps.humadRec) {
+         //console.log(HUMADCATEGORY);
+         var myShortMembership = myProps.humadRec.membershipNumber.substr(0, 1);
+         //console.log(myShortMembership);
+         var shortLevelArray = HUMADCATEGORY.map(e => e.short);
+         //console.log(shortLevelArray);
+         var myIndex = HUMADCATEGORY.map(e => e.short).indexOf(myProps.humadRec.membershipNumber.substr(0, 1));
+         //console.log(myIndex);
 			var myArray = HUMADCATEGORY.slice(0, HUMADCATEGORY.map(e => e.short).indexOf(myProps.humadRec.membershipNumber.substr(0, 1))); 
+         //console.log(myArray);
 			setUpgradeArray(myArray);
-			setNewUpgrade(myArray[myArray.length-1].desc);
+			setNewUpgrade(myArray[0].desc);
 			setRemarks(myProps.humadRec.remarks);
 		}
 		else {
 			// This is for new members ship
+         //console.log(HUMADCATEGORY);
 			setUpgradeArray(HUMADCATEGORY);
-			setNewUpgrade(HUMADCATEGORY[HUMADCATEGORY.length-1].desc);		
+			setNewUpgrade(HUMADCATEGORY[0].desc);		
 		}
+   }
+		getHodRec();
+      getMIInfo();
+		// Update humad upgrade details
+		
 
 	}, [])
 
@@ -231,8 +248,8 @@ async function handlHumadUpgradeSubmit() {
 	var returnStatus = {status: myStatus,  msg: myMsg};
 	sessionStorage.setItem("humad_returnstatus", JSON.stringify(returnStatus));
 	//sessionStorage.setItem("family_currentSelection", myProps.calledFrom);
+   //console.log(myProps);
 	setTab(myProps.calledFrom);
-
 	return;
 
 	
@@ -672,21 +689,20 @@ return (
 	<Typography align="center"  className={gClasses.pdhs_title} >{(myProps.humadRec) ? "Upgrade of Humad Membership" : "New Humad Membership"}</Typography>
 	<Typography align="center"  className={gClasses.pdhs_title} >{getMemberName(myProps.memberRec, false, false)}</Typography>
 	{(myProps.humadRec) &&
-	<div>
-	<Divider style={{ marginTop: "10px", marginBottom: "10px", paddingTop: "1px", backgroundColor: 'black', padding: 'none' }} />
-	<DisplayApplicationName name="Current membership details" value={``}  />
-		<DisplayApplicationNameValue name="Membership" value={getHumadMembershipName(myProps.humadRec.membershipNumber)}  />
-	}
-	<DisplayApplicationNameValue name="Mem. Number" value={`${myProps.humadRec.membershipNumber}`}  />
-	</div>
+   <div>
+      <Divider style={{ marginTop: "10px", marginBottom: "10px", paddingTop: "1px", backgroundColor: 'black', padding: 'none' }} />
+      <DisplayApplicationName name="Current membership details" value={``}  />
+      <DisplayApplicationNameValue name="Membership" value={getHumadMembershipName(myProps.humadRec.membershipNumber)}  />
+      <DisplayApplicationNameValue name="Mem. Number" value={`${myProps.humadRec.membershipNumber}`}  />
+   </div>
 	}	
 	<Divider style={{ marginTop: "10px", marginBottom: "10px", paddingTop: "1px", backgroundColor: 'black', padding: 'none' }} />
 	<DisplayApplicationName name="New membership details" value={``}  />
 	{upgradeArray.map( (u, index) => {
 		return (
 		<Grid key={"BALMEM"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
-		<Grid style={{marginTop: "10px"}}  item xs={6} sm={6} md={6} lg={6} >
-			<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{u.desc}</Typography>
+		<Grid style={{marginTop: "10px"}}  item xs={10} sm={10} md={8} lg={8} >
+			<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{u.desc + (u.fees > 0 ? ` (fees: ${u.fees})` : '')}</Typography>
 		</Grid>	
 		<Grid item xs={2} sm={2} md={2} lg={2} >
 			<VsRadio checked={u.desc == newUpgrade} onClick={() => setNewUpgrade(u.desc)}  />
