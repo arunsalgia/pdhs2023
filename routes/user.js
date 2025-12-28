@@ -19,7 +19,7 @@ const {
 	
 } = require('./dbfunctions');
 
-const SENDCAPTAOVEREMAIL = true;
+const SENDCAPTAOVEREMAIL = false;
 
 
 var _group;
