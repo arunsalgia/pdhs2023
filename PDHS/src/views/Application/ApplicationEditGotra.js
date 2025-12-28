@@ -183,13 +183,13 @@ return (
 	}
 	<br />
 	<DisplayApplicationName name="New Gotra/Caste/Subcaste" value="" style={{paddingTop: "5px" }}  />
-	<DisplayApplicationNameValue name="Gotra" value={appData.newData.gotra} style={{paddingTop: "5px" }}  />
+	<DisplayApplicationNameValue name="Gotra" value={appData.newData.gotra} different={appData.oldData.gotra !== appData.newData.gotra} style={{paddingTop: "5px" }}  />
 	{(!appData.newData.existingGotra) &&
 	<DisplayApplicationName name="(Note that the new gotra is not in gotra database)" value="" style={{paddingTop: "5px" }}  />
 	}
-	<DisplayApplicationNameValue name="Caste" value={appData.newData.caste} style={{paddingTop: "5px" }}  />
+	<DisplayApplicationNameValue name="Caste" value={appData.newData.caste} different={appData.oldData.caste !== appData.newData.caste} style={{paddingTop: "5px" }}  />
 	{(appData.newData.caste === "Humad")  &&
-		<DisplayApplicationNameValue name="SubCaste" value={appData.newData.subCaste} style={{paddingTop: "5px" }}  />	
+		<DisplayApplicationNameValue name="SubCaste" value={appData.newData.subCaste} different={appData.oldData.subCaste !== appData.newData.subCaste}  style={{paddingTop: "5px" }}  />	
 	}
 	</div>
 	}

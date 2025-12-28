@@ -276,7 +276,7 @@ return (
 		{((appData.mode === "EDIT") && !hasNameChanged()) &&
 			<DisplayApplicationName name="No change in name details" value="" style={{paddingTop: "5px" }}  />
 		}
-		<DisplayApplicationNameValue name={`${newTitlePrefix} Name`} value={getMemberName(appData.memberRec, true, true)} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name={`${newTitlePrefix} Name`} value={getMemberName(appData.memberRec, true, true)} different={hasNameChanged()} style={{paddingTop: "5px" }}  />
 		<br />
 	</Accordion>
 	}
@@ -305,13 +305,13 @@ return (
 			<DisplayApplicationName name={`${newTitlePrefix} Personal details`} value="" style={{paddingTop: "5px" }}  />
 		</div>
 		}
-		<DisplayApplicationNameValue name={`Relation`} value={appData.memberRec.relation} style={{paddingTop: "5px" }}  />
-		<DisplayApplicationNameValue name={`Gender`} value={appData.memberRec.gender} style={{paddingTop: "5px" }}  />
-		<DisplayApplicationNameValue name="Blood group" value={appData.memberRec.bloodGroup} style={{paddingTop: "5px" }}  />
-		<DisplayApplicationNameValue name="DOB" value={dateStringMMM(appData.memberRec.dob)} style={{paddingTop: "5px" }}  />
-		<DisplayApplicationNameValue name={`Mobile 1`} value={appData.memberRec.mobile} style={{paddingTop: "5px" }}  />
-		<DisplayApplicationNameValue name={`Mobile 2`} value={appData.memberRec.mobile1} style={{paddingTop: "5px" }}  />
-		<DisplayApplicationNameValue name="Email" value={decrypt(appData.memberRec.email)} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name={`Relation`} value={appData.memberRec.relation} different={appData.oldMemberRec.relation != appData.memberRec.relation} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name={`Gender`} value={appData.memberRec.gender} different={appData.oldMemberRec.gender != appData.memberRec.gender} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name="Blood group" value={appData.memberRec.bloodGroup} different={appData.oldMemberRec.bloodGroup != appData.memberRec.bloodGroup} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name="DOB" value={dateStringMMM(appData.memberRec.dob)} different={appData.oldMemberRec.dob != appData.memberRec.dob} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name={`Mobile 1`} value={appData.memberRec.mobile} different={appData.oldMemberRec.mobile != appData.memberRec.mobile} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name={`Mobile 2`} value={appData.memberRec.mobile1} different={appData.oldMemberRec.mobile1 != appData.memberRec.mobile1} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name="Email" value={decrypt(appData.memberRec.email)} different={appData.oldMemberRec.email != appData.memberRec.email} style={{paddingTop: "5px" }}  />
 		<br />
 	</Accordion>
 	}
@@ -328,7 +328,7 @@ return (
 		}
 		{((appData.mode === "EDIT") && hasOfficeChanged()) &&
 		<div>
-			<DisplayApplicationNameValue name="Eductaion" value={appData.oldMemberRec.education} style={{paddingTop: "5px" }}  />
+			<DisplayApplicationNameValue name="Education" value={appData.oldMemberRec.education} style={{paddingTop: "5px" }}  />
 			<DisplayApplicationNameValue name="Occupation" value={appData.oldMemberRec.occupation} style={{paddingTop: "5px" }}  />
 			<DisplayApplicationNameValue name="Company Name" value={appData.oldMemberRec.officeName} style={{paddingTop: "5px" }}  />
 			<DisplayApplicationNameValue name="Company Phone" value={appData.oldMemberRec.officePhone} style={{paddingTop: "5px" }}  />
@@ -337,10 +337,10 @@ return (
 			<DisplayApplicationName name={`${newTitlePrefix} Office details`} value="" style={{paddingTop: "5px" }}  />
 		</div>
 		}
-		<DisplayApplicationNameValue name="Eductaion" value={appData.memberRec.education} style={{paddingTop: "5px" }}  />
-		<DisplayApplicationNameValue name="Occupation" value={appData.memberRec.occupation} style={{paddingTop: "5px" }}  />
-		<DisplayApplicationNameValue name="Company Name" value={appData.memberRec.officeName} style={{paddingTop: "5px" }}  />
-		<DisplayApplicationNameValue name="Company Phone" value={appData.memberRec.officePhone} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name="Education" value={appData.memberRec.education} different={appData.oldMemberRec.education != appData.memberRec.education} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name="Occupation" value={appData.memberRec.occupation}  different={appData.oldMemberRec.occupation != appData.memberRec.occupation} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name="Company Name" value={appData.memberRec.officeName} different={appData.oldMemberRec.officeName != appData.memberRec.officeName} style={{paddingTop: "5px" }}  />
+		<DisplayApplicationNameValue name="Company Phone" value={appData.memberRec.officePhone} different={appData.oldMemberRec.officePhone != appData.memberRec.officePhone} style={{paddingTop: "5px" }}  />
 		<br />
 	</Accordion>
 	}

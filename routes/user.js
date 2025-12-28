@@ -19,12 +19,8 @@ const {
 	
 } = require('./dbfunctions');
 
-const SENDCAPTAOVEREMAIL = false;
+const SENDCAPTAOVEREMAIL = true;
 
-//const is_Captain = true;
-//const is_ViceCaptain = false;
-//const WITH_CVC  = 1;
-//const WITHOUT_CVC = 2;
 
 var _group;
  
@@ -134,7 +130,9 @@ router.get('/jaijinendra/:myData', async function (req, res, next) {
 	  console.log(`New captha ${myCaptha.captcha}`);
 	  myCaptha.save();
   }
-
+  console.log(myCaptha);
+  console.log(myEmail);
+  
 	var emailMsg = "";
 	var mobMsg = "";
 	if (myEmail !== "") {

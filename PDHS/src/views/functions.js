@@ -1221,7 +1221,7 @@ export async function isFamilyLockByHid(hid, dispMsg=true) {
    return  isFamilyLock(tmpHodRec, dispMsg);
   } 
   else {
-    console.log(`Erro getting Hod record of ${hid}`);
+    console.log(`Error getting Hod record of ${hid}`);
     return true;
   }
 }

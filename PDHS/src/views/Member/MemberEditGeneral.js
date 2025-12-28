@@ -207,6 +207,7 @@ export default function MemberEditGeneral() {
 
 		//let myData  = encodeURIComponent(JSON.stringify({
 		let myData = {
+         hid: hodRec.hid,
 			oldHodRec:  myProps.hodRec,
 			newHodRec: {
 				indianResident: indian,
@@ -228,7 +229,7 @@ export default function MemberEditGeneral() {
 				resPhone2: emurResPhone2
 			}
 		};		//));
-		console.log(myData);
+		//console.log(myData);
       
 		let myMsg = '';
 		let myStatus = STATUS_INFO.SUCCESS;

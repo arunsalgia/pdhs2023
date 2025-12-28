@@ -84,6 +84,7 @@ router.use('/', function(req, res, next) {
   // WalletRes = res;
   setHeader(res);
   if (!db_connection) { senderr(res, DBERROR, ERR_NODB); return; }
+  console.log("at top of applic");
   next('route');
 });
 
@@ -244,6 +245,7 @@ router.get('/editfamilydetails/:editor_hodmid/:editor_mid/:appData', async funct
 
    // set the family lock
    var xxx = JSON.parse(appData);
+   //console.log(xxx);
    await set_hod_applock(xxx.hid, myRec.id);   
 	sendok(res, myRec);
 });
@@ -379,7 +381,6 @@ router.get('/reject/:id/:adminMid/:comments', async function (req, res) {
 	
    // Now remove the family lock
    var tmp = JSON.parse(aRec.data);
-   await clear_hod_applock(tmp.hid);
    
 	// Now Log the approve action.	
 	let myLogRec = new M_PrwsLog();
@@ -398,15 +399,16 @@ router.get('/reject/:id/:adminMid/:comments', async function (req, res) {
 router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
   setHeader(res);
 	var {appId, adminMid,comments } = req.params;
-	return senderr(res, 602, 'Invalid application type');
+	//return senderr(res, 602, 'Invalid application type');
 	
-	//console.log(appId, comments, adminMid);
+	console.log(appId, comments, adminMid);
 
 	let aRec = await M_Application.findOne({id: appId});
 	if (!aRec) return senderr(res, 601, 'Application not found');
 	
 	//var myStatus = {status: false, record: null};
 	var retObject = {status: false};
+   console.log(retObject);
 	switch (aRec.desc) {
 		case APPLICATIONTYPES.editMember:
 			retObject = await approve_editMember(aRec);
@@ -420,9 +422,14 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
 		case APPLICATIONTYPES.editGotra:
 			retObject = await approve_editGotra(aRec);
 			break;
-		case APPLICATIONTYPES.editMember:
-			retObject = await approve_editMember(aRec);
+		case APPLICATIONTYPES.editGeneral:
+			retObject = await approve_editGeneral(aRec);
 			break;
+      case APPLICATIONTYPES.unMarriage:
+			retObject = await approve_unMarriage(aRec);
+			break;   
+         
+         
 		default:
 			return senderr(res, 602, 'Invalid application type');
 	}
@@ -433,11 +440,17 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
 	var adminRec = await memberGetByMidOne(Number(adminMid));	
 	
 	aRec.status = APPLICATIONSTATUS.approved;
+   aRec.approvalDate =new Date();
+	aRec.comments = comments;
+
 	aRec.adminMid = adminRec.mid;
 	aRec.adminName = getMemberName(adminRec, false);
-	aRec.comments = comments;
 	await aRec.save();	
 	
+   // clear lock
+   var appData = JSON.parse(aRec.data);
+   await clear_hod_applock(appData.hid);
+   
 	// Now Log the approve action.	
 	let myLogRec = new M_PrwsLog();
 	myLogRec.date = new Date();
@@ -458,23 +471,29 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
 
 async function approve_editMember(aRec) {
 	var myData = JSON.parse(aRec.data);
-	//console.log(myData);
+
 	var myRec = await memberGetByMidOne(myData.oldMemberRec.mid);
+   if (!myRec) return {status: false};
+   //console.log(myData);
+
 	// Update Name details
 	myRec.title = myData.memberRec.title;
 	myRec.firstName = myData.memberRec.firstName;
 	myRec.lastName = myData.memberRec.lastName;
 	myRec.middleName = myData.memberRec.middleName;
 	myRec.alias = myData.memberRec.alias;
+   
 	// Update personal details
 	myRec.relation = myData.memberRec.relation;
 	myRec.gender = myData.memberRec.gender;
 	myRec.dob = myData.memberRec.dob;
 	myRec.bloodGroup = myData.memberRec.bloodGroup;
+   
 	// Update other details
 	myRec.mobile = myData.memberRec.mobile;
 	myRec.mobile1 = myData.memberRec.mobile1;
 	myRec.email = svrToDbText(myData.memberRec.email);
+   
 	// Office details
 	myRec.occupation = myData.memberRec.occupation;
 	myRec.education = myData.memberRec.education;
@@ -487,104 +506,81 @@ async function approve_editMember(aRec) {
 }
 
 
+async function approve_unMarriage(aRec) {
+	var myData = JSON.parse(aRec.data);
+   console.log(myData);
+   var myRec = await memberGetByMidOne(myData.memberRec.mid);
+   if (!myRec) return {status: false};
+   
+   myRec.emsStatus = 'Unmarried';
+   myRec.spouseMid = 0;
+     
+	//console.log(myRec);
+	await memberUpdateOne(myRec);
+	return {status: true, record: myRec};	
+}
+
+async function approve_editGeneral(aRec) {
+	var myData = JSON.parse(aRec.data);
+   if (myData.newHodRec.newCity) return {status: false};
+   if (myData.newHodRec.newCountry) return {status: false};
+	console.log(myData);   
+   
+	var myRec = await M_Hod.findOne({hid: myData.hid});
+   console.log(myRec);
+	// Update Address details
+   myRec.indianResident = myData.newHodRec.indianResident;
+   myRec.resAddr1 = myData.newHodRec.resAddr1;
+   myRec.resAddr2 = myData.newHodRec.resAddr2;
+   myRec.resAddr3 = myData.newHodRec.resAddr3;
+   myRec.resAddr4 = myData.newHodRec.resAddr4;
+   myRec.resAddr5 = myData.newHodRec.resAddr5;
+   myRec.suburb = myData.newHodRec.suburb;
+   myRec.city = myData.newHodRec.city;
+   myRec.country = myData.newHodRec.country;
+   myRec.pinCode = myData.newHodRec.pinCode;
+   myRec.district = myData.newHodRec.district;
+   myRec.state = myData.newHodRec.state;
+   myRec.resPhone1 = myData.newHodRec.resPhone1;
+   myRec.resPhone2 = myData.newHodRec.resPhone2;
+   myRec.village = myData.newHodRec.village;
+   await myRec.save();
+
+	return {status: true, record: myRec};
+}
+
+
 async function approve_editGotra(appRec) {
 	var appData = JSON.parse(appRec.data);
 	console.log(appData);
 	// First get the HOD record
 	var hodRec = await M_Hod.findOne({hid: appData.hid});
-	if (!hodRec) return 651;
-	
-	if (!appData.newData.existingGotra) {
-		// New gotra. To be added in database
-		return 661;
-	}
-	
+	if (!hodRec) return {status: false};
+	if (!appData.newData.existingGotra) return {status: false};
+
 	hodRec.gotra = appData.newData.gotra;
 	hodRec.caste = appData.newData.caste;
 	hodRec.subCaste = appData.newData.subCaste;
 	await hodRec.save();
 	
 	console.log(hodRec);
-	
-  return {status: true, record: hodRec};
+   return {status: true, record: hodRec};
 }
 
-
-async function org_approve_editMember(aRec) {
-	return {status: false};
-	
-	var myData = JSON.parse(aRec.data);
-	//console.log(myData);
-	var myRec = await memberGetByMidOne(myData.oldMemberRec.mid);
-	// Update Name details
-	if (myData.memberRec.title) {
-		myRec.title = myData.memberRec.title;
-	}
-	if (myData.memberRec.firstName) {
-		myRec.firstName = myData.memberRec.firstName;
-	}
-	if (myData.memberRec.lastName) {
-		myRec.lastName = myData.memberRec.lastName;
-	}	
-	if (myData.memberRec.middleName) {
-		myRec.middleName = myData.memberRec.middleName;
-	}		
-	if (myData.memberRec.alias) {
-		myRec.alias = myData.memberRec.alias;
-	}			
-	// Update personal details
-	if (myData.memberRec.relation) {
-		myRec.relation = myData.memberRec.relation;
-	}			
-	if (myData.memberRec.gender) {
-		myRec.gender = myData.memberRec.gender;
-	}			
-	if (myData.memberRec.dob) {
-		myRec.dob = myData.memberRec.dob;
-	}			
-	if (myData.memberRec.bloodGroup) {
-		myRec.bloodGroup = myData.memberRec.bloodGroup;
-	}			
-	// Update Marital status
-		// to be implemented
-	// Update other details
-	if (myData.memberRec.mobile) {
-		myRec.mobile = myData.memberRec.mobile;
-	}	
-	if (myData.memberRec.mobile1) {
-		myRec.mobile1 = myData.memberRec.mobile1;
-	}	
-	if (myData.memberRec.email) {
-		myRec.email = svrToDbText(myData.memberRec.email);
-	}	
-	// Office details
-	if (myData.memberRec.occupation) {
-		myRec.occupation = myData.memberRec.occupation;
-	}			
-	if (myData.memberRec.education) {
-		myRec.education = myData.memberRec.education;
-	}			
-	if (myData.memberRec.officeName) {
-		myRec.officeName = myData.memberRec.officeName;
-	}			
-	if (myData.memberRec.officePhone) {
-		myRec.officePhone = myData.memberRec.officePhone;
-	}			
-
-	//console.log(myRec);
-	await memberUpdateOne(myRec);
-	return {status: true, record: myRec};
-}
 
 // Member ceased approve
 async function approve_memberCeased(aRec) {
-	return {status: false};
+   //console.log("Hello");
+	
 	var myData = JSON.parse(aRec.data);
-	//console.log(myData);
+	console.log(myData);
 	// Get all the members of the family
 	var otherMembers = await memberGetByHidMany(myData.hid);
+   console.log(otherMembers);
 	// ceased record and other member record
 	var ceasedRec = otherMembers.find(x => x.mid === myData.ceasedMid);
+   console.log(ceasedRec);
+   //return {status: false};
 	otherMembers = _.sortBy(otherMembers.filter(x => x.mid !== myData.ceasedMid), 'order');
 	// if new Hod, then bring it to the top
 	if (myData.newHodMid !== 0) {

@@ -232,6 +232,7 @@ async function clear_hod_applock(hid) {
 
 
 async function update_hod_applock(hid, newLockstate) {
+  //console.log(hid, newLockstate);
   var hodRec = await M_Hod.findOne({hid: hid});
   if (hodRec) {
      hodRec.applockId = newLockstate;  

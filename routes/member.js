@@ -55,6 +55,8 @@ router.get('/count/all/:mid', async function (req, res) {
 		if (adminRec.humadAdmin || adminRec.superAdmin)
 			ownerList.push("HUMAD");
 		
+      console.log(ownerList);
+      
 		applCount += await M_Application.countDocuments({owner: {$in: ownerList }, status: APPLICATIONSTATUS.pending});
 	}
 	else {
@@ -62,7 +64,7 @@ router.get('/count/all/:mid', async function (req, res) {
 	}
 	
 	var myData = {prws: prwsCount, pjym: pjymCount,  humad: humadCount,  family: familyCount, application:  applCount}; 
-	//console.log(myData);
+	console.log(myData);
 	sendok(res, myData);
 });
 

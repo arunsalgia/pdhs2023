@@ -57,130 +57,6 @@ const currencyChar = '₹';
 
 import {setTab, setDisplayPage } from "CustomComponents/CricDreamTabs.js"
 
-/*
-const modelStyles = {
-  content : {
-    top                   : '50%',
-    left                  : '50%',
-    right                 : 'auto',
-    bottom                : 'auto',
-    marginRight           : '-50%',
-    marginBottom          : '-50%',
-    transform             : 'translate(-50%, -50%)',
-    background            : '#000000',
-    color                 : '#FFFFFF',
-    transparent           : false,   
-  }
-};
-
-const useStyles = makeStyles(styles);
-
-const useDashStyles = makeStyles((theme) => ({
-  root: {
-    width: '100%',
-  },
-  heading: {
-    fontSize: theme.typography.pxToRem(15),
-    fontWeight: theme.typography.fontWeightRegular,
-  },
-  th: { 
-    spacing: 0,
-    align: "center",
-    padding: "none",
-    backgroundColor: '#EEEEEE', 
-    color: deepOrange[700], 
-    // border: "1px solid black",
-    fontWeight: theme.typography.fontWeightBold,
-  },
-  td : {
-    spacing: 0,
-    // border: 5,
-    align: "center",
-    padding: "none",
-    height: 10,
-  },
-  cardContent: {
-    // color: theme.palette.getContrastText(deepOrange[500]),
-    backgroundColor: '#18FFFF',   //deepOrange[500],
-    margin: 0,
-    padding: "none",
-    //height: 20,
-  },
-  dashTitleWhite: {
-    color: theme.palette.getContrastText(CardColor),
-    marginTop: "0px",
-    minHeight: "auto",
-    fontWeight: "300",
-    fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
-    marginBottom: "3px",
-    textDecoration: "none",
-    "& small": {
-      // color: grayColor[1],
-      color: theme.palette.getContrastText(CardColor),
-      fontWeight: "400",
-      lineHeight: "1"
-    }
-  },
-  dashCategoryWhite: {
-    color: theme.palette.getContrastText(CardColor),
-    margin: "0",
-    fontSize: "14px",
-    marginTop: "0",
-    marginBottom: "0"
-  },
-  cc0: {
-    color: theme.palette.getContrastText(CardColor),
-    fontWeight: theme.typography.fontWeightBold,
-    fontSize: '14px',
-    margin: theme.spacing(0, 0, 0),
-    padding: "none",
-  },
-  cc1: {
-    // color: theme.palette.getContrastText(deepOrange[500]),
-    fontWeight: theme.typography.fontWeightBold,
-    fontSize: '14px',
-    margin: theme.spacing(0, 0, 0),
-    padding: "none",
-  },
-  cc2: {
-    margin: theme.spacing(0, 0, 0),
-    fontSize: '12px',
-    padding: "none",
-    // color: theme.palette.getContrastText(deepOrange[500]),
-    // fontWeight: theme.typography.fontWeightBold,
-  },
-  modalContainer: {
-    content: "",
-    opacity: 0.8,
-    // background: rgb(26, 31, 41) url("your picture") no-repeat fixed top;
-    // background-blend-mode: luminosity;
-    // also change the blend mode to what suits you, from darken, to other 
-    // many options as you deem fit
-    // background-size: cover;
-    // top: 0;
-    // left: 0;
-    // right: 0;
-    // bottom: 0;
-    // position: absolute;
-    // z-index: -1;
-    // height: 500px;
-  },
-  modalTitle: {
-    color: blue[700],
-    fontSize: theme.typography.pxToRem(20),
-    fontWeight: theme.typography.fontWeightBold,
-  },
-  modalMessage: {
-    //color: blue[700],
-    fontSize: theme.typography.pxToRem(14),
-    //fontWeight: theme.typography.fontWeightBold,
-  },
-  modalbutton: {
-    margin: theme.spacing(2, 2, 2),
-  },
-})); 
-*/
-
 import { 
 	dateString,
 	getMemberName,
@@ -211,7 +87,7 @@ export default function Dashboard() {
 				var myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/count/all/${sessionStorage.getItem("mid")}`;
 				var resp = await axios.get(myUrl);
 				setCountInfoLocal(resp.data);
-				//countInfo = resp.data;
+				console.log(resp.data);
 				setApplMsg(resp.data.application + " application" + ((resp.data.application > 1) ? "s" : ""));
 			}
 			catch (e) {
@@ -344,7 +220,6 @@ export default function Dashboard() {
           <Card key="db_card_ub4" onClick={jumpToFamily} >
             <CardHeader key="db_chdr_ub4" color="info" stats icon>
               <CardIcon color="info">
-							{/*<SportsHandballIcon />*/}
 							<img src={process.env.PUBLIC_URL + 'image/FAMILY.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 							
               </CardIcon>
               <button className={gClasses.dashText} >Family</button>
