@@ -6,6 +6,8 @@ const {
 } = require('./functions'); 
 
 const { 
+   clearMemberListInMemory,
+   getNewHodNumber,
 	memberGetByMidOne, memberUpdateOne,
 	memberGetByHidMany,memberUpdateMany,
    set_hod_applock, clear_hod_applock,
@@ -13,6 +15,23 @@ const {
 
 var router = express.Router();
 
+async function updateNewHidMidInHumad(oldMid, newHid, newMid) {
+   var humadRec = await M_Humad.findOne({mid: oldMid});
+   if (humadRec) {
+     humadRec.hid = newHid;
+     humadRec.mid = newMid;
+     await humadRec.save();
+   }
+}
+
+async function updateNewHidMidInPjym(oldMid, newHid, newMid) {
+   var pjymRec = await M_Pjym.findOne({mid: oldMid});
+   if (pjymRec) {
+     pjymRec.hid = newHid;
+     pjymRec.mid = newMid;
+     await pjymRec.save();
+   }
+}
 
 async function addApplication(editor_hodmid, editor_mid, appData, appDesc, appOwner) {
 	var editorRec = await memberGetByMidOne(Number(editor_mid));
@@ -84,7 +103,7 @@ router.use('/', function(req, res, next) {
   // WalletRes = res;
   setHeader(res);
   if (!db_connection) { senderr(res, DBERROR, ERR_NODB); return; }
-  console.log("at top of applic");
+  //console.log("at top of applic");
   next('route');
 });
 
@@ -399,16 +418,12 @@ router.get('/reject/:id/:adminMid/:comments', async function (req, res) {
 router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
   setHeader(res);
 	var {appId, adminMid,comments } = req.params;
-	//return senderr(res, 602, 'Invalid application type');
-	
-	console.log(appId, comments, adminMid);
+	//console.log(appId, comments, adminMid);
 
 	let aRec = await M_Application.findOne({id: appId});
 	if (!aRec) return senderr(res, 601, 'Application not found');
 	
-	//var myStatus = {status: false, record: null};
 	var retObject = {status: false};
-   console.log(retObject);
 	switch (aRec.desc) {
 		case APPLICATIONTYPES.editMember:
 			retObject = await approve_editMember(aRec);
@@ -428,14 +443,19 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
       case APPLICATIONTYPES.unMarriage:
 			retObject = await approve_unMarriage(aRec);
 			break;   
-         
-         
+      case APPLICATIONTYPES.transferMember:
+			retObject = await approve_transferMember(aRec);
+			break;      
 		default:
-			return senderr(res, 602, 'Invalid application type');
+			retObject = {status: false, error: APPROVE_ERRORS.ERROR602};
+         break;
 	}
 	
-	if (!retObject.status) return senderr(res, 603, 'Error approving data');
-
+	if (!retObject.status) {
+      var error = (retObject.error) ? retObject.error : APPROVE_ERRORS.ERROR603;
+      return senderr(res, error.code, error.desc);
+   }
+   
 	// Update application record
 	var adminRec = await memberGetByMidOne(Number(adminMid));	
 	
@@ -686,6 +706,160 @@ async function approve_newHod(aRec) {
 
 	// All done
 	return {status: true, record: hodRec};
+}
+
+
+// Member ceased approve
+async function approve_transferMember(aRec) {	
+   var humadUpdate =[];
+   var pjymUpdate = [];
+   
+	var myData = JSON.parse(aRec.data);
+	console.log(myData);
+   if (!myData.createNewFamily) return {status: false, error: APPROVE_ERRORS.NOMERGE};  // Currently merge family is not supported
+   
+   // Get all members and hod record
+   var hodRec = await M_Hod.findOne({hid: myData.hid});
+   if (!hodRec) return {status: false, error: APPROVE_ERRORS.NOHODREC}; 
+   
+   // get new family hod record
+   var newHodRec = null;
+   if (myData.createNewFamily)   {
+      newHodRec = new M_Hod();
+      newHodRec.hid = hodRec.hid;
+      newHodRec.mid = hodRec.mid;
+      newHodRec.gotra = hodRec.gotra;
+      newHodRec.village = hodRec.village
+      newHodRec.resAddr1 = hodRec.resAddr1;
+      newHodRec.resAddr2 = hodRec.resAddr2;
+      newHodRec.resAddr3 = hodRec.resAddr3;
+      newHodRec.resAddr4 = hodRec.resAddr4;
+      newHodRec.resAddr5 = hodRec.resAddr5;
+      newHodRec.resAddr6 = hodRec.resAddr6;
+      newHodRec.suburb = hodRec.suburb;
+      newHodRec.city = hodRec.city;
+      newHodRec.pinCode = hodRec.pinCode;
+      newHodRec.district = hodRec.district;
+      newHodRec.state = hodRec.state;
+      newHodRec.resPhone1 = hodRec.resPhone1;
+      newHodRec.resPhone2 = hodRec.resPhone2;
+      newHodRec.caste = hodRec.caste;
+      newHodRec.subCaste = hodRec.subCaste;
+      newHodRec.division = hodRec.division;
+      newHodRec.active = hodRec.active
+      newHodRec.indianResident = hodRec.indianResident
+      newHodRec.country = hodRec.country
+      newHodRec.applock = false;
+      newHodRec.applockId = 0;
+   }
+   else {
+      //get HOD of the merged family
+   }
+
+   var allMembers = await memberGetByHidMany(myData.hid);
+   console.log(allMembers.length);
+   
+   // First get the newFamily
+   var newFamily = allMembers.filter( x => myData.transferMidList.includes(x.mid ) );
+   var balanceFamily = allMembers.filter( x => myData.balanceFamilyMid.includes(x.mid) );
+   
+   // Now update the Balance family.
+   // Start with relation
+   var i = 0;
+   if (myData.balanceFamilyHodMid != hodRec.mid) {
+      console.log("Balance family HOD changed");
+      // Update relation
+      for(i=0; i<myData.balanceFamilyMid.length; ++i) {
+        var memIdx = balanceFamily.findIndex(x => x.mid == myData.balanceFamilyMid[i]);
+        balanceFamily[memIdx].relation = myData.balanceFamilyRelation[i];
+      }
+      // Now bring new hod to the top
+      var topRec = balanceFamily.find(x => x.mid == myData.balanceFamilyHodMid);
+      var remRecs = balanceFamily.filter(x => x.mid != myData.balanceFamilyHodMid);
+      balanceFamily = [topRec].concat(remRecs); 
+      console.log(balanceFamily);
+   }
+   // Now update the order
+   for(i=0; i < balanceFamily.length; ++i) {
+     balanceFamily[i].order = i;
+     console.log(`${balanceFamily[i].firstName} ${balanceFamily[i].mid} ${balanceFamily[i].order} ${balanceFamily[i].relation} `); 
+   }
+   
+   // Update balance family mid in hod record
+   hodRec.mid = balanceFamily[0].mid;
+   console.log(hodRec);
+   
+   // Now update the new family
+   if (myData.createNewFamily) {
+      // get new HID of the new family
+      var brandNewHid = await getNewHodNumber();
+
+      // First update the new relation
+      for(i=0; i<myData.transferMidList.length; ++i) {
+         var memIdx = newFamily.findIndex(x => x.mid == myData.transferMidList[i]);
+         newFamily[memIdx].relation = myData.transferRelation[i];
+      }
+      
+      // Now Bring new Hod to the top
+      var tmp1 = newFamily.find(x => x.mid == myData.newHodMid);
+      var tmp2 = newFamily.filter(x => x.mid != myData.newHodMid);
+      newFamily = [tmp1].concat(tmp2);
+       
+
+      // update Hid, Mid, order and check if Humad / Pjym member
+      for(i=0; i<newFamily.length; ++i) {
+         var newMid = brandNewHid*FAMILYMF + i + 1;
+         
+         // check if Humad member
+         if (newFamily[i].humadMember) {
+            humadUpdate.push({oldMid: newFamily[i].mid, newHid: brandNewHid, newMid: newMid});
+         }
+         // check if Pjym member
+         if (newFamily[i].pjymMember) {
+         pjymUpdate.push({oldMid: newFamily[i].mid, newHid: brandNewHid, newMid: newMid});
+         }
+         
+         newFamily[i].hid = brandNewHid;
+         newFamily[i].mid = newMid;
+         newFamily[i].order = i;
+         console.log(newFamily[i].hid, newFamily[i].firstName, newFamily[i].mid, newFamily[i].order, newFamily[i].relation);
+      }
+      // Update HOD hid and mid in hod record
+      newHodRec.hid = brandNewHid;
+      newHodRec.mid = newFamily[0].mid
+      
+      console.log(newHodRec);
+   }
+   else {
+     // currently merge family not supported 
+   }
+   
+   clearMemberListInMemory();
+   
+	// Save all records starting with  hod records
+   if (myData.createNewFamily) {
+      await newHodRec.save();
+   }
+   await hodRec.save();
+   // Now save members records
+   for(i=0; i<newFamily.length; ++i) {
+      await newFamily[i].save();
+   }
+   for (i=0; i<balanceFamily.length; ++i) {
+      await balanceFamily[i].save();
+   }
+   // now update Humad and Pjym records
+   for(i=0; i < humadUpdate.length; ++i) {
+      await updateNewHidMidInHumad(humadUpdate[i].oldMid, humadUpdate[i].newHid, humadUpdate[i].newMid);
+   }
+   for(i=0; i < pjymUpdate.length; ++i) {
+      await updateNewHidMidInPjym(pjymUpdate[i].oldMid, pjymUpdate[i].newHid, pjymUpdate[i].newMid);
+   }
+   
+   // update hid & mid of new family in Humad and Pjym records
+
+	// All done
+	return {status: true};
 }
 
 

@@ -381,6 +381,9 @@ export const OWNER = {
 	pmm:		"PMM"
 };
 
+export const APPROVE_ERRORS = {
+   NOMERGE: 801,
+}
 export const MAXDISPLAYTEXTROWS=10;
 
 export const ELIGIBLEMARRIAGEYEARS = 21;

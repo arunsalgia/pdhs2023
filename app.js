@@ -577,15 +577,24 @@ APPLICATIONTYPES = {
 	editGeneral:			"Edit Gen. Details",
 	addMember: 				"Add new Member",
 	editMember: 			"Edit Member",
-	memberCeased: 		"Member Ceased",
+	memberCeased: 		   "Member Ceased",
 	spouseDetails: 		"Spouse Details",
 	newHod: 					"New F.Head",
 	transferMember:		"Move members",
 	changeDom: 				"Change DOM",
-	marriage:					"Marriage",
+	marriage:			   "Marriage",
 	unMarriage:				"Change Mar. Sts.",
 	humadUpgrade:			"Humad Upgrade",
 };
+
+APPROVE_ERRORS = {
+   ERROR601:      {code: 601,    desc: "Generic error"},
+   ERROR602:      {code: 602,    desc: "Generic error"},
+   ERROR603:      {code: 603,    desc: "Generic error"},
+   NOHODREC:      {code: 604,    desc: "HOD record not found"},
+   NOMERGE:       {code: 801,    desc: "Currently merge to existing family not supported"},
+   
+}
 
 APPLICATIONSTATUS = {
 	approved:  	"Approved",

@@ -4,11 +4,12 @@ const {
 	sendCricMail, sendCricHtmlMail,
 } = require('./functions'); 
 
-
+const NEWBASEHID = 2000;
 var allMemberlist = [];
-var allHodList = [];
+//var allHodList = [];
 var updateStateInHod = []
 let debugTest = true;
+
 
 
 async function getHodCityList() {
@@ -25,16 +26,16 @@ async function getHodCityList() {
 	}	
 }
 
+function clearMemberListInMemory() {
+   allMemberlist = [];
+}
+
 async function memberGetAll() {
 	
 	//console.log(allMemberlist.length);
 	if (allMemberlist.length === 0) {
 		console.log("Reading member data from mongoose");
 		allMemberlist = await M_Member.find({ceased: false}).sort({lastName: 1, firstName: 1, middleName: 1});
-		//var tmp = allMemberlist.slice(0, 10);
-		//for(var i=0; i<10; ++i) {
-		//	console.log(allMemberlist[i].lastName, allMemberlist[i].middleName, allMemberlist[i].firstName);
-		//}
 		return _.cloneDeep(allMemberlist);
 	}
 	else {
@@ -42,8 +43,14 @@ async function memberGetAll() {
 	}
 }
 
-// get list of members who are hod
+async function getNewHodNumber() {
+	var lastHodRec = await M_Hod.find({}, {hid: 1}).sort({hid: -1}).limit(1);
+   console.log("new hid", lastHodRec);
+   myNum = ((lastHodRec.hid > NEWBASEHID) ? lastHodRec.hid : NEWBASEHID) + 1;
+   return (myNum);
+}
 
+// get list of members who are hod
 async function memberGetHodMembers() {
 	if (allMemberlist.length === 0) await memberGetAll();
 	// Now get hod mid
@@ -245,6 +252,8 @@ async function update_hod_applock(hid, newLockstate) {
 }
 
 module.exports = {
+   clearMemberListInMemory,
+   getNewHodNumber,
 	memberGetAll, memberGetHodMembers,
 	memberAddOne, memberAddMany,
 	memberUpdateOne, memberUpdateMany,
