@@ -400,6 +400,7 @@ router.get('/reject/:id/:adminMid/:comments', async function (req, res) {
 	
    // Now remove the family lock
    var tmp = JSON.parse(aRec.data);
+   await clear_hod_applock(tmp.hid);  
    
 	// Now Log the approve action.	
 	let myLogRec = new M_PrwsLog();
@@ -424,6 +425,8 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
 	if (!aRec) return senderr(res, 601, 'Application not found');
 	
 	var retObject = {status: false};
+   //console.log(aRec.desc);
+   
 	switch (aRec.desc) {
 		case APPLICATIONTYPES.editMember:
 			retObject = await approve_editMember(aRec);
@@ -671,31 +674,31 @@ async function approve_changeMaritalStatus(aRec) {
 
 // Member new Hod approve
 async function approve_newHod(aRec) {
-	return {status: false};
+	var i;
 	var myData = JSON.parse(aRec.data);
 	//console.log(myData);
 	
+   
 	// Get all the members of the family
 	var allMembers = await memberGetByHidMany(myData.hid);
 	
-	// Bring record of HOD on the top
+	// Bring record of HOD on the top and relation will be Self
 	var newHodMemberRec = allMembers.find(x => x.mid === myData.newHodMid);
-	allMembers = [newHodMemberRec].concat(_.sortBy(allMembers.filter(x => x.mid !== myData.newHodMid), 'order'));
-
-	// set correct order for the Family
-	for(var i=0; i<allMembers.length; ++i) {
-		allMembers[i].order = i;
-	}
-
-	// Now set the relation of others
-	for (var i = 0; i<myData.midList.length; ++i) {
-		var tmpRec = allMembers.find(x => x.mid === myData.midList[i]);
-		if (tmpRec.mid !== myData.newHodMid)
-			tmpRec.relation = myData.relationList[i];
-		else
-			tmpRec.relation = 'Self';
-	}
-
+   newHodMemberRec.relation = 'Self';
+   newHodMemberRec.order = 0;
+   //console.log(newHodMemberRec.order, newHodMemberRec.mid, newHodMemberRec.firstName, newHodMemberRec.relation);
+   
+   // Now balance members with new relation and new order
+   var balanceMembersRec = [];
+   for (i=0; i<myData.midList.length; ++i) {
+      var mIdx = allMembers.findIndex( x => x.mid === myData.midList[i] );
+      allMembers[mIdx].relation = myData.relationList[i];
+      balanceMembersRec.push(allMembers[mIdx]);
+      allMembers[mIdx].order = i + 1;
+      //console.log(allMembers[mIdx].order, allMembers[mIdx].mid, allMembers[mIdx].firstName, allMembers[mIdx].relation);
+   }   
+	allMembers = [newHodMemberRec].concat(balanceMembersRec);
+ 
 	// update all member records
 	await memberUpdateMany(allMembers);
 	
@@ -713,6 +716,10 @@ async function approve_newHod(aRec) {
 async function approve_transferMember(aRec) {	
    var humadUpdate =[];
    var pjymUpdate = [];
+   // get new HID of the new family
+   var brandNewHid = await getNewHodNumber();   
+   console.log(brandNewHid);
+   
    
 	var myData = JSON.parse(aRec.data);
 	console.log(myData);
@@ -726,7 +733,7 @@ async function approve_transferMember(aRec) {
    var newHodRec = null;
    if (myData.createNewFamily)   {
       newHodRec = new M_Hod();
-      newHodRec.hid = hodRec.hid;
+      newHodRec.hid = hodRec.brandNewHid;
       newHodRec.mid = hodRec.mid;
       newHodRec.gotra = hodRec.gotra;
       newHodRec.village = hodRec.village
@@ -791,9 +798,8 @@ async function approve_transferMember(aRec) {
    
    // Now update the new family
    if (myData.createNewFamily) {
-      // get new HID of the new family
-      var brandNewHid = await getNewHodNumber();
-
+      
+      
       // First update the new relation
       for(i=0; i<myData.transferMidList.length; ++i) {
          var memIdx = newFamily.findIndex(x => x.mid == myData.transferMidList[i]);
@@ -833,6 +839,7 @@ async function approve_transferMember(aRec) {
    else {
      // currently merge family not supported 
    }
+   //return {status: false, error: APPROVE_ERRORS.NOMERGE};
    
    clearMemberListInMemory();
    

@@ -676,7 +676,7 @@ export default function Prws() {
 				if (m.ceased) return null;		
 				var memberCity = getMyCity(m.hid);
             var memberLocation = getMyLocation(m.hid);
-				console.log(memberLocation);
+				//console.log(memberLocation);
 				//console.log(m.email);
 				return (
 				<PrwsDataRow key={"PERSONALMEMBER"+index} index={index} m={m} dispType={dispType} memberCity={memberCity} memberLocation={memberLocation}

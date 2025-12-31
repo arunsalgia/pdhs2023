@@ -45,8 +45,8 @@ async function memberGetAll() {
 
 async function getNewHodNumber() {
 	var lastHodRec = await M_Hod.find({}, {hid: 1}).sort({hid: -1}).limit(1);
-   console.log("new hid", lastHodRec);
-   myNum = ((lastHodRec.hid > NEWBASEHID) ? lastHodRec.hid : NEWBASEHID) + 1;
+   //console.log("new hid", lastHodRec);
+   myNum = lastHodRec[0].hid + 1;
    return (myNum);
 }
 
