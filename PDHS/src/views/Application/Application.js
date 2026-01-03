@@ -305,6 +305,9 @@ export default function Application(props) {
 		<Typography className={gClasses.patientInfo2Brown} >Description</Typography>
 	</TableCell>
 	<TableCell style={{padding: "2px" }} align="center">
+		<Typography className={gClasses.patientInfo2Brown} >Hod</Typography>
+   </TableCell>
+	<TableCell style={{padding: "2px" }} align="center">
 		<Typography className={gClasses.patientInfo2Brown} >Applicant</Typography>
 		</TableCell>
 	<TableCell style={{padding: "2px" }} align="center">
@@ -323,6 +326,7 @@ export default function Application(props) {
 		//myInfo += "Status:" + a.status + "<br />";
 		//myInfo += "Admin:" + a.adminName + "<br />";
       //console.log(dateStringMMM(a.date), a.desc);
+      //console.log(a);
 		return (
 		<TableRow key={"MEMGRID"+index}  className={((index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} >
 		<TableCell style={{padding: "0px" }} align="center">
@@ -333,6 +337,9 @@ export default function Application(props) {
 		</TableCell>
 		<TableCell style={{padding: "0px" }} align="center">
 			<Typography className={gClasses.patientInfo2}>{a.desc}</Typography>
+		</TableCell>
+		<TableCell style={{padding: "0px" }} align="center">
+			<Typography className={gClasses.patientInfo2}>{a.hodName}</Typography>
 		</TableCell>
 		<TableCell style={{padding: "0px" }} align="center">
 			<Typography className={gClasses.patientInfo2}>{a.name}</Typography>

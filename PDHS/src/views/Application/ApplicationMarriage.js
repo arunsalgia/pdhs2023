@@ -84,7 +84,7 @@ export default function ApplicationMarriage() {
 	const [stage, setStage] = useState("INITIAL");
 	
 	useEffect(() => {
-		console.log(appData);
+		//console.log(appData);
 	}, [])
 
 
@@ -122,20 +122,17 @@ function handleRemarksDone() {
 
 
 async function  handleApplicationApproveConfirm(myRemarks) {
+   var returnStatus = null;
 	try {
 		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
 		let resp = await axios.get(myUrl);
-		var returnStatus = {
-			status: STATUS_INFO.SUCCESS, applicationRec: resp.data, 
-			msg: `Application approved by Admin`
-		};
-		sessionStorage.setItem("application_returnstatus", JSON.stringify(returnStatus));
-		setTab(process.env.REACT_APP_APPLICATION);
-		//myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application approved by Admin`});
-		
+		returnStatus = {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application approved by Admin`};
+      sessionStorage.setItem("application_returnstatus", JSON.stringify(returnStatus));
+      setTab(process.env.REACT_APP_APPLICATION);
+      //myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application approved by Admin`});
 	} catch (e) {
-		console.log(e);
-		showError(`Error approving marriage`);
+		console.log(e.response);
+		showError(e.response.data);
 	}
 }
 
@@ -151,8 +148,8 @@ async function  handleApplicationRejectConfirm(myRemarks) {
 		setTab(process.env.REACT_APP_APPLICATION);
 		//myProps.onReturn.call(this, {status: STATUS_INFO.ERROR, applicationRec: resp.data, msg: `Application rejected by Admin`});	
 	} catch (e) {
-		console.log(e);
-		showError(`Error rejecting marriage`);
+		console.log(e.response);
+		showError(e.response.data);
 	}
 }
 

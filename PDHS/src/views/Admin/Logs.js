@@ -156,23 +156,7 @@ export default function Logs() {
 		}	
 	}
 	
-/*
-	function ShowResisterStatus() {
-		let myMsg = "";
-		switch (registerStatus) {
-			case 0:  myMsg = ""; break;
-			case 1001: myMsg = "Blank City name"; break;
-			case 1002: myMsg = "Duplicate City name"; break;
-			case 1004: myMsg = "City not selected from existing list."; break;
-			default:  myMsg = "Unknown error"; break;
-		}
-		return (
-		<div>
-			<Typography className={(registerStatus != 0) ? gClasses.error : gClasses.nonerror}>{myMsg}</Typography>
-		</div>
-		);
-	}
-*/
+
 	
 	function DisplayLogsHeader() {
 	return (
@@ -188,7 +172,7 @@ export default function Logs() {
 			<Typography className={gClasses.patientInfo2Brown}>Admin</Typography>
 		</TableCell>
 		<TableCell style={{padding: "2px" }} align="center">
-				<Typography className={gClasses.patientInfo2Brown} >Name</Typography>		
+				<Typography className={gClasses.patientInfo2Brown} >Hod Name</Typography>		
 		</TableCell>
 		<TableCell style={{padding: "2px" }} align="left">
 			<Typography style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2Brown} >Description</Typography>		

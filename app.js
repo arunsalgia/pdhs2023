@@ -592,14 +592,19 @@ APPROVE_ERRORS = {
    ERROR602:      {code: 602,    desc: "Generic error"},
    ERROR603:      {code: 603,    desc: "Generic error"},
    NOHODREC:      {code: 604,    desc: "HOD record not found"},
+   INTEST:        {code: 650,    desc: "Rejected for testing"},
+   NOSUPPORT:     {code: 651,    desc: "This feature currently not supported"},
    NOMERGE:       {code: 801,    desc: "Currently merge to existing family not supported"},
-   
+   NONONMEMMARR:  {code: 802,    desc: "Marriage application with non-member spouse currently not supported"},
+   NEWCITY:       {code: 803,    desc: "Application with new city currently not supported"},
+   NEWGOTRA:      {code: 804,    desc: "Application with new gotra currently not supported"},
+   NEWCOUNTRY:    {code: 805,    desc: "Application with new country currently not supported"},
 }
 
 APPLICATIONSTATUS = {
 	approved:  	"Approved",
 	rejected: 	"Rejected",
-	pending: 		"Pending"
+	pending: 	"Pending"
 };
 
 PRWSACTION = {

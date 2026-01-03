@@ -112,17 +112,13 @@ async function  handleApplicationApproveConfirm(myRemarks) {
 			applicationRec: resp.data, 
 			msg: `Application approved and updated by Admin`
 		};
+      sessionStorage.setItem("application_returnstatus", JSON.stringify(returnStatus));
+      setTab(process.env.REACT_APP_APPLICATION);
 	} 
 	catch (e) {
-		console.log(e);
-		returnStatus = {
-			status: STATUS_INFO.ERROR, 
-			applicationRec: null, 
-			msg: `Error updating approval of gotra change`
-		};
+		console.log(e.response);
+		showError(e.response.data);
 	}
-	sessionStorage.setItem("application_returnstatus", JSON.stringify(returnStatus));
-	setTab(process.env.REACT_APP_APPLICATION);
 	//myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application rejected by Admin`});
 }
 

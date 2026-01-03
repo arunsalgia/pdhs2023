@@ -109,6 +109,7 @@ export default function SignIn() {
 			window.sessionStorage.setItem("hid", userData.hid)
 			window.sessionStorage.setItem("mid", userData.mid)
 			window.sessionStorage.setItem("memberRec", JSON.stringify(userData));
+         window.sessionStorage.setItem("loginMemberRec", JSON.stringify(userData));
 			window.sessionStorage.setItem("userMobile", getMemberName(userData, false, false));
 			window.sessionStorage.setItem("userName", getMemberName(userData, false, false));
 			window.sessionStorage.setItem("firstName", userData.firstName );	

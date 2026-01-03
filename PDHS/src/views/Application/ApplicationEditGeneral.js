@@ -135,7 +135,7 @@ async function  handleApplicationApproveConfirm(myRemarks) {
 		
 	} catch (e) {
 		console.log(e);
-		showError(`Error approving edit general`);
+		showError(e.response.data);
 	}
 }
 

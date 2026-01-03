@@ -236,6 +236,7 @@ function handleSubmit() {
 async function handleFinalSubmit() {
 	
 	var myData = {
+      hid: memberRec.hid,
 		memberRec: memberRec,
 		spouseMemberRec: spouseMemberRec,
 		dom: marriageDate,
@@ -271,7 +272,7 @@ async function handleFinalSubmit() {
 	let tmp = encodeURIComponent(JSON.stringify(myData));
 	try {
 		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/marriage/${myProps.hodMid}/${sessionStorage.getItem('mid')}/${tmp}`;
-
+      console.log(myUrl);
 		let resp = await axios.get(myUrl);
 		myMsg = `Successfully applied for marriage. Application reference ${resp.data.id}.`;
 		myStatus = STATUS_INFO.SUCCESS;
@@ -393,181 +394,6 @@ return (
 </div>
 )}
 
-function Junk_Display_select_relation_with_hod() {
-return (	
-<div>
-	<Grid style={{marginTop: "10px" }}key="Display_select_relation_with_hod" className={gClasses.noPadding} container  alignItems="flex-start" >
-		<Grid item xs={8} sm={8} md={8} lg={8} >
-			<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
-		</Grid>	
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<Typography className={gClasses.titleOrange}>{"Relation"}</Typography>
-		</Grid>
-	</Grid>				
-	{memberList.map( (m, index) => {
-			//console.log(m.mid);
-			if (!cbArray.includes(m.mid)) return;
-			var tmpRelation = "";
-			//console.log(mergedOrCreate, getMemberName(m, false, false), relation[index]);
-			if (mergedOrCreate === "CREATE") {
-				tmpRelation = (m.mid === newHod) ? "Self" : relation[index];
-			}
-			else { // for merge family		
-				if (relation[index] === "Self") { 
-					tmpRelation = (m.gender === "Male") ? "Brother" : "Sister";
-				}
-				else
-					tmpRelation = relation[index];
-			}
-			
-			// Select relation list based on Gender
-			var tmpRelationList = RELATION;
-			if (tmpRelation === "Self")        
-				tmpRelationList = SELFRELATION;
-			else if (m.gender === "Male")
-				tmpRelationList = GENTSRELATION;
-			else if (m.gender === "Female")
-				tmpRelationList = LADIESRELATION;
-			else
-				tmpRelationList = RELATION;
-			
-			return (
-				<Grid key={"NEWFAMILYRELATION"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
-				<Grid style={{marginTop: "10px"}}  item xs={7} sm={7} md={7} lg={7} >
-					<Typography style={{marginLeft: "10px", marginTop: "10px" }} className={gClasses.title}>{getMemberName(m, false, false)}</Typography>
-				</Grid>	
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					{/*<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} 
-					options={tmpRelationList} value={tmpRelation} onChange={(event) => { handleNewRelation(event.target.value, index); }} />
-					*/}
-					<Autocomplete
-						disablePortal
-						id={"ORGFAMILYRELATIONSEL"+index}
-						defaultValue={tmpRelation}
-						onChange={(event,values) => { handleNewRelation(values, index); }}
-						style={{paddingTop: "10px" }}
-						options={tmpRelationList}
-						sx={{ width: 300 }}
-						renderInput={(params) => <TextField {...params} />}
-					/>
-				</Grid>
-				</Grid>	
-			)}
-		)}			
-	<br />	
-</div>
-)}
-
-
-function Junk_Display_select_balance_family_relation_with_hod() {
-return (	
-<div>
-	<Grid key="Display_balance_select_relation_with_hod" className={gClasses.noPadding} container  alignItems="flex-start" >
-		<Grid item xs={8} sm={8} md={8} lg={8} >
-			<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
-		</Grid>	
-		<Grid item xs={4} sm={4} md={4} lg={4} >
-			<Typography className={gClasses.titleOrange}>{"Relation"}</Typography>
-		</Grid>
-	</Grid>				
-	<br />
-	{memberList.map( (m, index) => {
-			if (cbArray.includes(m.mid)) return;
-			//console.log(m.mid);
-			var tmpRelation = ( (m.mid === balanceHod)) ? "Self" : relation[index];
-			
-			// Select relation list based on Gender
-			var tmpRelationList = RELATION;
-			if (tmpRelation === "Self")
-				tmpRelationList = SELFRELATION;
-			else if (m.gender === "Male")
-				tmpRelationList = GENTSRELATION;
-			else if (m.gender === "Female")
-				tmpRelationList = LADIESRELATION;
-			else
-				tmpRelationList = RELATION;
-			
-			return (
-				<Grid key={"NEWFAMILYRELATION"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
-				<Grid style={{marginTop: "10px"}}  item xs={7} sm={7} md={7} lg={7} >
-					<Typography style={{marginLeft: "10px", marginTop: "10px" }} className={gClasses.title}>{getMemberName(m, false, false)}</Typography>
-				</Grid>	
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					{/*<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} 
-					options={tmpRelationList} value={tmpRelation} onChange={(event) => { handleNewRelation(event.target.value, index); }} />
-					*/}
-					<Autocomplete
-						disablePortal
-						id={"NEWFAMILYRELATIONSEL"+index}
-						defaultValue={tmpRelation}
-						onChange={(event,values) => { handleNewRelation(values, index); }}
-						style={{paddingTop: "10px" }}
-						options={tmpRelationList}
-						sx={{ width: 300 }}
-						renderInput={(params) => <TextField {...params} />}
-					/>
-				</Grid>
-				</Grid>	
-			)}
-		)}			
-	<br />	
-</div>
-)}
-
-function Junk_isplay_select_hod_for_balance_family() {
-	//console.log(balanceMemberList);
-return (
-<div>
-	<Grid key="SELECTHODHDR" className={gClasses.noPadding} container  alignItems="flex-start" >
-		<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-		<Grid item xs={8} sm={8} md={8} lg={8} >
-			<Typography style={{marginLeft: "10px"}} className={gClasses.titleOrange}>{"Member Name"}</Typography>
-		</Grid>	
-		<Grid item xs={2} sm={2} md={2} lg={2} >
-			<Typography className={gClasses.titleOrange}>{"FamilyHead"}</Typography>
-		</Grid>
-		<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-	</Grid>	
-	{balanceMemberList.map( (m, index) => {
-		//if (!cbArray.includes(m.mid)) return; 
-		return (
-			<Grid key={"BALMEM"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
-			<Grid style={{marginTop: "10px"}}  item xs={8} sm={8} md={8} lg={8} >
-				<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{m.mergedName}</Typography>
-			</Grid>	
-			<Grid item xs={2} sm={2} md={2} lg={2} >
-				<VsRadio checked={m.mid === balanceHod} onClick={() => setBalanceHod(m.mid)}  />
-			</Grid>
-			</Grid>	
-		)}
-	)}	
-</div>
-)}
-
-function junk_getTransferMembers() {
-	var myData = [];
-	for(var i=0; i<memberList.length; ++i) {
-		if (cbArray[i] !== 0) myData.push(memberList[i].firstName);
-	}
-	return myData.join(", ");
-}
-
-function junk_getHodName(midNumber) {
-	//console.log(midNumber);
-	var myRec = memberList.find(x => x.mid === midNumber);
-	//console.log(myRec); 
-	var tmp = (myRec) ? getMemberName(myRec, false, false) : "";
-	//console.log(tmp);
-	return  tmp;
-}
-
-//====
-
-
-function JUnk_DisplayOfficeRelation() {
-return (
-	<Typography>TO be impelmented</Typography>
-)};
 
 function handleCancel() {
 	sessionStorage.setItem("family_currentSelection", "Personal");

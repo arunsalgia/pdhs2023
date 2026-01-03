@@ -7,6 +7,7 @@ const {
 
 const { 
    clearMemberListInMemory,
+   setHumadMemberActiveflag, setPjymMemberActiveflag,
    getNewHodNumber,
 	memberGetByMidOne, memberUpdateOne,
 	memberGetByHidMany,memberUpdateMany,
@@ -33,10 +34,10 @@ async function updateNewHidMidInPjym(oldMid, newHid, newMid) {
    }
 }
 
-async function addApplication(editor_hodmid, editor_mid, appData, appDesc, appOwner) {
+async function addApplication(hodmid, editor_mid, appData, appDesc, appOwner) {
 	var editorRec = await memberGetByMidOne(Number(editor_mid));
-	var editorHodRec = await memberGetByMidOne(Number(editor_hodmid));
-	//console.log(editor_hodmid, editorHodRec);
+	var editorHodRec = await memberGetByMidOne(Number(hodmid));
+	console.log(hodmid, editorHodRec);
 	var justNow = new Date();
 	
 	let aRec = new M_Application();
@@ -57,7 +58,8 @@ async function addApplication(editor_hodmid, editor_mid, appData, appDesc, appOw
 
 	aRec.adminName = '';
 	aRec.comments = '';
-	
+	console.log(aRec);
+   
 	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
 	//console.log(baseid);
 	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
@@ -81,9 +83,9 @@ async function addApplication(editor_hodmid, editor_mid, appData, appDesc, appOw
 	
 	let myLogRec = new M_PrwsLog();
 	myLogRec.date = justNow;
-	myLogRec.mid = editorRec.mid;
+	myLogRec.mid = editorHodRec.mid;
 	myLogRec.name = getMemberName(editorHodRec, false);
-	myLogRec.desc = "Application " + aRec.id + " by " +  getMemberName(editorHodRec, false)  + " for \"" + appDesc + "\"" ;
+	myLogRec.desc = "Application " + aRec.id + " by " +  getMemberName(editorRec, false)  + " for \"" + appDesc + "\"" ;
 	myLogRec.isAdmin = isAdmin;
 	myLogRec.action = appDesc;
 	myLogRec.data = JSON.stringify(aRec);
@@ -189,42 +191,6 @@ router.get('/add/:appData', async function (req, res) {
 	sendok(res, aRec);
 });
 
-router.get('/delete/:editorMid/:applicationId', async function (req, res) {
-  setHeader(res);
-	var {editorMid, applicationId } = req.params;
-	
-	// Create a log entry for the given Application
-	var editorRec = await memberGetByMidOne(Number(editorMid));
-	if (!editorRec) return senderr(res, 601, 'Invalid editor mid');
-	
-	var aRec = await M_Application.findOne({id: applicationId});
-	if (!aRec) return senderr(res, 602, 'Invalid Application Id');
-	
-	await M_Application.deleteOne({id: applicationId});
-
-   // Now remove the family lock
-   var tmp = JSON.parse(aRec.data);
-   await clear_hod_applock(tmp.hid);
-   
-
-	//console.log(aRec);
-	let myLogRec = new M_PrwsLog();
-	myLogRec.date = new Date();
-	myLogRec.mid = editorRec.mid;
-	myLogRec.name = getMemberName(editorRec, false);
-	myLogRec.desc = "Application " + aRec.id + " deleted by " +  getMemberName(editorRec, false) ;
-	myLogRec.isAdmin = true;
-	myLogRec.action = "Delete";
-	myLogRec.data = "";
-	myLogRec.referenceId = aRec.id;
-	myLogRec.status = true;
-	await myLogRec.save();
-
-	
-	sendok(res, "Done");
-});
-
-
 router.get('/junkeditfamilydetails/:editor_mid/:appData', async function (req, res) {
   setHeader(res);
 	var {editor_mid, appData } = req.params;
@@ -307,7 +273,10 @@ router.get('/marriage/:editor_hodmid/:editor_mid/:appData', async function (req,
 
    // set the family lock
    var xxx = JSON.parse(appData);
+   console.log(xxx.memberRec);
    await set_hod_applock(xxx.hid, myRec.id);   
+   // Lock record of Spouse family
+   if (xxx.spouseMemberRec) await set_hod_applock(xxx.spouseMemberRec.hid, myRec.id);   
 	sendok(res, myRec);
 });
 
@@ -381,6 +350,47 @@ router.get('/editgotra/:editor_hodmid/:editor_mid/:appData', async function (req
 });
 
 
+router.get('/delete/:editorMid/:applicationId', async function (req, res) {
+  setHeader(res);
+	var {editorMid, applicationId } = req.params;
+	
+	// Create a log entry for the given Application
+	var editorRec = await memberGetByMidOne(Number(editorMid));
+	if (!editorRec) return senderr(res, 601, 'Invalid editor mid');
+	
+	var aRec = await M_Application.findOne({id: applicationId});
+	if (!aRec) return senderr(res, 602, 'Invalid Application Id');
+	
+	await M_Application.deleteOne({id: applicationId});
+
+   // Now remove the family lock
+   var tmp = JSON.parse(aRec.data);
+   await clear_hod_applock(tmp.hid);
+   
+   // Required for marriage application
+   if (tmp.spouseMemberRec)
+      await clear_hod_applock(tmp.spouseMemberRec.hid);
+
+	//console.log(aRec);
+   var hodRec = await M_Hod.findOne({hid: tmp.hid});
+   var hodMemberRec = await memberGetByMidOne(hodRec.mid);
+	let myLogRec = new M_PrwsLog();
+	myLogRec.date = new Date();
+	myLogRec.mid = hodMemberRec.mid;
+	myLogRec.name = getMemberName(hodMemberRec, false);         // **** This will have HOD name and not editor name
+	myLogRec.desc = "Application " + aRec.id + " deleted by " +  getMemberName(editorRec, false) ;
+	myLogRec.isAdmin = true;
+	myLogRec.action = "Delete";
+	myLogRec.data = "";
+	myLogRec.referenceId = aRec.id;
+	myLogRec.status = true;
+	await myLogRec.save();
+
+	
+	sendok(res, "Done");
+});
+
+
 
 router.get('/reject/:id/:adminMid/:comments', async function (req, res) {
   setHeader(res);
@@ -402,11 +412,16 @@ router.get('/reject/:id/:adminMid/:comments', async function (req, res) {
    var tmp = JSON.parse(aRec.data);
    await clear_hod_applock(tmp.hid);  
    
+   // Required for marriage application
+   if (tmp.spouseMemberRec)
+      await clear_hod_applock(tmp.spouseMemberRec.hid);
+   
 	// Now Log the approve action.	
-	let myLogRec = new M_PrwsLog();
+   var hodRec = await M_Hod.findOne({hid: tmp.hid});
+   var hodMemberRec = await memberGetByMidOne(hodRec.mid);	let myLogRec = new M_PrwsLog();
 	myLogRec.date = new Date();
-	myLogRec.mid = adminMid;
-	myLogRec.name = getMemberName(adminRec, false);
+	myLogRec.mid = hodMemberRec.mid;
+	myLogRec.name = getMemberName(hodMemberRec, false);
 	myLogRec.desc = "Application " + aRec.id + " rejected by " +  getMemberName(adminRec, false)  + " for \"" + aRec.desc + "\"" ;
 	myLogRec.isAdmin = true; //isAdmin;
 	myLogRec.action = aRec.desc;
@@ -449,6 +464,9 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
       case APPLICATIONTYPES.transferMember:
 			retObject = await approve_transferMember(aRec);
 			break;      
+      case APPLICATIONTYPES.marriage:
+			retObject = await approve_marriage(aRec);
+			break;      
 		default:
 			retObject = {status: false, error: APPROVE_ERRORS.ERROR602};
          break;
@@ -473,6 +491,10 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
    // clear lock
    var appData = JSON.parse(aRec.data);
    await clear_hod_applock(appData.hid);
+   
+   // Required for marriage application
+   if (appData.spouseMemberRec)
+      await clear_hod_applock(appData.spouseMemberRec.hid); 
    
 	// Now Log the approve action.	
 	let myLogRec = new M_PrwsLog();
@@ -545,8 +567,8 @@ async function approve_unMarriage(aRec) {
 
 async function approve_editGeneral(aRec) {
 	var myData = JSON.parse(aRec.data);
-   if (myData.newHodRec.newCity) return {status: false};
-   if (myData.newHodRec.newCountry) return {status: false};
+   if (myData.newHodRec.newCity) return {status: false, error: APPROVE_ERRORS.NEWCITY};
+   if (myData.newHodRec.newCountry) return {status: false, error: APPROVE_ERRORS.NEWCOUNTRY};
 	console.log(myData);   
    
 	var myRec = await M_Hod.findOne({hid: myData.hid});
@@ -578,8 +600,8 @@ async function approve_editGotra(appRec) {
 	console.log(appData);
 	// First get the HOD record
 	var hodRec = await M_Hod.findOne({hid: appData.hid});
-	if (!hodRec) return {status: false};
-	if (!appData.newData.existingGotra) return {status: false};
+	if (!hodRec) return {status: false, error: APPROVE_ERRORS.NOHODREC};
+	if (!appData.newData.existingGotra) return {status: false, error: APPROVE_ERRORS.NEWGOTRA};
 
 	hodRec.gotra = appData.newData.gotra;
 	hodRec.caste = appData.newData.caste;
@@ -613,8 +635,15 @@ async function approve_memberCeased(aRec) {
 	
 	// first ceasedRec Update
 	ceasedRec.ceased = true;
+   ceasedRec.humadMember = false;
+   ceasedRec.pjymMember = false;
+   ceasedRec.prwsMember = false;
 	await memberUpdateOne(ceasedRec);
 	
+   // Update Humad and Pjym record if required
+   await setHumadMemberActiveflag(ceasedRec.mid, false);
+   await setPjymMemberActiveflag(ceasedRec.mid, false);
+   
 	// Now set the relation. HOd is always "Self"
 	for (var i = 0; i<myData.midList.length; ++i) {
 		var tmpRec = otherMembers.find(x => x.mid === myData.midList[i]);
@@ -867,6 +896,85 @@ async function approve_transferMember(aRec) {
 
 	// All done
 	return {status: true};
+}
+
+// Member ceased approve
+async function approve_marriage(aRec) {	
+	var myData = JSON.parse(aRec.data);
+	console.log(myData);
+   
+   // get HOD record & member records
+   var hodRec = await M_Hod.findOne({hid: myData.hid});
+   var allMembersRec = await memberGetByHidMany(myData.memberRec.hid);
+   
+   var memberRec = allMembersRec.find(x => x.mid === myData.memberRec.mid);
+   var spouseMemberRec = (myData.spouseMemberRec) ? await memberGetByMidOne(myData.spouseMemberRec.mid) : null;   
+   var humadRec = null;
+  
+   
+   if  (!spouseMemberRec) {
+     // is not a Member
+     return {status: false, error: APPROVE_ERRORS.NONONMEMMARR}; 
+   }
+
+   
+   // if record of spouse is to be added 
+   if (spouseMemberRec) {
+      spouseMemberRec.hid = memberRec.hid;
+      
+      // get new mid for spouse
+      var tmp  = _.sortBy(allMembersRec.filter(x => x.mid < x.hid*FAMILYMF + 50), 'mid').reverse();
+      spouseMemberRec.mid = tmp[0].mid + 1;
+      
+      // now set the order
+      tmp = _.sortBy(allMembersRec, 'order').reverse();
+      spouseMemberRec.order = tmp[0].order + 1;
+      
+      // set marriage and date
+      spouseMemberRec.emsStatus = 'Married';
+      spouseMemberRec.dateOfMarriage = myData.dom;
+      // update spouse Mid
+      spouseMemberRec.spouseMid = memberRec.mid;
+      // update new Name
+      spouseMemberRec.firstName = myData.marriedName.firstName;
+      spouseMemberRec.middleName = myData.marriedName.middleName;
+      spouseMemberRec.lastName = myData.marriedName.lastName;
+      //spouseMemberRec.mergedName = getMemberName(spouseMemberRec, false);
+      
+      // update spouse new relation WRT Hod
+      
+      spouseMemberRec.relation = myData.relation;
+      
+      // Update PRWS membership
+      spouseMemberRec.prwsMember = memberRec.prwsMember;
+
+      if (hodRec.caste != 'Humad') {
+         humadRec = M_Humad.findOne({mid: myData.spouseMemberRec.mid, active: true});
+         if (humadRec) {
+            humadRec.active = false;
+            humadRec.mid = spouseMemberRec.mid;
+         }
+      }
+      
+      //console.log(spouseMemberRec);
+   }
+   
+   // Update marriage details of member
+   memberRec.emsStatus = 'Married';
+   memberRec.dateOfMarriage = myData.dom;
+   memberRec.spouseMid = (spouseMemberRec) ? spouseMemberRec.mid : 0;
+   //console.log(memberRec);
+
+   //return {status: false, error: APPROVE_ERRORS.NOMERGE}; 
+   await memberRec.save();
+   
+   if (spouseMemberRec)
+      await spouseMemberRec.save();
+   
+   if (humadRec)
+      await humadRec.save();
+   
+   return {status: true}; 
 }
 
 

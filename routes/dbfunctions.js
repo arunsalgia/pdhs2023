@@ -251,7 +251,33 @@ async function update_hod_applock(hid, newLockstate) {
   return;
 }
 
+async function setHumadMemberActiveflag(mid, sts) {
+  var humadRec = await M_Humad.findOne({mid: mid});
+  if (humadRec) {
+     humadRec.active = sts;  
+     await humadRec.save();
+  }
+  else {
+   console.log(`Humad record of mid ${mid} not found`);  
+  }
+  return;
+}
+
+
+async function setPjymMemberActiveflag(mid, sts) {
+  var pjymRec = await M_Pjym.findOne({mid: mid});
+  if (pjymRec) {
+     pjymRec.active = sts;  
+     await pjymRec.save();
+  }
+  else {
+   console.log(`Pjym record of mid ${mid} not found`);  
+  }
+  return;
+}
+
 module.exports = {
+   setHumadMemberActiveflag, setPjymMemberActiveflag,
    clearMemberListInMemory,
    getNewHodNumber,
 	memberGetAll, memberGetHodMembers,
