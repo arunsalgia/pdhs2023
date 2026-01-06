@@ -19,7 +19,7 @@ const {
 	
 } = require('./dbfunctions');
 
-const SENDCAPTAOVEREMAIL = false;
+const SENDCAPTAOVEREMAIL = true;
 
 
 var _group;
@@ -131,20 +131,25 @@ router.get('/jaijinendra/:myData', async function (req, res, next) {
 	  myCaptha.save();
   }
   console.log(myCaptha);
-  console.log(myEmail);
+  console.log(`***${myEmail}***`);
   
 	var emailMsg = "";
 	var mobMsg = "";
-	if (myEmail !== "") {
+	if (myEmail !== "-") {
 		var tmpValidTimeOffset = Number(process.env.PASSWORDLINKVALIDTIME);
-		let htmlText = `<div style="background-image: url('https://i.pinimg.com/originals/29/9c/a1/299ca187762b51cb637f29cf7472e574.png');">
-			<h4 style="text-align: left;">&nbsp;</h4>
+		/*let htmlText = `<div style="background-image: url('https://i.pinimg.com/originals/29/9c/a1/299ca187762b51cb637f29cf7472e574.png');">
 			<h4 style="text-align: left;"><strong>Dear Member,</strong></h4>
 			<p>Greetings from Pratapgarh Rajasthan Welfare Samiti</p>
-			<p>Login with OTP ${myCaptha.captcha} &nbsp;</p>
+			<p><span style="text-align: left;">Login with OTP </span><span style="text-align: left;"><strong>${myCaptha.captcha}</strong></span></p>
 			<p>Kindly note that this OTP is valid only for ${process.env.PASSWORDLINKVALIDTIME} minutes.</p>
-			<p>&nbsp;</p>
-			<p><span style="text-align: left;"><strong>Regards,</strong></span><br /><span style="text-align: left;"><strong>for Pratapgarh Rajasthan Welfare Samiti</strong></span></p>
+			<p><span style="text-align: left;"><strong>for Pratapgarh Rajasthan Welfare Samiti</strong></span></p>
+			</div>`*/
+		let htmlText = `<div>
+			<h4 style="text-align: left;"><strong>Dear Member,</strong></h4>
+			<p>Greetings from Pratapgarh Rajasthan Welfare Samiti</p>
+			<p><span style="text-align: left;">Login with OTP </span><span style="text-align: left;"><strong>${myCaptha.captcha}</strong></span></p>
+			<p>Kindly note that this OTP is valid only for ${process.env.PASSWORDLINKVALIDTIME} minutes.</p>
+			<p><span style="text-align: left;"><strong>for Pratapgarh Rajasthan Welfare Samiti</strong></span></p>
 			</div>`
 		
 		if (SENDCAPTAOVEREMAIL) {
@@ -161,8 +166,23 @@ router.get('/jaijinendra/:myData', async function (req, res, next) {
 		var mobMsg = "******" + myMobile.substring(6);
 	}
 	console.log(emailMsg, mobMsg);
-	var tmp = "OTP sent over " + mobMsg + (((mobMsg !== "") && (emailMsg !== "")) ? " and " : "") + emailMsg;
-	
+   
+   var tmp = "";
+   if (mobMsg != "") {
+      if (tmp == "") tmp = "OTP sent over ";
+         tmp += mobMsg;
+   }
+   console.log(tmp);
+   if (emailMsg != "") {
+      if (tmp == "") 
+         tmp = "OTP sent over "; 
+      else
+         tmp += " and ";
+      tmp += emailMsg;
+      //var tmp = "OTP sent over " + mobMsg + (((mobMsg !== "") && (emailMsg !== "")) ? " and " : "") + emailMsg;
+	}
+   console.log(tmp);
+   
   sendok(res, {captcha: myCaptha.captcha, msg: tmp });
 	
 

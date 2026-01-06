@@ -620,13 +620,13 @@ async function approve_memberCeased(aRec) {
 	var myData = JSON.parse(aRec.data);
 	console.log(myData);
 	// Get all the members of the family
-	var otherMembers = await memberGetByHidMany(myData.hid);
-   console.log(otherMembers);
+	var allMembers = await memberGetByHidMany(myData.hid);
+   console.log(allMembers);
 	// ceased record and other member record
-	var ceasedRec = otherMembers.find(x => x.mid === myData.ceasedMid);
+	var ceasedRec = allMembers.find(x => x.mid === myData.ceasedMid);
    console.log(ceasedRec);
    //return {status: false};
-	otherMembers = _.sortBy(otherMembers.filter(x => x.mid !== myData.ceasedMid), 'order');
+	var otherMembers = _.sortBy(allMembers.filter(x => x.mid !== myData.ceasedMid), 'order');
 	// if new Hod, then bring it to the top
 	if (myData.newHodMid !== 0) {
 		var tmp = otherMembers.find(x => x.mid === myData.newHodMid);
@@ -948,13 +948,14 @@ async function approve_marriage(aRec) {
       // Update PRWS membership
       spouseMemberRec.prwsMember = memberRec.prwsMember;
 
-      if (hodRec.caste != 'Humad') {
+      /**if (hodRec.caste != 'Humad') {
          humadRec = M_Humad.findOne({mid: myData.spouseMemberRec.mid, active: true});
          if (humadRec) {
             humadRec.active = false;
             humadRec.mid = spouseMemberRec.mid;
          }
       }
+      **/
       
       //console.log(spouseMemberRec);
    }
