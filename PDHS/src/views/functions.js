@@ -1240,19 +1240,20 @@ export function setCityArray(myArray) {
 }
 
 export async function getHodCityList() {
-	//var cityArray = [];
 	try {
 		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/city/all`;
+      console.log(myUrl)
 		let resp = await axios.get(myUrl);
+      console.log("success");
+      console.log(resp);		
 		return resp.data;		
 	} catch (e) {
-			console.log("Error fetching city data");
-			return [];
-		}			
+      console.log("Error fetching city data");
+      return [];
+   }			
 }
 
 export async function getHodLocationList() {
-	//var cityArray = [];
 	try {
       //console.log("in loc");
 		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/location/all`;

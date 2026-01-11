@@ -134,13 +134,13 @@ router.get('/filterlist/:filterData', async function (req, res) {
   setHeader(res);
 	var { filterData } = req.params;
 	filterData = JSON.parse(filterData);
-	//console.log(filterData);
+	console.log(filterData);
 	var cond = {owner: filterData.owner};
 	if (!filterData.adminPermission)
 		cond['mid'] = filterData.mid;
 	if (filterData.filterBy !== "All")
 		cond['status'] = filterData.filterBy;
-	//console.log(cond);
+
 	
 	let myData = await M_Application.find(cond).sort({id: 1}).skip(filterData.currentPage*filterData.pageSize).limit(filterData.pageSize);
 	let totalCount = await M_Application.countDocuments(cond);
@@ -418,7 +418,9 @@ router.get('/reject/:id/:adminMid/:comments', async function (req, res) {
    
 	// Now Log the approve action.	
    var hodRec = await M_Hod.findOne({hid: tmp.hid});
-   var hodMemberRec = await memberGetByMidOne(hodRec.mid);	let myLogRec = new M_PrwsLog();
+   var hodMemberRec = await memberGetByMidOne(hodRec.mid);	
+   
+   let myLogRec = new M_PrwsLog();
 	myLogRec.date = new Date();
 	myLogRec.mid = hodMemberRec.mid;
 	myLogRec.name = getMemberName(hodMemberRec, false);
@@ -443,6 +445,9 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
    //console.log(aRec.desc);
    
 	switch (aRec.desc) {
+      case APPLICATIONTYPES.addMember:
+         retObject = await approve_addMember(aRec);
+			break;
 		case APPLICATIONTYPES.editMember:
 			retObject = await approve_editMember(aRec);
 			break;
@@ -453,10 +458,17 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
 			retObject = await approve_newHod(aRec);
 			break;
 		case APPLICATIONTYPES.editGotra:
-			retObject = await approve_editGotra(aRec);
+         // now get the prwsmem update info from remarks
+         var ppp = comments.split("ARUNSALGIA");
+         console.log(ppp);
+         comments = ppp[1];  // actual comments
+			retObject = await approve_editGotra(aRec, ppp[0]);
 			break;
 		case APPLICATIONTYPES.editGeneral:
-			retObject = await approve_editGeneral(aRec);
+         var ppp = comments.split("ARUNSALGIA");
+         console.log(ppp);
+         comments = ppp[1];  // actual comments
+			retObject = await approve_editGeneral(aRec, ppp[0]);
 			break;
       case APPLICATIONTYPES.unMarriage:
 			retObject = await approve_unMarriage(aRec);
@@ -466,7 +478,11 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
 			break;      
       case APPLICATIONTYPES.marriage:
 			retObject = await approve_marriage(aRec);
-			break;      
+			break; 
+
+      case APPLICATIONTYPES.changeDom:
+         retObject = await approve_changeDom(aRec);
+			break; 
 		default:
 			retObject = {status: false, error: APPROVE_ERRORS.ERROR602};
          break;
@@ -495,12 +511,16 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
    // Required for marriage application
    if (appData.spouseMemberRec)
       await clear_hod_applock(appData.spouseMemberRec.hid); 
-   
+
+   // get hod Name
+   var hodRec = await M_Hod.findOne({hid: appData.hid});
+   var hodMemberRec = await memberGetByMidOne(hodRec.mid);
+
 	// Now Log the approve action.	
 	let myLogRec = new M_PrwsLog();
 	myLogRec.date = new Date();
-	myLogRec.mid = adminMid;
-	myLogRec.name = getMemberName(adminRec, false);
+	myLogRec.mid = hodMemberRec.mid;
+	myLogRec.name = getMemberName(hodMemberRec, false);
 	myLogRec.desc = "Application " + aRec.id + " approved by " +  getMemberName(adminRec, false)  + " for \"" + aRec.desc + "\"" ;
 	myLogRec.isAdmin = true;  //isAdmin;
 	myLogRec.action = aRec.desc;
@@ -513,6 +533,77 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
 });
 
 // Approval functions
+
+async function approve_addMember(aRec) {
+	var appData = JSON.parse(aRec.data);
+   console.log(appData);
+
+	
+	
+	
+
+	
+	
+   
+   // Get all Member
+   allMembers = await memberGetByHidMany(appData.hid);
+   
+   var myRec = new M_Member();
+   myRec.hid = appData.memberRec.hid;
+   allMembers = _.sortBy(allMembers, 'order').reverse();
+   myRec.order = allMembers[0].order + 1;
+   var tmp  = _.sortBy(allMembers.filter(x => x.mid < x.hid*FAMILYMF + 50), 'mid').reverse();
+   myRec.mid = tmp[0].mid + 1;
+   
+	// Update Name details
+	myRec.title = appData.memberRec.title;
+	myRec.firstName = appData.memberRec.firstName;
+	myRec.lastName = appData.memberRec.lastName;
+	myRec.middleName = appData.memberRec.middleName;
+	myRec.alias = appData.memberRec.alias;
+   
+	// Update personal details
+	myRec.relation = appData.memberRec.relation;
+	myRec.gender = appData.memberRec.gender;
+	myRec.dob = appData.memberRec.dob;
+	myRec.bloodGroup = appData.memberRec.bloodGroup;   
+
+
+	// Update other details
+	myRec.mobile = appData.memberRec.mobile;
+	myRec.mobile1 = appData.memberRec.mobile1;
+	myRec.email = svrToDbText(appData.memberRec.email);
+	myRec.email1 = dbencrypt('-');
+   
+	// Office details
+	myRec.occupation = appData.memberRec.occupation;
+	myRec.education = appData.memberRec.education;
+	myRec.officeName = appData.memberRec.officeName;
+	myRec.officePhone = appData.memberRec.officePhone;
+	myRec.officeAddr = '';
+   
+   myRec.spouseMid = 0;
+   myRec.emsStatus = "Unmarried"
+	myRec.dateOfMarriage = new Date();
+   
+	myRec.educationLevel = '';
+	myRec.educationCategory = '';
+	myRec.educationField = '';
+	
+   myRec.ceased = false;
+	myRec.ceasedDate = new Date();
+   
+   myRec.pjymMember = false;
+	myRec.humadMember = 
+	myRec.prwsMember = false;
+	myRec.pmmMember = false;
+   console.log(myRec);
+
+	await memberUpdateOne(myRec);
+	return {status: true, record: myRec};
+}
+
+
 
 async function approve_editMember(aRec) {
 	var myData = JSON.parse(aRec.data);
@@ -555,17 +646,59 @@ async function approve_unMarriage(aRec) {
 	var myData = JSON.parse(aRec.data);
    console.log(myData);
    var myRec = await memberGetByMidOne(myData.memberRec.mid);
-   if (!myRec) return {status: false};
+   if (!myRec) return {status: false, error: APPROVE_ERRORS.NOMEMRECORD};
+   // If spouse there the also set that as unmarried
+   spouseRec = null;
+   if (myRec.spouseMid > 0) {
+      spouseRec =  await memberGetByMidOne(myRec.mid); 
+      if (!spouseRec) return {status: false, error: APPROVE_ERRORS.NOMEMRECORD};
+   }
    
    myRec.emsStatus = 'Unmarried';
    myRec.spouseMid = 0;
-     
-	//console.log(myRec);
-	await memberUpdateOne(myRec);
+   await memberUpdateOne(myRec);
+   
+   if (spouseRec) {
+      spouseRec.emsStatus = 'Unmarried';
+      spouseRec.spouseMid = 0;
+      await memberUpdateOne(spouseRec);
+   }
+	
 	return {status: true, record: myRec};	
 }
 
-async function approve_editGeneral(aRec) {
+
+async function approve_changeDom(aRec) {
+	var myData = JSON.parse(aRec.data);
+   console.log(myData);
+   
+   // get record of groom (boy)
+   var boyRec = await memberGetByMidOne(myData.groomMid);
+   //console.log(myData.groomMid, boyRec);
+   if (!boyRec) return  {status: false, error: APPROVE_ERRORS.NOMEMRECORD};
+   // get record of bride (girl)
+   var girlRec = await memberGetByMidOne(myData.brideMid);
+   if (!girlRec) return  {status: false, error: APPROVE_ERRORS.NOMEMRECORD};
+   //console.log(girlRec);
+   
+   // Now update the relation
+   boyRec.emsStatus = 'Married';
+   boyRec.spouseMid = myData.brideMid;
+   boyRec.dateOfMarriage = myData.dom;
+   
+   girlRec.emsStatus = 'Married';
+   girlRec.spouseMid = myData.groomMid;
+   girlRec.dateOfMarriage = myData.dom;
+   //console.log("update");
+   
+	await memberUpdateOne(boyRec);
+   await memberUpdateOne(girlRec);
+   //console.log("saved");
+   
+	return {status: true, record: boyRec};	
+}
+
+async function approve_editGeneral(aRec, prwsMem) {
 	var myData = JSON.parse(aRec.data);
    if (myData.newHodRec.newCity) return {status: false, error: APPROVE_ERRORS.NEWCITY};
    if (myData.newHodRec.newCountry) return {status: false, error: APPROVE_ERRORS.NEWCOUNTRY};
@@ -590,42 +723,77 @@ async function approve_editGeneral(aRec) {
    myRec.resPhone2 = myData.newHodRec.resPhone2;
    myRec.village = myData.newHodRec.village;
    await myRec.save();
+   
+   // check PRWS membership is to be updated
+   var allMembers = [];
+   console.log(prwsMem);
+   if (['true', 'false'].includes(prwsMem)) {
+      newPrwsSts = (prwsMem == 'true') ? true : false;
+      console.log(newPrwsSts);
+      allMembers = await memberGetByHidMany(myData.hid);
+      for(var i=0; i<allMembers.length; ++i) {
+         allMembers[i].prwsMember = newPrwsSts;
+      }
+      await memberUpdateMany(allMembers);
+   }
+   else {
+      console.log("No Change ************");
+   }
+  
 
 	return {status: true, record: myRec};
 }
 
 
-async function approve_editGotra(appRec) {
+async function approve_editGotra(appRec, prwsMem) {
 	var appData = JSON.parse(appRec.data);
-	console.log(appData);
+	//console.log(appData);
 	// First get the HOD record
 	var hodRec = await M_Hod.findOne({hid: appData.hid});
 	if (!hodRec) return {status: false, error: APPROVE_ERRORS.NOHODREC};
-	if (!appData.newData.existingGotra) return {status: false, error: APPROVE_ERRORS.NEWGOTRA};
-
+   
+	if (!appData.newData.existingGotra) {
+     // Not existing gotra. Confirm it has been entered manually
+     var tmp = await M_Gotra.findOne({gotra: appData.newData.gotra, enabled: true});
+     if (!tmp) return {status: false, error: APPROVE_ERRORS.NEWGOTRA};
+   }
+   
 	hodRec.gotra = appData.newData.gotra;
 	hodRec.caste = appData.newData.caste;
 	hodRec.subCaste = appData.newData.subCaste;
-	await hodRec.save();
-	
-	console.log(hodRec);
+ 	await hodRec.save(); 
+   
+   // check PRWS membership is to be updated
+   var allMembers = [];
+   if (['true', 'false'].includes(prwsMem)) {
+      newPrwsSts = (prwsMem == 'true') ? true : false;
+      console.log(newPrwsSts);
+      allMembers = await memberGetByHidMany(appData.hid);
+      for(var i=0; i<allMembers.length; ++i) {
+         allMembers[i].prwsMember = newPrwsSts;
+      }
+      await memberUpdateMany(allMembers);
+   }
+   else {
+      console.log("No Change ************");
+   }
+
+	//console.log(hodRec);
    return {status: true, record: hodRec};
 }
 
 
 // Member ceased approve
-async function approve_memberCeased(aRec) {
-   //console.log("Hello");
-	
+async function approve_memberCeased(aRec) {	
 	var myData = JSON.parse(aRec.data);
-	console.log(myData);
+
 	// Get all the members of the family
 	var allMembers = await memberGetByHidMany(myData.hid);
-   console.log(allMembers);
+
 	// ceased record and other member record
 	var ceasedRec = allMembers.find(x => x.mid === myData.ceasedMid);
-   console.log(ceasedRec);
-   //return {status: false};
+   //console.log(ceasedRec);
+
 	var otherMembers = _.sortBy(allMembers.filter(x => x.mid !== myData.ceasedMid), 'order');
 	// if new Hod, then bring it to the top
 	if (myData.newHodMid !== 0) {
@@ -638,7 +806,7 @@ async function approve_memberCeased(aRec) {
    ceasedRec.humadMember = false;
    ceasedRec.pjymMember = false;
    ceasedRec.prwsMember = false;
-	await memberUpdateOne(ceasedRec);
+
 	
    // Update Humad and Pjym record if required
    await setHumadMemberActiveflag(ceasedRec.mid, false);
@@ -653,18 +821,21 @@ async function approve_memberCeased(aRec) {
 			tmpRec.relation = myData.relationList[i];
 	}
 	
+	// Update spouseMid & emsStatus if required
+	if (ceasedRec.spouseMid !== 0) {
+		var tmp = otherMembers.find(x => x.mid === ceasedRec.spouseMid);
+      if (tmp) {
+         tmp.spouseMid = 0;		// SPouse not alive
+         tmp.emsStatus = (tmp.gender === "Female") ? "Widow" : "Widower";
+      }
+	}
+
 	// set order for balance Family
 	for(var i=0; i<otherMembers.length; ++i) {
 		otherMembers[i].order = i;
 	}
 	
-	// UPdate spouseMid & emsStatus if required
-	if (ceasedRec.spouseMid !== 0) {
-		var tmp = otherMembers.find(x => x.mid === ceasedRec.spouseMid);
-		tmp.spouseMid = 0;		// SPouse not alive
-		tmp.emsStatus = (tmp.gender === "Female") ? "Widow" : "Widower";
-	}
-
+	await memberUpdateOne(ceasedRec);
 	// update all members data
 	await memberUpdateMany(otherMembers);
 	

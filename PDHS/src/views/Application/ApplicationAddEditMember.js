@@ -148,10 +148,10 @@ async function handleApplicationReject() {
 }
 
 async function handleApplicationApprove() {
-	if (appData.mode === "ADD") {
-		showError("Approve on add not yet implemented");
-		return;
-	}
+	//if (appData.mode === "ADD") {
+	//	showError("Approve on add not yet implemented");
+	//	return;
+	//}
 		
 	setAction("Approve");
 	setStage("Approve");
@@ -180,12 +180,12 @@ async function  handleApplicationApproveConfirm(myRemarks) {
 		var caller = sessionStorage.getItem("application_caller");
 		sessionStorage.removeItem("application_caller")
 		console.log(caller);
-		//setTab(caller);
-		//myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application approved by Admin`});
+		sessionStorage.setItem("application_returnstatus", JSON.stringify(returnStatus));
+		setTab(process.env.REACT_APP_APPLICATION);
 		
 	} catch (e) {
-		console.log(e);
-		showError(`Error approving Edit personal change`);
+		console.log(e.response);
+		showError(e.response.data);
 	}
 }
 

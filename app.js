@@ -47,7 +47,7 @@ readXlsxFile = require('read-excel-file');
 
 app = express();
 
-console.log(process.env.PRODUCTION);
+//console.log(process.env.PRODUCTION);
 PRODUCTION=(process.env.PRODUCTION.toUpperCase() === "TRUE");   
 WEB=(process.env.WEB.toUpperCase() === "TRUE");   
 console.log("Prod", PRODUCTION);
@@ -592,6 +592,9 @@ APPROVE_ERRORS = {
    ERROR602:      {code: 602,    desc: "Generic error"},
    ERROR603:      {code: 603,    desc: "Generic error"},
    NOHODREC:      {code: 604,    desc: "HOD record not found"},
+   NOMEMRECORD:   {code: 605,    desc: "Member record not found"},
+
+
    INTEST:        {code: 650,    desc: "Rejected for testing"},
    NOSUPPORT:     {code: 651,    desc: "This feature currently not supported"},
    NOMERGE:       {code: 801,    desc: "Currently merge to existing family not supported"},

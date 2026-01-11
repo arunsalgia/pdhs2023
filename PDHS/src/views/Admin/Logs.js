@@ -144,7 +144,7 @@ export default function Logs() {
 		try {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/log/filterlist/${JSON.stringify(fCond)}`;
 			let resp = await axios.get(myUrl);
-			console.log(resp.data);
+			//console.log(resp.data);
 			//var tmp = resp.data.filter(x => !NonViewableActionList.includes(x.action) )
 			///console.log(tmp.length);
 			setLogArray(resp.data.data);
@@ -177,8 +177,8 @@ export default function Logs() {
 		<TableCell style={{padding: "2px" }} align="left">
 			<Typography style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2Brown} >Description</Typography>		
 		</TableCell>
-		<TableCell style={{padding: "2px" }} align="center">
-		</TableCell>
+		{/*<TableCell style={{padding: "2px" }} align="center">
+		</TableCell>*/}
 	</TableRow>
 	</TableHead>
 	)}
@@ -232,43 +232,15 @@ export default function Logs() {
 		<TableCell style={{padding: "0px"}} align="left">
 			<Typography style={{marginLeft: "0px", paddingLeft: "0px" }} className={gClasses.patientInfo2 } >{l.desc}</Typography>		
 		</TableCell>
-		<TableCell style={{padding: "0px"}} align="center">
+		{/*<TableCell style={{padding: "0px"}} align="center">
 			<IconButton disabled={viewDisable}  color="primary" size="small" onClick={() => {viewApplicationInfo(l)}}><VisibilityIcon /></IconButton>			
-		</TableCell>
+		</TableCell>*/}
 		</TableRow>
 		)}
 		)}
 		</TableBody>
 	)}
   
-/*
-	function filterLogs(selection, trange, t1, t2) {
-		//console.log(t1, t2)
-		var tmp = [].concat(logMasterArray);
-		if (trange) {
-			var t1Nor = t1.toDate();
-			var t2Nor = t2.toDate();
-			//console.log(t1Nor, t2Nor);
-			//console.log(compareDate(t1Nor, new Date(tmp[7].date)));
-			if (compareDate(t1Nor, t2Nor) > 0) 
-				tmp = [];
-			else {
-				tmp = tmp.filter(x => compareDate(new Date(x.date), t1Nor) >= 0);
-				tmp = tmp.filter(x => compareDate(new Date(x.date), t2Nor) <= 0);
-			}
-		}
-		switch (selection) {
-			case "NoLogInOut" :
-				tmp = tmp.filter( x => (x.action !== "Login") && (x.action !== "Logout"));
-				break;
-			case "OnlyLogInOut" :
-				tmp = tmp.filter( x => (x.action === "Login") || (x.action === "Logout"));
-				break;
-		}
-		setCurrentPage(0);
-		setLogArray(tmp);
-	}
-*/
 	
 	// pagination function 
 	function handleChangePage(event, newPage)  {
@@ -276,7 +248,7 @@ export default function Logs() {
 		
 		var tmp = lodashCloneDeep(filterCond);
 		tmp.currentPage = newPage;
-		console.log(tmp);
+		//console.log(tmp);
 		getAllLogs(tmp);
   };
 
@@ -302,7 +274,7 @@ export default function Logs() {
 		var tmp = lodashCloneDeep(filterCond);
 		tmp.timeRange = newState;
 		tmp.currentPage = 0;
-		console.log(tmp);
+		//console.log(tmp);
 		getAllLogs(tmp);
 
 		//filterLogs(filterBy, newState, time1, time2);

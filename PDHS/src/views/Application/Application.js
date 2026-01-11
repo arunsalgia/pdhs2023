@@ -196,11 +196,10 @@ export default function Application(props) {
 		setFilterCond(filterCond);
 		try {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/filterlist/${JSON.stringify(filterCond)}`;
-			//console.log(hasAnyAdminPermission(), myUrl);
 			let resp = await axios.get(myUrl);
 			setApplicationArray(resp.data.data);
 			setTotalCount(resp.data.totalCount);
-			//setSelection(resp.data, "PRWS", "All");
+			console.log(resp.data);
 		} catch (e) {
 			console.log(e);
 		}	

@@ -42,6 +42,7 @@ import {
   PADSTYLE,
 	MEMBERTITLE, RELATION, SELFRELATION, GENDER, BLOODGROUP, MARITALSTATUS,
 	STATUS_INFO,
+   CASTEOBJ, HUMADSUBCASTEOBJ,
 } from 'views/globals';
 
 import {
@@ -66,6 +67,7 @@ export default function ApplicationEditGotra() {
 	const [remarks, setRemarks] = useState("");
 	const [action, setAction] = useState("");	
 	const [stage, setStage] = useState("INITIAL");
+   const [prwsMem, setPrwsMem] = useState("nochange");
 	
 	//useEffect(() => {
 	//		setAppdata(JSON.parse(myProps.applicationRec.data));
@@ -87,7 +89,31 @@ async function handleApplicationReject() {
 }
 
 async function handleApplicationApprove() {
-	setAction("Approve");
+    console.log(myProps.applicationRec);
+   // change of caste or sub caste get PRWS membership info
+	if ((appData.oldData.caste !== appData.newData.caste) || (appData.oldData.subCaste !== appData.newData.subCaste)) {
+      // Change of caste / sub caste
+      if ((appData.newData.caste == CASTEOBJ.humad) && (appData.newData.subCaste == HUMADSUBCASTEOBJ.dasha)) {
+         // if dasha humad
+         var msg = `Set membership of Pratapgarh Raj. Welfare samiti?`
+         vsDialog("PRWS membership", msg,
+         {label: "Yes", onClick: () => handleApplicationApproveFinal("true") },
+         {label: "No", onClick: () => handleApplicationApproveFinal("false")  }
+         );  
+      }
+      else 
+        handleApplicationApproveFinal("false");
+   }
+   else
+      handleApplicationApproveFinal("nochange");  
+}
+	
+
+
+async function handleApplicationApproveFinal(newPrwsSts) {
+   setPrwsMem(newPrwsSts);
+   console.log(newPrwsSts);
+   setAction("Approve");
 	setStage("Approve");
 }
 
@@ -100,12 +126,14 @@ function handleRemarksDone() {
 		handleApplicationRejectConfirm(myRemarks);
 }
 
-
+   
 async function  handleApplicationApproveConfirm(myRemarks) {
+   // send prwsMem information as part of remarks
+   var finRem = prwsMem + "ARUNSALGIA" + myRemarks;
 	var myTmp = encodeURIComponent(JSON.stringify(myProps.applicationRec));
 	var returnStatus = {};
 	try {
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${finRem}`;
 		let resp = await axios.get(myUrl);
 		returnStatus = {
 			status: STATUS_INFO.SUCCESS, 

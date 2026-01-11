@@ -1792,7 +1792,7 @@ const gClasses = globalStyles();
 var dispType = props.dispType;
 var m = props.m;
 var h = props.h;
-let memDateStr = dateStringMMM(h.membershipDate);
+let memDateStr = (h) ? dateStringMMM(h.membershipDate) : "";
 let index = props.index;
 return (
 	<TableRow key={"MEMGRID"+index}  className={((index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} >
@@ -1808,7 +1808,7 @@ return (
 		<Typography className={gClasses.patientInfo2}>{m.mobile}</Typography>
 	</TableCell>
 	<TableCell style={{padding: "2px" }} align="center" >
-		<Typography className={gClasses.patientInfo2}>{h.membershipNumber}</Typography>
+		<Typography className={gClasses.patientInfo2}>{(h) ? h.membershipNumber : ''}</Typography>
 	</TableCell>
 	{( false && (dispType !== "xs") && (dispType !== "sm") ) &&
 	<TableCell style={{padding: "2px" }} align="center" >
@@ -1822,7 +1822,7 @@ return (
 	}
 	<TableCell style={{padding: "2px" }} align="center" >
 		<Typography>
-		 <span><MoreVertIcon color="primary" size="small" onClick={props.onClick} id={h.id}	 /></span>
+		 <span><MoreVertIcon color="primary" size="small" onClick={props.onClick} id={m.mid} /></span>
 		</Typography>
 	</TableCell>
 </TableRow>

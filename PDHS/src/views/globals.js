@@ -426,3 +426,14 @@ export const INDIANSTATES =
 "Uttarakhand",
 "West Bengal"
 ];
+
+
+export const CASTEOBJ = {
+   humad: "Humad", 
+   nonHumad: "NonHumad"
+};
+
+export const HUMADSUBCASTEOBJ = {
+   dasha: "Dasha", 
+   visha: "Visha"
+};

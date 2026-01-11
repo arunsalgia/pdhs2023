@@ -228,7 +228,7 @@ export default function Humad() {
       
       async function getMIInfo() {
          var tmp = await getMembershipInfo();
-         console.log(tmp);
+         //console.log(tmp);
          setHUMADCATEGORY(tmp.filter(x => x.manch === "Humad"));
       }
 
@@ -312,9 +312,12 @@ export default function Humad() {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/humad/filterdata/${myData}`;
 			let resp = await axios.get(myUrl);
 			setFilterData(myFilterData);
+         //console.log(resp.data);
 			setMemberArray(resp.data.member);
 			setHumadArray(resp.data.humad);
 			setHumadCount(resp.data.totalCount);
+         //console.log(resp.data.member)
+         //console.log(resp.data.humad);
 		} catch (e) {
 			console.log("Error fetching filter member data");
 			showError(`Error fetching member data of page ${pageNumber}`);
@@ -634,22 +637,21 @@ export default function Humad() {
     var myName = tmp.firstName + " " + tmp.lastName;
 		//console.log(contextParams);
 		var myStyle={top: `${contextParams.y}px` , left: `${contextParams.x}px` };
-		//console.log(myStyle);
-		//console.log(menuRef);
-		//anchorEl={grpAnchorEl}
-		//var upgradeAllowed = hasHumadpermission() && tmpHumadRec.membershipNumber.substr(0, 1) !== HUMADCATEGORY[0].short
-
+   
+      var myIndex = 0
+      var shortLevelArray = [];
+      if (tmpHumadRec) {
          var myShortMembership = tmpHumadRec.membershipNumber.substr(0, 1);
-         console.log(myShortMembership);
-         console.log(HUMADCATEGORY);
-         var shortLevelArray = HUMADCATEGORY.map(e => e.short);
-         console.log(shortLevelArray);
-         var myIndex = HUMADCATEGORY.map(e => e.short).indexOf(tmpHumadRec.membershipNumber.substr(0, 1));
-         console.log(myIndex);
-			//var myArray = HUMADCATEGORY.slice(0, HUMADCATEGORY.map(e => e.short).indexOf(myProps.humadRec.membershipNumber.substr(0, 1))); 
-         //console.log(myArray);
-			var upgradeAllowed = (myIndex > 0);
-         if (upgradeAllowed) upgradeAllowed =  (tmp.hid == loginHid) || hasHumadpermission();
+         //console.log(myShortMembership);
+         shortLevelArray = HUMADCATEGORY.map(e => e.short);
+         //console.log(shortLevelArray);
+         myIndex = HUMADCATEGORY.map(e => e.short).indexOf(tmpHumadRec.membershipNumber.substr(0, 1));  
+      }
+      //console.log(myIndex);
+      //console.log(shortLevelArray);
+      var upgradeAllowed = (myIndex > 0);
+      if (upgradeAllowed) upgradeAllowed =  (tmp.hid == loginHid) || hasHumadpermission();
+      console.log(myIndex, upgradeAllowed);
 	return(
 	<div id="PRWSMENU" ref={menuRef} className='absolute z-20' style={myStyle}>
 	<Menu
@@ -800,12 +802,12 @@ export default function Humad() {
 		<TableBody>
 		{memberArray.map( (m, index) => {
 			if (m.ceased) return null;
-			let h = humadArray.find(x => x.mid === m.mid);
-			if (!h) return null;
 			var memberCity = getMyCity(m.hid);
          var memberLocation = getMyLocation(m.hid);
 			//console.log(memberCity);
 			//console.log(m.email);
+			let h = humadArray.find(x => x.mid === m.mid);
+			//if (!h) return null;
 			return (
 			<HumadDataRow key= {"PERSONALMEMBER"+index} m={m} h={h} dispType={dispType}  index={index} memberLocation={memberLocation}
 				checked={radioRecord == m.mid}

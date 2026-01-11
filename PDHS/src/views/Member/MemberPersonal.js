@@ -77,6 +77,7 @@ import {
 	dateString,
 	getImageName,
 	vsDialog, vsInfo,
+   getHodCityList,  getHodLocationList,
 	getMemberName, isEligibleForMarriage,
 	getRelation, dispAge, capitalizeFirstLetter,
 	getMemberTip,
@@ -107,7 +108,8 @@ import {
 
 const InitialContextParams = {show: false, x: 0, y: 0};
 var radioMid = -1;
-//var familyCity = "";
+//var cityList = ["Mumbai"];
+var cityArray = [];
 
 const funCodeTable = [
 {fun: APPLICATIONTYPES.newHod, 					code: process.env.REACT_APP_FAMILY_PERSONAL_NEWHOD},
@@ -137,6 +139,7 @@ export default function MemberPersonal(props) {
 	const [hodRec, setHodRec] = useState({});
 	const [memberArray, setMemberArray] = useState([])
 	const [selMember, setSelMember] = useState({mid: 0});
+   const [locationArray, setLocationArray] = useState([]);
 
 	const [hodNamesArray, setHodNamesArray] = useState([])
 	const [groomArray, setGroomArray] = useState([])
@@ -190,6 +193,16 @@ export default function MemberPersonal(props) {
 	
 	
   useEffect(() => {	
+		async function getAllCities() {	
+			cityArray = await getHodCityList();
+		}
+
+      async function getAllLocation() {		
+			var locArray = await getHodLocationList();
+			setLocationArray(locArray);
+		}
+      
+      
 		function handleResize() {
 			let myDim = getWindowDimensions();
       setWindowDimensions(myDim);
@@ -197,7 +210,9 @@ export default function MemberPersonal(props) {
       setDispType(displayType(myDim.width));
 		}
 		const getDetails = async () => {
-			var myHodRec = JSON.parse(sessionStorage.getItem("member_hod"));
+         await getAllCities();		
+         await getAllLocation();
+         var myHodRec = JSON.parse(sessionStorage.getItem("member_hod"));
 			setHodRec(myHodRec);
 			var myMemArray = JSON.parse(sessionStorage.getItem("member_members"));
 			setMemberArray(myMemArray);
@@ -230,6 +245,27 @@ export default function MemberPersonal(props) {
     
   }, []);
 
+	function getMyCity(hid) {
+		var myCity = "";
+		for(var i=0; i<cityArray.length; ++i) {
+			//console.log(cityArray[i]);
+			if (cityArray[i].hidList.includes(hid)) {
+				myCity = cityArray[i].city;
+				break;
+			}
+		}
+		return myCity;
+	}
+
+   function getMyLocation(hid) {
+      var tmp = locationArray.find( x => x.hid === hid);
+      var myLoc = '';
+      if (tmp) {
+         myLoc = (tmp.city.toLowerCase() === 'mumbai') ? tmp.city : tmp.city;
+      }
+      return myLoc
+   }
+   
 	function DisplayRegisterStatus() {
     // console.log(`Status is ${registerStatus}`);
 		let regerr = true;
@@ -647,9 +683,10 @@ function DisplayPersonalInformation() {
 	<TableBody>
 	{memberArray.map( (m, index) => {
 		if (m.ceased) return null;
-		var memberCity = "";		//getMyCity(m.hid);
+      var memberCity = getMyCity(m.hid);
+      var memberLocation = getMyLocation(m.hid);
 		return (
-			<PrwsDataRow key={"PERSONALMEMBER"+index} index={index} m={m} dispType={dispType} memberCity={memberCity} 
+			<PrwsDataRow key={"PERSONALMEMBER"+index} index={index} m={m} dispType={dispType} memberCity={memberCity}  memberLocation={memberLocation}
 				datatip={getMemberTip(m, dispType, memberCity)} 
 				onClick={(event) => { radioMid = m.mid; handleMemberPersonalContextMenu(event,`PERSONALMEMBER${index}`); }}
 			/>

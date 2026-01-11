@@ -49,6 +49,7 @@ import {
   PADSTYLE,
 	MEMBERTITLE, RELATION, SELFRELATION, GENDER, BLOODGROUP, MARITALSTATUS,
 	STATUS_INFO,
+   CASTEOBJ, HUMADSUBCASTEOBJ,
 } from 'views/globals';
 
 import {
@@ -69,6 +70,7 @@ export default function ApplicationEditGeneral() {
 	const gClasses = globalStyles();
    
 	var myProps = JSON.parse(sessionStorage.getItem("application_appRec"));
+   //console.log(myProps);
 	//console.log(JSON.parse(myProps.applicationRec.data).oldHodRec);
 	//console.log(JSON.parse(myProps.applicationRec.data).newHodRec);
 	
@@ -77,6 +79,7 @@ export default function ApplicationEditGeneral() {
 	const [remarks, setRemarks] = useState("");
 	const [action, setAction] = useState("");	
 	const [stage, setStage] = useState("INITIAL");
+   const [prwsMem, setPrwsMem] = useState("nochange");
 
 	// show in accordion
 	const [expandedPanel, setExpandedPanel] = useState("");
@@ -90,7 +93,7 @@ function handleReapply() {
    var tmp = JSON.parse(myProps.applicationRec.data);
    if (isFamilyLock(tmp.hid)) return;
 
-   showInfo("Reppaly selected");
+   showInfo("Reapply selected");
    return;
 
 }
@@ -107,6 +110,25 @@ async function handleApplicationReject() {
 }
 
 async function handleApplicationApprove() {
+   //console.log(appData.oldHodRec);
+   //console.log(appData.newHodRec);
+
+	if ((appData.oldHodRec.caste == CASTEOBJ.humad) && (appData.oldHodRec.subCaste == HUMADSUBCASTEOBJ.dasha)) {
+      // if dasha humad
+      var msg = `Set membership of Pratapgarh Raj. Welfare samiti?`
+      vsDialog("PRWS membership", msg,
+      {label: "Yes", onClick: () => handleApplicationApproveVerified("true") },
+      {label: "No", onClick: () => handleApplicationApproveVerified("false")  }
+      );  
+   }
+   else
+      handleApplicationApproveVerified("nochange");  
+}
+	
+
+async function handleApplicationApproveVerified(newPrwsSts) {
+   setPrwsMem(newPrwsSts);
+   console.log(newPrwsSts);
 	setAction("Approve");
 	setStage("Approve");
 }
@@ -122,8 +144,9 @@ function handleRemarksDone() {
 
 
 async function  handleApplicationApproveConfirm(myRemarks) {
+   var finRem = prwsMem + "ARUNSALGIA" + myRemarks;
 	try {
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${myRemarks}`;
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${finRem}`;
 		let resp = await axios.get(myUrl);
 		var returnStatus = {
 			status: STATUS_INFO.SUCCESS, applicationRec: resp.data, 
@@ -206,7 +229,7 @@ function getPhoneString(phone1, phone2) {
 	return myPhone;
 }
 
-console.log(appData.newHodRec);
+//console.log(appData.newHodRec);
 return (
 	<div className={gClasses.webPage} >
 	<Container component="main" maxWidth="xs">	
