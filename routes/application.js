@@ -544,8 +544,6 @@ async function approve_addMember(aRec) {
 	myRec.officeName = appData.memberRec.officeName;
 	myRec.officePhone = appData.memberRec.officePhone;
 	myRec.officeAddr = '';
-   myRec.officeAddr1 = '';
-   myRec.officeAddr2 = '';
    
    myRec.spouseMid = 0;
    myRec.emsStatus = "Unmarried"
@@ -559,9 +557,9 @@ async function approve_addMember(aRec) {
 	myRec.ceasedDate = new Date();
    
    allMembers = _.sortBy(allMembers, 'order');
-   myRec.pjymMember = allMembers[0].pjymMember;
+	myRec.prwsMember = allMembers[0].prwsMember;
 	myRec.humadMember = allMembers[0].humadMember;
-	myRec.prwsMember = false;
+   myRec.pjymMember = false
 	myRec.pmmMember = false;
    console.log(myRec);
 
