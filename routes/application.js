@@ -191,37 +191,6 @@ router.get('/add/:appData', async function (req, res) {
 	sendok(res, aRec);
 });
 
-router.get('/junkeditfamilydetails/:editor_mid/:appData', async function (req, res) {
-  setHeader(res);
-	var {editor_mid, appData } = req.params;
-	appData = JSON.parse(appData);
-
-	var editorRec = await memberGetByMidOne(Number(editor_mid));
-	
-	let aRec = new M_Application();
-	aRec.owner = "PRWS";
-	aRec.desc = "Edit Family details";
-	aRec.name = getMemberName(editorRec);
-	aRec.mid = editorRec.mid;
-	aRec.isMember = true;
-	aRec.data = JSON.stringify(appData.data);
-	aRec.status = 'Pending';
-	aRec.adminName = '';
-	aRec.comments = '';
-	//console.log(appData.data);
-	
-	let justNow = new Date();
-	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
-	//console.log(baseid);
-	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
-	
-	aRec.date = justNow;
-	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
-	await aRec.save();
-	//console.log(aRec);
-	
-	sendok(res, aRec);
-});
 
 router.get('/editfamilydetails/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
   setHeader(res);
@@ -537,17 +506,11 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
 async function approve_addMember(aRec) {
 	var appData = JSON.parse(aRec.data);
    console.log(appData);
-
-	
-	
-	
-
-	
-	
-   
+  
    // Get all Member
    allMembers = await memberGetByHidMany(appData.hid);
    
+   // set hid, mid and order
    var myRec = new M_Member();
    myRec.hid = appData.memberRec.hid;
    allMembers = _.sortBy(allMembers, 'order').reverse();
@@ -581,6 +544,8 @@ async function approve_addMember(aRec) {
 	myRec.officeName = appData.memberRec.officeName;
 	myRec.officePhone = appData.memberRec.officePhone;
 	myRec.officeAddr = '';
+   myRec.officeAddr1 = '';
+   myRec.officeAddr2 = '';
    
    myRec.spouseMid = 0;
    myRec.emsStatus = "Unmarried"
@@ -593,8 +558,9 @@ async function approve_addMember(aRec) {
    myRec.ceased = false;
 	myRec.ceasedDate = new Date();
    
-   myRec.pjymMember = false;
-	myRec.humadMember = 
+   allMembers = _.sortBy(allMembers, 'order');
+   myRec.pjymMember = allMembers[0].pjymMember;
+	myRec.humadMember = allMembers[0].humadMember;
 	myRec.prwsMember = false;
 	myRec.pmmMember = false;
    console.log(myRec);
