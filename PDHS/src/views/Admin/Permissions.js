@@ -46,6 +46,7 @@ import {
 import { 
 	isMobile,
 	vsDialog,
+	getAdminInfo, getAdminRec,
 } from "views/functions.js";
 import { getMemberName } from 'views/functions';
 
@@ -73,6 +74,8 @@ export default function Permissions() {
 	const [isHumad, setIsHumad] = useState(false);
 	const [isSuper, setIsSuper] = useState(false);
 	
+   var tmp = getAdminRec();
+   const hasEditPerm = tmp.superAdmin || tmp.superduper;
 	
   useEffect(() => {		
 		getAllAdmin();
@@ -218,6 +221,7 @@ export default function Permissions() {
 	}
 
 	function DisplayPermHeader() {
+   if (!hasEditPerm) return null;
 	return (	
 		<TableHead>
 		<TableRow key={"MEMGRIDHDR0"}  className={gClasses.boxStyleOdd} >
@@ -243,6 +247,7 @@ export default function Permissions() {
 	
 	function DisplayAllAdmin() {
 		//console.log(adminArray);
+   if (!hasEditPerm) return null;
 	return (
 	<TableBody>
 		{adminArray.map( (a, index) => 
@@ -275,7 +280,7 @@ export default function Permissions() {
 		<CssBaseline />
 		<DisplayPageHeader headerName="Admin Maintenance" groupName="" tournament=""/>
 		<br />
-		<VsButton align="right" name="Add new Admin" onClick={addAdmin} />	
+		<VsButton align="right" disabled={!hasEditPerm} name="Add new Admin" onClick={addAdmin} />	
 		<Box key="BOXPRWSFILTERTABLE"className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
 		<TableContainer>
 		<Table style={{padding: "2px" }} >

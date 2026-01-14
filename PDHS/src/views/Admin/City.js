@@ -41,6 +41,7 @@ import {DisplayPageHeader, ValidComp, BlankArea,
 
 import { 
 	vsDialog,
+	getAdminInfo, getAdminRec,
 	showError, showSuccess, showInfo,
 } from "views/functions.js";
 
@@ -63,6 +64,8 @@ export default function City() {
 	const [emurOrigName, setEmurOrigName] = useState("");
 	const [registerStatus, setRegisterStatus] = useState(0);
 
+   var tmp = getAdminRec();
+   const hasEditPerm = tmp.superAdmin || tmp.superduper;
 
 	
   useEffect(() => {		
@@ -194,10 +197,12 @@ export default function City() {
 			<Box style={{margin: "2px" }}  className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
 			<Typography >
 			<span style={{paddingLeft: "8px" }} align="left" className={gClasses.patientInfo2}>{d.city+" "}</span>
-			<span align="right">
-        <EditIcon color="primary" size="small" onClick={() => {editCity(d)}} />
-        <DeleteIcon color="primary" size="small" onClick={() => {delCity(d)}} />
+         {(hasEditPerm) &&
+         <span align="right">
+           <EditIcon color="primary" size="small" onClick={() => {editCity(d)}} />
+           <DeleteIcon color="primary" size="small" onClick={() => {delCity(d)}} />
 			</span>
+         }
 			</Typography>
 			</Box>
 		</Grid>
@@ -210,7 +215,7 @@ export default function City() {
 		<div className={gClasses.webPage} align="center" key="main">
 		<CssBaseline />
 		<DisplayPageHeader headerName="City Database" groupName="" tournament=""/>
-		<VsButton align="right" name="Add new City" onClick={addCity} />	
+		<VsButton align="right" disabled={!hasEditPerm}  name="Add new City" onClick={addCity} />	
 		<DisplayAllCity />
 		<Drawer anchor="top" variant="temporary" open={isDrawerOpened !== ""}>
 		<Container component="main" maxWidth="xs">	

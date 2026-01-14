@@ -108,7 +108,7 @@ router.get('/jaijinendra/:myData', async function (req, res, next) {
 	console.log(userName);
 	
 	var myRec;
-	var myEmail = "";
+	var myEmail = "-";
 	var myMobile = "";
 	if (myData.isMobile) {
 		myRec = await memberGetByMobileOne( userName )

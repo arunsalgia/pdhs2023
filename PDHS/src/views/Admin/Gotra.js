@@ -54,10 +54,12 @@ import {
 import { 
 	vsDialog,
 	showError, showSuccess, showInfo,
+	getAdminInfo, getAdminRec,
 } from "views/functions.js";
 
 import {
   PADSTYLE,
+  ADMIN,
 } from "views/globals.js";
 
 const ROWSPERPAGE = 10;
@@ -80,8 +82,11 @@ export default function Gotra() {
 	const [emurOrigName, setEmurOrigName] = useState("");
 	const [registerStatus, setRegisterStatus] = useState(0);
 
-
-	
+   var tmp = getAdminRec();
+   const hasEditPerm = tmp.superAdmin || tmp.superduper;
+   //console.log(tmp);
+	//console.log(hasEditPerm);
+   
   useEffect(() => {		
 		getAllGotras();
   }, []);
@@ -215,10 +220,12 @@ export default function Gotra() {
 			<Box style={{margin: "2px" }}  className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
 			<Typography >
 			<span style={{paddingLeft: "8px" }} align="left" className={gClasses.patientInfo2}>{d.gotra+" "}</span>
+         {(hasEditPerm) &&
 			<span align="right">
-        <EditIcon color="primary" size="small" onClick={() => {editGotra(d)}} />
-        <DeleteIcon color="primary" size="small" onClick={() => {delGotra(d)}} />
+            <EditIcon color="primary" size="small" onClick={() => {editGotra(d)}} />
+            <DeleteIcon color="primary" size="small" onClick={() => {delGotra(d)}} />
 			</span>
+         }
 			</Typography>
 			</Box>
 		</Grid>
@@ -235,7 +242,7 @@ export default function Gotra() {
 		<div className={gClasses.webPage} align="center" key="main">
 		<CssBaseline />
 		<DisplayPageHeader headerName="Gotra Database" groupName="" tournament=""/>
-		<VsButton align="right" name="Add new Gotra" onClick={addGotra} />	
+		<VsButton align="right" disabled={!hasEditPerm} name="Add new Gotra" onClick={addGotra} />	
 		<DisplayAllGotras />
 		<Drawer anchor="top" variant="temporary" open={isDrawerOpened !== ""}>
 		<Container component="main" maxWidth="xs">	

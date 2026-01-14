@@ -98,7 +98,8 @@ export default function MemberNewMemberhsip() {
 	};
 
    
-	const [header, setHeader] = useState(`Application for ${myProps.membershipType} membership`);
+	//const [header, setHeader] = useState(`Application for ${myProps.membershipType} membership`);
+	const [header, setHeader] = useState(`Application for membership`);
 	const [registerStatus, setRegisterStatus] = useState(0);
    
    const [gotraArray, setGotraArray] = useState([]);
@@ -114,11 +115,15 @@ export default function MemberNewMemberhsip() {
    const [currentGotraRec, setCurrentGotraRec] = useState({});
    const [caste, setCaste] = useState("Humad");
    const [subCaste, setSubCaste] = useState("Dasha");
+   const [village, setVillage] = useState("");
 
 	const [indian, setIndian] = useState(true);
    const [newCountry, setNewCountry] = useState(false);
    const [newCity, setNewCity] = useState(false);
 
+   const [humadMembership, setHumadMembership] = useState(false);
+   const [pjymMembership, setPjymMembership] = useState(false);
+   
 	// address
 	const [emurAddr1, setEmurAddr1] = useState("");
 	const [emurAddr2, setEmurAddr2] = useState("");
@@ -130,7 +135,7 @@ export default function MemberNewMemberhsip() {
    const [district, setDistrict] = useState("");   
 	const [city, setCity] = useState("Mumbai");
    const [state, setState] = useState("Maharashtra");
-	const [country, setCountry] = useState("India");
+	const [country, setCountry] = useState("Australia");
 
 
 	const [emurGotra, setEmurGotra] = useState("");
@@ -150,14 +155,16 @@ export default function MemberNewMemberhsip() {
 	const [alias, setAlias] = useState("");
    
    
-	const [emurAddr6, setEmurAddr6] = useState("Son");
-	const [emurAddr7, setEmurAddr7] = useState("Male");
-	const [emurAddr8, setEmurAddr8] = useState("Unmarried");
-	const [emurAddr9, setEmurAddr9] = useState("O+");
+	const [gender, SetGender] = useState("Male");
+	const [relation, setRelation] = useState("Son");
+	const [emsStatus, setEmsStatus] = useState("Unmarried");
+	const [bloodGroup, setBloodGroup] = useState("O+");
+	const [dob, setDob] = useState(new Date());
+   
 	const [emurAddr10, setEmurAddr10] = useState("");
-	const [emurAddr11, setEmurAddr11] = useState("");
-	const [emurAddr12, setEmurAddr12] = useState("");
-	const [emurAddr13, setEmurAddr13] = useState("");
+	const [persMobile1, SetPersMobile1] = useState("");
+	const [persMobile2, SetPersMobile2] = useState("");
+	const [persEmail, setPersEmail] = useState("");
 	// Office data
 	const [education, setEducation] = useState("");
 	const [company, setCompany] = useState("");
@@ -240,8 +247,8 @@ export default function MemberNewMemberhsip() {
 		getCountryList(); 
   }, []);
   
-function handleEditGotraSubmit() {
-   console.log("handleEditGotraSubmit selected");
+function handleNewMembership() {
+   console.log("handleNewMembership selected");
 }
 
 
@@ -300,12 +307,12 @@ return (
 	<VsCancel align="right" onClick={handleCancel} />
 	<Typography align="center" className={gClasses.title}>{header}</Typography>
 	<br />
-	<ValidatorForm align="left" className={gClasses.form} onSubmit={handleEditGotraSubmit}>
+	<ValidatorForm align="left" className={gClasses.form} onSubmit={handleNewMembership}>
    
 	<Accordion expanded={expandedPanel === "GOTRADETAILS"} onChange={handleAccordionChange("GOTRADETAILS")}>
 		<Box align="right" className={(expandedPanel === "GOTRADETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
-			<Typography align="left" >{"Gotra and Caste"}</Typography>
+			<Typography align="left" >{"Gotra Caste and Village"}</Typography>
 		</AccordionSummary>
 		</Box>
 		<Grid key="EDITGOTRA" className={gClasses.noPadding} container  alignItems="flex-start" >
@@ -343,19 +350,105 @@ return (
             }
          </Grid>
          }
-            {(caste === "Humad") &&         
-            <Grid item xs={8} sm={8} md={8} lg={8} >
-               <VsRadioGroup 
-                  value={subCaste} onChange={(event) => setSubCaste(event.target.value)}
-                  radioList={HUMADSUBCASTRE}
-               />
-            </Grid>
-            }
+         {(caste === "Humad") &&         
+         <Grid item xs={8} sm={8} md={8} lg={8} >
+            <VsRadioGroup 
+               value={subCaste} onChange={(event) => setSubCaste(event.target.value)}
+               radioList={HUMADSUBCASTRE}
+            />
+         </Grid>
+         }
          <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />     
+         <Grid item xs={4} sm={4} md={4} lg={4} >
+            <Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Village</Typography>
+         </Grid>
+         <Grid item xs={8} sm={8} md={8} lg={8} >
+            <TextValidator required style={{paddingLeft: "10px", paddingRight: "10px", marginTop: "10px"  }} className={gClasses.vgSpacing} inputProps={{className: gClasses.dateTimeNormal}}
+            type="text" value={village} onChange={(event) => { setVillage(event.target.value) }} />
+         </Grid>
       </Grid>
       <br />
 	</Accordion>
-   
+    <br />
+	<Accordion expanded={expandedPanel === "MEMBERSHIP"} onChange={handleAccordionChange("MEMBERSHIP")}>
+		<Box align="right" className={(expandedPanel === "MEMBERSHIP") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
+			<Typography align="left" >{"Membership"}</Typography>
+		</AccordionSummary>
+		</Box>
+		<Grid key="EDITGOTRA" className={gClasses.noPadding} container  alignItems="flex-start" >
+			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
+				<Typography className={gClasses.patientInfo2Blue} >Humad membership</Typography>
+			</Grid>
+			<Grid item xs={4} sm={4} md={4} lg={4} >
+				<Switch color="primary" checked={humadMembership} onChange={() => setHumadMembership(!humadMembership) } />
+			</Grid>
+			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
+				<Typography className={gClasses.patientInfo2Blue} >PJYM membership</Typography>
+			</Grid>
+			<Grid item xs={4} sm={4} md={4} lg={4} >
+				<Switch color="primary" checked={pjymMembership} onChange={() => setPjymMembership(!pjymMembership) } />
+			</Grid>
+      </Grid>
+      <br />
+	</Accordion>
+    <br />
+	<Accordion expanded={expandedPanel === "NAMEDETAILS"} onChange={handleAccordionChange("NAMEDETAILS")}>
+		<Box align="right" className={(expandedPanel === "NAMEDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
+			<Typography align="left" >{'Name Details'}</Typography>
+		</AccordionSummary>
+		</Box>
+      <Grid key="NAME" className={gClasses.noPadding} container  alignItems="flex-start" >
+         <Grid item xs={5} sm={5} md={5} lg={5} >
+            <Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Title</Typography>
+         </Grid>
+         <Grid item xs={7} sm={7} md={7} lg={7} >
+            <VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} style={{paddingLeft: "10px", paddingRight: "10px" }}
+            options={MEMBERTITLE} value={title} onChange={(event) => { setTitle(event.target.value); }} />
+         </Grid>
+         <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+         <Grid item xs={5} sm={5} md={5} lg={5} >
+            <Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Last Name</Typography>
+         </Grid>
+         <Grid item xs={7} sm={7} md={7} lg={7} >
+            <TextValidator required style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing} inputProps={{className: gClasses.dateTimeNormal}}
+            type="text" value={lastName} onChange={(event) => { setLastName(event.target.value) }} />
+         </Grid>
+         <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+         <Grid item xs={5} sm={5} md={5} lg={5} >
+            <Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >First Name</Typography>
+         </Grid>
+         <Grid item xs={7} sm={7} md={7} lg={7} >
+            <TextValidator required style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing}
+               inputProps={{className: gClasses.dateTimeNormal}} type="text" value={firstName}
+               onChange={(event) => { setFirstName(event.target.value) }}			
+            />	
+         </Grid>
+         <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+         <Grid item xs={5} sm={5} md={5} lg={5} >
+            <Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Middle Name</Typography>
+         </Grid>
+         <Grid item xs={7} sm={7} md={7} lg={7} >
+            <TextValidator required style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing}
+               inputProps={{className: gClasses.dateTimeNormal}} type="text" value={middleName}
+               onChange={(event) => { setMiddleName(event.target.value) }}			
+            />	
+         </Grid>
+         <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+         <Grid item xs={5} sm={5} md={5} lg={5} >
+            <Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Alias</Typography>
+         </Grid>
+         <Grid item xs={7} sm={7} md={7} lg={7} >
+            <TextValidator style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing} inputProps={{className: gClasses.dateTimeNormal}}
+            type="text" value={alias} onChange={(event) => { setAlias(event.target.value) }} />
+         </Grid>
+      </Grid>
+      <br />
+   </Accordion>   
 	<br />
 	<Accordion expanded={expandedPanel === "ADDRESSDETAILS"} onChange={handleAccordionChange("ADDRESSDETAILS")}>
 		<Box align="right" className={(expandedPanel === "ADDRESSDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
@@ -430,13 +523,13 @@ return (
 					/>
             }
 				</Grid>
-				<Grid item xs={4} sm={4} md={4} lg={4} >
+				{/*<Grid item xs={4} sm={4} md={4} lg={4} >
 					<Typography style={{marginTop: "5px" }} className={gClasses.patientInfo2Blue} >New City</Typography>
 				</Grid>
 				<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
                <Switch color="primary" checked={newCity} onChange={() => toggleNewCity(!newCity) } />	
 				</Grid>
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />*/}
 				<Grid style={{paddingTop: "20px" }}  item xs={4} sm={4} md={4} lg={4} >
 					<Typography className={gClasses.patientInfo2Blue} >State</Typography>
 				</Grid>
@@ -486,27 +579,90 @@ return (
 					/>
                }               
 				</Grid>
-				<Grid item xs={4} sm={4} md={4} lg={4} >
+				{/*<Grid item xs={4} sm={4} md={4} lg={4} >
 					<Typography style={{marginTop: "5px" }} className={gClasses.patientInfo2Blue} >New Country</Typography>
 				</Grid>
 				<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
                <Switch color="primary" checked={newCountry} onChange={() => toggleNewCountry(!newCountry) } />	
 				</Grid>
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+         <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />*/}
 			</Grid>
 			}
       <br />
    </Accordion>
-   
-   <br />
-	<Accordion expanded={expandedPanel === "NAMEDETAILS"} onChange={handleAccordionChange("NAMEDETAILS")}>
-		<Box align="right" className={(expandedPanel === "NAMEDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+    <br />
+	<Accordion expanded={expandedPanel === "PERSDETAILS"} onChange={handleAccordionChange("PERSDETAILS")}>
+		<Box align="right" className={(expandedPanel === "PERSDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
-			<Typography align="left" >{`Name: ${title} ${lastName} ${firstName} ${middleName}`}</Typography>
+			<Typography align="left" >{'Personal Details'}</Typography>
 		</AccordionSummary>
 		</Box>
       <Grid key="NAME" className={gClasses.noPadding} container  alignItems="flex-start" >
+          <Grid item xs={5} sm={5} md={5} lg={5} >
+            <Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Gender</Typography>
+         </Grid>
+         <Grid item xs={7} sm={7} md={7} lg={7} >
+            <VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} style={{paddingLeft: "10px", paddingRight: "10px" }}
+            options={GENDER} value={gender} onChange={(event) => { SetGender(event.target.value); }} />
+         </Grid>
+         <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+         <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+				<Grid item xs={5} sm={5} md={5} lg={5} >
+					<Typography style={{paddingTop: "1px" }} className={gClasses.patientInfo2Blue} >Date of Birth</Typography>
+				</Grid>
+				<Grid item xs={7} sm={7} md={7} lg={7} >
+					<Datetime 
+						className={gClasses.dateTimeBlock}
+						inputProps={{className: gClasses.dateTimeNormal}}
+						timeFormat={false} 
+						initialValue={dob}
+						value={dob}
+						dateFormat="DD/MMM/yyyy"
+						isValidDate={disableFutureDt}
+						onClose={setDob}
+						closeOnSelect={true}
+					/>
+				</Grid>   
+         <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+          <Grid item xs={5} sm={5} md={5} lg={5} >
+            <Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Blood Group</Typography>
+         </Grid>
+         <Grid item xs={7} sm={7} md={7} lg={7} >
+            <VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} style={{paddingLeft: "10px", paddingRight: "10px" }}
+            options={BLOODGROUP} value={bloodGroup} onChange={(event) => { setBloodGroup(event.target.value); }} />
+         </Grid>
+         <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
          <Grid item xs={5} sm={5} md={5} lg={5} >
+					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Mobile 1</Typography>
+				</Grid>
+				<Grid item xs={7} sm={7} md={7} lg={7} >
+					<TextValidator className={gClasses.vgSpacing}
+						inputProps={{className: gClasses.dateTimeNormal}} type="number" value={persMobile1}
+						onChange={(event) => { SetPersMobile1(event.target.value) }}			
+					/>
+				</Grid>
+         <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+				<Grid item xs={5} sm={5} md={5} lg={5} >
+					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Mobile 2</Typography>
+				</Grid>
+				<Grid item xs={7} sm={7} md={7} lg={7} >
+					<TextValidator className={gClasses.vgSpacing} type="number" value={persMobile2}
+						onChange={(event) => { SetPersMobile2(event.target.value) }}			
+					/>
+				</Grid>
+         <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+				<Grid item xs={5} sm={5} md={5} lg={5} >
+					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Email</Typography>
+				</Grid>
+				<Grid item xs={7} sm={7} md={7} lg={7} >
+					<TextValidator className={gClasses.vgSpacing}
+						inputProps={{className: gClasses.dateTimeNormal}} type="email" value={persEmail}
+						onChange={(event) => { setPersEmail(event.target.value) }}			
+					/>	
+				</Grid>
+         <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+            {/*<Grid item xs={5} sm={5} md={5} lg={5} >
             <Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Title</Typography>
          </Grid>
          <Grid item xs={7} sm={7} md={7} lg={7} >
@@ -550,11 +706,11 @@ return (
                inputProps={{className: gClasses.dateTimeNormal}} type="text" value={alias}
                onChange={(event) => { setAlias(event.target.value) }}			
             />	
-         </Grid>
+</Grid>*/}
       </Grid>
       <br />
-   </Accordion>
-   <DisplayRegisterStatus />
+   </Accordion>   
+  <DisplayRegisterStatus />
    <br />
    <VsButton align="center" name={"Apply"} type="submit" />
 	</ValidatorForm>

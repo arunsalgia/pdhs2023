@@ -79,7 +79,8 @@ export default function Dashboard() {
 	const [loginUserRec, setLoginUserRec] = useState(JSON.parse(sessionStorage.getItem("memberRec")));
    const [userName, setuserName] = useState(sessionStorage.getItem("userName"));
 	const [applMsg, setApplMsg] = useState("");
-	const adminRec = getAdminRec();
+	const adminData = getAdminInfo();
+   console.log(adminData);
 	
   useEffect(() => {
 		async function getMemberCount() {
@@ -154,37 +155,35 @@ export default function Dashboard() {
       <GridContainer key="db_gc_ub0">
         <GridItem align= "right" key="db_buttons1" xs={12} sm={12} md={12} lg={12} >
            {((userName === "Guest") || (!loginUserRec.prwsMember && !loginUserRec.humadMember && !loginUserRec.pjymMember)) &&
-             <VsButton name="Apply for PRWS" onClick={() => {applyMembership("PRWS"); } } />
+             <VsButton name="Apply for membership" onClick={() => {applyMembership("PRWS"); } } />
            }
-           {((userName === "Guest") || (!loginUserRec.prwsMember && !loginUserRec.humadMember)) &&
+           {/*{((userName === "Guest") || (!loginUserRec.prwsMember && !loginUserRec.humadMember)) &&
              <VsButton name="Apply for Humad" onClick={() => {applyMembership("HUMAD"); } }  />
            }
            {((userName === "Guest") || (!loginUserRec.prwsMember && !loginUserRec.pjymMember)) &&
              <VsButton name="Apply for PJYM" onClick={() => {applyMembership("PJYM"); } } />
-           }     
+           } */ }   
         </GridItem>  
         <GridItem key="db_gi_ub1" xs={12} sm={6} md={4} lg={3}>
 					<a href='/' > 
           <Card key="db_card_ub1" onClick={jumpToPrws} >
             <CardHeader key="db_chdr_ub1" color="warning" stats icon>
               <CardIcon color="warning">
-								<img src={process.env.PUBLIC_URL + 'image/PJYM.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 
+               <img src={process.env.PUBLIC_URL + 'image/PJYM.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 
               </CardIcon>
-							<div>
-              <button className={gClasses.dashText} >PRWS</button>
-								{/*<br />
-								<VsButton align="right" name="  PRWS  " onClick={jumpToPrws} />*/}
-							<h5 align="right" color="blue"  className={gClasses.cardTitle} >{`${countInfo.prws} members`}</h5>
-							</div>
+               <div>
+                  <button className={gClasses.dashText} >PRWS</button>
+                  <h5 align="right" color="blue"  className={gClasses.cardTitle} >{`${countInfo.prws} members`}</h5>
+               </div>
             </CardHeader>
             <CardFooter key="db_cftr_ub1" stats>
-							<Typography className={gClasses.patientInfo2Blue} >Pratapgarh Rajasthan Welfare Samiti</Typography>
+               <Typography className={gClasses.patientInfo2Blue} >Pratapgarh Rajasthan Welfare Samiti</Typography>
             </CardFooter>
           </Card>
-					</a>
+          </a>
         </GridItem>
         <GridItem key="db_gi_ub2" xs={12} sm={6} md={4} lg={3}>
-					<a href='/' > 
+          <a href='/' > 
           <Card key="db_card_ub2" onClick={jumpToPjym} >
             <CardHeader key="db_chdr_ub2" color="success" stats icon>
               <CardIcon color="success">
@@ -247,43 +246,7 @@ export default function Dashboard() {
           </Card>
 					</a>
         </GridItem>
-				{(false) &&
-        <GridItem key="gotra_item" xs={12} sm={6} md={4} lg={3} >
-					<a href='/' > 
-          <Card key="gotra_card" onClick={jumpToGotra}>
-            <CardHeader key="gotra_header" color="warning" stats icon>
-              <CardIcon color="warning">
-							<img src={process.env.PUBLIC_URL + 'image/GOTRA.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 							
-              </CardIcon>
-              <button className={gClasses.dashText} >Gotra</button>
-							<h5 align="right" color="blue"  className={gClasses.cardTitle} ></h5>
-            </CardHeader>
-            <CardFooter key="gotra_footer" stats>
-							<Typography className={gClasses.patientInfo2Blue} >{`Configured Gotras`}</Typography>
-            </CardFooter>
-          </Card>
-					</a>
-        </GridItem>
-				}
-				{(false) &&
-        <GridItem key="city_item" xs={12} sm={6} md={4} lg={3} >
-					<a href='/' > 
-          <Card key="city_card" onClick={jumpToCity}>
-            <CardHeader key="city_header" color="warning" stats icon>
-              <CardIcon color="warning">
-							<img src={process.env.PUBLIC_URL + 'image/CITY.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 							
-              </CardIcon>
-              <button className={gClasses.dashText} >City</button>
-							<h5 align="right" color="blue"  className={gClasses.cardTitle} ></h5>
-            </CardHeader>
-            <CardFooter key="city_footer" stats>
-							<Typography className={gClasses.patientInfo2Blue} >{`Configured Cities`}</Typography>
-            </CardFooter>
-          </Card>
-					</a>
-				</GridItem>
-				}
-				{(adminRec.superAdmin ) &&
+        {(adminData > 0) &&
         <GridItem key="admin_item" xs={12} sm={6} md={4} lg={3} >
 					<a href='/' > 
           <Card key="admin_card" onClick={jumpToAdmin}>
@@ -301,24 +264,7 @@ export default function Dashboard() {
 					</a>
         </GridItem>
 				}
-				{false &&
-			<GridItem key="admin_item" xs={12} sm={6} md={4} lg={3} >
-					<a href='/' > 
-          <Card key="textvalidator" onClick={jumpToTestValidator}>
-            <CardHeader key="tvheader" color="info" stats icon>
-              <CardIcon color="info">
-							<img src={process.env.PUBLIC_URL + 'image/ADMIN.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 							
-              </CardIcon>
-             <button className={gClasses.dashText} >Admins</button>
-							<h5 align="right" color="blue"  className={gClasses.cardTitle} ></h5>
-            </CardHeader>
-            <CardFooter key="admin_footer" stats>
-							<Typography className={gClasses.patientInfo2Blue} >{`Validator`}</Typography>
-            </CardFooter>
-          </Card>
-					</a>
-        </GridItem>
-				}
+				
       </GridContainer>  
 		</div>
 );		

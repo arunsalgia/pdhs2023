@@ -54,6 +54,7 @@ import {
 import { 
 	vsDialog,
 	showError, showSuccess, showInfo,
+	getAdminInfo, getAdminRec,
 } from "views/functions.js";
 
 import {
@@ -80,6 +81,8 @@ export default function Country() {
 	const [emurOrigName, setEmurOrigName] = useState("");
 	const [registerStatus, setRegisterStatus] = useState(0);
 
+   var tmp = getAdminRec();
+   const hasEditPerm = tmp.superAdmin || tmp.superduper;
 
 	
   useEffect(() => {		
@@ -215,10 +218,12 @@ export default function Country() {
 			<Box style={{margin: "2px" }}  className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
 			<Typography >
 			<span style={{paddingLeft: "8px" }} align="left" className={gClasses.patientInfo2}>{d.country+" "}</span>
-			<span align="right">
-        <EditIcon color="primary" size="small" onClick={() => {editCountry(d)}} />
-        <DeleteIcon color="primary" size="small" onClick={() => {delCountry(d)}} />
+         {(hasEditPerm) &&
+         <span align="right">
+           <EditIcon color="primary" size="small" onClick={() => {editCountry(d)}} />
+           <DeleteIcon color="primary" size="small" onClick={() => {delCountry(d)}} />
 			</span>
+         }
 			</Typography>
 			</Box>
 		</Grid>
@@ -235,7 +240,7 @@ export default function Country() {
 		<div className={gClasses.webPage} align="center" key="main">
 		<CssBaseline />
 		<DisplayPageHeader headerName="Country Database" groupName="" tournament=""/>
-		<VsButton align="right" name="Add new Country" onClick={addCountry} />	
+		<VsButton align="right" disabled={!hasEditPerm} name="Add new Country" onClick={addCountry} />	
 		<DisplayAllCountry />
 		<Drawer anchor="top" variant="temporary" open={isDrawerOpened !== ""}>
 		<Container component="main" maxWidth="xs">	
