@@ -46,6 +46,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import InfoIcon   from 	'@material-ui/icons/Info';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import DeleteIcon from '@material-ui/icons/Delete';
+import IconButton from '@material-ui/core/IconButton';
 
 // styles
 import globalStyles from "assets/globalStyles";
@@ -114,16 +115,22 @@ export default function Application(props) {
 	const gClasses = globalStyles();	
 	sessionStorage.removeItem("application_appRec");
 	const loginHid = parseInt(sessionStorage.getItem("hid"), 10);
-	const loginMid = parseInt(sessionStorage.getItem("mid"), 10);
-	var adminRec = sessionStorage.getItem("adminRec");
+	const loginMid = (loginHid !== 0) ? parseInt(sessionStorage.getItem("mid"), 10) : parseInt(sessionStorage.getItem("prwsLogin"), 10);
+   
+	var adminRec = JSON.parse(sessionStorage.getItem("adminRec"));
+   const prwsPerm = adminRec.superAdmin || adminRec.superduper || adminRec.prwsAdmin;
+   const humadPerm = adminRec.superAdmin || adminRec.superduper || adminRec.humadAdmin;
+   const pjymPerm = adminRec.superAdmin || adminRec.superduper || adminRec.pjymAdmin;
+   //console.log(adminRec);
+   
 	var userType = 'user';
 
 	var DefaultFilterCond = {
-		filterBy: APPLICATIONSTATUS.pending,
-		adminPermission: hasPRWSpermission(),
+		status: APPLICATIONSTATUS.pending,
+		adminRec: adminRec,
 		timeRange: false,
 		mid: loginMid,
-		owner: OWNER.prws,
+		owner: OWNER.prws,  // currently ignore
 		startDate: moment().toDate().toString(),
 		endDate: moment().toDate().toString(),
 		currentPage: 0,
@@ -153,7 +160,7 @@ export default function Application(props) {
 	const [editApplRec, setEditApplRec] = useState(null);
 	const [approve, setApprove] = useState("Application Rejected");
 	
-	const [radOpts, setRadOpts] = useState(DefaultFilterCond.filterBy);
+	const [radOpts, setRadOpts] = useState(DefaultFilterCond.status);
 	
 	const [isDrawerOpened, setIsDrawerOpened] = useState("");
 	const [emurRemarks, setEmurRemarks] = useState("");
@@ -191,6 +198,19 @@ export default function Application(props) {
 		}	
 	}
 
+   function hasButtonPermission(appRec, mode) {
+      return true;
+      
+      var perm = false;
+      if ((appRec.mid == loginMid) || ((appRec.owner == OWNER.prws) && prwsPerm))
+         perm = true;
+      else if ((appRec.mid == loginMid) || ((appRec.owner == OWNER.humad) && humadPerm))
+         perm = true;
+      else if ((appRec.mid == loginMid) || ((appRec.owner == OWNER.pjym) && pjymPerm))
+         perm = true;
+      
+      return perm;
+   }
 	async  function getAllApplication(filterCond) {
 		//console.log(filterCond);
 		setFilterCond(filterCond);
@@ -199,11 +219,12 @@ export default function Application(props) {
 			let resp = await axios.get(myUrl);
 			setApplicationArray(resp.data.data);
 			setTotalCount(resp.data.totalCount);
-			console.log(resp.data);
+			//console.log(resp.data);
 		} catch (e) {
 			console.log(e);
 		}	
 	}
+
 
 	async  function oldgetAllApplication() {
 		try {
@@ -318,14 +339,6 @@ export default function Application(props) {
 	</TableHead>
 	<TableBody>
 	{applicationArray.map( (a, index) => {
-		//let myInfo = "HID: " + a.hid + "<br />";
-		//myInfo += "MID: " + a.mid + "<br />";
-		//myInfo += "AppId:" + a.id + "<br />";
-		//myInfo += "Name:" + a.name + "<br />";
-		//myInfo += "Status:" + a.status + "<br />";
-		//myInfo += "Admin:" + a.adminName + "<br />";
-      //console.log(dateStringMMM(a.date), a.desc);
-      //console.log(a);
 		return (
 		<TableRow key={"MEMGRID"+index}  className={((index % 2) == 0) ? gClasses.boxStyleEven : gClasses.boxStyleOdd} >
 		<TableCell style={{padding: "0px" }} align="center">
@@ -347,8 +360,12 @@ export default function Application(props) {
 			<Typography className={gClasses.patientInfo2}>{a.status}</Typography>
 		</TableCell>
 		<TableCell style={{padding: "0px" }} align="center">
-			<VisibilityIcon size="small" color="primary" onClick={() => editApplicationPage(a)} />
-			<DeleteIcon size="small" color='primary' onClick={() => deleteApplication(a)} />
+         <IconButton disabled={!hasButtonPermission(a, 'EDIT')} size="small" color="primary" onClick={() => editApplicationPage(a)}  >
+            <VisibilityIcon />
+         </IconButton>			
+         <IconButton size="small" color='primary' disabled={!hasButtonPermission(a, 'DELETE')} onClick={() => deleteApplication(a)} >
+            <DeleteIcon  />
+         </IconButton>
 		</TableCell>
 		</TableRow>
 	)})}
@@ -388,7 +405,7 @@ export default function Application(props) {
 		setRadOpts(opt);
 		setCurrentPage(0);
 		var tmp = lodashCloneDeep(filterCond)
-		tmp.filterBy = opt;
+		tmp.status = opt;
 		tmp.currentPage = 0;
 		getAllApplication(tmp)
 	}		

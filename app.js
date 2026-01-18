@@ -569,8 +569,13 @@ MAGICNUMBER = 99999;
 
 FAMILYMF = 1000;
 
-
-
+ADMINTYPE = {
+   superAdmin: 'superAdmin',
+   superDuper: 'superDuper',
+   prwsAdmin: 'prwsAdmin',
+   pjymAdmin: 'pjymAdmin',
+   humadAdmin: 'humadAdmin',
+}
 
 APPLICATIONTYPES = {
 	editGotra:  			"Edit Gotra",
@@ -585,6 +590,7 @@ APPLICATIONTYPES = {
 	marriage:			   "Marriage",
 	unMarriage:				"Change Mar. Sts.",
 	humadUpgrade:			"Humad Upgrade",
+   guestMembership:      "Guest Membership"
 };
 
 APPROVE_ERRORS = {
@@ -593,15 +599,17 @@ APPROVE_ERRORS = {
    ERROR603:      {code: 603,    desc: "Generic error"},
    NOHODREC:      {code: 604,    desc: "HOD record not found"},
    NOMEMRECORD:   {code: 605,    desc: "Member record not found"},
-
+   DUPENTRY:      {code: 606,    desc: "Duplicate entry"},
+   NOTADMIN:      {code: 607,    desc: "Not admin"},
 
    INTEST:        {code: 650,    desc: "Rejected for testing"},
    NOSUPPORT:     {code: 651,    desc: "This feature currently not supported"},
    NOMERGE:       {code: 801,    desc: "Currently merge to existing family not supported"},
    NONONMEMMARR:  {code: 802,    desc: "Marriage application with non-member spouse currently not supported"},
-   NEWCITY:       {code: 803,    desc: "Application with new city currently not supported"},
+   NEWCITY:       {code: 803,    desc: "Please verify and if required, add new city before approval"},
    NEWGOTRA:      {code: 804,    desc: "Application with new gotra currently not supported"},
-   NEWCOUNTRY:    {code: 805,    desc: "Application with new country currently not supported"},
+   NEWCOUNTRY:    {code: 805,    desc: "Please verify and if required, add new country before approval"},
+   NONHUMAD:      {code: 806,    desc: "Non Humad membership currently not supported"},
 }
 
 APPLICATIONSTATUS = {
@@ -631,9 +639,14 @@ OWNER = {
 EMSTYPES = {
 	married:		"Married",
 	unmarried:	"Unmarried",
-	widow:			"Widow",
+	widow:		"Widow",
 	widower:		"Widower",
 };
+
+CASTETYPES = {
+humad: 'Humad',
+nonHumad: 'NonHumad'   
+}
 
 ELIGIBLEMARRIAGEYEARS = 21;
 

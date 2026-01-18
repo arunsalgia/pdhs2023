@@ -2,6 +2,16 @@ var router = express.Router();
 const {  
 	getMemberName
 } = require('./functions'); 
+
+const { 
+   clearMemberListInMemory,
+   setHumadMemberActiveflag, setPjymMemberActiveflag,
+   getNewHodNumber,
+	memberGetByMidOne, memberUpdateOne,
+	memberGetByHidMany,memberUpdateMany,
+   set_hod_applock, clear_hod_applock,
+} = require('./dbfunctions'); 
+
 router.use('/', function(req, res, next) {
   setHeader(res);
   if (!db_connection) { senderr(res, DBERROR,  ERR_NODB); return; }
@@ -41,20 +51,24 @@ router.get('/list', async function(req, res, next) {
 });
 
 
-router.get('/add/:mid/:superA/:pjym/:humad/:prws/:pmm', async function(req, res, next) {
+router.get('/add/:editorMid/:mid/:superA/:pjym/:humad/:prws/:pmm', async function(req, res, next) {
   setHeader(res);
   
-  var { mid, superA, pjym, humad, prws, pmm } = req.params;
+  var { editorMid, mid, superA, pjym, humad, prws, pmm } = req.params;
 	mid = Number(mid);
 	console.log(mid);
 
+   
 	let adminRec = await M_Admin.findOne({mid: mid});
-	if (adminRec) return senderr(res, 601, "Duplicate entry");
+	if (adminRec) return senderr(res, APPROVE_ERRORS.DUPENTRY.code, APPROVE_ERRORS.DUPENTRY.desc);
 
 	let memberRec = await M_Member.findOne({mid: mid});
-	if (!memberRec) return senderr(res, 602, "Invalid Member Id");
+	if (!memberRec) return senderr(res, APPROVE_ERRORS.NOMEMRECORD.code, APPROVE_ERRORS.NOMEMRECORD.desc);
 
-  adminRec = new M_Admin();
+   let editorRec = await M_Member.findOne({mid: editorMid});
+   if (!editorRec) return senderr(res, APPROVE_ERRORS.NOMEMRECORD.code, APPROVE_ERRORS.NOMEMRECORD.desc);
+   
+   adminRec = new M_Admin();
 	adminRec.mid = mid;
 	adminRec.superAdmin = (superA == 'true');
 	adminRec.humadAdmin = (humad == 'true');
@@ -64,6 +78,7 @@ router.get('/add/:mid/:superA/:pjym/:humad/:prws/:pmm', async function(req, res,
 	adminRec.superduper = false;
 	await adminRec.save();
  
+ 
 	let result = {
 		mid: adminRec.mid,
 		title: memberRec.title,
@@ -75,24 +90,38 @@ router.get('/add/:mid/:superA/:pjym/:humad/:prws/:pmm', async function(req, res,
 		pmmAdmin: adminRec.prwsAdmin,
 		superduper: adminRec.superduper
 	};
-
 	sendok(res, result);
+
+   myLogRec = new M_PrwsLog();
+   myLogRec.date = new Date();
+   myLogRec.mid = editorRec.mid;
+   myLogRec.name = getMemberName(editorRec);
+   myLogRec.desc = `New admin ${getMemberName(memberRec)} added by ${getMemberName(editorRec)}`;
+   myLogRec.isAdmin = true;
+   myLogRec.action = "Add admin";
+   myLogRec.data = JSON.stringify(result);
+   myLogRec.referenceId = 0;
+   myLogRec.status = true;
+   await myLogRec.save();
+   console.log(myLogRec);
 	
 });
 
-router.get('/update/:mid/:superA/:pjym/:humad/:prws/:pmm', async function(req, res, next) {
+router.get('/update/:editorMid/:mid/:superA/:pjym/:humad/:prws/:pmm', async function(req, res, next) {
   setHeader(res);
   
-  var { mid, superA, pjym, humad, prws, pmm } = req.params;
-	mid = Number(mid);
-	console.log(mid);
-
+  var { editorMid, mid, superA, pjym, humad, prws, pmm } = req.params
+   console.log('In update');
+   
 	let adminRec = await M_Admin.findOne({mid: mid});
-	if (!adminRec) return senderr(res, 601, "entry not found");
+	if (!adminRec) return senderr(res, APPROVE_ERRORS.NOTADMIN.code, APPROVE_ERRORS.NOTADMIN.desc);
 
 	let memberRec = await M_Member.findOne({mid: mid});
-	if (!memberRec) return senderr(res, 602, "Invalid Member Id");
+	if (!memberRec) return senderr(res, APPROVE_ERRORS.NOMEMRECORD.code, APPROVE_ERRORS.NOMEMRECORD.desc);
 
+   let editorRec = await M_Member.findOne({mid: editorMid});
+	if (!editorRec) return senderr(res, APPROVE_ERRORS.NOMEMRECORD.code, APPROVE_ERRORS.NOMEMRECORD.desc);
+   
 	adminRec.superAdmin = (superA == 'true');
 	adminRec.humadAdmin = (humad == 'true');
 	adminRec.pjymAdmin = (pjym == 'true');
@@ -111,9 +140,20 @@ router.get('/update/:mid/:superA/:pjym/:humad/:prws/:pmm', async function(req, r
 		pmmAdmin: adminRec.prwsAdmin,
 		superduper: adminRec.superduper
 	};
-
 	sendok(res, result);
-	
+
+   myLogRec = new M_PrwsLog();
+   myLogRec.date = new Date();
+   myLogRec.mid = editorRec.mid;
+   myLogRec.name = getMemberName(editorRec);
+   myLogRec.desc = `Admin permission of ${getMemberName(memberRec)} updated by ${getMemberName(editorRec)}`;
+   myLogRec.isAdmin = true;
+   myLogRec.action = "Edit admin";
+   myLogRec.data = '';
+   myLogRec.referenceId = 0;
+   myLogRec.status = true;
+   await myLogRec.save();
+   //console.log(myLogRec);	  
 });
 
 router.get('/membershipinfo', async function(req, res, next) {
@@ -132,13 +172,34 @@ router.get('/membershipinfo', async function(req, res, next) {
 	
 });
 
-router.get('/delete/:mid', async function(req, res, next) {
+router.get('/delete/:editor_mid/:mid', async function(req, res, next) {
   setHeader(res);
   
-  var { mid } = req.params;
-	mid = Number(mid);
+  var { editor_mid, mid } = req.params;
 
+   console.log('delete');
+   console.log(editor_mid, mid);
+	let memberRec = await M_Member.findOne({mid: mid});
+	if (!memberRec) return senderr(res, APPROVE_ERRORS.NOMEMRECORD.code, APPROVE_ERRORS.NOMEMRECORD.desc);
+
+   let editorRec = await M_Member.findOne({mid: editor_mid});
+   if (!editorRec) return senderr(res, APPROVE_ERRORS.NOMEMRECORD.code, APPROVE_ERRORS.NOMEMRECORD.desc);
+   console.log('looks okay');
+   
 	await M_Admin.deleteOne({mid: mid});
+   
+   myLogRec = new M_PrwsLog();
+   myLogRec.date = new Date();
+   myLogRec.mid = editorRec.mid;
+   myLogRec.name = getMemberName(editorRec);
+   myLogRec.desc = `Admin ${getMemberName(memberRec)} deleted by ${getMemberName(editorRec)}`;
+   myLogRec.isAdmin = true;
+   myLogRec.action = "Delete admin";
+   myLogRec.data = '';
+   myLogRec.referenceId = 0;
+   myLogRec.status = true;
+   await myLogRec.save();
+   //console.log(myLogRec);
 	sendok(res, "1 Admin deleted");
 });
 

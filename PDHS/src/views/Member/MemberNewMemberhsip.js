@@ -64,6 +64,7 @@ import {
 	MEMBERTITLE, RELATION, SELFRELATION, GENDER, BLOODGROUP, MARITALSTATUS,
 	STATUS_INFO,
    CASTE, HUMADSUBCASTRE,
+   HUMADSUBCASTEOBJ, CASTEOBJ,
 } from 'views/globals';
 
 import {
@@ -112,10 +113,11 @@ export default function MemberNewMemberhsip() {
    const [myState, setMyState] = useState("");
    const [myCountry, setMyCountry] = useState("");
    
-   const [currentGotraRec, setCurrentGotraRec] = useState({});
-   const [caste, setCaste] = useState("Humad");
-   const [subCaste, setSubCaste] = useState("Dasha");
+   const [currentGotraRec, setCurrentGotraRec] = useState(null);
+   const [caste, setCaste] = useState(CASTEOBJ.humad);
+   const [subCaste, setSubCaste] = useState(HUMADSUBCASTEOBJ.dasha);
    const [village, setVillage] = useState("");
+   const [isDashaHumad, setIsDashaHumad] = useState(true);
 
 	const [indian, setIndian] = useState(true);
    const [newCountry, setNewCountry] = useState(false);
@@ -188,6 +190,7 @@ export default function MemberNewMemberhsip() {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/gotra/list`
 			let resp = await axios.get(myUrl);
 			//console.log(resp.data);
+         
 			setGotraArray(resp.data);
 			//var test = resp.data.find(
 		} catch (e) {
@@ -203,7 +206,7 @@ export default function MemberNewMemberhsip() {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/city/list`
 			let resp = await axios.get(myUrl);
 			setCityArray(resp.data);
-			//setCurrentMember()
+			//console.log(resp.data);
 		} catch (e) {
 			console.log(e);
 			showError(`Error fetching city List`);
@@ -247,8 +250,68 @@ export default function MemberNewMemberhsip() {
 		getCountryList(); 
   }, []);
   
-function handleNewMembership() {
+async function handleNewMembership() {
+   if (!currentGotraRec) {
+      showError(`Gotra need to be selected`);
+      return null;
+   }
    console.log("handleNewMembership selected");
+   
+   var myData = {
+     hid: 0,
+     title: title,
+     lastName: lastName,
+     firstName: firstName,
+     middleName: middleName,
+     alias: alias,
+     gotra: currentGotraRec.gotra,
+     caste: caste,
+     subCaste: subCaste,
+     village: village,
+     humadMembership: humadMembership,
+     pjymMembership: pjymMembership,
+     gender: gender,
+     dob: dob,
+     bloodGroup: (bloodGroup !== 'NotKnown') ? bloodGroup : '' ,
+     persMobile1: persMobile1,
+     persMobile2: persMobile2,
+     persEmail: encrypt((persEmail !== "") ? persEmail : "-"),
+     // update ADDRESS
+     indianResident: indian,
+     addr1: emurAddr1,
+     addr2: emurAddr2,
+     addr3: emurAddr3,
+     addr4: emurAddr4,
+     addr5: emurAddr5,
+     district: district,
+     suburb: suburb,
+     city: city,
+     state: state,
+     country: country,
+     pinCode: emurPinCode,
+   };
+   console.log(myData);
+   if (caste !== CASTEOBJ.nonHumad) {
+     showError(`Currently not implemented`);
+     return;
+   }
+	let myMsg = '';
+	let myStatus;
+	let tmp = encodeURIComponent(JSON.stringify(myData));
+	try {
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/guestmembership/${sessionStorage.getItem('prwsLogin')}/${tmp}`;
+		let resp = await axios.get(myUrl);
+		showError(`Successfully applied for new membership by Guest. Application reference ${resp.data.id}.`);
+		//myStatus = STATUS_INFO.SUCCESS;
+      setTab(myProps.calledFrom);
+	} catch (e) {
+		console.log(e.response);
+		showError(e.response.data);
+	}
+	//var returnStatus = {status: myStatus,  msg: myMsg};
+	//sessionStorage.setItem(myProps.applicationRec ? "application_returnstatus" : "family_personal_returnstatus", JSON.stringify(returnStatus));
+	//notreq sessionStorage.setItem("family_currentSelection", myProps.calledFrom);
+	return;
 }
 
 
@@ -299,6 +362,34 @@ function handleCancel() {
 	setTab(myProps.calledFrom);
 }
 
+function handleCasteChange(newCaste) {
+  setCaste(newCaste);
+  var newSubCaste = subCaste;
+  if (newCaste == CASTEOBJ.nonHumad) {
+     newSubCaste = HUMADSUBCASTEOBJ.dasha;
+     setSubCaste(newSubCaste);
+  }
+  updateCasteSubCaste(newCaste, newSubCaste);
+}
+
+function handleSubCasteChange(newSubCaste) {
+  setSubCaste(newSubCaste);
+  updateCasteSubCaste(caste, newSubCaste); 
+}
+
+function updateCasteSubCaste(newCaste, newSubCaste) {
+  ///console.log(CASTEOBJ, HUMADSUBCASTEOBJ);
+  //console.log(newCaste, CASTEOBJ.humad, newSubCaste, HUMADSUBCASTEOBJ.dasha);
+  
+  if ((newCaste === CASTEOBJ.humad) && (newSubCaste === HUMADSUBCASTEOBJ.dasha )) {
+   setIsDashaHumad(true);
+  }
+  else {
+   setIsDashaHumad(false); 
+   setHumadMembership(false);
+   setPjymMembership(false);
+  }
+}
 
 return (
 	<div className={gClasses.webPage} >
@@ -338,14 +429,14 @@ return (
          </Grid>
          <Grid item xs={8} sm={8} md={8} lg={8} >
             <VsRadioGroup
-               value={caste} onChange={(event) => setCaste(event.target.value)}
+               value={caste} onChange={(event) => handleCasteChange(event.target.value)}
                radioList={CASTE}
             />
          </Grid>
          <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-         {(caste === "Humad") &&
+         {(caste === CASTEOBJ.humad) &&
          <Grid item xs={4} sm={4} md={4} lg={4} >
-            {(caste === "Humad") &&
+            {(caste === CASTEOBJ.humad) &&
             <Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Sub Caste</Typography>
             }
          </Grid>
@@ -353,7 +444,7 @@ return (
          {(caste === "Humad") &&         
          <Grid item xs={8} sm={8} md={8} lg={8} >
             <VsRadioGroup 
-               value={subCaste} onChange={(event) => setSubCaste(event.target.value)}
+               value={subCaste} onChange={(event) => handleSubCasteChange(event.target.value)}
                radioList={HUMADSUBCASTRE}
             />
          </Grid>
@@ -383,19 +474,20 @@ return (
 				<Typography className={gClasses.patientInfo2Blue} >Humad membership</Typography>
 			</Grid>
 			<Grid item xs={4} sm={4} md={4} lg={4} >
-				<Switch color="primary" checked={humadMembership} onChange={() => setHumadMembership(!humadMembership) } />
+				<Switch color="primary" disabled={!isDashaHumad} checked={humadMembership} onChange={() => setHumadMembership(!humadMembership) } />
 			</Grid>
 			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
 				<Typography className={gClasses.patientInfo2Blue} >PJYM membership</Typography>
 			</Grid>
 			<Grid item xs={4} sm={4} md={4} lg={4} >
-				<Switch color="primary" checked={pjymMembership} onChange={() => setPjymMembership(!pjymMembership) } />
+				<Switch color="primary" disabled={!isDashaHumad}  checked={pjymMembership} onChange={() => setPjymMembership(!pjymMembership) } />
 			</Grid>
       </Grid>
       <br />
 	</Accordion>
     <br />
+   {(caste === CASTEOBJ.humad) &&
 	<Accordion expanded={expandedPanel === "NAMEDETAILS"} onChange={handleAccordionChange("NAMEDETAILS")}>
 		<Box align="right" className={(expandedPanel === "NAMEDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
@@ -448,8 +540,10 @@ return (
          </Grid>
       </Grid>
       <br />
-   </Accordion>   
+   </Accordion>  
+   }   
 	<br />
+   {(caste === CASTEOBJ.humad) &&
 	<Accordion expanded={expandedPanel === "ADDRESSDETAILS"} onChange={handleAccordionChange("ADDRESSDETAILS")}>
 		<Box align="right" className={(expandedPanel === "ADDRESSDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
@@ -590,7 +684,9 @@ return (
 			}
       <br />
    </Accordion>
+   }
     <br />
+   {(caste === CASTEOBJ.humad) &&
 	<Accordion expanded={expandedPanel === "PERSDETAILS"} onChange={handleAccordionChange("PERSDETAILS")}>
 		<Box align="right" className={(expandedPanel === "PERSDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
@@ -662,54 +758,10 @@ return (
 					/>	
 				</Grid>
          <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-            {/*<Grid item xs={5} sm={5} md={5} lg={5} >
-            <Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Title</Typography>
-         </Grid>
-         <Grid item xs={7} sm={7} md={7} lg={7} >
-            <VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} style={{paddingLeft: "10px", paddingRight: "10px" }}
-            options={MEMBERTITLE} value={title} onChange={(event) => { setTitle(event.target.value); }} />
-         </Grid>
-         <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-         <Grid item xs={5} sm={5} md={5} lg={5} >
-            <Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Last Name</Typography>
-         </Grid>
-         <Grid item xs={7} sm={7} md={7} lg={7} >
-            <TextValidator required style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing} inputProps={{className: gClasses.dateTimeNormal}}
-            type="text" value={lastName} onChange={(event) => { setLastName(event.target.value) }} />
-         </Grid>
-         <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-         <Grid item xs={5} sm={5} md={5} lg={5} >
-            <Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >First Name</Typography>
-         </Grid>
-         <Grid item xs={7} sm={7} md={7} lg={7} >
-            <TextValidator required style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing}
-               inputProps={{className: gClasses.dateTimeNormal}} type="text" value={firstName}
-               onChange={(event) => { setFirstName(event.target.value) }}			
-            />	
-         </Grid>
-         <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-         <Grid item xs={5} sm={5} md={5} lg={5} >
-            <Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Middle Name</Typography>
-         </Grid>
-         <Grid item xs={7} sm={7} md={7} lg={7} >
-            <TextValidator required style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing}
-               inputProps={{className: gClasses.dateTimeNormal}} type="text" value={middleName}
-               onChange={(event) => { setMiddleName(event.target.value) }}			
-            />	
-         </Grid>
-         <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-         <Grid item xs={5} sm={5} md={5} lg={5} >
-            <Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Alias</Typography>
-         </Grid>
-         <Grid item xs={7} sm={7} md={7} lg={7} >
-            <TextValidator style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing}
-               inputProps={{className: gClasses.dateTimeNormal}} type="text" value={alias}
-               onChange={(event) => { setAlias(event.target.value) }}			
-            />	
-</Grid>*/}
       </Grid>
       <br />
-   </Accordion>   
+   </Accordion> 
+   }   
   <DisplayRegisterStatus />
    <br />
    <VsButton align="center" name={"Apply"} type="submit" />

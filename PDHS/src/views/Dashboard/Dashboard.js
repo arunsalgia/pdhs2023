@@ -84,8 +84,12 @@ export default function Dashboard() {
 	
   useEffect(() => {
 		async function getMemberCount() {
+         var myMid = sessionStorage.getItem("mid");
+         console.log(typeof myMid);
+         console.log(myMid);
+         if (myMid === '0') myMid = sessionStorage.getItem("prwsLogin");
 			try {
-				var myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/count/all/${sessionStorage.getItem("mid")}`;
+				var myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/count/all/${myMid}`;
 				var resp = await axios.get(myUrl);
 				setCountInfoLocal(resp.data);
 				console.log(resp.data);

@@ -188,7 +188,7 @@ router.get('/jaijinendra/:myData', async function (req, res, next) {
 
 });
 
-var directLogin = ['8080820084', '9867100677', '9867061850', '9819804128', '1234567890'];
+var directLogin = []; //['8080820084', '9867100677', '9867061850', '9819804128', '1234567890'];
 
 router.get('/orgpadmavatimata/:uMobile/:uPassword', async function (req, res, next) {
   setHeader(res);

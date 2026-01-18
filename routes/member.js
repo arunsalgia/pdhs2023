@@ -34,7 +34,7 @@ return { $regex: name, $options: "i" }
 router.get('/count/all/:mid', async function (req, res) {
   setHeader(res);
   var { mid } = req.params;
-	
+	console.log(mid);
 	var prwsCount = await memberGetCount();
   var pjymCount = await memberGetPjymCount();		// M_Pjym.countDocuments({active: true});
 	var humadCount = await memberGetHumadCount();		//M_Humad.countDocuments({active: true});
@@ -45,24 +45,25 @@ router.get('/count/all/:mid', async function (req, res) {
 
 	// first check if admin
 	var adminRec = await M_Admin.findOne({mid: mid});
-	var applCount = 0;	
+   var myCond = {status: APPLICATIONSTATUS.pending};
+  
 	if (adminRec) {
 		var ownerList = [];
-		if (adminRec.prwsAdmin || adminRec.superAdmin)
+		if (adminRec.prwsAdmin || adminRec.superAdmin || adminRec.superDuper)
 			ownerList.push("PRWS");
-		if (adminRec.pjymAdmin || adminRec.superAdmin)
+		if (adminRec.pjymAdmin || adminRec.superAdmin || adminRec.superDuper)
 			ownerList.push("PJYM");
-		if (adminRec.humadAdmin || adminRec.superAdmin)
+		if (adminRec.humadAdmin || adminRec.superAdmin || adminRec.superDuper)
 			ownerList.push("HUMAD");
 		
-      console.log(ownerList);
-      
-		applCount += await M_Application.countDocuments({owner: {$in: ownerList }, status: APPLICATIONSTATUS.pending});
-	}
-	else {
-		applCount = await M_Application.countDocuments({mid: mid, status: APPLICATIONSTATUS.pending});
-	}
-	
+      //console.log(ownerList);
+      myCond["owner"] = {$in: ownerList };
+ 	}
+   else 
+     myCond["mid"] = mid;	
+   //console.log(myCond);
+
+	var applCount = await M_Application.countDocuments(myCond);
 	var myData = {prws: prwsCount, pjym: pjymCount,  humad: humadCount,  family: familyCount, application:  applCount}; 
 	console.log(myData);
 	sendok(res, myData);

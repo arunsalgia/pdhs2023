@@ -3,6 +3,9 @@ import { CssBaseline } from '@material-ui/core';
 import axios from 'axios';
 import Container from '@material-ui/core/Container';
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import Table from '@material-ui/core/Table';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
@@ -46,6 +49,7 @@ import {
 import { 
 	isMobile,
 	vsDialog,
+    showError, showSuccess,
 	getAdminInfo, getAdminRec,
 } from "views/functions.js";
 import { getMemberName } from 'views/functions';
@@ -87,7 +91,7 @@ export default function Permissions() {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/pdhsadm/list`;
 			let resp = await axios.get(myUrl);
 			//console.log(resp.data);
-			setAdminArray(resp.data.filter(x => !x.superduper));
+			setAdminArray(resp.data);
 		} catch (e) {
 			setAdminArray([]);
 		}	
@@ -139,7 +143,7 @@ export default function Permissions() {
 	}
 	
 	function editAdmin(adminRec) {
-		console.log(adminRec);
+		//console.log(adminRec);
 		var myMemberRec = memberArray.find(x => x.mid === adminRec.mid);
 		setRegisterStatus(0);
 		setEmurName(`${adminRec.title} ${adminRec.name}`);
@@ -159,42 +163,52 @@ export default function Permissions() {
 	}
 	
 	async function  addAdminSubmit()  {
-		if (!isSuper && !isPjym && !isPrws && !isHumad) return setRegisterStatus(1002);	
+		if (!isSuper && !isPjym && !isPrws && !isHumad) return showError('Admin not given any permission');	
+      
 
-		let tmp = emurOrigRec;	//   adminArray.find(x => x.mid === emurName);
-		if (tmp) return setRegisterStatus(1001);	
-		
+      let newAdminRec = memberArray.find(x => x.mergedName === emurName);
+      //console.log(newAdminRec);
+      if (!newAdminRec) return showError(`New admin not selected`);
+      
+		let tmp = adminArray.find(x => x.mid === newAdminRec.mid);
+		if (tmp) return showError(`${emurName} already admin`);	
+      
 		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/pdhsadm/add/${emurName}/${isSuper}/${isPjym}/${isHumad}/${isPrws}/false`;
+		  let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/pdhsadm/add/${sessionStorage.getItem('mid')}/${newAdminRec.mid}/${isSuper}/${isPjym}/${isHumad}/${isPrws}/false`;
 			console.log(myUrl);
-			return;
 			let resp = await axios.get(myUrl);
 			let tmpArray = [resp.data].concat(adminArray);
 			setAdminArray(lodashSortBy(tmpArray, 'name'));
-		} catch (error) {
-			if (error.response) {
-				switch (error.response.status) {
-					case 601: return setRegisterStatus(1001);	
-					case 602: return setRegisterStatus(1003);	 
-				}
-			}
-			alert.error("Error adding new Admin")
+         showSuccess(`New admin successfully added`);
+         setIsDrawerOpened("");
+		} 
+      catch (error) {
+         console.log(error.response);
+         showError(error.response.data);
 		}
-		setIsDrawerOpened("");
 	};
   
 		
 	async function  editAdminSubmit()  {
-		if (!isSuper && !isPjym && !isPrws && !isHumad) return setRegisterStatus(1002);	
+      console.log('step1');
+
+		if (!isSuper && !isPjym && !isPrws && !isHumad) return showError('Admin not given any permission');
+      console.log('step2');
+      
+      let newAdminRec = memberArray.find(x => x.mergedName === emurName);
+      console.log('step100');
 
 		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/pdhsadm/update/${emurOrigRec}/${isSuper}/${isPjym}/${isHumad}/${isPrws}/false`;
+         let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/pdhsadm/update/${sessionStorage.getItem('mid')}/${emurOrigRec.mid}/${isSuper}/${isPjym}/${isHumad}/${isPrws}/false`;
+         console.log(myUrl);
 			let resp = await axios.get(myUrl);
-			let tmpArray = [resp.data].concat(adminArray.filter(x => x.mid !== emurOrigRec));
+			let tmpArray = [resp.data].concat(adminArray.filter(x => x.mid !== emurOrigRec.mid));
 			setAdminArray(lodashSortBy(tmpArray, 'name'));
+         showSuccess(`Successfully updated admin permissions`);
+         setIsDrawerOpened("");
 		} catch (e) {
-			console.log(e);
-			alert.error("Error updating Admin permissions");
+			console.log(e.response);
+         showError(e.response.data);
 		}
 		setIsDrawerOpened("");
 	};
@@ -210,13 +224,14 @@ export default function Permissions() {
 	
 	async function handleDelAdminConfirm(adminRec) {
 		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/pdhsadm/delete/${adminRec.mid}`;
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/pdhsadm/delete/${sessionStorage.getItem('mid')}/${adminRec.mid}`;
 			await axios.get(myUrl);
 			let tmpArray = adminArray.filter(x => x.mid !== adminRec.mid);
 			setAdminArray(tmpArray);
+         showSuccess(`Admin successfully deleted`);
 		} catch (e) {
-			console.log(e);
-			alert.error(`Error deleting admin`);
+         console.log(e.response);
+			showError(`eror deleting`);
 		}
 	}
 
@@ -229,13 +244,16 @@ export default function Permissions() {
 				<Typography style={{paddingLeft: "10px"}} className={gClasses.patientInfo2Brown} >Name (Member Id)</Typography>
 			</TableCell>
 			<TableCell style={{padding: "2px" }} align="center">
-				<Typography className={gClasses.patientInfo2Brown} >PJYM Admin</Typography>
+				<Typography className={gClasses.patientInfo2Brown} >Super Admin</Typography>
+			</TableCell>
+			<TableCell style={{padding: "2px" }} align="center">
+				<Typography className={gClasses.patientInfo2Brown} >PRWS Admin</Typography>
 			</TableCell>
 			<TableCell style={{padding: "2px" }} align="center">
 				<Typography className={gClasses.patientInfo2Brown} >Humad Admin</Typography>
 			</TableCell>
 			<TableCell style={{padding: "2px" }} align="center">
-				<Typography className={gClasses.patientInfo2Brown} >PRWSAdmin</Typography>
+				<Typography className={gClasses.patientInfo2Brown} >PJYM Admin</Typography>
 			</TableCell>
 			<TableCell style={{padding: "2px" }} align="center">
 			</TableCell>
@@ -256,13 +274,16 @@ export default function Permissions() {
 			<Typography style={{paddingLeft: "10px"}} className={gClasses.patientInfo2}>{a.title + ' ' + a.name + ' ('+a.mid+')'}</Typography>
 		</TableCell>
 		<TableCell style={{padding: "0px" }} align="center">
-			<Typography className={gClasses.patientInfo2}>{(a.pjymAdmin) ? "YES" : "-"}</Typography>
+			<Typography className={gClasses.patientInfo2}>{(a.superAdmin) ? "YES" : "-"}</Typography>
+		</TableCell>
+		<TableCell style={{padding: "0px" }} align="center">
+			<Typography className={gClasses.patientInfo2}>{(a.prwsAdmin) ? "YES" : "-"}</Typography>
 		</TableCell>
 		<TableCell style={{padding: "0px" }} align="center">
 			<Typography className={gClasses.patientInfo2}>{(a.humadAdmin) ? "YES" : "-"}</Typography>
 		</TableCell>
 		<TableCell style={{padding: "0px" }} align="center">
-			<Typography className={gClasses.patientInfo2}>{(a.prwsAdmin) ? "YES" : "-"}</Typography>
+			<Typography className={gClasses.patientInfo2}>{(a.pjymAdmin) ? "YES" : "-"}</Typography>
 		</TableCell>
 		<TableCell style={{padding: "0px" }} align="center">
 		</TableCell>
@@ -299,7 +320,7 @@ export default function Permissions() {
 		<Grid key="ADEDITPERM" className={gClasses.noPadding} container  alignItems="flex-start" >
 		{(isDrawerOpened === "ADD") &&
 			<Grid item xs={4} sm={4} md={4} lg={4} >
-		<DisplayApplicationName name="Name" value="" style={{paddingTop: "20px" }}  />
+            <DisplayApplicationName name="Name" value="" style={{paddingTop: "20px" }}  />
 			</Grid>
 		}
 		{(isDrawerOpened === "ADD") &&
@@ -313,17 +334,17 @@ export default function Permissions() {
 				<DisplayApplicationNameValue name="Name" value={emurName} style={{paddingTop: "5px" }}  />
 			</Grid>
 		}
-		{/*<Grid item xs={5} sm={5} md={5} lg={5} >
+		<Grid item xs={5} sm={5} md={5} lg={5} >
 			<DisplayApplicationName name="Super Admin" value="" style={{paddingTop: "5px" }}  />
 		</Grid>
 		<Grid item xs={7} sm={7} md={7} lg={7} >
 			<VsCheckBox align="left" checked={isSuper} onClick={() => setIsSuper(!isSuper)} />
-		</Grid>*/}
+		</Grid>
 		<Grid item xs={5} sm={5} md={5} lg={5} >
-			<DisplayApplicationName name="PJYM Admin" value="" style={{paddingTop: "5px" }}  />
+			<DisplayApplicationName name="PRWS Admin" value="" style={{paddingTop: "5px" }}  />
 		</Grid>
 		<Grid item xs={7} sm={7} md={7} lg={7} >
-				<VsCheckBox align="left" checked={isPjym} onClick={() => setIsPjym(!isPjym)} />
+				<VsCheckBox align="left" checked={isPrws} onClick={() => setIsPrws(!isPrws)} />
 		</Grid>
 		<Grid item xs={5} sm={5} md={5} lg={5} >
 			<DisplayApplicationName name="Humad Admin" value="" style={{paddingTop: "5px" }}  />
@@ -332,10 +353,10 @@ export default function Permissions() {
 				<VsCheckBox align="left" checked={isHumad} onClick={() => setIsHumad(!isHumad)} />
 		</Grid>
 		<Grid item xs={5} sm={5} md={5} lg={5} >
-			<DisplayApplicationName name="PRWS Admin" value="" style={{paddingTop: "5px" }}  />
+			<DisplayApplicationName name="PJYM Admin" value="" style={{paddingTop: "5px" }}  />
 		</Grid>
 		<Grid item xs={7} sm={7} md={7} lg={7} >
-				<VsCheckBox align="left" checked={isPrws} onClick={() => setIsPrws(!isPrws)} />
+				<VsCheckBox align="left" checked={isPjym} onClick={() => setIsPjym(!isPjym)} />
 		</Grid>
 		</Grid>
 		<ShowResisterStatus/>
@@ -344,6 +365,7 @@ export default function Permissions() {
 		</Box>
 		</Container>
 		</Drawer>
+      <ToastContainer />
 		</div>
 	);
 }
