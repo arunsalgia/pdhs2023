@@ -14,6 +14,9 @@ import GroupIcon from '@material-ui/icons/Group';
 import Button from '@material-ui/core/Button';
 import Update from "@material-ui/icons/Update";
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import Accessibility from "@material-ui/icons/Accessibility";
 
 import Typography from '@material-ui/core/Typography';
@@ -125,6 +128,12 @@ export default function Dashboard() {
 		setDisplayPage(process.env.REACT_APP_APPLICATION, 0, 0);
 	}
 
+	function jumpToContactUs() {
+		//setDisplayPage(process.env.REACT_APP_APPLICATION, 0, 0);
+      console.log("contact");
+      showSuccess("To be implemented");
+	}
+
 	function jumpToGotra() {
 		setDisplayPage(process.env.REACT_APP_GOTRA, 0, 0);
 	}
@@ -173,7 +182,7 @@ export default function Dashboard() {
           <Card key="db_card_ub1" onClick={jumpToPrws} >
             <CardHeader key="db_chdr_ub1" color="warning" stats icon>
               <CardIcon color="warning">
-               <img src={process.env.PUBLIC_URL + 'image/PJYM.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 
+               <img src={process.env.PUBLIC_URL + 'image/PRWS.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 
               </CardIcon>
                <div>
                   <button className={gClasses.dashText} >PRWS</button>
@@ -250,6 +259,22 @@ export default function Dashboard() {
           </Card>
 					</a>
         </GridItem>
+        <GridItem key="db_gi_ub51" xs={12} sm={6} md={4} lg={3} >
+					<a href='/' > 
+          <Card key="db_card_ub51" onClick={jumpToContactUs}>
+            <CardHeader key="db_chdr_ub5" color="warning" stats icon>
+              <CardIcon color="warning">
+							<img src={process.env.PUBLIC_URL + 'image/CONTACTUS.JPG'} height={IMAGESIZE} width={IMAGESIZE} /> 							
+              </CardIcon>
+              <button className={gClasses.dashText} >Contact Us</button>
+							<h5 align="right" color="blue"  className={gClasses.cardTitle} ></h5>
+            </CardHeader>
+            <CardFooter key="db_cftr_ub51" stats>
+							<Typography className={gClasses.patientInfo2Blue} >Contact us</Typography>
+            </CardFooter>
+          </Card>
+            </a>
+        </GridItem>
         {(adminData > 0) &&
         <GridItem key="admin_item" xs={12} sm={6} md={4} lg={3} >
 					<a href='/' > 
@@ -270,6 +295,7 @@ export default function Dashboard() {
 				}
 				
       </GridContainer>  
+      <ToastContainer />
 		</div>
 );		
 }
