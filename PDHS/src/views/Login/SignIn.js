@@ -26,7 +26,9 @@ import {
 	isMobile, encrypt, getMemberName, capitalizeFirstLetter,
 } from "views/functions";
 
+//import background from `${process.env.PUBLIC_URL}/image/CREDIT.JPG`;     // Adjust the path as needed
 
+  
 import {
 	PAGELIST,
 } from "views/globals.js";
@@ -47,6 +49,16 @@ const LOGINOPTION = {
 		mobile:		"Mobile",
 		email:		"Email"
 };
+
+const pageStyle = {
+    backgroundImage: `url(${process.env.PUBLIC_URL}/image/CREDIT.JPG)`,      // Use template literals
+    height: '100vh',                            // Ensure the element has a height and width
+    backgroundSize: 'cover',                    // Common properties for background images
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+  };
+
+
 
 export default function SignIn() {
   const gClasses = globalStyles();
@@ -163,9 +175,9 @@ function switchHandler() {
 		setLoginMode(LOGINOPTION.mobile);
 }
 
-
+//<div style={{backgroundColor: '#FFFFFF'}} >
   return (
-	<div style={{backgroundColor: '#FFFFFF'}} >
+   <div style={pageStyle}  >
 	<Container align="center" component="main" maxWidth="xs">
 	<CssBaseline />
 	<br />
@@ -173,6 +185,7 @@ function switchHandler() {
 	<VsLogo />
 	</div>
   <Typography component="h1" variant="h5" align="center">Sign in</Typography>
+  <br />
   <br />
   {(stage === "MOBILE") &&
   	<ValidatorForm align="center" className={gClasses.form} onSubmit={handleSubmitMobile}>
@@ -239,6 +252,17 @@ function switchHandler() {
 		<ValidComp />
     </ValidatorForm>	
   }
+  <br />
+  <br />
+  <Typography className={gClasses.text1}>{`A thoughtful tool crafted`}</Typography>
+  <br />
+  <h1 className={gClasses.text3Bold}>{`MEMBERS' DIRECTORY`}</h1>
+  <br />
+  <Typography className={gClasses.text1}>{`Designed and developed by`}</Typography>
+  <Typography className={gClasses.text1Bold}>
+      Atul Rajendra Salgia<br />
+      Arun Rajendra Salgia
+  </Typography>
   </Container>
 	</div>
   );

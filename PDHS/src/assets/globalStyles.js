@@ -306,7 +306,29 @@ const globalStyles = makeStyles((theme) => ({
 		fontWeight: theme.typography.fontWeightBold,
 		color: 'blue',
 	},
-	appHeader: { 
+   text1: {
+		fontSize: theme.typography.pxToRem(16),
+		//fontWeight: theme.typography.fontWeightBold,
+		color: '#47677D',
+	},
+   text1Bold: {
+		fontSize: theme.typography.pxToRem(20),
+		color: 'lividus', 
+		fontWeight: theme.typography.fontWeightBold,
+	},   
+   text3Bold: {
+		fontSize: theme.typography.pxToRem(28),
+		fontWeight: theme.typography.fontWeightBold,
+		color: '#47677D',
+      margin: "0px",
+      padding: "0px",
+	},
+  text4Bold: {
+		fontSize: theme.typography.pxToRem(28),
+		fontWeight: theme.typography.fontWeightBold,
+		color: 'blue',
+	},	
+   appHeader: { 
 			border: 2,
 			borderLeft: 15,
 			borderStyle: 'solid',
