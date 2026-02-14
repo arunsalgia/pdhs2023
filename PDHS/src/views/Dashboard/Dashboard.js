@@ -129,9 +129,7 @@ export default function Dashboard() {
 	}
 
 	function jumpToContactUs() {
-		//setDisplayPage(process.env.REACT_APP_APPLICATION, 0, 0);
-      console.log("contact");
-      showSuccess("To be implemented");
+      setTab(process.env.REACT_APP_CONTACTUS);
 	}
 
 	function jumpToGotra() {

@@ -2,7 +2,8 @@ import React, { useEffect, useState, useContext } from 'react';
 import axios from "axios";
 import { makeStyles } from '@material-ui/core/styles';
 // import { Switch, Route, Link } from 'react-router-dom';
-import { ValidatorForm, TextValidator, TextValidatorcvariant} from 'react-material-ui-form-validator';
+//import { ValidatorForm, TextValidator, TextValidatorcvariant} from 'react-material-ui-form-validator';
+import { ValidatorForm, TextValidator, TextValidatorcvariant, TextareaAutosize} from 'react-material-ui-form-validator';
 import Drawer from '@material-ui/core/Drawer';
 //import Tooltip from "react-tooltip";
 //import ReactTooltip from 'react-tooltip'
@@ -40,8 +41,10 @@ import CancelIcon from '@material-ui/icons/Cancel';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 //import { NoGroup, JumpButton, DisplayPageHeader, MessageToUser } from 'CustomComponents/CustomComponents.js';
-import { isMobile, getWindowDimensions, displayType, decrypt, encrypt,
+import { isMobile, getWindowDimensions, displayType, decrypt, dbdecrypt, encrypt,
 	showError, showSuccess, showInfo,
+   getMemberName,
+	dateString, dateStringMMM, disableFutureDt,
 } from 'views/functions';
 
 import globalStyles from "assets/globalStyles";
@@ -63,19 +66,13 @@ import {
 } from 'views/globals';
 
 import {
-	getMemberName,
-	dateString, dateStringMMM, disableFutureDt,
-	
-} from 'views/functions';
-
-import {
 	setTab,
 } from "CustomComponents/CricDreamTabs.js"
 
 
-import {
-	memberGetByMidOne,
-} from 'views/clientdbfunctions';
+//import {
+//	memberGetByMidOne,
+//} from 'views/clientdbfunctions';
 	
 
 function MyInput(myProps) {
@@ -97,519 +94,118 @@ export default function ContactUs() {
 	const [header, setHeader] = useState("");
 	const [registerStatus, setRegisterStatus] = useState(0);
 	
-	const [emurGotra, setEmurGotra] = useState("");
-	const [emurVillage, setEmurVillage] = useState("");
-	const [emurPinCode, setEmurPincCode] = useState("");
-	const [emurResPhone1, setEmurResPhone1] = useState("");
-	const [emurResPhone2, setEmurResPhone2] = useState("");
-	const [emurPinResp, setEmurPinResp] = useState({});
-	const [emurDate1, setEmurDate1] = useState("");
-	const [emurDate2, setEmurDate2] = useState("");
+	const [name, setName] = useState("");
+   const [mobile, setMobile] = useState("");
+	const [email, setEmail] = useState("");
+	const [remarks, setRemarks] = useState("");
 
-
-	const [emurAddr1, setEmurAddr1] = useState("Shri");
-	const [emurAddr2, setEmurAddr2] = useState("");
-	const [emurAddr3, setEmurAddr3] = useState("");
-	const [emurAddr4, setEmurAddr4] = useState("");
-	const [emurAddr5, setEmurAddr5] = useState("");
-	const [emurAddr6, setEmurAddr6] = useState("Son");
-	const [emurAddr7, setEmurAddr7] = useState("Male");
-	const [emurAddr8, setEmurAddr8] = useState("Unmarried");
-	const [emurAddr9, setEmurAddr9] = useState("O+");
-	const [emurAddr10, setEmurAddr10] = useState("");
-	const [emurAddr11, setEmurAddr11] = useState("");
-	const [emurAddr12, setEmurAddr12] = useState("");
-	const [emurAddr13, setEmurAddr13] = useState("");
-	// Office data
-	const [education, setEducation] = useState("");
-	const [company, setCompany] = useState("");
-	const [officePhone, setOfficePhone] = useState("");
-
-	
-	const [memberArray, setMemberArray] = useState([]);
-	const	[emurSpouseRec, setEmurSpouseRec] = useState(0);
-	const [selectSpouse, setSelectSpouse] = useState(false);
-	const [spouseList, setSpouseList] = useState([]);
-	
-	const [newSpouseMid, setNewSpouseMid] = useState(0);
-	
-	const [isMemberHod, setIsMemberHod] = useState(false);
-	
-	
-	// show in accordion
-	const [expandedPanel, setExpandedPanel] = useState("");
-	const handleAccordionChange = (panel) => (event, isExpanded) => {
-    setExpandedPanel(isExpanded ? panel : false);
-    setRegisterStatus(0);
-  };
-	
-	
 	useEffect(() => {
-		
-		async function getAllMembers(hid, spouseMid) {
-			try {
-				let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/hod/${hid}`;
-				let resp = await axios.get(myUrl);
-				setMemberArray(resp.data);
-				var tmp = resp.data.find(x => x.mid === spouseMid);
-				setEmurSpouseRec(tmp);
-			}
-			catch (e) {
-				console.log(e);
-				showError("Error fetching members");
-				setMemberArray([]);
-				setEmurSpouseRec(null);
-			}
-			return 
-		}
-
-      
-		var myHeader = "";
-      
-      // If reapplied then application record will be available
-      var tmpMemberRec = myProps.memberRec;
-      if (myProps.applicationRec) {
-         //console.log(myProps.applicationRec);
-         var tmpData = JSON.parse(myProps.applicationRec.data);
-         console.log(tmpData);
-         tmpMemberRec = tmpData.memberRec; 
-		} 
-      myHeader = (myProps.mode == "ADD") ? "Add new family member" : `Edit details of ${getMemberName(tmpMemberRec)}`;
-      setEmurAddr2(tmpMemberRec.lastName);
-      if ((myProps.mode != "ADD") || myProps.applicationRec)  {
-			setEmurAddr1(tmpMemberRec.title);
-			setEmurAddr2(tmpMemberRec.lastName);
-			setEmurAddr3(tmpMemberRec.firstName);
-			setEmurAddr4(tmpMemberRec.middleName);
-			setEmurAddr5(tmpMemberRec.alias)
-			setEmurAddr6(tmpMemberRec.relation);
-			setEmurAddr7(tmpMemberRec.gender)
-			setEmurAddr8(tmpMemberRec.emsStatus);
-         setEmurAddr9(tmpMemberRec.bloodGroup == '' ? 'NotKnown' : tmpMemberRec.bloodGroup);
-			setEmurAddr11(tmpMemberRec.mobile);
-			setEmurAddr12(tmpMemberRec.mobile1);
-			var xxx = decrypt(tmpMemberRec.email);
-			if (xxx === "-") xxx = "";
-			setEmurAddr13(xxx);
-			setEmurDate1(moment(tmpMemberRec.dob));
-			setEmurDate2(moment(tmpMemberRec.dateOfMarriage));
-			setIsMemberHod(tmpMemberRec.mid === myProps.hodMid);
-			// Office details
-			setEmurAddr10(tmpMemberRec.occupation);
-			setEducation(tmpMemberRec.education);
-			setCompany(tmpMemberRec.officeName);
-			setOfficePhone(tmpMemberRec.officePhone);
-			
-			
-			getAllMembers(tmpMemberRec.hid, tmpMemberRec.spouseMid);
-			//console.log(myProps.memberRec.dob);
-			
-		}
-		setHeader(myHeader);
+      // find out if user is a member or not
+      if (sessionStorage.getItem("isMember") == "true") {
+         //console.log("is a member");
+         var myRec = JSON.parse(sessionStorage.getItem("loginMemberRec"));
+         //console.log(myRec);
+         setName(getMemberName(myRec, false));
+         setMobile(myRec.mobile);
+         setEmail(decrypt(myRec.email));
+      }
+      else {
+         setName(sessionStorage.getItem("userName"));
+         setMobile(sessionStorage.getItem("prwsLogin"));
+         //console.log("is NOTTTTT a member");
+         
+      }
 	}, [])
-
-function handleSpouseSelect() {
-	//console.log(memberArray);
-	var spouseGender = (myProps.memberRec.gender === "Male") ? "Female" : "Male";
-	var tmp = memberArray.filter( x => (x.gender === spouseGender) && (x.spouseMid === 0));
-	var tmpSpouse = memberArray.find(x => x.mid === myProps.memberRec.spouseMid); 
-	if (tmpSpouse) {
-		//console.log("Have Spouse");
-		tmp = [tmpSpouse].concat(tmp);
-	}
-	//console.log(tmp);
-	
-	if (tmp.length > 0) {
-		setNewSpouseMid(tmp[0].mid);
-		setSpouseList(tmp);
-		setSelectSpouse(true)
-	}
-	else {
-		setSpouseList([]);
-		showInfo("No spouse available");
-	}
-}
-
-function updateNewSpouse() {
-	var tmpRec = memberArray.find(x => x.mid === newSpouseMid);
-	setEmurSpouseRec(tmpRec);
-	setSelectSpouse(false);
-	//console.log(newSpouseMid);
-}
-
-
-async function handleMemberAddEditSubmit() {
-
-	/*var tmpRec = {
-		title: emurAddr1,
-		lastName: emurAddr2,
-		firstName: emurAddr3,
-		middleName: emurAddr4,
-		alias: emurAddr5,
-		relation: emurAddr6,
-		gender: emurAddr7,
-		emsStatus: emurAddr8,
-		bloodGroup: emurAddr9,
-		occupation: emurAddr10,
-		mobile: emurAddr11,
-		mobile1: emurAddr12,
-		email: encrypt(emurAddr13),
-		dob: emurDate1.toDate(),
-		dateOfMarriage: emurDate2.toDate(),
-		spouseMid: (emurSpouseRec) ? emurSpouseRec.mid : 0
-	}*/
-	
-	var tmpRec = lodashCloneDeep(myProps.memberRec);
-	
-	console.log("in submit");
-	console.log(myProps.memberRec);
-	// first update if change of name
-	tmpRec["title"] = emurAddr1;
-	tmpRec["lastName"] = emurAddr2;
-	tmpRec["firstName"] = emurAddr3;
-	tmpRec["middleName"] = emurAddr4;
-	tmpRec["alias"] = emurAddr5;
-	// update personal details
-	tmpRec["relation"] = emurAddr6;
-	tmpRec["gender"] = emurAddr7;
-	tmpRec["bloodGroup"] = (emurAddr9 !== 'NotKnown') ? emurAddr9 : '' ;
-	// other details
-	tmpRec["mobile"] = emurAddr11;
-	tmpRec["mobile1"] = emurAddr12;
-	// encrypt email
-	tmpRec["email"] = encrypt((emurAddr13 !== "") ? emurAddr13 : "-");
-	// Now dates 
-	tmpRec["dob"] = emurDate1.toDate();
-	// Office 
-	tmpRec["occupation"] = emurAddr10;
-	tmpRec["education"] = education;
-	tmpRec["officePhone"] = officePhone;
-	tmpRec["officeName"] = company;
-	
-	console.log(tmpRec);
-	
-	// Now send the details to server
-	var myData = {
-		hid: myProps.memberRec.hid,
-		mode: myProps.mode,
-		oldMemberRec: myProps.memberRec,
-		memberRec: tmpRec
-	}
-	
-	let myMsg = '';
-	let myStatus;
-	let tmp = encodeURIComponent(JSON.stringify(myData));
-	try {
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/addeditpersonal/${myProps.hodMid}/${sessionStorage.getItem('mid')}/${tmp}`;
-		var submsg = (myProps.mode === "ADD") ? 'add member' : 'edit';
-		let resp = await axios.get(myUrl);
-		myMsg = `Successfully applied to ${submsg} member details. Application reference ${resp.data.id}.`;
-		myStatus = STATUS_INFO.SUCCESS;
-	} catch (e) {
-		console.log(e);
-		myMsg = `Error applying for add/edit member personal details`;
-		myStatus = STATUS_INFO.ERROR;
-	}
-	var returnStatus = {status: myStatus,  msg: myMsg};
-	sessionStorage.setItem(myProps.applicationRec ? "application_returnstatus" : "family_personal_returnstatus", JSON.stringify(returnStatus));
-	//notreq sessionStorage.setItem("family_currentSelection", myProps.calledFrom);
-	setTab(myProps.calledFrom);
-	return;
-}
-
+   
 function handleCancel() {
-	setTab(myProps.calledFrom);
+	setTab(process.env.REACT_APP_DASH);
 }
+
+async function handleContactUsSubmit() {
+  var myData={
+     name: name,
+     mobile: mobile,
+     email: encrypt((email != "") ? email : "-"),
+     remarks: remarks
+  }
+  console.log(myData);
+  myData = encodeURIComponent(JSON.stringify(myData));
+  try { 
+		let response = await axios.get(`${process.env.REACT_APP_AXIOS_BASEPATH}/user/suggestion/${myData}`); 
+      showInfo("Successfully submitted suggestion");
+      setTab(process.env.REACT_APP_DASH);
+  } catch (err) {
+		showError("Error updating suggestion");
+	}
+}
+
+//console.log("Mobile", isMobile());
 
 return (
 	<div className={gClasses.webPage} >
+   <br />
+   <br />
 	<Container component="main" maxWidth="xs">	
 	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
 	<VsCancel align="right" onClick={handleCancel} />
-	<Typography align="center" className={gClasses.title}>{header}</Typography>
+	<Typography align="center" className={gClasses.title}>Contact Us</Typography>
 	<br />
-	<ValidatorForm align="left" className={gClasses.form} onSubmit={handleMemberAddEditSubmit}>
-		<Accordion expanded={expandedPanel === "NAME"} onChange={handleAccordionChange("NAME")}>
-			<Box align="right" className={(expandedPanel === "NAME") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
-			<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
-				<Typography align="left" >{`Name: ${emurAddr1} ${emurAddr2} ${emurAddr3} ${emurAddr4}`}</Typography>
-			</AccordionSummary>
-			</Box>
-			<Grid key="NAME" className={gClasses.noPadding} container  alignItems="flex-start" >
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Title</Typography>
-				</Grid>
-				<Grid item xs={7} sm={7} md={7} lg={7} >
-					<VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} style={{paddingLeft: "10px", paddingRight: "10px" }}
-					options={MEMBERTITLE} value={emurAddr1} onChange={(event) => { setEmurAddr1(event.target.value); }} />
-				</Grid>
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Last Name</Typography>
-				</Grid>
-				<Grid item xs={7} sm={7} md={7} lg={7} >
-					<TextValidator required style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing} inputProps={{className: gClasses.dateTimeNormal}}
-					type="text" value={emurAddr2} onChange={(event) => { setEmurAddr2(event.target.value) }} />
-				</Grid>
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >First Name</Typography>
-				</Grid>
-				<Grid item xs={7} sm={7} md={7} lg={7} >
-					<TextValidator required style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing}
-						inputProps={{className: gClasses.dateTimeNormal}} type="text" value={emurAddr3}
-						onChange={(event) => { setEmurAddr3(event.target.value) }}			
-					/>	
-				</Grid>
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Middle Name</Typography>
-				</Grid>
-				<Grid item xs={7} sm={7} md={7} lg={7} >
-					<TextValidator required style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing}
-						inputProps={{className: gClasses.dateTimeNormal}} type="text" value={emurAddr4}
-						onChange={(event) => { setEmurAddr4(event.target.value) }}			
-					/>	
-				</Grid>
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Alias</Typography>
-				</Grid>
-				<Grid item xs={7} sm={7} md={7} lg={7} >
-					<TextValidator style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing}
-						inputProps={{className: gClasses.dateTimeNormal}} type="text" value={emurAddr5}
-						onChange={(event) => { setEmurAddr5(event.target.value) }}			
-					/>	
-				</Grid>
-			</Grid>
-			<br />
-		</Accordion>
-		<br />
-		<Accordion expanded={expandedPanel === "PERDETAILS"} onChange={handleAccordionChange("PERDETAILS")}>
-			<Box align="right" className={(expandedPanel === "PERDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
-			<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
-				<Typography align="left" >{"Personal Details"}</Typography>
-			</AccordionSummary>
-			</Box>
-			<Grid key="PERDETAILS" className={gClasses.noPadding} container  alignItems="flex-start" >
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Relation with F.Head</Typography>
-				</Grid>
-				<Grid item xs={7} sm={7} md={7} lg={7} >
-					<VsSelect size="small" align="left"  style={{paddingLeft: "10px", paddingRight: "10px" }}
-						inputProps={{className: gClasses.dateTimeNormal}} options={(isMemberHod) ? SELFRELATION : RELATION} 
-						value={emurAddr6} onChange={(event) => { setEmurAddr6(event.target.value); }} 
-					/>				
-				</Grid>
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Gender</Typography>
-				</Grid>
-				<Grid item xs={7} sm={7} md={7} lg={7} >
-					<VsSelect size="small" align="left"  style={{paddingLeft: "10px", paddingRight: "10px" }}
-						inputProps={{className: gClasses.dateTimeNormal}} options={GENDER} 
-						value={emurAddr7} onChange={(event) => { setEmurAddr7(event.target.value); }} 
-					/>
-				</Grid>
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "1px" }} className={gClasses.patientInfo2Blue} >Date of Birth</Typography>
-				</Grid>
-				<Grid item xs={7} sm={7} md={7} lg={7} >
-					<Datetime 
-						className={gClasses.dateTimeBlock}
-						inputProps={{className: gClasses.dateTimeNormal}}
-						timeFormat={false} 
-						initialValue={emurDate1}
-						value={emurDate1}
-						dateFormat="DD/MMM/yyyy"
-						isValidDate={disableFutureDt}
-						onClose={setEmurDate1}
-						closeOnSelect={true}
-					/>
-				</Grid>
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Blood Group</Typography>
-				</Grid>
-				<Grid item xs={7} sm={7} md={7} lg={7} >
-					<VsSelect size="small" align="left"  style={{paddingLeft: "10px", paddingRight: "10px" }}
-						inputProps={{className: gClasses.dateTimeNormal}} options={BLOODGROUP} 
-						value={emurAddr9} onChange={(event) => { setEmurAddr9(event.target.value); }} 
-					/>
-				</Grid>
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Mobile 1</Typography>
-				</Grid>
-				<Grid item xs={7} sm={7} md={7} lg={7} >
-					<TextValidator className={gClasses.vgSpacing}
-						inputProps={{className: gClasses.dateTimeNormal}} type="text" value={emurAddr11}
-						onChange={(event) => { setEmurAddr11(event.target.value) }}			
-					/>
-				</Grid>
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Mobile 2</Typography>
-				</Grid>
-				<Grid item xs={7} sm={7} md={7} lg={7} >
-					<TextValidator className={gClasses.vgSpacing} type="text" value={emurAddr12}
-						onChange={(event) => { setEmurAddr12(event.target.value) }}			
-					/>
-				</Grid>
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Email</Typography>
-				</Grid>
-				<Grid item xs={7} sm={7} md={7} lg={7} >
-					<TextValidator className={gClasses.vgSpacing}
-						inputProps={{className: gClasses.dateTimeNormal}} type="email" value={emurAddr13}
-						onChange={(event) => { setEmurAddr13(event.target.value) }}			
-					/>	
-				</Grid>
-			</Grid>
-			<br />
-		</Accordion>
-		<br />
-		{/*<Accordion expanded={expandedPanel === "SPOUSEDETAILS"} onChange={handleAccordionChange("SPOUSEDETAILS")}>
-			<Box align="right" className={(expandedPanel === "SPOUSEDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
-			<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
-				<Typography align="left" >{"Marital Details"}</Typography>
-			</AccordionSummary>
-			</Box>
-			<Grid key="SPOUSEDETAILS" className={gClasses.noPadding} container  alignItems="flex-start" >
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Marital Status</Typography>
-				</Grid>
-				<Grid item xs={7} sm={7} md={7} lg={7} >
-					<VsSelect size="small" align="left"  style={{paddingLeft: "10px", paddingRight: "10px" }}
-						inputProps={{className: gClasses.dateTimeNormal}} label="Marital Status" 
-						options={MARITALSTATUS} 
-						value={emurAddr8} onChange={(event) => { setEmurAddr8(event.target.value); }} 
-					/>			
-				</Grid>
-			</Grid>	
-			{(emurAddr8 === "Married") &&
-			<div>
-			<Grid key="SPOUSEDETAILS_PART2" className={gClasses.noPadding} container  alignItems="flex-start" >
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "1px" }} className={gClasses.patientInfo2Blue} >Date of Marriage</Typography>
-				</Grid>
-				<Grid item xs={7} sm={7} md={7} lg={7} >
-					<Datetime 
-						className={gClasses.dateTimeBlock}
-						inputProps={{className: gClasses.dateTimeNormal}}
-						timeFormat={false} 
-						initialValue={emurDate2}
-						value={emurDate2}
-						dateFormat="DD/MM/yyyy"
-						isValidDate={disableFutureDt}
-						onClose={setEmurDate2}
-						closeOnSelect={true}
-					/>
-				</Grid>
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-			</Grid>
-			{ (!selectSpouse) &&
-			<Grid key="SPOUSEDETAILS_PART4" className={gClasses.noPadding} container  alignItems="flex-start" >				
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Spouse</Typography>
-				</Grid>
-				<Grid item xs={7} sm={7} md={7} lg={7} >
-					<Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2} >
-						{(emurSpouseRec) ? getMemberName(emurSpouseRec, false, false) : ""}
-					</Typography>		
-				</Grid>
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-				<Grid item xs={6} sm={6} md={6} lg={6} >
-					<VsButton align="center" name="Clear" type="button" onClick={() => setEmurSpouseRec(null) } />
-				</Grid>
-				<Grid item xs={6} sm={6} md={6} lg={6} >
-					<VsButton align="center" name="Modify" type="button" onClick={handleSpouseSelect} />
-				</Grid>
-			</Grid>
-			}
-			{ (selectSpouse) &&
-				<Box align="center" borderColor="black" borderRadius={7} border={1} >
-				<VsCancel align="right" onClick={() => setSelectSpouse(false) } />
-				<br />
-				<Typography className={gClasses.patientInfo2Brown}>Select Spouse</Typography>
-				<br />
-				{spouseList.map( (m, index) => {
-					return (
-						<Grid key={"SELECTSPOUSE"+index} className={gClasses.noPadding} container  alignItems="flex-start" >
-						<Grid style={{marginTop: "10px"}}  item xs={8} sm={8} md={8} lg={8} >
-							<Typography style={{marginLeft: "10px"}} className={gClasses.title}>{getMemberName(m, false, false)}</Typography>
-						</Grid>	
-						<Grid item xs={2} sm={2} md={2} lg={2} >
-							<VsRadio checked={newSpouseMid === m.mid} onClick={() => setNewSpouseMid(m.mid) }  />
-						</Grid>
-						</Grid>	
-					)}
-				)}
-				<br />
-				<VsButton type="button" align="center"  name="Confirm" onClick={updateNewSpouse} />
-				</Box>
-			}
-			</div>
-			}
-			<br />
-		</Accordion>
-		<br />*/}
-		<Accordion expanded={expandedPanel === "OTHERDETAILS"} onChange={handleAccordionChange("OTHERDETAILS")}>
-			<Box align="right" className={(expandedPanel === "OTHERDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
-			<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
-				<Typography align="left" >{"Office Details"}</Typography>
-			</AccordionSummary>
-			</Box>
-			<Grid key="OTHERDETAILS" className={gClasses.noPadding} container  alignItems="flex-start" >
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Occupation</Typography>
-				</Grid>
-				<Grid item xs={7} sm={7} md={7} lg={7} >
-					<TextValidator className={gClasses.vgSpacing}
-						inputProps={{className: gClasses.dateTimeNormal}} type="text" value={emurAddr10}
-						onChange={(event) => { setEmurAddr10(event.target.value) }}			
-					/>			
-				</Grid>
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Education</Typography>
-				</Grid>
-				<Grid item xs={7} sm={7} md={7} lg={7} >
-					<TextValidator className={gClasses.vgSpacing}
-						inputProps={{className: gClasses.dateTimeNormal}} type="text" value={education}
-						onChange={(event) => { setEducation(event.target.value) }}			
-					/>			
-				</Grid>
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Company</Typography>
-				</Grid>
-				<Grid item xs={7} sm={7} md={7} lg={7} >
-					<TextValidator className={gClasses.vgSpacing}
-						inputProps={{className: gClasses.dateTimeNormal}} type="text" value={company}
-						onChange={(event) => { setCompany(event.target.value) }}			
-					/>			
-				</Grid>
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Office Phone</Typography>
-				</Grid>
-				<Grid item xs={7} sm={7} md={7} lg={7} >
-					<TextValidator className={gClasses.vgSpacing}
-						inputProps={{className: gClasses.dateTimeNormal}} type="text" value={officePhone}
-						onChange={(event) => { setOfficePhone(event.target.value) }}			
-					/>			
-				</Grid>
-			</Grid>
-			<br />
-		</Accordion>
-		<br />
-		<VsButton align="center" name={(myProps.mode === "ADD") ? "Add" : "Update"} type="submit" />		
+	<ValidatorForm align="left" className={gClasses.form} onSubmit={handleContactUsSubmit}>
+   <Grid key="PERDETAILS" className={gClasses.noPadding} container  alignItems="flex-start" >		
+      <Grid item xs={4} sm={4} md={4} lg={4} >
+         <Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Name</Typography>
+      </Grid>
+      <Grid item xs={8} sm={8} md={8} lg={8} >
+         <TextValidator fullWidth required className={gClasses.vgSpacing} variant="outlined" label="Name" 
+            inputProps={{className: gClasses.dateTimeNormal}} type="text" value={name}
+            onChange={(event) => { setName(event.target.value) }}			
+         />	
+      </Grid>
+      <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+      <Grid item xs={4} sm={4} md={4} lg={4} >
+         <Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Mobile</Typography>
+      </Grid>
+      <Grid item xs={8} sm={8} md={8} lg={8} >
+       <TextValidator fullWidth  variant="outlined" required className={gClasses.vgSpacing}
+         label="Mobile" type="text"
+         value={mobile} 
+         onChange={(event) => { setMobile(event.target.value) }}
+       />
+      </Grid>
+      <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+      <Grid item xs={4} sm={4} md={4} lg={4} >
+         <Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Email</Typography>
+      </Grid>
+      <Grid item xs={8} sm={8} md={8} lg={8} >
+         <TextValidator fullWidth className={gClasses.vgSpacing} variant="outlined" label="Email" 
+            inputProps={{className: gClasses.dateTimeNormal}} type="email" value={email}
+            onChange={(event) => { setEmail(event.target.value) }}			
+         />	
+      </Grid>
+      <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+      <Grid item xs={4} sm={4} md={4} lg={4} >
+         <Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Suggestion</Typography>
+      </Grid>
+      <Grid item xs={12} sm={12} md={12} lg={12} >
+		<textarea
+         fullwidth="true"
+			rows = {5}    // Specifies the number of visible text lines
+			cols = {(!isMobile()) ? 48 : 38}    // Specifies the width of the text area in characters
+			value = {remarks}   // Specifies the initial value of the text area
+			placeholder = "Add suggestion"   // Specifies a short hint that describes the expected value of the textarea
+			//wrap = "soft"   // Specifies how the text in the text area should be wrapped
+			//readOnly = {(myProps.applicationRec.status !== "Pending")}   // Specifies that the text area is read-only, meaning the user cannot modify its content
+			name = "Suggestion"   // Specifies the name of the text area, which can be used when submitting a form
+			//disabled = {true}   //  Specifies that the text area is disabled, meaning the user cannot interact with it
+			//minLength = {150}   // Specifies the minimum number of characters required in the textarea
+			maxLength = {200}   // Specifies the maximum number of characters allowed in the textarea
+			onChange = {() => setRemarks(event.target.value) }
+		/>
+      </Grid>
+   </Grid>
+   <br />
+   <br />
+   <VsButton align="center" name={"Submit"} type="submit" />		
 	</ValidatorForm>
 	<ToastContainer />
 	</Box>

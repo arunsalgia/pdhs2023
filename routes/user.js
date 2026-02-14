@@ -21,7 +21,7 @@ const {
 
 const SENDCAPTAOVEREMAIL = true;
 
-
+ 
 var _group;
  
 
@@ -104,6 +104,8 @@ router.get('/jaijinendra/:myData', async function (req, res, next) {
   var isValid = false;
   
 	var myData = JSON.parse(myData);
+   console.log(myData);
+   
 	var userName = decrypt(myData.userName);
 	console.log(userName);
 	
@@ -117,6 +119,7 @@ router.get('/jaijinendra/:myData', async function (req, res, next) {
 	} 
 	else {
 		myRec = await memberGetByEmailOne ( userName );
+      if (!myRec) return senderr(res, 601, 'Currently not supported');
 		myEmail = userName;
 		if (myRec) myMobile = (myRec.mobile.length === 10) ? myRec.mobile : "";
 	}
@@ -126,7 +129,7 @@ router.get('/jaijinendra/:myData', async function (req, res, next) {
   if (!myCaptha) {
     myCaptha = new M_Password();
     myCaptha.mobile = userName;
-    myCaptha.captcha = otpGenerator.generate(8, { specialChars: false, lowerCaseAlphabets: false, upperCaseAlphabets: false });
+    myCaptha.captcha = otpGenerator.generate(OTP_LENGTH, { specialChars: false, lowerCaseAlphabets: false, upperCaseAlphabets: false });
 	  console.log(`New captha ${myCaptha.captcha}`);
 	  myCaptha.save();
   }
@@ -262,6 +265,7 @@ router.get('/padmavatimata/:myData', async function (req, res, next) {
   var isValid = false;
   
 	var myData = JSON.parse(myData);
+   console.log(myData);
 	var userName = decrypt(myData.userName);
 	console.log(userName);
 	
@@ -290,6 +294,7 @@ router.get('/padmavatimata/:myData', async function (req, res, next) {
 	
   if (myMem) {
 		isMember = true;
+      myMem.email = dbToSvrText(myMem.email);
 		myAdmin = await M_Admin.findOne({mid: myMem.mid});
 		if (!myAdmin) {
 			myAdmin = {
@@ -362,6 +367,51 @@ router.get('/logout/:myData', async function (req, res, next) {
 	//console.log(myLogRec);
 });
 
+router.get('/suggestion/:myData', async function (req, res, next) {
+  setHeader(res);
+  var { myData } = req.params;
+   myData = JSON.parse(myData);
+	console.log(myData);
+   
+   var mySuggest = new M_Suggestion();
+   var tmp = await M_Suggestion.find({}, {sid: 1}).sort({sid: -1}).limit(1);
+   mySuggest.sid = (tmp.length > 0) ? tmp[0].sid + 1 : 1;
+   mySuggest.date = new Date();
+   mySuggest.name = myData.name;
+   mySuggest.mobile = myData.mobile;
+   mySuggest.email = svrToDbText(myData.email);
+   mySuggest.remarks = myData.remarks;
+   mySuggest.status = true;
+   await mySuggest.save();   
+	sendok(res, "Done");			// First confirm to client for suggestion received
+   
+   // Now send the suggestion by email
+	if (true) {
+		//var tmpValidTimeOffset = Number(process.env.PASSWORDLINKVALIDTIME);
+		/*let htmlText = `<div style="background-image: url('https://i.pinimg.com/originals/29/9c/a1/299ca187762b51cb637f29cf7472e574.png');">
+			<h4 style="text-align: left;"><strong>Dear Member,</strong></h4>
+			<p>Greetings from Pratapgarh Rajasthan Welfare Samiti</p>
+			<p><span style="text-align: left;">Login with OTP </span><span style="text-align: left;"><strong>${myCaptha.captcha}</strong></span></p>
+			<p>Kindly note that this OTP is valid only for ${process.env.PASSWORDLINKVALIDTIME} minutes.</p>
+			<p><span style="text-align: left;"><strong>for Pratapgarh Rajasthan Welfare Samiti</strong></span></p>
+			</div>`*/
+		let htmlText = `<div>
+			<h4 style="text-align: left;"><strong>Suggestion from ${mySuggest.name},</strong></h4>
+			<p>Suggestion ID:    ${mySuggest.sid}</p>
+         <p>Name:             ${mySuggest.name}</p>
+         <p>Mobile:           ${mySuggest.mobile}</p>
+         <p>Email:            ${decrypt(myData.email)}</p>
+			<p><span style="text-align: left;">${myData.remarks}</span></p>
+			</div>`
+		
+		if (true) {
+			let resp = await sendCricHtmlMail(SUGGESTIONDETAILS.email, SUGGESTIONDETAILS.header+mySuggest.sid, htmlText);
+		}
+		
+	}
+});
+
+
 
 
 router.get('/padmavatimataexcel/:uMobile/:uPassword', async function (req, res, next) {
@@ -382,6 +432,27 @@ router.get('/padmavatimataexcel/:uMobile/:uPassword', async function (req, res, 
 
 });
 
+
+router.get('/test', async function (req, res, next) {
+   setHeader(res);
+   var myRec = new M_Advertisement();
+   myRec.topLeft = 'SAMPLE_ADV.JPG';
+   myRec.bottomLeft = 'SAMPLE_ADV.JPG';
+   myRec.topRight = 'SAMPLE_ADV.JPG';
+   myRec.bottomRight = 'SAMPLE_ADV.JPG';
+   myRec.delay = 5;
+   myRec.active = true;
+   await myRec.save();
+  sendok(res, "Done");
+
+});
+
+router.get('/getadvert', async function (req, res, next) {
+   setHeader(res);
+   var myRec = await M_Advertisement.findOne({});
+  sendok(res, myRec);
+
+});
 
 
 

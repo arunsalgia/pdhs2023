@@ -4,8 +4,11 @@ import Container from '@material-ui/core/Container';
 import axios from "axios";
 import Typography from '@material-ui/core/Typography';
 import Grid from "@material-ui/core/Grid";
+import Box from '@material-ui/core/Box';
 
 import globalStyles from "assets/globalStyles";
+
+//import './ImageGrid.css'; // Import the CSS file
 
 import { isMobile, encrypt, getMemberName, getWindowDimensions} from "views/functions.js"
 import {setTab} from "CustomComponents/CricDreamTabs.js"
@@ -14,25 +17,65 @@ import { VsLogo, ValidComp } from 'CustomComponents/CustomComponents.js';
 import VsButton from "CustomComponents/VsButton";
 
 var maxDim = 0;
+var maxHeight = 0;
+var maxWidth = 0;
+var mobileDim = 6;
+const ButtonHeight=5;
+var butStyle={
+      display: 'flex',           // Enable Flexbox
+      justifyContent: 'center',  // Center horizontally
+      alignItems: 'center',      // Center vertically
+      height: '100vh',           // Set container height to full viewport height
+      width: '100vw'             // Ensure full viewport width
+    };
+    
 
 export default function LandingPage() {
-  const gClasses = globalStyles();
+   const gClasses = globalStyles();
 	const	myDim = getWindowDimensions();
-	//console.log(myDim);
-  maxDim = (myDim.width < myDim.height) ? myDim.width : myDim.height;
-	//console.log(maxDim);
-	
+
+   const [advert, setAdvert] = useState({});
+   const [jobDone, setJobDone] = useState(false);
+   const [showButton, setShowButton] = useState(false);
+   
+   
   useEffect(() => {
-    if (window.sessionStorage.getItem("logout")) {
-      sessionStorage.clear();
-    }
-    if (window.sessionStorage.getItem("uid")) {
-      // setUser({ uid: window.localStorage.getItem("uid"), admin: window.localStorage.getItem("admin") })
-      // history.push("/admin")
-    } else {
-      // setShowPage(true)
-    }
-  });
+    async function getInfo() {
+       try {
+          let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/user/getadvert`;
+          console.log(myUrl);
+          let response = await axios.get(myUrl); 
+          setAdvert(response.data);            
+          console.log(response.data);
+          //
+         //console.log(myDim);
+         butStyle.height = myDim.height;
+         butStyle.width = myDim.width; 
+         //maxDim = (myDim.width < myDim.height) ? myDim.width : myDim.height;
+         //console.log(maxDim);
+         butStyle = { position: 'absolute', top: (myDim.height/2-10), left: (myDim.width/2-20) };
+         maxWidth = ((myDim.width > myDim.height) ? myDim.width/2 : myDim.width) - ButtonHeight;
+         maxHeight = ((myDim.width > myDim.height) ? myDim.height/2 : myDim.height/4) - ButtonHeight;
+         mobileDim = (myDim.width > myDim.height) ? 6 : 12;
+         console.log(maxWidth, maxHeight, mobileDim);
+         //console.log(butStyle); 
+         setJobDone(true);
+         const timerId = setTimeout(() => {
+            myFunction();
+         }, response.data.delay);
+       }
+       catch (e) {
+          console.log("Error");
+       }
+       
+    }    
+    getInfo();
+  }, []);
+
+   function myFunction() {
+      setShowButton(true);
+     console.log('Delayed action executed after 3 seconds');
+   }
 
   function setError(msg, isError) {
     setErrorMessage({msg: msg, isError: isError});
@@ -61,7 +104,7 @@ export default function LandingPage() {
 };
 
 
-async function handleSubmitMobile(e) {
+   async function handleSubmitMobile(e) {
   e.preventDefault();
 	try { 
 		let response = await axios.get(`${process.env.REACT_APP_AXIOS_BASEPATH}/user/jaijinendra/${userName}`); 
@@ -78,10 +121,11 @@ async function handleSubmitMobile(e) {
     setTab(0);
   }
   
-	if (maxDim === 0) return;
+	//if (maxDim === 0) return;
 	//var imgStyle = { max-width: "400px", max-height: "400px" };
 	//var imgSizes = `(max-width: ${maxDim}) ${maxDim}, (max-width: ${maxDim}) ${maxDim}`;
 	//console.log(imgSizes);
+  /*
   return (
 	<div style={{backgroundColor: '#FFFFFF'}} >
 		<br />
@@ -118,4 +162,34 @@ async function handleSubmitMobile(e) {
   </Grid>
 	</div>
   );
+  */
+  if (!jobDone) return null;
+  
+
+  return (
+	<div>
+   <Grid  key="LandingPage" container align="center">
+		<Grid item xs={mobileDim} sm={mobileDim} md={6} lg={6} >	
+      <img bordercolor="orange" borderradius={7} border={1} width={maxWidth-5} height={maxHeight-5} src={`${process.env.PUBLIC_URL}/image/${advert.topLeft}`} />
+      </Grid>
+		<Grid item xs={mobileDim} sm={mobileDim} md={6} lg={6} >	
+      <img bordercolor="orange" borderradius={7} border={1} width={maxWidth-5} height={maxHeight-5} src={`${process.env.PUBLIC_URL}/image/${advert.topRight}`} />
+      </Grid>
+		<Grid item xs={mobileDim} sm={mobileDim} md={6} lg={6} >	
+      <img bordercolor="orange" borderradius={7} border={1} width={maxWidth-5} height={maxHeight} src={`${process.env.PUBLIC_URL}/image/${advert.bottomRight}`} />
+      </Grid>
+		<Grid item xs={mobileDim} sm={mobileDim} md={6} lg={6} >	
+      <img bordercolor="orange" borderradius={7} border={1}width={maxWidth-5} height={maxHeight-5} src={`${process.env.PUBLIC_URL}/image/${advert.bottomRight}`} />
+      </Grid>
+   </Grid>
+   {(showButton) &&
+   <div style={butStyle} >
+       <VsButton name="Get Started" onClick={handleGetStarted} />
+   </div>
+   }
+   </div>
+
+   );
+
+  
 }

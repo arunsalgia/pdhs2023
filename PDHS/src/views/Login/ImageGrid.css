@@ -1,0 +1,20 @@
+.grid-container {
+  display: grid;
+  /* Creates a 2x2 grid, each occupying equal space */
+  grid-template-columns: repeat(2, 1fr); 
+  grid-template-rows: repeat(2, 1fr);
+  /* Optional: Adds spacing between images */
+  gap: 10px; 
+  /* Ensures the container fills the entire viewport height */
+  height: 100vh; 
+  width: 100vw;
+  padding: 10px; /* Optional: padding around the grid */
+  box-sizing: border-box; /* Ensures padding is included in height/width calculation */
+}
+
+.image-box img {
+  width: 100%;
+  height: 100%;
+  /* Ensures the image covers the entire box without distortion, cropping as needed */
+  object-fit: cover; 
+}

@@ -269,8 +269,8 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
 	// Now Log the approve action.	
 	let myLogRec = new M_PrwsLog();
 	myLogRec.date = new Date();
-	myLogRec.mid = hodMemberRec.mid;
-	myLogRec.name = getMemberName(hodMemberRec, false);
+	myLogRec.mid = (hodMemberRec) ? hodMemberRec.mid : 0;
+	myLogRec.name = (hodMemberRec) ? getMemberName(hodMemberRec, false) : '';
 	myLogRec.desc = "Application " + aRec.id + " approved by " +  getMemberName(adminRec, false)  + " for \"" + aRec.desc + "\"" ;
 	myLogRec.isAdmin = true;  //isAdmin;
 	myLogRec.action = aRec.desc;
@@ -867,6 +867,12 @@ async function approve_memberCeased(aRec) {
 		hodRec.mid = myData.newHodMid;
 		await hodRec.save();
 	}
+   if (myData.onlyMember) {
+      // No other member in family. Mark HOD as non active
+      var hodRec = await M_Hod.findOne({hid: myData.hid});
+		hodRec.active = false;
+		await hodRec.save();
+   }
 	// All done
 
 	return {status: true, record: ceasedRec};

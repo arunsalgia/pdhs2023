@@ -306,6 +306,15 @@ MemberSchema.index({humadMember: 1});
 MemberSchema.index({prwsMember: 1});
 
 
+AdvertisementSchema = mongoose.Schema({
+	topLeft: String,
+	topRight: String,
+	bottomLeft: String,
+	bottomRight: String,
+	delay: Number,
+	active: Boolean
+});
+
 PjymSchema = mongoose.Schema({
 	hid: Number,
 	mid: Number,
@@ -344,6 +353,16 @@ PrwsLogSchema = mongoose.Schema({
 	
 });
 
+SuggestionSchema = mongoose.Schema({
+	date: 		Date,
+	sid:  		Number,			// MID of member who has has taken action (-1 if not a member
+	name: 		String,			// Name of the member
+	mobile:	   String,			// Apply or Approved or Reject
+	email:		String,
+   remarks:    String,
+	status: 	   Boolean
+	
+});
 
 PinCodeSchema = mongoose.Schema({
 	pinCode: Number,
@@ -398,7 +417,8 @@ M_PinCode = mongoose.model('pincode', PinCodeSchema);
 M_Application = mongoose.model('application', ApplicationSchema);
 M_PrwsLog = mongoose.model('prwslog', PrwsLogSchema);
 M_MembershipInfo = mongoose.model('membershipinfo', MembershipInfoSchema);
-
+M_Suggestion = mongoose.model('suggestion', SuggestionSchema);
+M_Advertisement = mongoose.model('advertisement', AdvertisementSchema);
 router = express.Router();
 
 db_connection = false;      // status of mongoose connection
@@ -643,6 +663,11 @@ EMSTYPES = {
 	widower:		"Widower",
 };
 
+SUGGESTIONDETAILS = {
+  header: 'Suggestion Id ',
+  email:  'atul@salgia@in',
+}
+
 CASTETYPES = {
 humad: 'Humad',
 nonHumad: 'NonHumad'   
@@ -651,3 +676,5 @@ nonHumad: 'NonHumad'
 ELIGIBLEMARRIAGEYEARS = 21;
 
 LOG_LOGINLOGOUT =  false;
+
+OTP_LENGTH=4

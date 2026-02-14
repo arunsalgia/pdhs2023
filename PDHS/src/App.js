@@ -45,8 +45,7 @@ import ApplicationMarriage from 'views/Application/ApplicationMarriage'
 import ApplicationUnmarriage from 'views/Application/ApplicationUnmarriage'
 import ApplicationUpgradeHumad from 'views/Application/ApplicationUpgradeHumad'
 
-
-
+import ContactUs from 'views/ContactUs/ContactUs'
 
 import NewHod from 'views/Member/NewHod'
 import MemberAddEdit from 'views/Member/MemberAddEdit'
@@ -243,6 +242,9 @@ function AppRouter() {
 			}			
 			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_NEWMEMBERSHIP) &&
 				<MemberNewMemberhsip />
+			}
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_CONTACTUS) &&
+				<ContactUs />
 			}
 			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_FAMILY) &&
 				<Member 

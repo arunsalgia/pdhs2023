@@ -19,11 +19,16 @@ import axios from "axios";
 import {setTab, setDisplayPage } from "CustomComponents/CricDreamTabs.js"
 import { VsLogo, ValidComp } from 'CustomComponents/CustomComponents.js'; 
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 import VsButton from "CustomComponents/VsButton";
 import VsRadio from "CustomComponents/VsRadio";
 
 import {
 	isMobile, encrypt, getMemberName, capitalizeFirstLetter,
+   showError, showSuccess, showInfo,
 } from "views/functions";
 
 //import background from `${process.env.PUBLIC_URL}/image/CREDIT.JPG`;     // Adjust the path as needed
@@ -164,7 +169,7 @@ async function handleSubmitMobile(e) {
     setPassword("");
     setStage("CAPTCHA");
   } catch (err) {
-		setError("Error generating captcha", true);
+		showError("Login with unregistered email not supported. Try with mobile");
 	}
 };
 
@@ -264,6 +269,7 @@ function switchHandler() {
       Arun Rajendra Salgia
   </Typography>
   </Container>
+	<ToastContainer />
 	</div>
   );
 }

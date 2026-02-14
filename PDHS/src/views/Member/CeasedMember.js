@@ -220,6 +220,7 @@ async function handleCeasedSubmit() {
 		ceasedMid: myProps.selectedMid,
 		ceasedName: ceasedName,
 		ceasedDate: emurDate1.toDate(),
+      onlyMember: !stage2Req,
 		newHodMid: 0,
 		newHodName: "",
 		midList: [],
@@ -246,7 +247,7 @@ async function handleCeasedSubmit() {
 		myInfo.oldRelationList = lodashMap(memberList, 'relation');
 		myInfo.relationList = relation;
 	}
-	console.log(myInfo);
+	//console.log(myInfo);
 	//return;
 	
 	myInfo = encodeURIComponent(JSON.stringify(myInfo));
