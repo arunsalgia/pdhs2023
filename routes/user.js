@@ -449,12 +449,60 @@ router.get('/test', async function (req, res, next) {
 
 router.get('/getadvert', async function (req, res, next) {
    setHeader(res);
-   var myRec = await M_Advertisement.findOne({});
-  sendok(res, myRec);
+   var myLpRec = await M_LandingPage.findOne({});
+   // now get the customer details
+   var myData = {
+      topLeft: TOPLEFTAD,
+      topRight: TOPRIGHTAD,
+      bottomLeft: BOTTOMLEFTAD,
+      bottomRight: BOTTOMRIGHTAD,
+      delay: myLpRec.delay
+   };
+   console.log(myData);
+   
+   var currTime = new Date();
+   var tmp = await M_Advertisement.findOne({customerName: myLpRec.topLeft});
+   if (tmp)
+   if (tmp.expiryDate > currTime)
+      myData.topLeft = tmp.imageName;
+   else
+      console.log("TL expired");
+   
+   var tmp = await M_Advertisement.findOne({customerName: myLpRec.topRight});
+   if (tmp)
+   if (tmp.expiryDate > currTime)
+      myData.topRight = tmp.imageName;
+   else
+      console.log("TR expired");
+
+   var tmp = await M_Advertisement.findOne({customerName: myLpRec.bottomLeft});
+   if (tmp)
+   if (tmp.expiryDate > currTime)
+      myData.bottomLeft = tmp.imageName;
+   else
+      console.log("BL expired");
+   
+   var tmp = await M_Advertisement.findOne({customerName: myLpRec.bottomRight});
+   if (tmp)
+   if (tmp.expiryDate > currTime)
+      myData.bottomRight = tmp.imageName;
+   else
+      console.log("BR expired");
+   
+  sendok(res, myData);
 
 });
 
+router.get('/addCust', async function (req, res, next) {
+   setHeader(res);
+   var myRec = new  M_Advertisement();
+   myRec.customerName = "Salgia&Co"
+   myRec.imageName = TOPLEFTAD;
+   myRec.expiryDate = new Date(2026,1,1)
+   await myRec.save();
+  sendok(res, myRec);
 
+});
 
 
 

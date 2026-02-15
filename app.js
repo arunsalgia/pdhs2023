@@ -306,12 +306,21 @@ MemberSchema.index({humadMember: 1});
 MemberSchema.index({prwsMember: 1});
 
 
-AdvertisementSchema = mongoose.Schema({
+LandingPageSchema = mongoose.Schema({
 	topLeft: String,
 	topRight: String,
 	bottomLeft: String,
 	bottomRight: String,
 	delay: Number,
+	active: Boolean
+});
+
+
+AdvertisementSchema = mongoose.Schema({
+	customerName: String,
+	imageName : String,
+	expiryDate : Date,
+	bottomRight: String,
 	active: Boolean
 });
 
@@ -418,6 +427,7 @@ M_Application = mongoose.model('application', ApplicationSchema);
 M_PrwsLog = mongoose.model('prwslog', PrwsLogSchema);
 M_MembershipInfo = mongoose.model('membershipinfo', MembershipInfoSchema);
 M_Suggestion = mongoose.model('suggestion', SuggestionSchema);
+M_LandingPage = mongoose.model('landingpage', LandingPageSchema);
 M_Advertisement = mongoose.model('advertisement', AdvertisementSchema);
 router = express.Router();
 
@@ -678,3 +688,10 @@ ELIGIBLEMARRIAGEYEARS = 21;
 LOG_LOGINLOGOUT =  false;
 
 OTP_LENGTH=4
+
+TOPLEFTAD = "SAMPLE_ADV.JPG";
+TOPRIGHTAD = "SAMPLE_ADV.JPG";
+BOTTOMLEFTAD = "SAMPLE_ADV.JPG";
+BOTTOMRIGHTAD = "SAMPLE_ADV.JPG";
+
+
