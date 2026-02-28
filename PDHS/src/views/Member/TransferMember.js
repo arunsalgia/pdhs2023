@@ -503,10 +503,15 @@ async function handleFinalStageSubmit() {
 				
 			}
 		}
-		
+      // Special check if create new family and all cannot be selected for transfer
+      //********** THIS IS REDUNDANT SINCE ALREADY TAKEN CARE IN THE CODE
+      if ((myData.createNewFamily) && (myData.balanceFamilyMid.length === memberList.length))  
+      {
+         showError('Selecting all members for transfer to create new family is not supported');
+         return;
+		}
 	}
 	console.log(myData);
-   //return;
    
 	let myMsg = '';
 	let myStatus;

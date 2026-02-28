@@ -36,9 +36,9 @@ const {
 } = require('./routes/dbfunctions'); 
 
 // mongoose settings
-mongoose.set('useNewUrlParser', true);
-mongoose.set('useFindAndModify', false);
-mongoose.set('useCreateIndex', true);
+//mongoose.set('useNewUrlParser', true);
+//mongoose.set('useFindAndModify', false);
+//mongoose.set('useCreateIndex', true);
 
 
 //multer = require('multer');
@@ -458,7 +458,8 @@ CUSTMF=100000000;
 
 // Create the database connection 
 if (WEB) {
-	mongoose.connect(process.env.MONGOCONNECTION, { useNewUrlParser: true, useUnifiedTopology: true });
+	//mongoose.connect(process.env.MONGOCONNECTION, { useNewUrlParser: true, useUnifiedTopology: true });
+	mongoose.connect(process.env.MONGOCONNECTION);
 } else {
 	db_connection = true;
   connectRequest = true;

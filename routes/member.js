@@ -216,7 +216,7 @@ router.get('/city/all', async function (req, res) {
   setHeader(res);
   var {fName, mName, lName } = req.params;
 
-console.log("getting city list");
+//console.log("getting city list");
 	/*
 	let filterQuery;
 	filterQuery = {};
@@ -231,7 +231,7 @@ router.get('/location/all', async function (req, res) {
   setHeader(res);
   var {fName, mName, lName } = req.params;
 
-	console.log("getting location list");
+	//console.log("getting location list");
 	/*let filterQuery;
 	filterQuery = {};
 	filterQuery["ceased"] = false;

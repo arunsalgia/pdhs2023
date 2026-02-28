@@ -150,9 +150,9 @@ async function  handleApplicationApproveConfirm(myRemarks) {
 		//myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application approved by Admin`});
 		
 	} catch (e) {
-		console.log(e);
-		showError(`Error approving tranfer of members`);
-		var a = 1;
+		//console.log(e.data);
+      //console.log(e.response);
+		showError(e.response.data);
 	}
 }
 
@@ -196,7 +196,9 @@ return (
 		</AccordionSummary>
 		</Box>
 		<br />
+		{(appData.createNewFamily) &&
 		<DisplayApplicationNameValue name={(appData.createNewFamily) ? `${appData.newHodName}` : `${appData.mergedFamilyHeadName}`} value="Self" style={{paddingTop: "5px" }}  />
+		}
 		{/*  Display list if names whar are to be moved */}
 		{appData.transferNameList.map( (memberName, index) => {
 			if (appData.transferRelation[index] === 'Self') return;
