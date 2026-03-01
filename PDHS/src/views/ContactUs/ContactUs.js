@@ -133,7 +133,7 @@ async function handleContactUsSubmit() {
   try { 
 		let response = await axios.get(`${process.env.REACT_APP_AXIOS_BASEPATH}/user/suggestion/${myData}`); 
       showInfo("Successfully submitted suggestion");
-      setTab(process.env.REACT_APP_DASH);
+      //setTab(process.env.REACT_APP_DASH);
   } catch (err) {
 		showError("Error updating suggestion");
 	}
@@ -188,9 +188,10 @@ return (
       </Grid>
       <Grid item xs={12} sm={12} md={12} lg={12} >
 		<textarea
-         fullwidth="true"
+		    //align="center"
+		    style = {{marginLeft: "10px"}}
 			rows = {5}    // Specifies the number of visible text lines
-			cols = {(!isMobile()) ? 48 : 38}    // Specifies the width of the text area in characters
+			cols = {(!isMobile()) ? 40 : 40}    // Specifies the width of the text area in characters
 			value = {remarks}   // Specifies the initial value of the text area
 			placeholder = "Add suggestion"   // Specifies a short hint that describes the expected value of the textarea
 			//wrap = "soft"   // Specifies how the text in the text area should be wrapped

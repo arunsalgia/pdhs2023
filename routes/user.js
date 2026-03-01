@@ -23,6 +23,12 @@ const SENDCAPTAOVEREMAIL = true;
 
  
 var _group;
+
+var SUGGESTIONDETAILS = {
+  header: '',
+  email:  ''
+}
+
  
 
 /* GET all users listing. */
@@ -404,7 +410,18 @@ router.get('/suggestion/:myData', async function (req, res, next) {
 			<p><span style="text-align: left;">${myData.remarks}</span></p>
 			</div>`
 		
-		if (true) {
+		if (true) { 
+		    if (SUGGESTIONDETAILS.email === "") {
+		        console.log(LABELS.contactemail);
+		        console.log(LABELS.contactheader);
+		        var tmp = await M_Setting.findOne({label: LABELS.contactemail});
+		        console.log(tmp);		        
+		        SUGGESTIONDETAILS.email = tmp.value;
+		        tmp = await M_Setting.findOne({label: LABELS.contactheader});
+		        console.log(tmp);
+		        SUGGESTIONDETAILS.header = tmp.value;
+		        console.log(SUGGESTIONDETAILS);		    
+		    }
 			let resp = await sendCricHtmlMail(SUGGESTIONDETAILS.email, SUGGESTIONDETAILS.header+mySuggest.sid, htmlText);
 		}
 		
@@ -502,6 +519,30 @@ router.get('/addCust', async function (req, res, next) {
    await myRec.save();
   sendok(res, myRec);
 
+});
+
+
+router.get('/addSetting/:label/:value', async function (req, res, next) {
+  setHeader(res);
+  var {label, value } = req.params;
+  
+    var myRec = new  M_Setting();
+    myRec.label = label.toLowerCase();
+   myRec.value = value;
+   await myRec.save();
+  sendok(res, myRec);
+
+});
+
+router.get('/getSetting/:label', async function (req, res, next) {
+  setHeader(res);
+  var {label, value } = req.params;
+  
+    var myRec = await M_Setting.findOne({ label: label.toLowerCase() });
+    if (myRec)
+        sendok(res, myRec);
+    else
+        senderr(res, 601, 'Not found');
 });
 
 

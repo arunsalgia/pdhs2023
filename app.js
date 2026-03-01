@@ -147,6 +147,13 @@ app.use('/apply', applicationRouter);
 
 //Schema
 
+SettingsSchema = mongoose.Schema({
+	label: String,
+	value: String
+});
+
+
+
 PasswordSchema = mongoose.Schema({
 	mobile: String,
 	captcha: String
@@ -429,6 +436,7 @@ M_MembershipInfo = mongoose.model('membershipinfo', MembershipInfoSchema);
 M_Suggestion = mongoose.model('suggestion', SuggestionSchema);
 M_LandingPage = mongoose.model('landingpage', LandingPageSchema);
 M_Advertisement = mongoose.model('advertisement', AdvertisementSchema);
+M_Setting = mongoose.model('setting', SettingsSchema);
 router = express.Router();
 
 db_connection = false;      // status of mongoose connection
@@ -674,10 +682,6 @@ EMSTYPES = {
 	widower:		"Widower",
 };
 
-SUGGESTIONDETAILS = {
-  header: 'Suggestion Id ',
-  email:  'atul@salgia@in',
-}
 
 CASTETYPES = {
 humad: 'Humad',
@@ -694,5 +698,12 @@ TOPLEFTAD = "SAMPLE_ADV.JPG";
 TOPRIGHTAD = "SAMPLE_ADV.JPG";
 BOTTOMLEFTAD = "SAMPLE_ADV.JPG";
 BOTTOMRIGHTAD = "SAMPLE_ADV.JPG";
+
+LABELS = {
+  contactemail:  'contactemail',
+  contactheader: 'contactheader',
+  
+}
+
 
 

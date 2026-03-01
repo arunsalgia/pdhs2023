@@ -21,15 +21,22 @@ var maxHeight = 0;
 var maxWidth = 0;
 var mobileDim = 6;
 const ButtonHeight=5;
-var butStyle={
+var butStyle_junk={
       display: 'flex',           // Enable Flexbox
       justifyContent: 'center',  // Center horizontally
-      alignItems: 'center',      // Center vertically
+      //alignItems: 'center',      // Center vertically
       height: '100vh',           // Set container height to full viewport height
       width: '100vw'             // Ensure full viewport width
     };
     
-
+var butStyle={
+      justifyContent: 'center',  // Center horizontally
+      height: '10vh',           // Set container height to full viewport height
+      width: '100vw'             // Ensure full viewport width
+    };
+    
+    
+    
 export default function LandingPage() {
    const gClasses = globalStyles();
 	const	myDim = getWindowDimensions();
@@ -47,18 +54,19 @@ export default function LandingPage() {
           let response = await axios.get(myUrl); 
           setAdvert(response.data);            
           console.log(response.data);
-          //
+          
          //console.log(myDim);
          butStyle.height = myDim.height;
          butStyle.width = myDim.width; 
-         //maxDim = (myDim.width < myDim.height) ? myDim.width : myDim.height;
-         //console.log(maxDim);
-         butStyle = { position: 'absolute', top: (myDim.height/2-10), left: (myDim.width/2-20) };
+         maxDim = (myDim.width < myDim.height) ? myDim.width : myDim.height;
+         console.log(maxDim);
+         //butStyle = { position: 'absolute', top: (myDim.height/2-10), left: (myDim.width/2-20) };
+         butStyle = { position: 'absolute', top: 20, left: (myDim.width/2-50) };
          maxWidth = ((myDim.width > myDim.height) ? myDim.width/2 : myDim.width) - ButtonHeight;
          maxHeight = ((myDim.width > myDim.height) ? myDim.height/2 : myDim.height/4) - ButtonHeight;
          mobileDim = (myDim.width > myDim.height) ? 6 : 12;
          console.log(maxWidth, maxHeight, mobileDim);
-         //console.log(butStyle); 
+         console.log(butStyle); 
          setJobDone(true);
          const timerId = setTimeout(() => {
             myFunction();
