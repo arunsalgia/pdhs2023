@@ -587,13 +587,19 @@ router.get('/sendinfo', async function (req, res, next) {
     let allHod = await M_Hod.find({active: true}).sort({hid: 1})
     let allMembers = [];   // Will get members family by family
 
-    let myIdx = 0; //allHod.indexOf({hid: 470});  
-    //console.log(myIdx);  
-    for(var i=myIdx; i< allHod.length; ++i) {
-        //console.log(i);
+    // Get the Start Hid and End Hid
+    	var tmp = await M_Setting.findOne({label: LABELS.sendInfoStartHid});
+    	var StartHid = Number(tmp.value);
+    	var tmp = await M_Setting.findOne({label: LABELS.sendInfoEndHid});
+    	var EndHid = Number(tmp.value);
+
+    // No get information about email if
+    tmp = await M_Setting.findOne({label: LABELS.sendInfoMail});
+    var sendInfoMail = tmp.value;
+    
+    for(var i=0; i< allHod.length; ++i) {
         var myHod = allHod[i];
-        if ((myHod.hid > 800) && (myHod.hid < 2000)) continue;
-        //if (myHod.hid !== 470) continue;
+        if ((myHod.hid < StartHid) || (myHod.hid > EndHid)) continue;
 
         var familyInfo='';
         var memDetails = '';
@@ -675,12 +681,16 @@ router.get('/sendinfo', async function (req, res, next) {
         // Now data is ready
         //for(var m = 0; m < allMembers.length; ++m) {
         for(var m = 0; m < allMembers.length; ++m) {
-            var myEmail = dbdecrypt(allMembers[m].email);
-            //console.log(myEmail);
+            var myEmail = '';
+            
+            if (sendInfoMail.toUpperCase() === 'YES')
+               myEmail = dbdecrypt(allMembers[m].email);
+            else if (sendInfoMail.toUpperCase() === 'NO')
+               myEmail = '-';
+            else
+               myEmail = sendInfoMail.toLowerCase();
+            
             if (myEmail === "-") {
-                console.log(allMembers[m].hid, allMembers[m].mid, 'No email in db');
-            }
-            else if (myEmail === "-") {
                 console.log(allMembers[m].hid, allMembers[m].mid, 'Blank email in db');            
             }
             else {

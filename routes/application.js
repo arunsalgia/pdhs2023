@@ -428,6 +428,7 @@ router.get('/guestmembership/:editor_mid/:appData', async function (req, res) {
       return;
    }
 	var myRec = await addApplication(0, editor_mid, appData, APPLICATIONTYPES.guestMembership, OWNER.prws, APPROVE_ERRORS.NONHUMAD.desc);	
+    //if (!myRec) return senderr(res, APPROVE_ERRORS.HODLOCK.code, APPROVE_ERRORS.HODLOCK.desc);
 
    //await set_hod_applock(xxx.hid, myRec.id);   
 	senderr(res, APPROVE_ERRORS.NONHUMAD.code, APPROVE_ERRORS.NONHUMAD.desc);
@@ -438,6 +439,7 @@ router.get('/editfamilydetails/:editor_hodmid/:editor_mid/:appData', async funct
   setHeader(res);
 	var {editor_mid, editor_hodmid, appData } = req.params;
 	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.editGeneral, OWNER.prws);	
+    if (!myRec) return senderr(res, APPROVE_ERRORS.HODLOCK.code, APPROVE_ERRORS.HODLOCK.desc);
 
    // set the family lock
    var xxx = JSON.parse(appData);
@@ -450,6 +452,7 @@ router.get('/updategotra/:editor_hodmid/:editor_mid/:appData', async function (r
   setHeader(res);
 	var {editor_mid, editor_hodmid, appData } = req.params;
 	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.editGotra, OWNER.prws);	
+    if (!myRec) return senderr(res, APPROVE_ERRORS.HODLOCK.code, APPROVE_ERRORS.HODLOCK.desc);
 
    // set the family lock
    var xxx = JSON.parse(appData);
@@ -461,6 +464,7 @@ router.get('/humadupgrade/:editor_hodmid/:editor_mid/:appData', async function (
   setHeader(res);
 	var {editor_mid, editor_hodmid, appData } = req.params;
 	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.humadUpgrade, OWNER.humad);	
+    if (!myRec) return senderr(res, APPROVE_ERRORS.HODLOCK.code, APPROVE_ERRORS.HODLOCK.desc);
 	sendok(res, myRec);
 });
 
@@ -469,6 +473,7 @@ router.get('/ceased/:editor_hodmid/:editor_mid/:appData', async function (req, r
   setHeader(res);
 	var {editor_hodmid, editor_mid, appData } = req.params;
 	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.memberCeased, OWNER.prws);	
+    if (!myRec) return senderr(res, APPROVE_ERRORS.HODLOCK.code, APPROVE_ERRORS.HODLOCK.desc);
 
    // set the family lock
    var xxx = JSON.parse(appData);
@@ -481,6 +486,7 @@ router.get('/marriage/:editor_hodmid/:editor_mid/:appData', async function (req,
   setHeader(res);
 	var {editor_hodmid, editor_mid, appData } = req.params;
 	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.marriage, OWNER.prws);	
+    if (!myRec) return senderr(res, APPROVE_ERRORS.HODLOCK.code, APPROVE_ERRORS.HODLOCK.desc);
 
    // set the family lock
    var xxx = JSON.parse(appData);
@@ -495,6 +501,7 @@ router.get('/unmarriage/:editor_hodmid/:editor_mid/:appData', async function (re
   setHeader(res);
 	var {editor_hodmid, editor_mid, appData } = req.params;
 	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.unMarriage, OWNER.prws);	
+    if (!myRec) return senderr(res, APPROVE_ERRORS.HODLOCK.code, APPROVE_ERRORS.HODLOCK.desc);
 
    // set the family lock
    var xxx = JSON.parse(appData);
@@ -519,6 +526,7 @@ router.get('/newhod/:editor_hodmid/:editor_mid/:appData', async function (req, r
   setHeader(res);
 	var {editor_hodmid, editor_mid, appData } = req.params;
 	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.newHod, OWNER.prws);	
+    if (!myRec) return senderr(res, APPROVE_ERRORS.HODLOCK.code, APPROVE_ERRORS.HODLOCK.desc);
 
    // set the family lock
    var xxx = JSON.parse(appData);
@@ -530,6 +538,7 @@ router.get('/movemember/:editor_hodmid/:editor_mid/:appData', async function (re
   setHeader(res);
 	var {editor_mid, editor_hodmid, appData } = req.params;
 	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.transferMember, OWNER.prws);	
+    if (!myRec) return senderr(res, APPROVE_ERRORS.HODLOCK.code, APPROVE_ERRORS.HODLOCK.desc);
 
    // set the family lock
    var xxx = JSON.parse(appData);
@@ -542,11 +551,12 @@ router.get('/addeditpersonal/:editor_hodmid/:editor_mid/:appData', async functio
   setHeader(res);
 	var {editor_hodmid, editor_mid, appData } = req.params;
 	var xxx = JSON.parse(appData);
+    //console.log(xxx.hid);                                         
 	var myRec = await addApplication(editor_hodmid, editor_mid, appData, 
 														(xxx.mode === "ADD") ? APPLICATIONTYPES.addMember : APPLICATIONTYPES.editMember, 
 														OWNER.prws);
-   console.log(xxx.hid);                                         
-   await set_hod_applock(xxx.hid, myRec.id);
+    if (!myRec) return senderr(res, APPROVE_ERRORS.HODLOCK.code, APPROVE_ERRORS.HODLOCK.desc);
+    await set_hod_applock(xxx.hid, myRec.id);
 	sendok(res, myRec);
 });
 
@@ -554,6 +564,7 @@ router.get('/editgotra/:editor_hodmid/:editor_mid/:appData', async function (req
   setHeader(res);
 	var {editor_hodmid, editor_mid, appData } = req.params;
 	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.editGotra, OWNER.prws);	
+    if (!myRec) return senderr(res, APPROVE_ERRORS.HODLOCK.code, APPROVE_ERRORS.HODLOCK.desc);
 
    // set the family lock
    var xxx = JSON.parse(appData);

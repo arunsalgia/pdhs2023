@@ -704,7 +704,10 @@ BOTTOMRIGHTAD = "SAMPLE_ADV.JPG";
 LABELS = {
   contactemail:  'contactemail',
   contactheader: 'contactheader',
-  
+  sendInfo:  'sendInfoMail',
+  sendInfoStartHid: 'sendInfoStartHid',
+  sendInfoEndHid: 'sendInfoEndHid',
+  sendInfoMail: 'sendInfoMail',
 }
 
 
