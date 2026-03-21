@@ -575,7 +575,7 @@ async function mailInfo(email, header, family, member) {
         //console.log(email);
         //email = 'atul@salgia.in';
         
-	    //let resp = await sendCricHtmlMail(email, header, htmlText);
+	    let resp = await sendCricHtmlMail(email, header, htmlText);
 }
 
 
