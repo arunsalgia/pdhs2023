@@ -63,12 +63,15 @@ var isMember = false;
 export default function Member(props) {
 	const loginHid = Number(sessionStorage.getItem("hid"));
 	const loginMid = Number(sessionStorage.getItem("mid"));
-	
+	var test = sessionStorage.getItem("familySelection");
+	console.log("familySelection", test);
+	if (!test) test= "";
+	sessionStorage.setItem("familySelection", test);
 	
 	const gClasses = globalStyles();
 	//const alert = useAlert();
 
-	const [currentSelection, setCurrentSelection] = useState("");
+	const [currentSelection, setCurrentSelection] = useState(test);
 	const [memberArray, setMemberArray] = useState([])
 	//const [currentMember, setCurrentMember] = useState("");
 	const [currentMemberData, setCurrentMemberData] = useState(null);
@@ -201,6 +204,7 @@ export default function Member(props) {
 		//setRadioRecord(0);
 		//sessionStorage.setItem("hod", JSON.stringify(currentHod));
 		//sessionStorage.setItem("members", JSON.stringify(memberArray));
+		sessionStorage.setItem("familySelection", item);
 		setCurrentSelection(item);
 	}
 

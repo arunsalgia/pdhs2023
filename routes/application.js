@@ -11,7 +11,7 @@ const {
    getNewHodNumber,
 	memberGetByMidOne, memberUpdateOne,
 	memberGetByHidMany,memberUpdateMany,
-   set_hod_applock, clear_hod_applock,
+    set_hod_applock, clear_hod_applock, check_hod_applock,
 } = require('./dbfunctions'); 
 
 var router = express.Router();
@@ -34,7 +34,22 @@ async function updateNewHidMidInPjym(oldMid, newHid, newMid) {
    }
 }
 
+var SEM_ENTERED = 0;
+
 async function addApplication(hodmid, editor_mid, appData, appDesc, appOwner, autoReject = "") {
+   while (SEM_ENTERED === 1)  ;             // Wait for other to complete the task
+   SEM_ENTERED = 1;
+   console.log("Set the flag to 1");
+   if (hodmid != 0) {
+        var myCheck = await check_hod_applock(Math.floor(hodmid / FAMILYMF));
+        console.log(myCheck);
+        if (myCheck != 0) {
+          // application already pending from this familys
+          console.log("Application pending");
+          SEM_ENTERED = 0;
+          return null;
+       }
+   }
    var editorRec = null;
    var editorHodRec = null;
 	//var myRec = await addApplication(0, editor_mid, appData, APPLICATIONTYPES.guestMembership, OWNER.prws);	
@@ -43,8 +58,8 @@ async function addApplication(hodmid, editor_mid, appData, appDesc, appOwner, au
      editorRec  = await memberGetByMidOne(Number(editor_mid));
      editorHodRec  = await memberGetByMidOne(Number(hodmid));
    }
-	console.log(hodmid, editorHodRec);
-	var justNow = new Date();
+   console.log(hodmid, editorHodRec);
+   var justNow = new Date();
 	
 	let aRec = new M_Application();
 	aRec.date = justNow;
@@ -118,7 +133,9 @@ async function addApplication(hodmid, editor_mid, appData, appDesc, appOwner, au
       console.log(myLogRec);
      
    }
-	return aRec;
+   console.log("Job done. Clearing flag");
+   SEM_ENTERED = 0;     // done
+   return aRec;
 }
 
 /* GET users listing. */
@@ -490,9 +507,10 @@ router.get('/changedom/:editor_hodmid/:editor_mid/:appData', async function (req
   setHeader(res);
 	var {editor_hodmid, editor_mid, appData } = req.params;
 	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.changeDom, OWNER.prws);	
-
+    if (!myRec) return senderr(res, APPROVE_ERRORS.HODLOCK.code, APPROVE_ERRORS.HODLOCK.desc);
    // set the family lock
    var xxx = JSON.parse(appData);
+   console.log(xxx);
    await set_hod_applock(xxx.hid, myRec.id);   
 	sendok(res, myRec);
 });

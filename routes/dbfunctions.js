@@ -238,6 +238,20 @@ async function clear_hod_applock(hid) {
 }
 
 
+async function check_hod_applock(hid) {
+  var retValue = -1;
+  console.log(`Hid is ${hid}`);
+  var hodRec = await M_Hod.findOne({hid: hid});
+  if (hodRec) {
+     retValue = hodRec.applockId;  
+  }
+  else {
+   console.log(`hod record of hid ${hid} not found`);  
+  }
+  console.log(`Retur valur is ${retValue}`);
+  return retValue; 
+}
+
 async function update_hod_applock(hid, newLockstate) {
   //console.log(hid, newLockstate);
   var hodRec = await M_Hod.findOne({hid: hid});
@@ -291,6 +305,6 @@ module.exports = {
 	memberGetAllPjym,
 	getHodStateList, memberGetPjymCount,
    getHodCityList,
-   set_hod_applock, clear_hod_applock,
+   set_hod_applock, clear_hod_applock, check_hod_applock,
 }; 
 

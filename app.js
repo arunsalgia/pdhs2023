@@ -633,6 +633,7 @@ APPLICATIONTYPES = {
 };
 
 APPROVE_ERRORS = {
+   HODLOCK:       {code: 600,    desc: "Application already pending for this family"},
    ERROR601:      {code: 601,    desc: "Generic error"},
    ERROR602:      {code: 602,    desc: "Generic error"},
    ERROR603:      {code: 603,    desc: "Generic error"},
@@ -640,7 +641,7 @@ APPROVE_ERRORS = {
    NOMEMRECORD:   {code: 605,    desc: "Member record not found"},
    DUPENTRY:      {code: 606,    desc: "Duplicate entry"},
    NOTADMIN:      {code: 607,    desc: "Not admin"},
-
+   
    INTEST:        {code: 650,    desc: "Rejected for testing"},
    NOSUPPORT:     {code: 651,    desc: "This feature currently not supported"},
    NOMERGE:       {code: 801,    desc: "Currently merge to existing family not supported"},
@@ -666,6 +667,7 @@ PRWSACTION = {
 PRWSMAILHEADER = {
 	login:  	'PRWS Login OTP',
 	logout: 	"PRWS Logout",
+	memberInfo: 'Member details of family in PRWS web site',
 };
 
 OWNER = {

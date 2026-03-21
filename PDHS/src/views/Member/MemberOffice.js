@@ -108,6 +108,7 @@ const funCodeTable = [
 
 
 export default function MemberOffice(props) {
+    showError("In Office");
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
   const [dispType, setDispType] = useState("lg");
   
@@ -287,7 +288,7 @@ export default function MemberOffice(props) {
 		var myFun = funCodeTable.find(x => x.fun === funCode);
 		if (myFun) {
 			var myData = JSON.stringify({
-				calledFrom: "Office",
+				calledFrom: process.env.REACT_APP_FAMILY,
 				mode: mode,
 				memberList: memberList,
 				hodRec: hodRecord,

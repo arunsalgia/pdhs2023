@@ -51,6 +51,13 @@ import {
 } from "CustomComponents/CustomComponents.js"
 
 import {
+	setTab,
+} from "CustomComponents/CricDreamTabs.js"
+
+
+
+
+import {
 MARITALSTATUS, ADMIN, APPLICATIONTYPES,
 DATESTR, MONTHNUMBERSTR,
 STATUS_INFO,
@@ -425,10 +432,16 @@ export default function MemberSpouse(props) {
 		</Box>	
 	)}
 
-	function handleEditDomBack(sts) {
+	async function handleEditDomBack(sts) {
 		if (sts.status === STATUS_INFO.ERROR) 
 			showError(sts.msg); 
 		else if (sts.status === STATUS_INFO.SUCCESS) {
+		    // Get fresh HOD record and update it since it has been locked by fresh application
+		    //showSuccess("Ha HA Ha trapped");
+    			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/hod/get/${hodRec.hid}`
+			let resp = await axios.get(myUrl);
+			SetHodRec(resp.data);
+            sessionStorage.setItem("member_hod", JSON.stringify(resp.data));
 			showSuccess(sts.msg); 
 		}
 		else if (sts.status === STATUS_INFO.INFO) {

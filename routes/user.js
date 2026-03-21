@@ -8,6 +8,7 @@ const { encrypt, decrypt, dbencrypt, dbdecrypt, dbToSvrText,
 	sendCricMail, sendCricHtmlMail,
   akshuGetUser, akshuUpdUser,
   getMaster, setMaster,
+  getDate,
 } = require('./functions'); 
 
 
@@ -15,7 +16,7 @@ const {
 	memberGetAll, memberGetHodMembers,
 	memberAddOne, memberAddMany,
 	memberUpdateOne, memberUpdateMany,
-	memberGetByMidOne, memberGetByMidMany, memberGetByMobileOne, memberGetByEmailOne,
+	memberGetByMidOne, memberGetByHidMany, memberGetByMidMany, memberGetByMobileOne, memberGetByEmailOne,
 	
 } = require('./dbfunctions');
 
@@ -555,7 +556,168 @@ async function publish_users(res, filter_users) {
   sendok(res, ulist);
 }
 
+const EQSTR = '====================================';
+const HPS = '<strong>';
+const HPE = '</strong>';
 
+
+async function mailInfo(email, header, family, member) {
+	let htmlText = `<div>
+		<h4 style="text-align: left;"><strong>Dear Member,</strong></h4>
+
+		<p>Greetings from Pratapgarh Rajasthan Welfare Samiti</p>
+		<p>Here are the details of your family. If any changes required login to PRWS web site www.prws.in and apply for changes. Member can login using registered mobile number or email. OTP will be sent to the registered email</p>
+		<pre>${family}</pre>
+		<pre>${member}</pre>
+		<p><span style="text-align: left;"><strong>for Pratapgarh Rajasthan Welfare Samiti</strong></span></p>
+		</div>`
+		
+        //console.log(email);
+        //email = 'atul@salgia.in';
+        
+	    //let resp = await sendCricHtmlMail(email, header, htmlText);
+}
+
+
+router.get('/sendinfo', async function (req, res, next) {
+  setHeader(res);
+  var {myData } = req.params;
+  var isValid = false;
+
+    let allHod = await M_Hod.find({active: true}).sort({hid: 1})
+    let allMembers = [];   // Will get members family by family
+
+    let myIdx = 0; //allHod.indexOf({hid: 470});  
+    //console.log(myIdx);  
+    for(var i=myIdx; i< allHod.length; ++i) {
+        //console.log(i);
+        var myHod = allHod[i];
+        if ((myHod.hid > 800) && (myHod.hid < 2000)) continue;
+        //if (myHod.hid !== 470) continue;
+
+        var familyInfo='';
+        var memDetails = '';
+
+        
+        familyInfo += `${HPS}${EQSTR} Family details ${EQSTR}${HPE}\n\n`;
+        familyInfo += `Gotra  : ${myHod.gotra}\n`;
+        familyInfo += `Village: ${myHod.village}\n`;
+        familyInfo += `Caste  : ${(myHod.caste === 'Humad') ? (myHod.subCaste + " ") : "" } ${myHod.caste}\n`;
+        familyInfo += `Address: ${myHod.resAddr1}\n`;
+        if (myHod.resAddr2 !==  '') familyInfo += `         ${myHod.resAddr2}\n`;
+        if (myHod.resAddr3 !==  '') familyInfo += `         ${myHod.resAddr3}\n`;
+        if (myHod.resAddr4 !==  '') familyInfo += `         ${myHod.resAddr4}\n`;
+        if (myHod.resAddr5 !==  '') familyInfo += `         ${myHod.resAddr5}\n`;
+        if (myHod.resAddr6 !==  '') familyInfo += `         ${myHod.resAddr6}\n`;
+        familyInfo += `Suburb : ${myHod.suburb}\n`;
+        familyInfo += `Pin    : ${myHod.pinCode}\n`;
+        familyInfo += `Dist   : ${myHod.district}\n`;
+        familyInfo += `Div    : ${myHod.division}\n`;
+
+        familyInfo += `City   : ${myHod.city}\n`;
+        familyInfo += `State  : ${myHod.state}\n`;
+        familyInfo += `Country: ${(myHod.indianResident) ? 'India' : 'No'}\n`;
+        familyInfo += '\n';
+        //console.log(familyInfo);
+        
+        // Now prepare data for all the manager 
+        allMembers = await memberGetByHidMany(myHod.hid);
+        //console.log(allMembers.length);
+        for(var m = 0; m < allMembers.length; ++m) {
+        //for(var m = 0; m < 1; ++m) {
+          let myMember = allMembers[m];
+          //console.log(myMember.hid, myMember.mid);
+          var myEmail = dbdecrypt(myMember.email);
+          memDetails += `${HPS}${EQSTR} Member: ${getMemberName(myMember, true)} ${EQSTR}${HPE}\n\n`;
+          //memDetails += `Title      : ${myMember.title}\n`;
+          //memDetails += `Last Name  : ${myMember.lastName}\n`;
+          //memDetails += `Middle Name: ${myMember.middleName}\n`;
+          //memDetails += `First Name : ${myMember.firstName}\n`;
+          //memDetails += `Alias      : ${myMember.alias}\n`;
+          
+          memDetails += `Relation   : ${myMember.relation}\n`;
+          memDetails += `DateOfBirth: ${getDate(myMember.dob)}\n`;
+          memDetails += `Gender     : ${myMember.gender}\n`;
+          memDetails += `Blood Group: ${myMember.bloodGroup}\n`;
+          memDetails += `Marital Sts: ${myMember.emsStatus}\n`;
+          if (myMember.emsStatus.toUpperCase() === 'MARRIED')  {   // mrrried
+              var mySpouse = allMembers.find(x => x.mid === myMember.spouseMid);
+              if (!mySpouse) mySpouse = memberGetByMidOne(myMember.spouseMid);
+              memDetails += `Spouse     : ${getMemberName(mySpouse, true)}\n`;
+              memDetails += `Marr. Date : ${getDate(myMember.dob)}\n`;
+          }
+          else {
+              memDetails += `Spouse     :\n`;
+              memDetails += `Marr. Date :\n`;
+          }
+          
+          memDetails += `Mobile1    : ${myMember.mobile}\n`;
+          memDetails += `Mobile2    : ${myMember.mobile1}\n`;
+          memDetails += `Email1     : ${dbdecrypt(myMember.email)}\n`;
+          memDetails += `Email2     : ${dbdecrypt(myMember.email1)}\n`;
+          memDetails += `Education  : ${myMember.education}\n`;
+          memDetails += `Edu.Level  : ${myMember.educationLevel}\n`;
+          memDetails += `Edu.Cat.   : ${myMember.educationCategory}\n`;
+          memDetails += `Edu.Field  : ${myMember.educationField}\n`;
+          memDetails += `Office     : ${myMember.officeName}\n`;
+          memDetails += `Office.Addr: ${myMember.officeAddr}\n`;
+          memDetails += `Office. Ph.: ${myMember.officePhone}\n`;
+          memDetails += `PRWS Menber: ${(myMember.prwsMember) ? 'Yes' : 'No' }\n`;
+          memDetails += `HumadMenber: ${(myMember.humadMember) ? 'Yes' : 'No' }\n`;
+          memDetails += `PJYM Menber: ${(myMember.pjymMember) ? 'Yes' : 'No' }\n`;
+
+          
+          memDetails += '\n';
+          
+          //console.log(memDetails);
+        }
+        
+        // Now data is ready
+        //for(var m = 0; m < allMembers.length; ++m) {
+        for(var m = 0; m < allMembers.length; ++m) {
+            var myEmail = dbdecrypt(allMembers[m].email);
+            //console.log(myEmail);
+            if (myEmail === "-") {
+                console.log(allMembers[m].hid, allMembers[m].mid, 'No email in db');
+            }
+            else if (myEmail === "-") {
+                console.log(allMembers[m].hid, allMembers[m].mid, 'Blank email in db');            
+            }
+            else {
+                console.log(allMembers[m].hid, allMembers[m].mid, myEmail);
+                await mailInfo(myEmail, PRWSMAILHEADER.memberInfo, familyInfo, memDetails);
+            }
+        }
+    }
+    return sendok(res, `Total HODs ${allHod.length}`);
+    console.log('Why here');
+    
+    
+ 		let htmlText = `<div>
+			<h4 style="text-align: left;"><strong>Dear Member,</strong></h4>
+
+			<p>Greetings from Pratapgarh Rajasthan Welfare Samiti</p>
+			<p>Here are the details of your family</p>
+			<p>${familyInfo}</p>
+			<p>${membersInfo}</p>
+			<p>Kindly note that this OTP is valid only for ${process.env.PASSWORDLINKVALIDTIME} minutes.</p>
+			<p><span style="text-align: left;"><strong>for Pratapgarh Rajasthan Welfare Samiti</strong></span></p>
+			</div>`
+		
+
+	    let resp = await sendCricHtmlMail(myEmail, PRWSMAILHEADER.memberInfo, htmlText);
+		
+		var tmp = myEmail.split("@");
+		console.log(tmp[0]);
+		var emailMsg = ((tmp[0].length > 4) ? ("******" + tmp[0].substring(tmp[0].length - 4)) : "****" ) + "@" + tmp[1];
+
+
+  sendok(res, {captcha: myCaptha.captcha, msg: tmp });
+	
+
+
+
+});
 function sendok(res, usrmgs) { res.send(usrmgs); }
 function senderr(res, errcode, errmsg) { res.status(errcode).send({error: errmsg}); }
 function setHeader(res) {

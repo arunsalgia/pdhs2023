@@ -468,6 +468,10 @@ function checkDate(myDate) {
 		return (0);	// date is same
 }
 
+function getDate(myDate) {
+  return  DATESTR[myDate.getDate()] + "-" + SHORTMONTHSTR[myDate.getMonth()]  + "-" + myDate.getFullYear() ;
+}
+
 function generateOrder(year, month, date, hour, minute) {
 	let myOrder = ((year * 100 + month) * 100  + date)*100;
 	myOrder = (myOrder + hour)*100 + minute;
@@ -529,7 +533,7 @@ async function fetchPinDetails(pinCode) {
 }
 
 function getMemberName(rec, addTitle) {
-	let tmp = `${rec.lastName} ${rec.firstName} ${rec.middleName}`;
+	let tmp =  ((addTitle) ? (rec.title + ' ') : '' ) + `${rec.lastName} ${rec.firstName} ${rec.middleName}`;
 	return tmp;
 }
 
@@ -565,7 +569,7 @@ module.exports = {
 	rechargeCount,
 	numberDate, intToString,
 	stringToBase64, base64ToString,
-	checkDate,
+	checkDate, getDate,
 	getNewPid, getCustomerNumber,
 	setOldPendingAppointment,
 	generateOrder, generateOrderByDate,
