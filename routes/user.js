@@ -556,7 +556,7 @@ async function publish_users(res, filter_users) {
   sendok(res, ulist);
 }
 
-const EQSTR = '====================================';
+const EQSTR = '=================== ';
 const HPS = '<strong>';
 const HPE = '</strong>';
 
@@ -605,7 +605,7 @@ router.get('/sendinfo', async function (req, res, next) {
         var memDetails = '';
 
         
-        familyInfo += `${HPS}${EQSTR} Family details ${EQSTR}${HPE}\n\n`;
+        familyInfo += `${HPS}${EQSTR} Family details\n\n${HPE}`;
         familyInfo += `Gotra  : ${myHod.gotra}\n`;
         familyInfo += `Village: ${myHod.village}\n`;
         familyInfo += `Caste  : ${(myHod.caste === 'Humad') ? (myHod.subCaste + " ") : "" } ${myHod.caste}\n`;
@@ -634,7 +634,7 @@ router.get('/sendinfo', async function (req, res, next) {
           let myMember = allMembers[m];
           //console.log(myMember.hid, myMember.mid);
           var myEmail = dbdecrypt(myMember.email);
-          memDetails += `${HPS}${EQSTR} Member: ${getMemberName(myMember, true)} ${EQSTR}${HPE}\n\n`;
+          memDetails += `${HPS}${EQSTR} Member: ${getMemberName(myMember, true)}$\n\n{HPE}`;
           //memDetails += `Title      : ${myMember.title}\n`;
           //memDetails += `Last Name  : ${myMember.lastName}\n`;
           //memDetails += `Middle Name: ${myMember.middleName}\n`;
