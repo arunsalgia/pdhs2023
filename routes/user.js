@@ -634,7 +634,7 @@ router.get('/sendinfo', async function (req, res, next) {
           let myMember = allMembers[m];
           //console.log(myMember.hid, myMember.mid);
           var myEmail = dbdecrypt(myMember.email);
-          memDetails += `${HPS}${EQSTR} Member: ${getMemberName(myMember, true)}$\n\n{HPE}`;
+          memDetails += `${HPS}${EQSTR} Member: ${getMemberName(myMember, true)}\n\n${HPE}`;
           //memDetails += `Title      : ${myMember.title}\n`;
           //memDetails += `Last Name  : ${myMember.lastName}\n`;
           //memDetails += `Middle Name: ${myMember.middleName}\n`;
