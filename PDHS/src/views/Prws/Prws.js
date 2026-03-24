@@ -581,14 +581,18 @@ export default function Prws() {
 	</div>
 	);
 	
+/*
+		<DisplayPageHeader headerName={(dispType === "xs") ? "PRWS" : "Pratapgarh Rajasthan Welfare Samiti"} 
+			button1={<VsButton style={{marginRight: "10px" }}  name="Export to CSV" onClick={downloadPrwsData} 
+		/>
+*/ 
 
 	// If filter at back-end then we have only 1 page data
 	var cellPadStyle = {padding: "2px" };
 	return (
 	<div key="PRWS" className={gClasses.webPage} align="center" key="main">
-		{/*<DisplayPersonalButtons />*/}
-		<DisplayPageHeader headerName={(dispType === "xs") ? "PRWS" : "Pratapgarh Rajasthan Welfare Samiti"} 
-			button1={<VsButton style={{marginRight: "10px" }}  name="Export to CSV" onClick={downloadPrwsData} />}
+
+		<DisplayPageHeader headerName={(dispType === "xs") ? "PRWS" : "Pratapgarh Rajasthan Welfare Samiti"}  />
 		/>
 		{/*<DisplayPrwsFilter 
 			inputFilterMode={inputFilterMode} 

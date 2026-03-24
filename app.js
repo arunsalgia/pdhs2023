@@ -668,6 +668,9 @@ PRWSMAILHEADER = {
 	login:  	'PRWS Login OTP',
 	logout: 	"PRWS Logout",
 	memberInfo: 'Member details of family in PRWS web site',
+    applicationbyAdmin: 'Application by Admin in PRWS members directory',
+    applicationRejected: 'PRWS Application rejected',
+    applicationApproved: 'PRWS Application approved',
 };
 
 OWNER = {

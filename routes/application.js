@@ -1,8 +1,9 @@
 const {
 	encrypt, decrypt, dbencrypt, dbToSvrText, svrToDbText, dbdecrypt,
-  akshuGetUser, GroupMemberCount,  
-	numberDate, 
-	getMemberName
+      akshuGetUser, GroupMemberCount,  
+      sendCricMail, sendCricHtmlMail,
+	numberDate,  getDate,
+	getMemberName,
 } = require('./functions'); 
 
 const { 
@@ -50,6 +51,12 @@ async function addApplication(hodmid, editor_mid, appData, appDesc, appOwner, au
           return null;
        }
    }
+   //
+   var famHid = Math.floor(hodmid / FAMILYMF);
+   var editHod =Math.floor(editor_mid / FAMILYMF);
+   console.log(famHid, editHod)
+
+   //
    var editorRec = null;
    var editorHodRec = null;
 	//var myRec = await addApplication(0, editor_mid, appData, APPLICATIONTYPES.guestMembership, OWNER.prws);	
@@ -113,7 +120,7 @@ async function addApplication(hodmid, editor_mid, appData, appDesc, appOwner, au
 	myLogRec.referenceId = aRec.id;
 	myLogRec.status = true;
 	await myLogRec.save();
-	console.log(myLogRec);
+	//console.log(myLogRec);
 	//console.log("Mid: ", editorRec.mid);
 	//console.log("Nam: ", getMemberName(editorHodRec, false));
 	//console.log("Des: ", "Apply for " + appDesc + " by " +  getMemberName(editorHodRec, false));
@@ -132,7 +139,29 @@ async function addApplication(hodmid, editor_mid, appData, appDesc, appOwner, au
       await myLogRec.save();
       console.log(myLogRec);
      
+   } 
+   if (famHid !== editHod)
+   if (editHod !=- 0) {
+    // send mail to famHid
+    console.log('Send mail to ', hodmid); 
+    var myMsg = `Application ${aRec.id} (${appDesc}) by ${getMemberName(editorRec)} on ${getDate(justNow)}`;
+	let htmlText = `<div>
+		<h4 style="text-align: left;"><strong>Dear Member,</strong></h4>
+
+		<p>Greetings from Pratapgarh Rajasthan Welfare Samiti</p>
+		<p>Please note that an application has been made for your family details by Administrator.</p>
+		<p>Application ${aRec.id} (${appDesc}) by ${getMemberName(editorRec)} on ${getDate(justNow)}.</p>
+		<p>You can login in PRWS web site www.pjym.in and check the details.</p>
+		<p><span style="text-align: left;"><strong>for Pratapgarh Rajasthan Welfare Samiti</strong></span></p>
+		</div>`
+   
+    var myEmail = dbdecrypt(editorRec.email)
+    myEmail = 'arunsalgia@gmail.com'
+    let resp = await sendCricHtmlMail(myEmail, PRWSMAILHEADER.applicationbyAdmin, htmlText);
+
+    console.log(myMsg);
    }
+   
    console.log("Job done. Clearing flag");
    SEM_ENTERED = 0;     // done
    return aRec;
@@ -182,7 +211,8 @@ router.get('/filterlist/:filterData', async function (req, res) {
       cond["status"] = filterData.status;
    cond["owner"] = filterData.owner;
    console.log(cond);
-	let myData = await M_Application.find(cond).sort({id: 1}).skip(filterData.currentPage*filterData.pageSize).limit(filterData.pageSize);
+   // Get Application in reverse order
+	let myData = await M_Application.find(cond).sort({id: -1}).skip(filterData.currentPage*filterData.pageSize).limit(filterData.pageSize);
 	let totalCount = await M_Application.countDocuments(cond);
 	//console.log(myData);
 	sendok(res, {totalCount: totalCount, data: myData});
