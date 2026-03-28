@@ -111,14 +111,16 @@ router.get('/jaijinendra/:myData', async function (req, res, next) {
   var isValid = false;
   
 	var myData = JSON.parse(myData);
-   console.log(myData);
+   //console.log(myData);
    
 	var userName = decrypt(myData.userName);
-	console.log(userName);
+	//console.log(userName);
 	
 	var myRec;
 	var myEmail = "-";
+	var myEmail1 = '-';
 	var myMobile = "";
+	
 	if (myData.isMobile) {
 		myRec = await memberGetByMobileOne( userName )
 		if (myRec) myEmail = dbdecrypt(myRec.email);

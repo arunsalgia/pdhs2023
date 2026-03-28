@@ -237,6 +237,8 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
 
 	let aRec = await M_Application.findOne({id: appId});
 	if (!aRec) return senderr(res, 601, 'Application not found');
+	//console.log(aRec);
+	//return senderr(res, 601, 'Application not found');
 	
 	var retObject = {status: false};
    //console.log(aRec.desc);
@@ -295,13 +297,31 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
 	var adminRec = await memberGetByMidOne(Number(adminMid));	
 	
 	aRec.status = APPLICATIONSTATUS.approved;
-   aRec.approvalDate =new Date();
+    aRec.approvalDate =new Date();
 	aRec.comments = comments;
 
 	aRec.adminMid = adminRec.mid;
 	aRec.adminName = getMemberName(adminRec, false);
 	await aRec.save();	
 	
+    // send the mail to hod member
+	let memberRec = await memberGetByMidOne(aRec.hodMid);
+	let justNow = new Date();
+	let memberEmail = dbdecrypt(memberRec.email);	
+	let htmlText = `<div>
+		<h4 style="text-align: left;"><strong>Dear Member,</strong></h4>
+
+		<p>Greetings from Pratapgarh Rajasthan Welfare Samiti</p>
+		<p>Application ${aRec.id} (${aRec.desc}) approved by ${aRec.adminName} on ${getDate(justNow)}.</p>
+		<p><strong>Comments by admin: ${aRec.comments}</strong></p>
+		<p>You can login in PRWS web site www.pjym.in and check the details.</p>
+		<p><span style="text-align: left;"><strong>for Pratapgarh Rajasthan Welfare Samiti</strong></span></p>
+		</div>`
+   
+    //console.log(htmlText);
+    console.log(memberEmail);
+    let resp = await sendCricHtmlMail(memberEmail, PRWSMAILHEADER.applicationApproved, htmlText);
+ 
    // clear lock
    var appData = JSON.parse(aRec.data);
    await clear_hod_applock(appData.hid);
@@ -423,11 +443,28 @@ router.get('/reject/:id/:adminMid/:comments', async function (req, res) {
    // Now remove the family lock
    var tmp = JSON.parse(aRec.data);
    await clear_hod_applock(tmp.hid);  
-   
+ 
    // Required for marriage application
    if (tmp.spouseMemberRec)
       await clear_hod_applock(tmp.spouseMemberRec.hid);
+ 
+    // send the mail to hod member
+	let memberRec = await memberGetByMidOne(aRec.hodMid);
+	let justNow = new Date();
+	let memberEmail = dbdecrypt(memberRec.email);	
+	let htmlText = `<div>
+		<h4 style="text-align: left;"><strong>Dear Member,</strong></h4>
+
+		<p>Greetings from Pratapgarh Rajasthan Welfare Samiti</p>
+		<p>Application ${aRec.id} (${aRec.desc}) rejected by ${getMemberName(adminRec)} on ${getDate(justNow)}.</p>
+		<p><strong>Comments by admin: ${comments}</strong></p>
+		<p>You can login in PRWS web site www.pjym.in and check the details.</p>
+		<p><span style="text-align: left;"><strong>for Pratapgarh Rajasthan Welfare Samiti</strong></span></p>
+		</div>`
    
+    console.log(memberEmail);
+    let resp = await sendCricHtmlMail(memberEmail, PRWSMAILHEADER.applicationRejected, htmlText);
+    
 	// Now Log the approve action.	
    var hodRec = await M_Hod.findOne({hid: tmp.hid});
    var hodMemberRec = await memberGetByMidOne(hodRec.mid);	
