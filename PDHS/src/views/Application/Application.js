@@ -83,6 +83,7 @@ import {
 import { 
 	isMobile,
 	vsDialog,
+	disableFutureDt, compareDate,
 	hasAnyAdminPermission, hasPRWSpermission, hasPJYMpermission, hasHumadpermission,
 	showError, showSuccess,
 } from "views/functions.js";
@@ -144,7 +145,7 @@ export default function Application(props) {
 	} 
 
 	const [applicationMasterArray, setApplicationMasterArray] = useState([]);	
-  const [applicationArray, setApplicationArray] = useState([]);	
+    const [applicationArray, setApplicationArray] = useState([]);	
 	const [hodName, setHodName] = useState("");
 
 	const [filterCond, setFilterCond] = useState(DefaultFilterCond)
@@ -173,6 +174,10 @@ export default function Application(props) {
 	const [emurCB1, setEmurCB1] = useState(false);
 	const [emurCB2, setEmurCB2] = useState(false);
 	
+	const [timeRange, setTimeRange] = useState(DefaultFilterCond.timeRange);
+	const [time1, setTime1] = useState(moment(DefaultFilterCond.startDate));
+	const [time2, setTime2] = useState(moment(DefaultFilterCond.endDate));
+
 
 	
   useEffect(() => {	
@@ -307,6 +312,40 @@ export default function Application(props) {
 		<DisplayFunctionItem item={OWNER.humad} />
 	</Grid>	
 	)}
+
+	function enableTimeRange(newState) {
+		setTimeRange(newState);
+		setCurrentPage(0);
+		var tmp = lodashCloneDeep(filterCond);
+		tmp.timeRange = newState;
+		tmp.currentPage = 0;
+		//console.log(tmp);
+		getAllApplication(tmp);
+	}
+
+	function enableDate1(newTime) {
+		//console.log(newTime);
+		setTime1(newTime);
+		setCurrentPage(0);
+		var tmp = lodashCloneDeep(filterCond);
+		tmp.startDate = newTime.toDate().toString();
+		tmp.currentPage = 0;
+		console.log(tmp);
+		getAllApplication(tmp);
+		
+	}
+
+	function enableDate2(newTime) {
+		//console.log(newTime);
+		setTime2(newTime);
+		setCurrentPage(0);
+		var tmp = lodashCloneDeep(filterCond);
+
+		tmp.endDate = newTime.toDate().toString();
+		tmp.currentPage = 0;
+		console.log(tmp);
+		getAllApplication(tmp);
+	}
 	
 	function DisplayAllApplication() {
 	return (
@@ -452,6 +491,45 @@ export default function Application(props) {
 	<CssBaseline />
 	<DisplayPageHeader headerName={"Application Status" } groupName="" tournament=""/>
 	<DisplayFunctionHeader />
+		<Grid key={"FIKTER"} className={gClasses.noPadding} container justifyContent="center" alignItems="center" >
+
+			<Grid align="center" item xs={2} sm={2} md={2} lg={2} >
+				<VsCheckBox label="TimeRange" checked={timeRange} onClick={() => enableTimeRange(!timeRange) }  />			
+			</Grid>
+			<Grid align="center" item xs={5} sm={5} md={2} lg={2} >
+			{(timeRange) &&
+			<Datetime 
+				className={gClasses.dateTimeBlock}
+				inputProps={{className: (compareDate(time1.toDate(), time2.toDate()) > 0) ? gClasses.error : gClasses.dateTimeNormal}}
+
+				timeFormat={false} 
+				initialValue={time1}
+				value={time1}
+				dateFormat="DD/MMM/yyyy"
+				isValidDate={disableFutureDt}
+				onClose={(date) => enableDate1(date)}
+				closeOnSelect={true}
+			/>
+			}
+			</Grid >
+			<Grid align="center" item xs={5} sm={5} md={2} lg={2} >
+				{(timeRange) &&
+				<Datetime 
+				className={gClasses.dateTimeBlock}
+				inputProps={{className: (compareDate(time1.toDate(), time2.toDate()) > 0) ? gClasses.error : gClasses.dateTimeNormal}}
+				timeFormat={false} 
+				initialValue={time2}
+
+				value={time2}
+				dateFormat="DD/MMM/yyyy"
+				isValidDate={disableFutureDt}
+				onClose={(date) => enableDate2(date)}
+				closeOnSelect={true}
+			/>
+			}
+			</Grid >
+			<Grid align="center" item xs={2} sm={2} md={1} lg={1} />
+		</Grid>
 	<VsRadioGroup radioList={RadioList} value={radOpts} onChange={() => submitChangeOpt(event.target.value) } />
 	<DisplayAllApplication />
 	<TablePagination

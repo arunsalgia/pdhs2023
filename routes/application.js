@@ -201,7 +201,7 @@ router.get('/filterlist/:filterData', async function (req, res) {
    setHeader(res);
 	var { filterData } = req.params;
 	filterData = JSON.parse(filterData);
-   //console.log(filterData);
+   console.log(filterData);
    var cond = {};
    if (filterData.adminRec.mid === 0)
       cond = {mid: filterData.mid};
@@ -210,6 +210,30 @@ router.get('/filterlist/:filterData', async function (req, res) {
    if (filterData.status !== 'All')
       cond["status"] = filterData.status;
    cond["owner"] = filterData.owner;
+   
+   	if (filterData.timeRange) {
+
+		var startDate = new Date(filterData.startDate);
+		startDate.setHours(0);
+		startDate.setMinutes(0);
+		startDate.setSeconds(0);
+		startDate.setMilliseconds(0);
+		
+		var endDate = new Date(filterData.endDate);
+		endDate.setHours(0);
+		endDate.setMinutes(0);
+		endDate.setSeconds(0);
+		endDate.setMilliseconds(0);
+
+		endDate.setDate(endDate.getDate()+1);
+		//console.log(startDate, endDate);
+
+		var tmp = [ { date: { $gte : startDate } }, { date : { $lt:  endDate} } ];
+		//console.log(tmp);
+		cond['$and'] = tmp;
+
+	}
+
    console.log(cond);
    // Get Application in reverse order
 	let myData = await M_Application.find(cond).sort({id: -1}).skip(filterData.currentPage*filterData.pageSize).limit(filterData.pageSize);
