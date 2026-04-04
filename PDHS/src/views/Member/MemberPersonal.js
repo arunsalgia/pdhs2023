@@ -521,10 +521,8 @@ function DisplayPersonalInformation() {
 	}
 
  	function upgradeHumad(m) {
-      //sessionStorage.setItem("pjymFilter", JSON.stringify(filterData));
-      //handlePrwsContextMenuClose();
       setSelMember(m);
-      selectCaller(APPLICATIONTYPES.humadUpgrade, "HumadUpgrade", null, null, m);
+      selectCaller(APPLICATIONTYPES.humadUpgrade, "HumadUpgrade", null, hodRec, m);
 	}	
    
 	function handleCeasedMemberBack(sts) {
@@ -638,7 +636,10 @@ function DisplayPersonalInformation() {
 	
 	
 	function selectCaller(funCode, mode, memberList, hodRecord, memberRecord) {
+		  //console.log("selectCaller");
+			//console.log(hodRecord);
       if (isFamilyLock(hodRecord)) return;
+			//console.log("Family lock check successful");
       var myFun = funCodeTable.find(x => x.fun === funCode);
       if (myFun) {
          if (myFun.fun === APPLICATIONTYPES.humadUpgrade) {

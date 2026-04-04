@@ -92,7 +92,7 @@ export default function HumadUpgrade() {
 	//const classes = useStyles();
 	const gClasses = globalStyles();
 	const myProps = JSON.parse(sessionStorage.getItem("humad_props"));
-   console.log(myProps);
+  //console.log(myProps);
 	var HUMADCATEGORY = [];
 
    

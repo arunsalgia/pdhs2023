@@ -64,7 +64,7 @@ export default function Member(props) {
 	const loginHid = Number(sessionStorage.getItem("hid"));
 	const loginMid = Number(sessionStorage.getItem("mid"));
 	var test = sessionStorage.getItem("familySelection");
-	console.log("familySelection", test);
+	//console.log("familySelection", test);
 	if (!test) test= "";
 	sessionStorage.setItem("familySelection", test);
 	
