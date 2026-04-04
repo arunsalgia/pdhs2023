@@ -50,14 +50,14 @@ router.get('/count/all/:mid', async function (req, res) {
 	if (adminRec) {
 		var ownerList = [];
 		if (adminRec.prwsAdmin || adminRec.superAdmin || adminRec.superDuper)
-			ownerList.push("PRWS");
+			ownerList.push(OWNER.prws);
 		if (adminRec.pjymAdmin || adminRec.superAdmin || adminRec.superDuper)
-			ownerList.push("PJYM");
+			ownerList.push(OWNER.pjym);
 		if (adminRec.humadAdmin || adminRec.superAdmin || adminRec.superDuper)
-			ownerList.push("HUMAD");
+			ownerList.push(OWNER.humad);
 		
-      //console.log(ownerList);
-      myCond["owner"] = {$in: ownerList };
+    console.log(ownerList);
+    myCond["owner"] = {$in: ownerList };
  	}
    else 
      myCond["mid"] = mid;	

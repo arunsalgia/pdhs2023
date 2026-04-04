@@ -555,7 +555,10 @@ router.get('/humadupgrade/:editor_hodmid/:editor_mid/:appData', async function (
   setHeader(res);
 	var {editor_mid, editor_hodmid, appData } = req.params;
 	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.humadUpgrade, OWNER.humad);	
-    if (!myRec) return senderr(res, APPROVE_ERRORS.HODLOCK.code, APPROVE_ERRORS.HODLOCK.desc);
+  if (!myRec) return senderr(res, APPROVE_ERRORS.HODLOCK.code, APPROVE_ERRORS.HODLOCK.desc);
+   // set the family lock
+   var xxx = JSON.parse(appData);
+   await set_hod_applock(xxx.hid, myRec.id);   
 	sendok(res, myRec);
 });
 
