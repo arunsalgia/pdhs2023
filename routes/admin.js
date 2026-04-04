@@ -56,7 +56,7 @@ router.get('/add/:editorMid/:mid/:superA/:pjym/:humad/:prws/:pmm', async functio
   
   var { editorMid, mid, superA, pjym, humad, prws, pmm } = req.params;
 	mid = Number(mid);
-	console.log(mid);
+	//console.log(mid);
 
    
 	let adminRec = await M_Admin.findOne({mid: mid});
@@ -103,7 +103,7 @@ router.get('/add/:editorMid/:mid/:superA/:pjym/:humad/:prws/:pmm', async functio
    myLogRec.referenceId = 0;
    myLogRec.status = true;
    await myLogRec.save();
-   console.log(myLogRec);
+   //console.log(myLogRec);
 	
 });
 
@@ -167,7 +167,7 @@ router.get('/membershipinfo', async function(req, res, next) {
   await tmp.save();*/
   
   var result = await M_MembershipInfo.find({}).sort({manch: 1, level: -1});
-  console.log(result);
+  //console.log(result);
   sendok(res, result);
 	
 });
@@ -184,7 +184,7 @@ router.get('/delete/:editor_mid/:mid', async function(req, res, next) {
 
    let editorRec = await M_Member.findOne({mid: editor_mid});
    if (!editorRec) return senderr(res, APPROVE_ERRORS.NOMEMRECORD.code, APPROVE_ERRORS.NOMEMRECORD.desc);
-   console.log('looks okay');
+   //console.log('looks okay');
    
 	await M_Admin.deleteOne({mid: mid});
    

@@ -435,7 +435,7 @@ router.get('/delete/:editorMid/:applicationId', async function (req, res) {
 	myLogRec.date = new Date();
 	myLogRec.mid = hodMemberRec.mid;
 	myLogRec.name = getMemberName(hodMemberRec, false);         // **** This will have HOD name and not editor name
-	myLogRec.desc = "Application " + aRec.id + " deleted by " +  getMemberName(editorRec, false) ;
+	myLogRec.desc = `Application ${aRec.id} for "${aRec.desc}" deleted by ${getMemberName(editorRec, false)}`;
 	myLogRec.isAdmin = true;
 	myLogRec.action = "Delete";
 	myLogRec.data = "";

@@ -34,7 +34,7 @@ return { $regex: name, $options: "i" }
 router.get('/count/all/:mid', async function (req, res) {
   setHeader(res);
   var { mid } = req.params;
-	console.log(mid);
+	//console.log(mid);
 	var prwsCount = await memberGetCount();
   var pjymCount = await memberGetPjymCount();		// M_Pjym.countDocuments({active: true});
 	var humadCount = await memberGetHumadCount();		//M_Humad.countDocuments({active: true});
@@ -56,7 +56,7 @@ router.get('/count/all/:mid', async function (req, res) {
 		if (adminRec.humadAdmin || adminRec.superAdmin || adminRec.superDuper)
 			ownerList.push(OWNER.humad);
 		
-    console.log(ownerList);
+    //console.log(ownerList);
     myCond["owner"] = {$in: ownerList };
  	}
    else 
@@ -65,7 +65,7 @@ router.get('/count/all/:mid', async function (req, res) {
 
 	var applCount = await M_Application.countDocuments(myCond);
 	var myData = {prws: prwsCount, pjym: pjymCount,  humad: humadCount,  family: familyCount, application:  applCount}; 
-	console.log(myData);
+	//console.log(myData);
 	sendok(res, myData);
 });
 
