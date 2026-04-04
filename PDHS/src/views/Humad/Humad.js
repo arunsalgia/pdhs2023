@@ -85,6 +85,7 @@ import {
 
 
 import { 
+	isFamilyLockByHid,
   displayType, getWindowDimensions,
 	decrypt, dispMobile, dispEmail, disableFutureDt,
 	isMobile, 
@@ -325,8 +326,12 @@ export default function Humad() {
 		
 	}
 	
-	function upgradeHumad() {
+	async function upgradeHumad() {
 		handlePrwsContextMenuClose();
+		// Check if family lock on the member's family
+		var checkLock = await isFamilyLockByHid(menuMember.hid, true);
+		if (checkLock) return;
+		
 		// get Humad record
 		let tmpHumadRec = humadArray.find(x => x.mid === menuMember.mid);
 		let  myIndex = HUMADCATEGORY.map(e => e.short).indexOf(tmpHumadRec.membershipNumber.substr(0, 1));  //.find(x => x.short === );
@@ -629,9 +634,10 @@ export default function Humad() {
  
  
 	function PrwsContextMenu() {
-	//console.log(radioMid);
+	  //console.log(radioMid);
 		var tmp = memberArray.find(x => x.mid === radioMid);
 		setMenuMember(tmp);
+		
 		var tmpHumadRec = humadArray.find(x => x.mid === radioMid);
 		//console.log(tmp);
     var myName = tmp.firstName + " " + tmp.lastName;
@@ -678,7 +684,7 @@ export default function Humad() {
 		</MenuItem>
 		<Divider />
 		<MenuItem disabled={!upgradeAllowed} onClick={upgradeHumad}>
-			<Typography>Upgrade</Typography>
+			<Typography>Upgrade Membership</Typography>
 		</MenuItem>
 	</Menu>	
 	</div>

@@ -105,6 +105,7 @@ import {
 	hasHumadpermission, 
    hasPJYMpermission,
    canUpgradeHumad, canUpgradePjym,
+	 isFamilyLockByHid,
 } from "views/functions.js";
 
 
@@ -377,8 +378,8 @@ export default function Prws() {
 	}
 	
 
-	function jumpFamily() {
-      sessionStorage.setItem("previousPage", process.env.REACT_APP_PRWS);
+	 function jumpFamily() {
+    sessionStorage.setItem("previousPage", process.env.REACT_APP_PRWS);
 		sessionStorage.setItem("prwsFilter", JSON.stringify(filterData));
 		handlePrwsContextMenuClose();
 		setGrpAnchorEl(null);
@@ -388,14 +389,17 @@ export default function Prws() {
 		setDisplayPage(process.env.REACT_APP_FAMILY, tmp.hid, tmp.mid);
 	}
 	
-	function jumpPjym() {
-		sessionStorage.setItem("prwsFilter", JSON.stringify(filterData));
+	async function jumpPjym() {
 		handlePrwsContextMenuClose();
 		setGrpAnchorEl(null);
-		//setTab(process.env.REACT_APP_PJYM);
-		console.log("Here");
+		
+		var memberRec = memberArray.find( x => x.mid === radioMid);
+
+		var checkLock = await isFamilyLockByHid(memberRec.hid, true);
+		if (checkLock) return;
+		
+		sessionStorage.setItem("prwsFilter", JSON.stringify(filterData));
 		showInfo("Membership of PJYM to be implemented");
-		console.log("Here again");
 	}
 
 	function jumpHumad() {
@@ -406,10 +410,13 @@ export default function Prws() {
 		setIsDrawerOpened("HumadUpgrade");
 	}
 	
-	function upgradeHumad() {
-		sessionStorage.setItem("prwsFilter", JSON.stringify(filterData));
+	async function upgradeHumad() {
 		handlePrwsContextMenuClose();
 		var memberRec = memberArray.find( x => x.mid === radioMid);
+		var checkLock = await isFamilyLockByHid(memberRec.hid, true);
+		if (checkLock) return;
+		
+		sessionStorage.setItem("prwsFilter", JSON.stringify(filterData));
 		selectCaller(APPLICATIONTYPES.humadUpgrade, "HumadUpgrade", memberRec);
 	}	
 	

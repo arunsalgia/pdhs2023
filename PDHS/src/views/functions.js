@@ -1242,10 +1242,10 @@ export function setCityArray(myArray) {
 export async function getHodCityList() {
 	try {
 		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/city/all`;
-      console.log(myUrl)
+      //console.log(myUrl)
 		let resp = await axios.get(myUrl);
-      console.log("success");
-      console.log(resp);		
+      //console.log("success");
+      //console.log(resp);		
 		return resp.data;		
 	} catch (e) {
       console.log("Error fetching city data");
