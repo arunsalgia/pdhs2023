@@ -356,6 +356,7 @@ export const APPLICATIONTYPES = {
 	marriage:					"Marriage",
 	unMarriage:				"Change Mar. Sts.",
 	humadUpgrade:			"Humad Upgrade",
+	pjymUpgrade:			"PJYM Upgrade",
 };
 
 
@@ -437,3 +438,13 @@ export const HUMADSUBCASTEOBJ = {
    dasha: "Dasha", 
    visha: "Visha"
 };
+
+export const PJYM_AGE_LIMIT = 45;
+
+export const MUNCHNAME = 
+{
+humad: "Humad",
+pjym:  "PJYM",
+prws:  "PRWS",
+pmm:   "PMM",	
+}

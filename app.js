@@ -196,6 +196,7 @@ GotraSchema = mongoose.Schema({
 CitySchema = mongoose.Schema({
 	id: String,
 	city: String,
+	mmr: Boolean,
 	enabled: Boolean
 });
 
@@ -629,7 +630,8 @@ APPLICATIONTYPES = {
 	marriage:			   "Marriage",
 	unMarriage:				"Change Mar. Sts.",
 	humadUpgrade:			"Humad Upgrade",
-   guestMembership:      "Guest Membership"
+	pjymUpgrade:			"PJYM Upgrade",
+  guestMembership:      "Guest Membership"
 };
 
 APPROVE_ERRORS = {

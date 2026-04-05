@@ -562,6 +562,19 @@ router.get('/humadupgrade/:editor_hodmid/:editor_mid/:appData', async function (
 	sendok(res, myRec);
 });
 
+router.get('/pjymupgrade/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
+  setHeader(res);
+	var {editor_mid, editor_hodmid, appData } = req.params;
+	//console.log(appData);
+	var myRec = await addApplication(editor_hodmid, editor_mid, appData, APPLICATIONTYPES.pjymUpgrade, OWNER.pjym);
+	//console.log(myRec);
+  if (!myRec) return senderr(res, APPROVE_ERRORS.HODLOCK.code, APPROVE_ERRORS.HODLOCK.desc);
+   // set the family lock
+   var xxx = JSON.parse(appData);
+   await set_hod_applock(xxx.hid, myRec.id);   
+	sendok(res, myRec);
+});
+
 
 router.get('/ceased/:editor_hodmid/:editor_mid/:appData', async function (req, res) {
   setHeader(res);

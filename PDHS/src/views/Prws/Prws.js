@@ -96,6 +96,7 @@ import {
 	getImageName,
 	vsDialog,
 	getMemberName,
+	getHodRecord,
 	getRelation, dispAge, getAge, capitalizeFirstLetter, getMemberTip,
 	downloadTextFile,
 	getAdminInfo,
@@ -105,12 +106,14 @@ import {
 	hasHumadpermission, 
    hasPJYMpermission,
    canUpgradeHumad, canUpgradePjym,
-	 isFamilyLockByHid,
+	 isFamilyLockByHid, 
+	 isFamilyLock,
 } from "views/functions.js";
 
 
 const funCodeTable = [
 {fun: APPLICATIONTYPES.humadUpgrade, 					code: process.env.REACT_APP_HUMAD_UPGRADE},
+{fun: APPLICATIONTYPES.pjymUpgrade, 					code: process.env.REACT_APP_PJYM_UPGRADE},
 ];
 
 var cityList = ["Mumbai"];
@@ -238,12 +241,19 @@ export default function Prws() {
 		}
 		
 		if ("humad_returnstatus" in sessionStorage) {
-			console.log("has return status");
+			//console.log("has return status");
 			var sts = JSON.parse(sessionStorage.getItem("humad_returnstatus"));
 			sessionStorage.removeItem("humad_returnstatus");
 			handlePrwsReturn(sts);
 		}
 
+		if ("pjym_returnstatus" in sessionStorage) {
+			//console.log("has return status");
+			var sts = JSON.parse(sessionStorage.getItem("pjym_returnstatus"));
+			sessionStorage.removeItem("pjym_returnstatus");
+			handlePrwsReturn(sts);
+		}
+		
 		setPage(0);
       getAllLocation();
 		getAllCities();
@@ -258,7 +268,7 @@ export default function Prws() {
 
 
 	function handlePrwsReturn(sts) {
-		console.log(sts);
+		//console.log(sts);
 		if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
 		else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
 		
@@ -392,13 +402,14 @@ export default function Prws() {
 	async function jumpPjym() {
 		handlePrwsContextMenuClose();
 		setGrpAnchorEl(null);
-		
+		console.log("Select PJY upgrade")
 		var memberRec = memberArray.find( x => x.mid === radioMid);
 
 		var checkLock = await isFamilyLockByHid(memberRec.hid, true);
 		if (checkLock) return;
 		
 		sessionStorage.setItem("prwsFilter", JSON.stringify(filterData));
+		console.log("Flag error")
 		showInfo("Membership of PJYM to be implemented");
 	}
 
@@ -410,29 +421,46 @@ export default function Prws() {
 		setIsDrawerOpened("HumadUpgrade");
 	}
 	
-	async function upgradeHumad() {
+
+	async function upgradePjym() {
 		handlePrwsContextMenuClose();
 		var memberRec = memberArray.find( x => x.mid === radioMid);
-		var checkLock = await isFamilyLockByHid(memberRec.hid, true);
+
+		var hodRec = await getHodRecord(memberRec.hid);
+		var checkLock = await isFamilyLock(hodRec, true);
 		if (checkLock) return;
 		
 		sessionStorage.setItem("prwsFilter", JSON.stringify(filterData));
-		selectCaller(APPLICATIONTYPES.humadUpgrade, "HumadUpgrade", memberRec);
+		selectCaller(APPLICATIONTYPES.pjymUpgrade, "PjymUpgrade", hodRec, memberRec, null);
 	}	
 	
-	function selectCaller(funCode, mode, memberRecord, humadRecord ) {
+	async function upgradeHumad() {
+		handlePrwsContextMenuClose();
+		var memberRec = memberArray.find( x => x.mid === radioMid);
+
+		var hodRec = await getHodRecord(memberRec.hid);
+		var checkLock = await isFamilyLock(hodRec, true);
+		if (checkLock) return;
+		
+		sessionStorage.setItem("prwsFilter", JSON.stringify(filterData));
+		selectCaller(APPLICATIONTYPES.humadUpgrade, "HumadUpgrade", hodRec, memberRec, null);
+	}	
+	
+	function selectCaller(funCode, mode, hodRec, memberRecord, humadRecord ) {
 		sessionStorage.setItem("prwsFilter", JSON.stringify(filterData));
 		var myFun = funCodeTable.find(x => x.fun === funCode);
 		if (myFun) {
 			var myData = JSON.stringify({
 				calledFrom: process.env.REACT_APP_PRWS,
 				memberRec: memberRecord,
+				hodRec: hodRec,
+				pjymRec: null,
 				humadRec: null,
 				mode: mode,
 				hodMid: 0,
 				selectedMid:  memberRecord.mid
 			});
-			sessionStorage.setItem("humad_props", myData);
+			sessionStorage.setItem((funCode === APPLICATIONTYPES.humadUpgrade) ? "humad_props" : "pjym_props", myData);
 			setTab(myFun.code);
 		}
 		else {
@@ -518,8 +546,8 @@ export default function Prws() {
 		var myStyle={top: `${contextParams.y}px` , left: `${contextParams.x}px` };
 
 		// if not humad member and login is family member or humad admin then allowed humad upgrade
-      var humadUpgradeAllowed = canUpgradeHumad(tmp);
-      var pjymUpgradeAllowed = canUpgradePjym(tmp);
+		var humadUpgradeAllowed = canUpgradeHumad(tmp);
+		var pjymUpgradeAllowed = canUpgradePjym(tmp);
       
 		//console.log(humadUpgradeAllowed);
 	return(
@@ -547,7 +575,7 @@ export default function Prws() {
 			<Typography>{"Family"}</Typography>
 		</MenuItem>
 		<Divider />
-		<MenuItem disabled={!pjymUpgradeAllowed} onClick={jumpPjym}>
+		<MenuItem disabled={!pjymUpgradeAllowed} onClick={upgradePjym}>
 			<Typography>Pjym Membership</Typography>
 		</MenuItem>
 		<MenuItem disabled={!humadUpgradeAllowed} onClick={upgradeHumad}>

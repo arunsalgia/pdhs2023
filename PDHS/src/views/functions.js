@@ -21,7 +21,7 @@ var ifscsystem = require('ifsc-finder');
 
 var aadhar = require('aadhaar-validator')
 
-var membershipInfo = [];
+//var membershipInfo = [];
 
 import {
 	readAllMembers, memberGetByHidMany,
@@ -32,14 +32,17 @@ import {
 	APPLICATIONSTATUS,
 	HUMADCATEGORY,
 	HOURSTR, MINUTESTR,
+	PJYM_AGE_LIMIT,
 } from "views/globals.js";
 
 export async function getMembershipInfo() {
-   if (membershipInfo.length > 0) return (membershipInfo);
+	var membershipInfo = JSON.parse(sessionStorage.getItem("membershipInfo"));
+   if (membershipInfo) return (membershipInfo);
    try {
     let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/pdhsadm/membershipinfo`;
     let resp = await axios.get(myUrl);
     membershipInfo = resp.data;
+		sessionStorage.setItem("membershipInfo", JSON.stringify(membershipInfo));
     return(membershipInfo);
   } catch(err)  {
     console.log("---------memberiship info detail error");
@@ -1314,12 +1317,9 @@ export function canUpgradeHumad(memRec) {
    
 }
 
-export function canUpgradePjym(memRec) {
-   //getMembershipInfo();
-   //console.log(memRec.pjymMember);
-  
+export function canUpgradePjym(memRec) {  
    var perm = false;
-   if (!memRec.humadMember) {
+   if ((!memRec.pjymMember) && (getAge(memRec.dob) <= PJYM_AGE_LIMIT)) {
      if ((memRec.hid == sessionStorage.getItem("hid")) || hasPJYMpermission())
         perm = true;
    }

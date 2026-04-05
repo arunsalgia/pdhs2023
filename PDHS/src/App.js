@@ -57,6 +57,7 @@ import MemberEditGotra from "views/Member/MemberEditGotra";
 import MemberEditGeneral from "views/Member/MemberEditGeneral";
 
 import HumadUpgrade from "views/Humad/HumadUpgrade";
+import PjymUpgrade from "views/Pjym/PjymUpgrade";
 
 import IdleTimer from 'react-idle-timer'
 
@@ -128,7 +129,7 @@ function checkResetPasswordRequest() {
 function AppRouter() {
   //let history={hist}
 	const gClasses = globalStyles();
-	
+	//sessionStorage.setItem("membershipInfo", "[]");
   const [user, setUser] = useState(null);
 	const [fireToken, setFireToken] = useState("");
 	
@@ -196,8 +197,6 @@ function AppRouter() {
 
   var myStatus = sessionStorage.getItem("prwsLogin");
   var showLanding = ((typeof myStatus === 'undefined') || (myStatus == null) || (myStatus === ""));
-	//sessionStorage.removeItem("prwsMemberList");
-	//readAllMembers();
   console.log(sessionStorage.getItem("menuValue") );
   return (
     <Router history={hist}> 
@@ -284,7 +283,7 @@ function AppRouter() {
 			}				
 			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_APPLICATION_HUMADUPGRADE) &&
 				<ApplicationUpgradeHumad />
-			}				
+			}		
 			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_FAMILY_PERSONAL_NEWHOD) &&
 				<NewHod />
 			}	
@@ -309,6 +308,9 @@ function AppRouter() {
 			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_HUMAD_UPGRADE) &&
 				<HumadUpgrade />
 			}		
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_PJYM_UPGRADE) &&
+				<PjymUpgrade />
+			}				
 			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_CITY) &&
 				<City />
 			}

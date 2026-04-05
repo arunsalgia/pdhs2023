@@ -2,8 +2,9 @@ import React,{useState, useEffect } from 'react';
 import { CssBaseline } from '@material-ui/core';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { TextField, InputAdornment } from "@material-ui/core";
-
 import axios from 'axios';
+import { Switch } from '@material-ui/core';
+
 import VsButton from "CustomComponents/VsButton"; 
 import VsCancel from "CustomComponents/VsCancel";
 import VsCheckBox from "CustomComponents/VsCheckBox";
@@ -58,6 +59,8 @@ export default function City() {
 	const [isDrawerOpened, setIsDrawerOpened] = useState("");
 	const [rename, setRename] = useState(false);
 	
+	const [mmr, setMmr] = useState(false);
+	
 	const [editCityRec, setEditCityRec] = useState(null);
 	
 	const [emurName, setEmurName] = useState("");
@@ -102,14 +105,17 @@ export default function City() {
 	function addCity() {
 		setRegisterStatus(0); 
 		setEmurName("")
+		setMmr(false);
 		setIsDrawerOpened("ADD");  
 	}
 	
 	function editCity(cityRec) {
 		setRegisterStatus(0);
 		setRename(false);
+		setMmr(cityRec.mmr);
 		setEmurName(cityRec.city); 
 		setEmurOrigName(cityRec.city);
+		setMmr(cityRec.mmr);
 		setEditCityRec(cityRec);
     //console.log(cityRec.city);
 		setIsDrawerOpened("EDIT");  
@@ -121,7 +127,7 @@ export default function City() {
 		// for blank and duplicate
 		if (cityArray.find(x => x.city.toLowerCase() === newName)) return setRegisterStatus(1002);
 		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/city/add/${newName}`;
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/city/add/${newName}/${mmr}`;
 			let resp = await axios.get(myUrl);
 			showSuccess(`Successfully added city ${resp.data.city} to database.`);
 			let tmpArray = cityArray.concat([resp.data]);
@@ -147,14 +153,15 @@ export default function City() {
 			newCityName = emurName.trim().toLowerCase();
 			if (newCityName.length === 0) return setRegisterStatus(1001);
 			// if not rename to existing, new name must not be defined
-			let tmp =  cityArray.find(x => x.city.toLowerCase() === newCityName);
-			if (tmp) return setRegisterStatus(1002);
+			//let tmp =  cityArray.find(x => x.city.toLowerCase() === newCityName);
+			//if (tmp) return setRegisterStatus(1002);
 		}
 		setIsDrawerOpened("");
 		
 		let subcmd = (rename) ? "renametoexisting" : "renametonew"
 		try {
-			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/city/${subcmd}/${emurOrigName.toLowerCase()}/${newCityName}`;
+			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/city/${subcmd}/${emurOrigName.toLowerCase()}/${newCityName}/${mmr}`;
+			//console.log(myUrl);
 			let resp = await axios.get(myUrl);
 			// remove the entry of old city name
 			let tmpArray = cityArray.filter(x => x.city.toLowerCase() !== emurOrigName.toLowerCase());
@@ -189,6 +196,10 @@ export default function City() {
 		}
 	}
 
+	function handleMmr() {
+		setMmr(!mmr);
+	}
+
 	function DisplayAllCity() {
 	return (
 	<Grid key="AllDOCS" container>
@@ -196,7 +207,7 @@ export default function City() {
 		<Grid align="left" key={"CITYALL"+index} item xs={12} sm={6} md={3} lg={3} >
 			<Box style={{margin: "2px" }}  className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} >
 			<Typography >
-			<span style={{paddingLeft: "8px" }} align="left" className={gClasses.patientInfo2}>{d.city+" "}</span>
+			<span style={{paddingLeft: "8px" }} align="left" className={gClasses.patientInfo2}>{d.city+" "+((d.mmr) ? '(MMR)' : '')}</span>
          {(hasEditPerm) &&
          <span align="right">
            <EditIcon color="primary" size="small" onClick={() => {editCity(d)}} />
@@ -232,6 +243,15 @@ export default function City() {
 				validators={['noSpecialCharacters']}
 				errorMessages={['Special characters not permitted']}
 			/>
+			<br />
+			<Grid className={gClasses.noPadding} key="MMROPTION" container align="left">
+			<Grid item xs={5} sm={5} md={5} lg={5} >
+				<Typography style={{marginTop: "10px"  }} className={gClasses.title}>{`Part of MMR`}</Typography>
+			</Grid>
+			<Grid item xs={2} sm={2} md={2} lg={2} >
+				<Switch color="primary" checked={mmr} onChange={handleMmr} />
+			</Grid>
+			</Grid>	
 			<ShowResisterStatus/>
 			<BlankArea />
 			<VsButton align="center" name={"Add"} />
@@ -244,9 +264,9 @@ export default function City() {
 					<span className={gClasses.patientInfo2Brown} >Edit City: </span>
 					<span className={gClasses.title}>{emurOrigName}</span>
 				</Typography>
-				<DisplayApplicationName name={`(All member records having city as ${emurOrigName} will get updated with the new value)`} value="" style={{paddingTop: "5px" }}  />
-				<VsCheckBox align="left" label="Rename to existing" checked={rename} onClick={() => setRename(!rename)} />
-				<br />
+				{/*<DisplayApplicationName name={`(All member records having city as ${emurOrigName} will get updated with the new value)`} value="" style={{paddingTop: "5px" }}  />
+				<VsCheckBox align="left" label="Rename to existing" checked={rename} onClick={() => setRename(!rename)} />*/}
+				
 				{(false && rename) &&
           <Grid key="ALLCITY" container >
             {cityArray.map( (d, index) => 
@@ -278,6 +298,16 @@ export default function City() {
 					errorMessages={['Special characters not permitted']}
 				/>			
 				}
+				<br />
+				<Grid className={gClasses.noPadding} key="MMROPTION" container align="left">
+				<Grid item xs={5} sm={5} md={5} lg={5} >
+					<Typography style={{marginTop: "10px"  }} className={gClasses.title}>{`Part of MMR`}</Typography>
+				</Grid>
+				<Grid item xs={2} sm={2} md={2} lg={2} >
+					<Switch color="primary" checked={mmr} onChange={handleMmr} />
+				</Grid>
+				</Grid>	
+				<br />
 				<ShowResisterStatus/>
 				<br />
 				<VsButton align="center" name={"Update"} />

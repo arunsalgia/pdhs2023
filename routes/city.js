@@ -22,7 +22,7 @@ router.use('/', function(req, res, next) {
 router.get('/list', async function(req, res, next) {
   setHeader(res);
 
-  var tmp = await M_City.find({}, {_id: 0, city: 1}).sort({city: 1});
+  var tmp = await M_City.find({enabled: true}, {_id: 0, city: 1, mmr: 1}).sort({city: 1});
 	sendok(res, tmp);
 });
 
@@ -34,46 +34,53 @@ router.get('/listfromhod', async function(req, res, next) {
 	sendok(res, tmp);
 });
 
-router.get('/add/:newCity', async function(req, res, next) {
+router.get('/add/:newCity/:mmr', async function(req, res, next) {
   setHeader(res);
   
-  var {newCity} = req.params;
+  var {newCity, mmr} = req.params;
 	newCity = getDisplayName(newCity);	
-	console.log(newCity);
-
+	
 	var mRec = await M_City.findOne({city: newCity});
 	if (mRec) return senderr(res, 601, "City already in database");
 
 	mRec = new M_City();
 	mRec.id = newCity;
 	mRec.city = newCity;
+	mRec.mmr = (mmr.toLowerCase() === 'true');
 	mRec.enabled = true;
 	await mRec.save();
 	sendok(res, mRec);
 	
 });
 
-router.get('/renametonew/:oldCity/:newCity', async function(req, res, next) {
+router.get('/renametonew/:oldCity/:newCity/:mmr', async function(req, res, next) {
   setHeader(res);
   
-  var {oldCity, newCity} = req.params;
+  var {oldCity, newCity, mmr} = req.params;
 	oldCity = getDisplayName(oldCity);
 	newCity = getDisplayName(newCity);
 	
 	console.log(oldCity, newCity);
 
-	let tmp = await M_City.findOne({city: newCity});
-	if (tmp) return senderr(res, 601, "new found. Duplicate error");
+	if (oldCity !== newCity) {
+		let tmp = await M_City.findOne({city: newCity});
+		if (tmp) return senderr(res, 601, "new found. Duplicate error");
+	}
 	
 	let rec1 = await M_City.findOne({city: oldCity});
 	if (!rec1)  return senderr(res, 602, "old not found");
 
 	rec1.id = newCity;
 	rec1.city = newCity;
+	rec1.mmr = (mmr.toLowerCase() === 'true');
 	rec1.enabled = true;
 	await rec1.save();
+	console.log(rec1);
 
-	await updateCityInHod(oldCity, newCity)
+	if (oldCity !== newCity) {
+		console.log('city name chnaged');
+		await updateCityInHod(oldCity, newCity);
+	}
 
 
 	sendok(res, rec1);
@@ -164,6 +171,20 @@ router.get('/sethod/:oldCity/:newCity', async function(req, res, next) {
 	var { oldCity, newCity } = req.params;
 
 	await updateCityInHod(getDisplayName(oldCity), getDisplayName(newCity))
+	sendok(res, "Done");
+});
+
+router.get('/setmmr/:yesNo', async function(req, res, next) {
+  setHeader(res);
+	
+	var { yesNo } = req.params;
+	var mmrState = (yesNo.toLowerCase() === 'true');
+	console.log(mmrState);
+	var allCity = await M_City.find({});
+	for(var i=0; i<allCity.length; ++i) {
+		allCity[i].mmr = mmrState;
+		await allCity[i].save();
+	}
 	sendok(res, "Done");
 });
 

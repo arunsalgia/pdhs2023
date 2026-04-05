@@ -119,7 +119,8 @@ const funCodeTable = [
 {fun: APPLICATIONTYPES.marriage, 				code: process.env.REACT_APP_FAMILY_PERSONAL_MARRIAGE},
 // Managed locally. No page required for this {fun: APPLICATIONTYPES.unMarriage, 			code: process.env.REACT_APP_FAMILY_PERSONAL_UNMARRIAGE},
 {fun: APPLICATIONTYPES.memberCeased, 		code: process.env.REACT_APP_FAMILY_PERSONAL_CEASED},
-{fun: APPLICATIONTYPES.humadUpgrade, 					code: process.env.REACT_APP_HUMAD_UPGRADE},
+{fun: APPLICATIONTYPES.humadUpgrade, 		code: process.env.REACT_APP_HUMAD_UPGRADE},
+{fun: APPLICATIONTYPES.pjymUpgrade, 		code: process.env.REACT_APP_PJYM_UPGRADE},
 ];
 
 
@@ -221,13 +222,20 @@ export default function MemberPersonal(props) {
 		}
 
 		if ("family_personal_returnstatus" in sessionStorage) {
-			console.log("has return status");
 			var sts = JSON.parse(sessionStorage.getItem("family_personal_returnstatus"));
-			//console.log(sts);
 			sessionStorage.removeItem("family_personal_returnstatus");
 			handlePersonalReturn(sts);
 		}
-
+		if ("humad_returnstatus" in sessionStorage) {
+			var sts = JSON.parse(sessionStorage.getItem("humad_returnstatus"));
+			sessionStorage.removeItem("humad_returnstatus");
+			handlePersonalReturn(sts);
+		}
+		if ("pjym_returnstatus" in sessionStorage) {
+			var sts = JSON.parse(sessionStorage.getItem("pjym_returnstatus"));
+			sessionStorage.removeItem("pjym_returnstatus");
+			handlePersonalReturn(sts);
+		}
 		getDetails();
 		
 		handleResize();
@@ -374,7 +382,8 @@ function DisplayPersonalInformation() {
 		let isFamilyMember = (memberArray[0].hid === loginHid);
 		let admin = ((adminInfo & (ADMIN.superAdmin | ADMIN.prwsAdmin)) !== 0);
 		let isEligible = isEligibleForMarriage(memberRecord);
-      var humadUpgradeAllowed = canUpgradeHumad(memberRecord);
+    var humadUpgradeAllowed = canUpgradeHumad(memberRecord);
+		var pjymUpgradeAllowed = canUpgradePjym(memberRecord);
 		//console.log(newMenuRef);
 	return(
 	<div id="MEMPERSMENU" ref={newMenuRef} className='absolute z-20' style={myStyle}>
@@ -424,7 +433,10 @@ function DisplayPersonalInformation() {
 			<Typography>Ceased</Typography>
       </MenuItem>
 		<Divider />
-		<MenuItem disabled={!humadUpgradeAllowed} onClick={() => { handleMemPerContextMenuClose(); upgradeHumad(memberRecord); } }>
+		<MenuItem disabled={!pjymUpgradeAllowed} onClick={ () => upgradePjym(memberRecord) }>
+			<Typography>Pjym Membership</Typography>
+		</MenuItem>
+		<MenuItem disabled={!humadUpgradeAllowed} onClick={() => upgradeHumad(memberRecord)}>
 			<Typography>Humad Membership</Typography>
 		</MenuItem>
 	</Menu>	
@@ -521,10 +533,17 @@ function DisplayPersonalInformation() {
 	}
 
  	function upgradeHumad(m) {
-      setSelMember(m);
-      selectCaller(APPLICATIONTYPES.humadUpgrade, "HumadUpgrade", null, hodRec, m);
+		handleMemPerContextMenuClose();
+		setSelMember(m);
+		selectCaller(APPLICATIONTYPES.humadUpgrade, "HumadUpgrade", null, hodRec, m);
 	}	
-   
+
+	async function upgradePjym(m) {
+		handleMemPerContextMenuClose();
+		setSelMember(m);
+		selectCaller(APPLICATIONTYPES.pjymUpgrade, "PjymUpgrade", null, hodRec, m);
+	}
+  
 	function handleCeasedMemberBack(sts) {
 		if (sts.status === STATUS_INFO.ERROR) 
 			showError(sts.msg); 
@@ -646,13 +665,26 @@ function DisplayPersonalInformation() {
             var myData = JSON.stringify({
             calledFrom: process.env.REACT_APP_FAMILY,
             memberRec: memberRecord,
+						hodRec: hodRecord,
             humadRec: null,
             mode: mode,
-            hodMid: 0,
             selectedMid:  memberRecord.mid
             });
             sessionStorage.setItem("humad_props", myData);          
-         } else {
+         } 
+				 else if (myFun.fun === APPLICATIONTYPES.pjymUpgrade) {
+           var myData = JSON.stringify({
+            calledFrom: process.env.REACT_APP_FAMILY,
+            memberRec: memberRecord,
+						hodRec: hodRecord,
+            pjymRec: null,
+            mode: mode,
+            selectedMid:  memberRecord.mid
+            });
+            sessionStorage.setItem("pjym_props", myData);          
+					
+				 }
+				 else {
             var myData = JSON.stringify({
                calledFrom: process.env.REACT_APP_FAMILY,
                mode: mode,

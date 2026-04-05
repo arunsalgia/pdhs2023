@@ -307,7 +307,7 @@ export default function Logs() {
 	return (
 		<div className={gClasses.webPage} align="center" key="main">
 		<CssBaseline />
-		<DisplayPageHeader headerName="PRWS logs" groupName="" tournament=""/>
+		<DisplayPageHeader headerName="Action logs" groupName="" tournament=""/>
 		<Grid key={"FIKTER"} className={gClasses.noPadding} container justifyContent="center" alignItems="center" >
 			{/*<Grid align="center" item xs={12} sm={12} md={6} lg={6} >
 			<VsRadioGroup radioList={FILTERLIST} value={filterBy} onChange={(event) => setNewFilter(event.target.value)} />

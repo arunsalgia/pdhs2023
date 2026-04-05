@@ -83,19 +83,19 @@ export default function Dashboard() {
    const [userName, setuserName] = useState(sessionStorage.getItem("userName"));
 	const [applMsg, setApplMsg] = useState("");
 	const adminData = getAdminInfo();
-   console.log(adminData);
+   //console.log(adminData);
 	
   useEffect(() => {
 		async function getMemberCount() {
          var myMid = sessionStorage.getItem("mid");
-         console.log(typeof myMid);
-         console.log(myMid);
+         //console.log(typeof myMid);
+         //console.log(myMid);
          if (myMid === '0') myMid = sessionStorage.getItem("prwsLogin");
 			try {
 				var myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/count/all/${myMid}`;
 				var resp = await axios.get(myUrl);
 				setCountInfoLocal(resp.data);
-				console.log(resp.data);
+				//console.log(resp.data);
 				setApplMsg(resp.data.application + " application" + ((resp.data.application > 1) ? "s" : ""));
 			}
 			catch (e) {
@@ -154,12 +154,12 @@ export default function Dashboard() {
        calledFrom: process.env.REACT_APP_DASH,
        membershipType:  mType
      });
-     console.log(myData)
+     //console.log(myData)
      sessionStorage.setItem("membershipApplication", myData);
      setTab(process.env.REACT_APP_NEWMEMBERSHIP)
    }
    
-	console.log(countInfo);
+	//console.log(countInfo);
 	if (!countInfo) return false;
 	return (
 	<div style={{padding: "10px"}} >

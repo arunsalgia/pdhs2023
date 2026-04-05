@@ -108,7 +108,6 @@ const funCodeTable = [
 
 
 export default function MemberOffice(props) {
-    showError("In Office");
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
   const [dispType, setDispType] = useState("lg");
   
