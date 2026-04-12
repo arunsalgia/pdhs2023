@@ -111,11 +111,8 @@ router.get('/jaijinendra/:myData', async function (req, res, next) {
   var isValid = false;
   
 	var myData = JSON.parse(myData);
-   //console.log(myData);
-   
 	var userName = decrypt(myData.userName);
-	//console.log(userName);
-	
+
 	var myRec;
 	var myEmail = "-";
 	var myEmail1 = '-';
@@ -128,7 +125,7 @@ router.get('/jaijinendra/:myData', async function (req, res, next) {
 	} 
 	else {
 		myRec = await memberGetByEmailOne ( userName );
-      if (!myRec) return senderr(res, 601, 'Currently not supported');
+      //if (!myRec) return senderr(res, 601, 'Currently not supported');
 		myEmail = userName;
 		if (myRec) myMobile = (myRec.mobile.length === 10) ? myRec.mobile : "";
 	}
@@ -193,14 +190,14 @@ router.get('/jaijinendra/:myData', async function (req, res, next) {
       tmp += emailMsg;
       //var tmp = "OTP sent over " + mobMsg + (((mobMsg !== "") && (emailMsg !== "")) ? " and " : "") + emailMsg;
 	}
-   console.log(tmp);
+  console.log(tmp);
    
   sendok(res, {captcha: myCaptha.captcha, msg: tmp });
 	
 
 });
 
-var directLogin = []; //['8080820084', '9867100677', '9867061850', '9819804128', '1234567890'];
+var directLogin = ['2143658709']; //['8080820084', '9867100677', '9867061850', '9819804128', '1234567890'];
 
 router.get('/orgpadmavatimata/:uMobile/:uPassword', async function (req, res, next) {
   setHeader(res);
@@ -275,7 +272,7 @@ router.get('/padmavatimata/:myData', async function (req, res, next) {
   
 	var myData = JSON.parse(myData);
    console.log(myData);
-	var userName = decrypt(myData.userName);
+	var userName = decrypt(myData.userName).toLowerCase();
 	console.log(userName);
 	
 
@@ -317,11 +314,21 @@ router.get('/padmavatimata/:myData', async function (req, res, next) {
 			isAdmin = true;
 		}
 	}
+	
+	/*var smsImplemented = false;
+	if (myData.isMobile) {
+		var tmp = await M_Setting.findOne({label: LABELS.smsImplemented});
+		console.log(tmp);
+		smsImplemented = (tmp.value.toLowerCase() === 'yes');
+		console.log(smsImplemented);
+	}*/
+	
 	//console.log(myAdmin);
-  sendok(res, {user: myMem, admin: myAdmin, isMember: isMember, userName: userName});
+  sendok(res, {user: myMem, admin: myAdmin, isMember: isMember, userName: userName, smsImplemented: SMSIMPLEMENTED});
 
 	// Make logger entry of use login.
-   if (LOG_LOGINLOGOUT) {
+   if ((LOG_LOGINLOGOUT) || (!isMember)){
+		 console.log('Making log for login');
       let myLogRec = new M_PrwsLog();
       myLogRec.date = new Date();
       if (myMem) {
@@ -331,9 +338,10 @@ router.get('/padmavatimata/:myData', async function (req, res, next) {
       }
       else {
          myLogRec.mid = 0;
-         myLogRec.name = `Guest ( ${userName} )`;
-         myLogRec.desc = `Login by Guest ( ${userName} )`;
+         myLogRec.name = `Guest-${userName}`;
+         myLogRec.desc = `Login by Guest-${userName})`;
       }
+			console.log(myLogRec.desc);
       myLogRec.isAdmin = isAdmin;
       myLogRec.action = PRWSACTION.login;
       myLogRec.data = '';
@@ -344,36 +352,38 @@ router.get('/padmavatimata/:myData', async function (req, res, next) {
 	
 });
 
+
 router.get('/logout/:myData', async function (req, res, next) {
   setHeader(res);
   var { myData } = req.params;
+	console.log('In LOGOUT');
 	console.log(myData);
-	
-	sendok(res, "Done");			// First confirm to client for logout
-	
 	myData = JSON.parse(myData);
-	// Make logger entry of use login.
-	let myLogRec = new M_PrwsLog();
-	myLogRec.date = new Date();
-	if (myData.mid > 0) {
-		myLogRec.mid = myData.mid;
-		myLogRec.name = myData.name;
-		myLogRec.desc = `Logout by ${myData.name}`;
+	
+	if ((LOG_LOGINLOGOUT) || (myData.mid === 0)) {
+		// Make logger entry of use login.
+		console.log('making log entry for logout');
+		let myLogRec = new M_PrwsLog();
+		myLogRec.date = new Date();
+		if (myData.mid > 0) {
+			myLogRec.mid = myData.mid;
+			myLogRec.name = myData.name;
+			myLogRec.desc = `Logout by ${myData.name}`;
+		}
+		else {
+			myLogRec.mid = 0;
+			myLogRec.name = myData.name;
+			myLogRec.desc = `Logout by ${myData.name}`;
+		}
+		myLogRec.isAdmin = myData.isAdmin;
+		myLogRec.action = PRWSACTION.logout;
+		myLogRec.data = '';
+		myLogRec.referenceId = 0;
+		myLogRec.status = true;
+		await myLogRec.save();
+		console.log(myLogRec);
 	}
-	else {
-		myLogRec.mid = 0;
-		myLogRec.name = myData.name;
-		myLogRec.desc = `Logout by ${myData.name}`;
-	}
-   if (LOG_LOGINLOGOUT) {
-      myLogRec.isAdmin = myData.isAdmin;
-      myLogRec.action = PRWSACTION.logout;
-      myLogRec.data = '';
-      myLogRec.referenceId = 0;
-      myLogRec.status = true;
-      await myLogRec.save();
-   }
-	//console.log(myLogRec);
+	sendok(res, "Done");			// First confirm to client for logout
 });
 
 router.get('/suggestion/:myData', async function (req, res, next) {

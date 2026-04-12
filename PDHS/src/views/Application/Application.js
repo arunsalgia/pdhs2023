@@ -109,6 +109,7 @@ const funCodeTable = [
 	{fun: APPLICATIONTYPES.marriage, 				code: process.env.REACT_APP_APPLICATION_MARRIAGE},
 	{fun: APPLICATIONTYPES.unMarriage, 			code: process.env.REACT_APP_APPLICATION_UNMARRIAGE},
 	{fun: APPLICATIONTYPES.humadUpgrade, 		code: process.env.REACT_APP_APPLICATION_HUMADUPGRADE},
+	{fun: APPLICATIONTYPES.guestMembership, code: process.env.REACT_APP_APPLICATION_GUESTMEMBERSHIP},
 ];
 
 
@@ -116,7 +117,8 @@ export default function Application(props) {
 	const gClasses = globalStyles();	
 	sessionStorage.removeItem("application_appRec");
 	const loginHid = parseInt(sessionStorage.getItem("hid"), 10);
-	const loginMid = (loginHid !== 0) ? parseInt(sessionStorage.getItem("mid"), 10) : parseInt(sessionStorage.getItem("prwsLogin"), 10);
+	const loginMid = parseInt(sessionStorage.getItem("mid"), 10)
+  const prwsLogin = sessionStorage.getItem("prwsLogin");
    
 	var adminRec = JSON.parse(sessionStorage.getItem("adminRec"));
    const prwsPerm = adminRec.superAdmin || adminRec.superduper || adminRec.prwsAdmin;
@@ -131,6 +133,7 @@ export default function Application(props) {
 		adminRec: adminRec,
 		timeRange: false,
 		mid: loginMid,
+		name: prwsLogin,
 		owner: OWNER.prws,  // currently ignore
 		startDate: moment().toDate().toString(),
 		endDate: moment().toDate().toString(),
@@ -139,7 +142,6 @@ export default function Application(props) {
 	};
 	
 	if ("application_condition" in sessionStorage) {
-		//console.log("Confition found");
 		DefaultFilterCond = JSON.parse(sessionStorage.getItem("application_condition"));
 		sessionStorage.removeItem("application_condition");
 	} 
@@ -177,7 +179,7 @@ export default function Application(props) {
 	const [timeRange, setTimeRange] = useState(DefaultFilterCond.timeRange);
 	const [time1, setTime1] = useState(moment(DefaultFilterCond.startDate));
 	const [time2, setTime2] = useState(moment(DefaultFilterCond.endDate));
-
+	
 
 	
   useEffect(() => {	

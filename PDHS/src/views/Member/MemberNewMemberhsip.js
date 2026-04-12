@@ -62,14 +62,16 @@ import {
 	ADMIN, APPLICATIONTYPES, SELECTSTYLE,
   PADSTYLE,
 	MEMBERTITLE, RELATION, SELFRELATION, GENDER, BLOODGROUP, MARITALSTATUS,
-	STATUS_INFO,
-   CASTE, HUMADSUBCASTRE,
+	STATUS_INFO, MIN_DATE,
+   CASTE, HUMADSUBCASTRE, PJYM_MAXAGE,
    HUMADSUBCASTEOBJ, CASTEOBJ,
+	 PRWS_VILLAGE,
 } from 'views/globals';
 
 import {
 	getMemberName,
 	dateString, dateStringMMM, disableFutureDt,
+	getAge,
 	
 } from 'views/functions';
 
@@ -88,8 +90,7 @@ export default function MemberNewMemberhsip() {
 	//console.log("new membership");
 	const gClasses = globalStyles();
 	const myProps = JSON.parse(sessionStorage.getItem("membershipApplication"));
-	//console.log(myProps);
-   //console.log(sessionStorage.getItem("membershipApplication"));
+
 
 	// show in accordion
 	const [expandedPanel, setExpandedPanel] = useState("");
@@ -104,7 +105,7 @@ export default function MemberNewMemberhsip() {
 	const [registerStatus, setRegisterStatus] = useState(0);
    
    const [gotraArray, setGotraArray] = useState([]);
-	const [cityArray ,setCityArray] = useState([]);
+	 const [cityArray ,setCityArray] = useState([]);
    const [stateArray, setStateArray] = useState([]);
    const [countryArray, setCountryArray] = useState([]);
    
@@ -116,7 +117,7 @@ export default function MemberNewMemberhsip() {
    const [currentGotraRec, setCurrentGotraRec] = useState(null);
    const [caste, setCaste] = useState(CASTEOBJ.humad);
    const [subCaste, setSubCaste] = useState(HUMADSUBCASTEOBJ.dasha);
-   const [village, setVillage] = useState("");
+   const [village, setVillage] = useState(PRWS_VILLAGE);
    const [isDashaHumad, setIsDashaHumad] = useState(true);
 
 	const [indian, setIndian] = useState(true);
@@ -125,6 +126,7 @@ export default function MemberNewMemberhsip() {
 
    const [humadMembership, setHumadMembership] = useState(false);
    const [pjymMembership, setPjymMembership] = useState(false);
+	 const [prwsMembership, setPrwsMembership] = useState(true);
    
 	// address
 	const [emurAddr1, setEmurAddr1] = useState("");
@@ -134,9 +136,9 @@ export default function MemberNewMemberhsip() {
 	const [emurAddr5, setEmurAddr5] = useState("");
 	
 	const [suburb, setSuburb] = useState("");	
-   const [district, setDistrict] = useState("");   
+	const [district, setDistrict] = useState("");   
 	const [city, setCity] = useState("Mumbai");
-   const [state, setState] = useState("Maharashtra");
+	const [state, setState] = useState("Maharashtra");
 	const [country, setCountry] = useState("Australia");
 
 
@@ -161,13 +163,14 @@ export default function MemberNewMemberhsip() {
 	const [relation, setRelation] = useState("Son");
 	const [emsStatus, setEmsStatus] = useState("Unmarried");
 	const [bloodGroup, setBloodGroup] = useState("O+");
-	const [dob, setDob] = useState(new Date());
+	const [dob, setDob] = useState(moment(MIN_DATE));
    
 	const [emurAddr10, setEmurAddr10] = useState("");
 	const [persMobile1, SetPersMobile1] = useState("");
 	const [persMobile2, SetPersMobile2] = useState("");
-	const [persEmail, setPersEmail] = useState("");
-	// Office data
+	const [persEmail1, setPersEmail1] = useState("");
+	const [persEmail2, setPersEmail2] = useState("");
+// Office data
 	const [education, setEducation] = useState("");
 	const [company, setCompany] = useState("");
 	const [officePhone, setOfficePhone] = useState("");
@@ -182,6 +185,11 @@ export default function MemberNewMemberhsip() {
 	
 	const [isMemberHod, setIsMemberHod] = useState(false);
    
+	// permission for samaj membership
+	const [prwsMembershipAllowed, setPrwsMembershipAllowed] = useState(true);
+	const [pjymMembershipAllowed, setPjymMembershipAllowed] = useState(false);
+	const [humadMembershipAllowed, setHumadMembershipAllowed] = useState(true);
+	
 	
   useEffect(() => {	
 	async function getGotraList() {
@@ -249,13 +257,54 @@ export default function MemberNewMemberhsip() {
       getStateList(); 
 		getCountryList(); 
   }, []);
-  
+
+
+function checkMembershipEligibility(myCaste, mySubCaste, myVillage, myCity, myDob) {
+	console.log(myCity);
+	var prws = false;
+	var pjym = false;
+	var humad = false;
+	
+	console.log(myDob);
+	console.log(getAge(myDob));
+	
+	if (myCaste === CASTEOBJ.humad) {
+		humad = true;
+		// Do not check for village
+		//if ((mySubCaste === HUMADSUBCASTEOBJ.dasha) && ( myVillage.toLowerCase() === PRWS_VILLAGE.toLowerCase() )) {	
+		if ((mySubCaste === HUMADSUBCASTEOBJ.dasha) && ( true )) {	
+			var isMMr = cityArray.find(x => x.mmr === true && x.city === myCity);
+			if (isMMr) {
+				prws = true;
+				if (getAge(myDob) <= PJYM_MAXAGE) {
+					pjym = true;
+				}
+			}
+		}
+	}
+	// do not decided on PRWS membership
+	//if (!prws) setPrwsMembership(false);
+  //setPrwsMembershipAllowed(prws);
+	
+	if (!pjym) setPjymMembership(false);
+	setPjymMembershipAllowed(pjym);
+	
+	if (!humad) setHumadMembership(false);
+	setHumadMembershipAllowed(humad);
+}
+
+
 async function handleNewMembership() {
-   if (!currentGotraRec) {
-      showError(`Gotra need to be selected`);
-      return null;
-   }
-   console.log("handleNewMembership selected");
+	 var myErr = 0;
+   if (!currentGotraRec) myErr = -1001;
+	 else if ((firstName === "") || (middleName === "") || (lastName === "")) myErr = -1002; 
+	 else if ((!pjymMembership) && (!prwsMembership) && (!humadMembership)) myErr = -1003;	
+	 else if (emurAddr1 === "")  myErr = -1004;
+	 else if ((emurPinCode <= 110000) || (emurPinCode >= 860000)) myErr = -1005;
+		
+	setRegisterStatus(myErr);
+	if (myErr !== 0) return;
+	console.log("handleNewMembership selected");
    
    var myData = {
      hid: 0,
@@ -269,13 +318,15 @@ async function handleNewMembership() {
      subCaste: subCaste,
      village: village,
      humadMembership: humadMembership,
+		 prwsMembership: true,		//		prwsMembership,
      pjymMembership: pjymMembership,
      gender: gender,
      dob: dob,
      bloodGroup: (bloodGroup !== 'NotKnown') ? bloodGroup : '' ,
      persMobile1: persMobile1,
      persMobile2: persMobile2,
-     persEmail: encrypt((persEmail !== "") ? persEmail : "-"),
+     persEmail1: encrypt((persEmail1 !== "") ? persEmail1 : "-"),
+		 persEmail2: encrypt((persEmail2 !== "") ? persEmail2 : "-"),
      // update ADDRESS
      indianResident: indian,
      addr1: emurAddr1,
@@ -289,25 +340,28 @@ async function handleNewMembership() {
      state: state,
      country: country,
      pinCode: emurPinCode,
+		 applier:  sessionStorage.getItem('prwsLogin'),
    };
    console.log(myData);
-   if (caste !== CASTEOBJ.nonHumad) {
-     showError(`Currently not implemented`);
-     return;
-   }
-	let myMsg = '';
-	let myStatus;
+
+	let myMsg = 'Error applying for guest membership';
+	let myStatus = STATUS_INFO.ERROR;
+	let myRec = null;
 	let tmp = encodeURIComponent(JSON.stringify(myData));
 	try {
-		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/guestmembership/${sessionStorage.getItem('prwsLogin')}/${tmp}`;
+		//let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/guestmembership/${sessionStorage.getItem('prwsLogin')}/${tmp}`;
+		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/guestmembership/0/${tmp}`;
 		let resp = await axios.get(myUrl);
-		showError(`Successfully applied for new membership by Guest. Application reference ${resp.data.id}.`);
-		//myStatus = STATUS_INFO.SUCCESS;
-      setTab(myProps.calledFrom);
+		myRec = resp.data;
+		myMsg = `Successfully applied for new membership by Guest. Application reference ${resp.data.id}.`
+		myStatus = STATUS_INFO.SUCCESS;
+      
 	} catch (e) {
 		console.log(e.response);
-		showError(e.response.data);
 	}
+	var returnStatus = {status: myStatus, applicationRec: myRec, msg: myMsg };
+	sessionStorage.setItem("guestmembership_returnstatus", JSON.stringify(returnStatus));
+	setTab(myProps.calledFrom);
 	//var returnStatus = {status: myStatus,  msg: myMsg};
 	//sessionStorage.setItem(myProps.applicationRec ? "application_returnstatus" : "family_personal_returnstatus", JSON.stringify(returnStatus));
 	//notreq sessionStorage.setItem("family_currentSelection", myProps.calledFrom);
@@ -324,20 +378,23 @@ async function handleNewMembership() {
         myMsg = "";
 				regerr = false;
         break;
-      case 1001:
-        myMsg = `Invalid Pin Code`;
+      case -1001:
+        myMsg = `Gotra need to be selected`;
         break;
-      case 1002:
-        myMsg = `Unknown HOD update error`;
+      case -1002:
+        myMsg = `Name details to be provided`;
         break;
-			case 2001:
-				myMsg = `No HOD selected for new family`;
+			case -1003:
+				myMsg = `Minimum 1 membership to be selected`;
 				break;
-			case 2002:
-				myMsg = `No member(s) selected for new family`;
+			case -1004:
+				myMsg = `Residential address to be provided`;
 				break;
-				default:
-          myMsg = "Unknown Error";
+			case -1005:
+				myMsg = `Invalid Pin Code`;
+				break;
+			default:
+          myMsg = "";
           break;
     }
     return(
@@ -364,31 +421,22 @@ function handleCancel() {
 
 function handleCasteChange(newCaste) {
   setCaste(newCaste);
-  var newSubCaste = subCaste;
-  if (newCaste == CASTEOBJ.nonHumad) {
-     newSubCaste = HUMADSUBCASTEOBJ.dasha;
-     setSubCaste(newSubCaste);
-  }
-  updateCasteSubCaste(newCaste, newSubCaste);
+  checkMembershipEligibility(newCaste, subCaste, village, city, dob.toDate());
 }
 
 function handleSubCasteChange(newSubCaste) {
   setSubCaste(newSubCaste);
-  updateCasteSubCaste(caste, newSubCaste); 
+  checkMembershipEligibility(caste, newSubCaste, village, city, dob.toDate());
 }
 
-function updateCasteSubCaste(newCaste, newSubCaste) {
-  ///console.log(CASTEOBJ, HUMADSUBCASTEOBJ);
-  //console.log(newCaste, CASTEOBJ.humad, newSubCaste, HUMADSUBCASTEOBJ.dasha);
-  
-  if ((newCaste === CASTEOBJ.humad) && (newSubCaste === HUMADSUBCASTEOBJ.dasha )) {
-   setIsDashaHumad(true);
-  }
-  else {
-   setIsDashaHumad(false); 
-   setHumadMembership(false);
-   setPjymMembership(false);
-  }
+function handleCity(newCity) {
+  setCity(newCity);
+  checkMembershipEligibility(caste, subCaste, village, newCity, dob.toDate());
+}
+
+function handleDob(newDate) {
+	setDob(newDate);
+	checkMembershipEligibility(caste, subCaste, village, city, newDate.toDate());
 }
 
 return (
@@ -454,40 +502,13 @@ return (
             <Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Village</Typography>
          </Grid>
          <Grid item xs={8} sm={8} md={8} lg={8} >
-            <TextValidator required style={{paddingLeft: "10px", paddingRight: "10px", marginTop: "10px"  }} className={gClasses.vgSpacing} inputProps={{className: gClasses.dateTimeNormal}}
+            <TextValidator style={{paddingLeft: "10px", paddingRight: "10px", marginTop: "10px"  }} className={gClasses.vgSpacing} inputProps={{className: gClasses.dateTimeNormal}}
             type="text" value={village} onChange={(event) => { setVillage(event.target.value) }} />
          </Grid>
       </Grid>
       <br />
 	</Accordion>
-    <br />
-	<Accordion expanded={expandedPanel === "MEMBERSHIP"} onChange={handleAccordionChange("MEMBERSHIP")}>
-		<Box align="right" className={(expandedPanel === "MEMBERSHIP") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
-		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
-			<Typography align="left" >{"Membership"}</Typography>
-		</AccordionSummary>
-		</Box>
-		<Grid key="EDITGOTRA" className={gClasses.noPadding} container  alignItems="flex-start" >
-			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
-				<Typography className={gClasses.patientInfo2Blue} >Humad membership</Typography>
-			</Grid>
-			<Grid item xs={4} sm={4} md={4} lg={4} >
-				<Switch color="primary" disabled={!isDashaHumad} checked={humadMembership} onChange={() => setHumadMembership(!humadMembership) } />
-			</Grid>
-			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
-			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
-				<Typography className={gClasses.patientInfo2Blue} >PJYM membership</Typography>
-			</Grid>
-			<Grid item xs={4} sm={4} md={4} lg={4} >
-				<Switch color="primary" disabled={!isDashaHumad}  checked={pjymMembership} onChange={() => setPjymMembership(!pjymMembership) } />
-			</Grid>
-      </Grid>
-      <br />
-	</Accordion>
-    <br />
-   {(caste === CASTEOBJ.humad) &&
+  <br />
 	<Accordion expanded={expandedPanel === "NAMEDETAILS"} onChange={handleAccordionChange("NAMEDETAILS")}>
 		<Box align="right" className={(expandedPanel === "NAMEDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
@@ -507,7 +528,7 @@ return (
             <Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Last Name</Typography>
          </Grid>
          <Grid item xs={7} sm={7} md={7} lg={7} >
-            <TextValidator required style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing} inputProps={{className: gClasses.dateTimeNormal}}
+            <TextValidator style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing} inputProps={{className: gClasses.dateTimeNormal}}
             type="text" value={lastName} onChange={(event) => { setLastName(event.target.value) }} />
          </Grid>
          <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
@@ -515,7 +536,7 @@ return (
             <Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >First Name</Typography>
          </Grid>
          <Grid item xs={7} sm={7} md={7} lg={7} >
-            <TextValidator required style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing}
+            <TextValidator style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing}
                inputProps={{className: gClasses.dateTimeNormal}} type="text" value={firstName}
                onChange={(event) => { setFirstName(event.target.value) }}			
             />	
@@ -525,7 +546,7 @@ return (
             <Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Middle Name</Typography>
          </Grid>
          <Grid item xs={7} sm={7} md={7} lg={7} >
-            <TextValidator required style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing}
+            <TextValidator style={{paddingLeft: "10px", paddingRight: "10px" }} className={gClasses.vgSpacing}
                inputProps={{className: gClasses.dateTimeNormal}} type="text" value={middleName}
                onChange={(event) => { setMiddleName(event.target.value) }}			
             />	
@@ -540,10 +561,8 @@ return (
          </Grid>
       </Grid>
       <br />
-   </Accordion>  
-   }   
+   </Accordion>   
 	<br />
-   {(caste === CASTEOBJ.humad) &&
 	<Accordion expanded={expandedPanel === "ADDRESSDETAILS"} onChange={handleAccordionChange("ADDRESSDETAILS")}>
 		<Box align="right" className={(expandedPanel === "ADDRESSDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
@@ -563,10 +582,10 @@ return (
 				<Typography className={gClasses.patientInfo2Blue} >Address</Typography>
 			</Grid>
 			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
-				<TextValidator fullWidth required className={gClasses.vgSpacing}
+				<TextValidator fullWidth  className={gClasses.vgSpacing}
 					value={emurAddr1} onChange={(event) => { setEmurAddr1(event.target.value) }}			
 				/>
-				<TextValidator fullWidth required className={gClasses.vgSpacing}
+				<TextValidator fullWidth className={gClasses.vgSpacing}
 					value={emurAddr2} onChange={(event) => { setEmurAddr2(event.target.value) }}			
 				/>
 				<TextValidator fullWidth className={gClasses.vgSpacing}
@@ -608,22 +627,15 @@ return (
             {(!newCity) &&
 					<VsSelect size="small" align="left"  style={{paddingRight: "10px" }}
 						inputProps={{className: gClasses.dateTimeNormal}} options={cityArray} field="city"
-						value={city} onChange={(event) => setCity(event.target.value)}
+						value={city} onChange={(event) => handleCity(event.target.value)}
 					/>			
             }
             {(newCity) &&
 					<TextValidator style={{marginTop: "10px"}}  fullWidth className={gClasses.vgSpacing}
-						value={city} onChange={(event) => { setCity(event.target.value) }}			
+						value={city} onChange={(event) => { handleCity(event.target.value) }}			
 					/>
             }
 				</Grid>
-				{/*<Grid item xs={4} sm={4} md={4} lg={4} >
-					<Typography style={{marginTop: "5px" }} className={gClasses.patientInfo2Blue} >New City</Typography>
-				</Grid>
-				<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
-               <Switch color="primary" checked={newCity} onChange={() => toggleNewCity(!newCity) } />	
-				</Grid>
-				<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />*/}
 				<Grid style={{paddingTop: "20px" }}  item xs={4} sm={4} md={4} lg={4} >
 					<Typography className={gClasses.patientInfo2Blue} >State</Typography>
 				</Grid>
@@ -673,20 +685,11 @@ return (
 					/>
                }               
 				</Grid>
-				{/*<Grid item xs={4} sm={4} md={4} lg={4} >
-					<Typography style={{marginTop: "5px" }} className={gClasses.patientInfo2Blue} >New Country</Typography>
-				</Grid>
-				<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
-               <Switch color="primary" checked={newCountry} onChange={() => toggleNewCountry(!newCountry) } />	
-				</Grid>
-         <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />*/}
 			</Grid>
 			}
       <br />
    </Accordion>
-   }
-    <br />
-   {(caste === CASTEOBJ.humad) &&
+	<br />
 	<Accordion expanded={expandedPanel === "PERSDETAILS"} onChange={handleAccordionChange("PERSDETAILS")}>
 		<Box align="right" className={(expandedPanel === "PERSDETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
@@ -715,7 +718,7 @@ return (
 						value={dob}
 						dateFormat="DD/MMM/yyyy"
 						isValidDate={disableFutureDt}
-						onClose={setDob}
+						onClose={(selectedDate) => handleDob(selectedDate)}
 						closeOnSelect={true}
 					/>
 				</Grid>   
@@ -747,21 +750,64 @@ return (
 						onChange={(event) => { SetPersMobile2(event.target.value) }}			
 					/>
 				</Grid>
-         <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+        <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 				<Grid item xs={5} sm={5} md={5} lg={5} >
-					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Email</Typography>
+					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Email 1</Typography>
 				</Grid>
 				<Grid item xs={7} sm={7} md={7} lg={7} >
 					<TextValidator className={gClasses.vgSpacing}
-						inputProps={{className: gClasses.dateTimeNormal}} type="email" value={persEmail}
-						onChange={(event) => { setPersEmail(event.target.value) }}			
+						inputProps={{className: gClasses.dateTimeNormal}} type="email" value={persEmail1}
+						onChange={(event) => { setPersEmail1(event.target.value) }}			
 					/>	
 				</Grid>
          <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+				<Grid item xs={5} sm={5} md={5} lg={5} >
+					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Email 2</Typography>
+				</Grid>
+				<Grid item xs={7} sm={7} md={7} lg={7} >
+					<TextValidator className={gClasses.vgSpacing}
+						inputProps={{className: gClasses.dateTimeNormal}} type="email" value={persEmail2}
+						onChange={(event) => { setPersEmail2(event.target.value) }}			
+					/>	
+				</Grid>
+        <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+      </Grid>
+   </Accordion>  
+	<br />
+	<Accordion expanded={expandedPanel === "MEMBERSHIP"} onChange={handleAccordionChange("MEMBERSHIP")}>
+		<Box align="right" className={(expandedPanel === "MEMBERSHIP") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
+			<Typography align="left" >{"Membership"}</Typography>
+		</AccordionSummary>
+		</Box>
+		<Grid key="MEMBERSHIP" className={gClasses.noPadding} container  alignItems="flex-start" >
+			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+				{/*
+			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
+				<Typography className={gClasses.patientInfo2Blue} >PRWS membership</Typography>
+			</Grid>
+			<Grid item xs={4} sm={4} md={4} lg={4} >
+				<Switch color="primary" disabled={!prwsMembershipAllowed} checked={prwsMembership} onChange={() => setPrwsMembership(!prwsMembership) } />
+			</Grid>
+				*/}
+			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
+				<Typography className={gClasses.patientInfo2Blue} >Humad membership</Typography>
+			</Grid>
+			<Grid item xs={4} sm={4} md={4} lg={4} >
+				<Switch color="primary" disabled={!humadMembershipAllowed} checked={humadMembership} onChange={() => setHumadMembership(!humadMembership) } />
+			</Grid>
+			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
+				<Typography className={gClasses.patientInfo2Blue} >PJYM membership</Typography>
+			</Grid>
+			<Grid item xs={4} sm={4} md={4} lg={4} >
+				<Switch color="primary" disabled={!pjymMembershipAllowed}  checked={pjymMembership} onChange={() => setPjymMembership(!pjymMembership) } />
+			</Grid>
       </Grid>
       <br />
-   </Accordion> 
-   }   
+		</Accordion>
+      <br />
   <DisplayRegisterStatus />
    <br />
    <VsButton align="center" name={"Apply"} type="submit" />

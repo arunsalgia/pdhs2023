@@ -713,6 +713,19 @@ LABELS = {
   sendInfoStartHid: 'sendInfoStartHid',
   sendInfoEndHid: 'sendInfoEndHid',
   sendInfoMail: 'sendInfoMail',
+	smsImplemented: 'smsImplemented',
 }
+
+SMSIMPLEMENTED = false;
+async function getSmsStatus() {
+	var tmp = await M_Setting.findOne({label: LABELS.smsImplemented});
+	SMSIMPLEMENTED = (tmp.value.toLowerCase() === 'yes');
+	console.log(SMSIMPLEMENTED);
+}
+
+getSmsStatus();
+
+	
+	
 
 

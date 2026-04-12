@@ -60,6 +60,14 @@ const currencyChar = '₹';
 
 import {setTab, setDisplayPage } from "CustomComponents/CricDreamTabs.js"
 
+import {
+	ADMIN, APPLICATIONSTATUS, APPLICATIONTYPES, SELECTSTYLE, STATUS_INFO,
+	AppDataStyle,
+	NONMOBROWSPERPAGE,
+	OWNER,
+} from "views/globals.js";
+
+
 import { 
 	dateString,
 	getMemberName,
@@ -78,23 +86,32 @@ export default function Dashboard() {
   //const classes = useStyles();
   //const dashClasses = useDashStyles();
 
-   const [countInfo, setCountInfoLocal] = useState(null);
+	const [countInfo, setCountInfoLocal] = useState(null);
 	const [loginUserRec, setLoginUserRec] = useState(JSON.parse(sessionStorage.getItem("memberRec")));
-   const [userName, setuserName] = useState(sessionStorage.getItem("userName"));
+	const [userName, setuserName] = useState(sessionStorage.getItem("userName"));
 	const [applMsg, setApplMsg] = useState("");
 	const adminData = getAdminInfo();
-   //console.log(adminData);
+	const [guestApplEnabled, setGuestApplEnabled] = useState(false);
+
 	
   useEffect(() => {
 		async function getMemberCount() {
-         var myMid = sessionStorage.getItem("mid");
-         //console.log(typeof myMid);
-         //console.log(myMid);
-         if (myMid === '0') myMid = sessionStorage.getItem("prwsLogin");
+       var myMid  = sessionStorage.getItem("mid");
+			 var myUser = sessionStorage.getItem("prwsLogin");
 			try {
-				var myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/member/count/all/${myMid}`;
+				console.log(myMid);
+				var myUrl = (myMid != 0) ?
+					`${process.env.REACT_APP_AXIOS_BASEPATH}/member/count/all/${myMid}` :
+					`${process.env.REACT_APP_AXIOS_BASEPATH}/member/guestcount/all/${myUser}` ;
 				var resp = await axios.get(myUrl);
 				setCountInfoLocal(resp.data);
+				
+				// Check for guest application pending count. If there then cannot apply again
+				if ((myMid == 0) && (resp.data.application > 0))
+					setGuestApplEnabled(false);
+				else
+					setGuestApplEnabled(true);
+				
 				//console.log(resp.data);
 				setApplMsg(resp.data.application + " application" + ((resp.data.application > 1) ? "s" : ""));
 			}
@@ -102,12 +119,34 @@ export default function Dashboard() {
 				showError("Unable to get member counts for Dashboard");
 			}
 		}
-		
 		getMemberCount();	
+		/* Check return back from guest membership application */
+		if ("guestmembership_returnstatus" in sessionStorage) {
+			var myReturnData = JSON.parse(sessionStorage.getItem("guestmembership_returnstatus"));
+			sessionStorage.removeItem("guestmembership_returnstatus");
+			console.log(myReturnData);
+			handleApplictionBack(myReturnData);
+		}
 	}, []);
 
 
-   
+	function handleApplictionBack(sts) {
+		console.log(sts.msg);
+		if ( (sts.status == STATUS_INFO.SUCCESS) || (sts.status == STATUS_INFO.ERROR) ) {
+			if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
+			else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
+			//console.log(sts.applicationRec);
+			//var tmp = [sts.applicationRec].concat(applicationArray.filter(x => x.id !== applicationRec.id));
+			//setApplicationArray(lodashReverse(lodashSortBy(tmp, 'id')));
+		}
+		else {
+			console.log("Yaha kaise aaya");
+		}
+		//setIsDrawerOpened("");
+	}
+	
+	
+
 	function jumpToPrws() {
 		setTab(process.env.REACT_APP_PRWS);
 	}
@@ -149,6 +188,11 @@ export default function Dashboard() {
 	}
 
    function applyMembership(mType) {
+		 if (!guestApplEnabled) {
+				showError('Already applied for membership. Current status is pending');
+				return;
+		 }
+		 
      console.log(mType);
      var myData = JSON.stringify({
        calledFrom: process.env.REACT_APP_DASH,

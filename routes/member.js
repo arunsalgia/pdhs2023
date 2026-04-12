@@ -30,8 +30,67 @@ function partFind(name) {
 return { $regex: name, $options: "i" }
 }
 
+async function getCount(myMid, isMember) {
+	console.log('Get Count', myMid, isMember);
+
+	var prwsCount = await memberGetCount();
+  var pjymCount = await memberGetPjymCount();		// M_Pjym.countDocuments({active: true});
+	var humadCount = await memberGetHumadCount();		//M_Humad.countDocuments({active: true});
+
+	var myCond = {status: APPLICATIONSTATUS.pending};
+	var familyCount = 0;
+	if  (isMember) {
+		var familyRecs = await memberGetByHidMany(Math.floor (Number(myMid) / FAMILYMF));
+		//console.log(familyRecs);
+		 familyCount = familyRecs.length;
+
+		// first check if admin
+			var adminRec = await M_Admin.findOne({mid: myMid});
+		var myCond = {status: APPLICATIONSTATUS.pending};
+  
+		if (adminRec) {
+			var ownerList = [];
+			if (adminRec.prwsAdmin || adminRec.superAdmin || adminRec.superDuper)
+				ownerList.push(OWNER.prws);
+			if (adminRec.pjymAdmin || adminRec.superAdmin || adminRec.superDuper)
+				ownerList.push(OWNER.pjym);
+			if (adminRec.humadAdmin || adminRec.superAdmin || adminRec.superDuper)
+				ownerList.push(OWNER.humad);
+			//console.log(ownerList);
+			myCond["owner"] = {$in: ownerList };
+		}
+		else 
+			myCond["mid"] = myMid;	
+   //console.log(myCond);
+	}
+	else {
+		// For guest
+		myCond["name"] = { $regex: myMid, $options: "i" };
+	}
+	console.log(myCond);
+	var applCount = await M_Application.countDocuments(myCond);
+	var myData = {prws: prwsCount, pjym: pjymCount,  humad: humadCount,  family: familyCount, application:  applCount}; 
+	//console.log(myData);	
+	return myData
+}
 
 router.get('/count/all/:mid', async function (req, res) {
+  setHeader(res);
+  var { mid } = req.params;
+	var returnData = await getCount(mid, true) 
+	sendok(res, returnData);
+});
+
+
+router.get('/guestcount/all/:mid', async function (req, res) {
+  setHeader(res);
+  var { mid } = req.params;
+	var returnData = await getCount(mid, false) 
+	sendok(res, returnData);
+});
+
+
+router.get('/oldcount/all/:mid', async function (req, res) {
   setHeader(res);
   var { mid } = req.params;
 	//console.log(mid);

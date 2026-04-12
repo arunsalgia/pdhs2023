@@ -166,7 +166,7 @@ async function handleNewHodSubmit() {
 		//	msg: `Successfully applied for ${getMemberName(newHodRec)} as new F.Head. Your application id ref. ${resp.data.id}`
 		//});
 	} catch (e) {
-		console.log(e);
+		console.log(e.response);
 		var returnStatus = {
 			status: STATUS_INFO.ERROR,  
 			msg: `Error setting ${getMemberName(newHodRec)} as new F.Head.`

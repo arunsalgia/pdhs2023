@@ -1037,7 +1037,7 @@ export async function handleLogout() {
 	};
 	if (myData.mid === 0) {
 		// Guest
-		myData.name = `${myData.name} ( ${sessionStorage.getItem("prwsLogin")} )`;
+		myData.name = `${myData.name}-${sessionStorage.getItem("prwsLogin")}`;
 	}
 	myData = encodeURIComponent(JSON.stringify(myData))
 	try {

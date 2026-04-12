@@ -96,7 +96,7 @@ export default function Logs() {
 	const gClasses = globalStyles();
 	
 	var DefaultFilterCond = {
-		filterBy: "NoLogInOut",
+		filterBy: "All",
 		timeRange: false,
 		startDate: moment().toDate().toString(),
 		endDate: moment().toDate().toString(),

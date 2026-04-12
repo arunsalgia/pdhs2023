@@ -38,6 +38,7 @@ async function updateNewHidMidInPjym(oldMid, newHid, newMid) {
 var SEM_ENTERED = 0;
 
 async function addApplication(hodmid, editor_mid, appData, appDesc, appOwner, autoReject = "") {
+	 var myAppData = JSON.parse(appData);
    while (SEM_ENTERED === 1)  ;             // Wait for other to complete the task
    SEM_ENTERED = 1;
    console.log("Set the flag to 1");
@@ -59,8 +60,7 @@ async function addApplication(hodmid, editor_mid, appData, appDesc, appOwner, au
    //
    var editorRec = null;
    var editorHodRec = null;
-	//var myRec = await addApplication(0, editor_mid, appData, APPLICATIONTYPES.guestMembership, OWNER.prws);	
-   
+
    if (hodmid != 0) {
      editorRec  = await memberGetByMidOne(Number(editor_mid));
      editorHodRec  = await memberGetByMidOne(Number(hodmid));
@@ -78,7 +78,7 @@ async function addApplication(hodmid, editor_mid, appData, appDesc, appOwner, au
 	aRec.hodName = (editorHodRec) ? getMemberName(editorHodRec, false) : '';
 
 	aRec.mid = Number(editor_mid);
-	aRec.name = (editorRec) ? getMemberName(editorRec, false) : 'Guest';
+	aRec.name = (editorRec) ? getMemberName(editorRec, false) : `Guest-${myAppData.applier}`;
 
 	aRec.isMember = (hodmid !== 0);
 	aRec.data = appData;
@@ -112,18 +112,15 @@ async function addApplication(hodmid, editor_mid, appData, appDesc, appOwner, au
 	let myLogRec = new M_PrwsLog();
 	myLogRec.date = justNow;
 	myLogRec.mid = (editorHodRec) ? editorHodRec.mid : Number(editor_mid) ;
-	myLogRec.name = (editorHodRec) ? getMemberName(editorHodRec, Number(editor_mid)) : 'Guest';
-	myLogRec.desc = "Application " + aRec.id + " by " +  ((editorRec) ? getMemberName(editorRec, false) : 'Guest')  + " for \"" + appDesc + "\"" ;
+	myLogRec.name = (editorHodRec) ? getMemberName(editorHodRec, Number(editor_mid)) : `Guest-${myAppData.applier}`;
+	myLogRec.desc = "Application " + aRec.id + " by " +  ((editorRec) ? getMemberName(editorRec, false) : `Guest-${myAppData.applier}`)  + " for \"" + appDesc + "\"" ;
 	myLogRec.isAdmin = isAdmin;
 	myLogRec.action = appDesc;
 	myLogRec.data = JSON.stringify(aRec);
 	myLogRec.referenceId = aRec.id;
 	myLogRec.status = true;
 	await myLogRec.save();
-	//console.log(myLogRec);
-	//console.log("Mid: ", editorRec.mid);
-	//console.log("Nam: ", getMemberName(editorHodRec, false));
-	//console.log("Des: ", "Apply for " + appDesc + " by " +  getMemberName(editorHodRec, false));
+
 	
    if (autoReject !== "") {
       myLogRec = new M_PrwsLog();
@@ -137,15 +134,17 @@ async function addApplication(hodmid, editor_mid, appData, appDesc, appOwner, au
       myLogRec.referenceId = aRec.id;
       myLogRec.status = true;
       await myLogRec.save();
-      console.log(myLogRec);
-     
+      console.log(myLogRec); 
+      
    } 
+	 console.log(editHod);
    if (famHid !== editHod)
-   if (editHod !=- 0) {
+   if (editHod != 0) {
+		console.log(editorRec);
     // send mail to famHid
     console.log('Send mail to ', hodmid); 
     var myMsg = `Application ${aRec.id} (${appDesc}) by ${getMemberName(editorRec)} on ${getDate(justNow)}`;
-	let htmlText = `<div>
+		let htmlText = `<div>
 		<h4 style="text-align: left;"><strong>Dear Member,</strong></h4>
 
 		<p>Greetings from Pratapgarh Rajasthan Welfare Samiti</p>
@@ -203,12 +202,18 @@ router.get('/filterlist/:filterData', async function (req, res) {
 	filterData = JSON.parse(filterData);
    console.log(filterData);
    var cond = {};
-   if (filterData.adminRec.mid === 0)
-      cond = {mid: filterData.mid};
-   else
-      cond = {mid: {$gte: 0}};
+   if (filterData.adminRec.mid === 0) {	// Not admin
+		 if (filterData.mid !== 0)
+      cond = {mid: filterData.mid};			// For member non-admin
+		 else
+			cond = {name: { $regex: filterData.name, $options: "i" } };			// for guest
+   }
+	 else
+      cond = {mid: {$gte: 0}};		// for Admin. All mids to be included
+		
    if (filterData.status !== 'All')
       cond["status"] = filterData.status;
+		
    cond["owner"] = filterData.owner;
    
    	if (filterData.timeRange) {
@@ -411,31 +416,29 @@ router.get('/delete/:editorMid/:applicationId', async function (req, res) {
   setHeader(res);
 	var {editorMid, applicationId } = req.params;
 	
-	// Create a log entry for the given Application
+	console.log(editorMid, applicationId);
 	var editorRec = await memberGetByMidOne(Number(editorMid));
-	if (!editorRec) return senderr(res, 601, 'Invalid editor mid');
 	
 	var aRec = await M_Application.findOne({id: applicationId});
+	console.log(aRec);
 	if (!aRec) return senderr(res, 602, 'Invalid Application Id');
 	
 	await M_Application.deleteOne({id: applicationId});
-
-   // Now remove the family lock
-   var tmp = JSON.parse(aRec.data);
-   await clear_hod_applock(tmp.hid);
-   
-   // Required for marriage application
-   if (tmp.spouseMemberRec)
-      await clear_hod_applock(tmp.spouseMemberRec.hid);
-
-	//console.log(aRec);
-   var hodRec = await M_Hod.findOne({hid: tmp.hid});
-   var hodMemberRec = await memberGetByMidOne(hodRec.mid);
+	var myData = JSON.parse(aRec.data);
+	
+	// Now remove the family lock
+	if (aRec.hid !== 0) {
+		await clear_hod_applock(myData.hid); 
+		// Required for marriage application
+		if (myData.spouseMemberRec)
+			await clear_hod_applock(myData.spouseMemberRec.hid);
+	}
+	var editorName = (editorRec) ? getMemberName(editorRec, false) : aRec.name;
 	let myLogRec = new M_PrwsLog();
 	myLogRec.date = new Date();
-	myLogRec.mid = hodMemberRec.mid;
-	myLogRec.name = getMemberName(hodMemberRec, false);         // **** This will have HOD name and not editor name
-	myLogRec.desc = `Application ${aRec.id} for "${aRec.desc}" deleted by ${getMemberName(editorRec, false)}`;
+	myLogRec.mid = aRec.mid;
+	myLogRec.name =  aRec.name;
+	myLogRec.desc = `Application ${aRec.id} for "${aRec.desc}" deleted by ${editorName}`;
 	myLogRec.isAdmin = true;
 	myLogRec.action = "Delete";
 	myLogRec.data = "";
@@ -443,7 +446,6 @@ router.get('/delete/:editorMid/:applicationId', async function (req, res) {
 	myLogRec.status = true;
 	await myLogRec.save();
 
-	
 	sendok(res, "Done");
 });
 
@@ -473,30 +475,41 @@ router.get('/reject/:id/:adminMid/:comments', async function (req, res) {
       await clear_hod_applock(tmp.spouseMemberRec.hid);
  
     // send the mail to hod member
-	let memberRec = await memberGetByMidOne(aRec.hodMid);
-	let justNow = new Date();
-	let memberEmail = dbdecrypt(memberRec.email);	
-	let htmlText = `<div>
-		<h4 style="text-align: left;"><strong>Dear Member,</strong></h4>
+	if (aRec.hodMid != 0) {
+		let memberRec = await memberGetByMidOne(aRec.hodMid);
+		let justNow = new Date();
+		let memberEmail = dbdecrypt(memberRec.email);	
+		if (memberEmail != '-') {
+		let htmlText = `<div>
+			<h4 style="text-align: left;"><strong>Dear Member,</strong></h4>
 
-		<p>Greetings from Pratapgarh Rajasthan Welfare Samiti</p>
-		<p>Application ${aRec.id} (${aRec.desc}) rejected by ${getMemberName(adminRec)} on ${getDate(justNow)}.</p>
-		<p><strong>Comments by admin: ${comments}</strong></p>
-		<p>You can login in PRWS web site www.pjym.in and check the details.</p>
-		<p><span style="text-align: left;"><strong>for Pratapgarh Rajasthan Welfare Samiti</strong></span></p>
-		</div>`
-   
-    console.log(memberEmail);
-    let resp = await sendCricHtmlMail(memberEmail, PRWSMAILHEADER.applicationRejected, htmlText);
-    
+			<p>Greetings from Pratapgarh Rajasthan Welfare Samiti</p>
+			<p>Application ${aRec.id} (${aRec.desc}) rejected by ${getMemberName(adminRec)} on ${getDate(justNow)}.</p>
+			<p><strong>Comments by admin: ${comments}</strong></p>
+			<p>You can login in PRWS web site www.pjym.in and check the details.</p>
+			<p><span style="text-align: left;"><strong>for Pratapgarh Rajasthan Welfare Samiti</strong></span></p>
+			</div>`
+		 
+			console.log(memberEmail);
+			let resp = await sendCricHtmlMail(memberEmail, PRWSMAILHEADER.applicationRejected, htmlText);
+		}
+	}  
 	// Now Log the approve action.	
-   var hodRec = await M_Hod.findOne({hid: tmp.hid});
-   var hodMemberRec = await memberGetByMidOne(hodRec.mid);	
-   
-   let myLogRec = new M_PrwsLog();
+	let myLogRec = new M_PrwsLog();
 	myLogRec.date = new Date();
-	myLogRec.mid = hodMemberRec.mid;
-	myLogRec.name = getMemberName(hodMemberRec, false);
+	if (tmp.hid) {
+		// for regsitered member
+		 var hodRec = await M_Hod.findOne({hid: tmp.hid});
+		 var hodMemberRec = await memberGetByMidOne(hodRec.mid);	
+		 
+		myLogRec.mid = hodMemberRec.mid;
+		myLogRec.name = getMemberName(hodMemberRec, false);
+	}
+	else {
+		// for guest
+		myLogRec.mid = 0;
+		myLogRec.name = `Guest-${tmp.applier}`;
+	}
 	myLogRec.desc = "Application " + aRec.id + " rejected by " +  getMemberName(adminRec, false)  + " for \"" + aRec.desc + "\"" ;
 	myLogRec.isAdmin = true; //isAdmin;
 	myLogRec.action = aRec.desc;
@@ -514,15 +527,10 @@ router.get('/guestmembership/:editor_mid/:appData', async function (req, res) {
    var myAppData = JSON.parse(appData);
    console.log(myAppData);
    
-   if (myAppData.caste !== CASTETYPES.nonHumad) {
-      senderr(res, 601, 'Error');
-      return;
-   }
-	var myRec = await addApplication(0, editor_mid, appData, APPLICATIONTYPES.guestMembership, OWNER.prws, APPROVE_ERRORS.NONHUMAD.desc);	
-    //if (!myRec) return senderr(res, APPROVE_ERRORS.HODLOCK.code, APPROVE_ERRORS.HODLOCK.desc);
-
-   //await set_hod_applock(xxx.hid, myRec.id);   
-	senderr(res, APPROVE_ERRORS.NONHUMAD.code, APPROVE_ERRORS.NONHUMAD.desc);
+	//var myRec = await addApplication(0, editor_mid, appData, APPLICATIONTYPES.guestMembership, OWNER.prws, APPROVE_ERRORS.NONHUMAD.desc);	
+  var myRec = await addApplication(0, editor_mid, appData, APPLICATIONTYPES.guestMembership, OWNER.prws);	
+  
+	sendok(res, myRec);
 });
 
 

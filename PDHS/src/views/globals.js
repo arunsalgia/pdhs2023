@@ -357,6 +357,7 @@ export const APPLICATIONTYPES = {
 	unMarriage:				"Change Mar. Sts.",
 	humadUpgrade:			"Humad Upgrade",
 	pjymUpgrade:			"PJYM Upgrade",
+	guestMembership:	"Guest Membership",
 };
 
 
@@ -388,6 +389,8 @@ export const APPROVE_ERRORS = {
 export const MAXDISPLAYTEXTROWS=10;
 
 export const ELIGIBLEMARRIAGEYEARS = 21;
+
+export const PRWS_VILLAGE = "Pratapgarh";
 
 export const INDIANSTATES = 
 [
@@ -447,4 +450,8 @@ humad: "Humad",
 pjym:  "PJYM",
 prws:  "PRWS",
 pmm:   "PMM",	
-}
+};
+
+export const PJYM_MAXAGE = 45;
+
+export const MIN_DATE = new Date(1900, 1, 1);

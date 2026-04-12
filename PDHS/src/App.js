@@ -44,6 +44,7 @@ import ApplicationEditGeneral from 'views/Application/ApplicationEditGeneral'
 import ApplicationMarriage from 'views/Application/ApplicationMarriage'
 import ApplicationUnmarriage from 'views/Application/ApplicationUnmarriage'
 import ApplicationUpgradeHumad from 'views/Application/ApplicationUpgradeHumad'
+import ApplicationGuestMembership from 'views/Application/ApplicationGuestMembership'
 
 import ContactUs from 'views/ContactUs/ContactUs'
 
@@ -322,6 +323,9 @@ function AppRouter() {
 			}	
 			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_LOG) &&
 				<Logs />
+			}	
+			{(sessionStorage.getItem("menuValue") === process.env.REACT_APP_APPLICATION_GUESTMEMBERSHIP) &&
+				<ApplicationGuestMembership />
 			}	
 			</div>
     }

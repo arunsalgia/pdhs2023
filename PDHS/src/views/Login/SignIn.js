@@ -122,7 +122,10 @@ export default function SignIn() {
 		setError("", false);
 		let userData = response.data.user;
 		console.log(userData);
-		if (userData) {
+		
+		window.sessionStorage.setItem("isMember", response.data.isMember);
+		window.sessionStorage.setItem("smsImplemented", response.data.smsImplemented)
+		if (response.data.isMember) {
 			window.sessionStorage.setItem("hid", userData.hid)
 			window.sessionStorage.setItem("mid", userData.mid)
 			window.sessionStorage.setItem("memberRec", JSON.stringify(userData));
