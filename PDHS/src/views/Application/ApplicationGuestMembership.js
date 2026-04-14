@@ -48,7 +48,7 @@ import {
 	ADMIN, APPLICATIONTYPES, APPLICATIONSTATUS, SELECTSTYLE, 
   PADSTYLE,
 	MEMBERTITLE, RELATION, SELFRELATION, GENDER, BLOODGROUP, MARITALSTATUS,
-	STATUS_INFO,
+	STATUS_INFO, OWNER,
    CASTEOBJ, HUMADSUBCASTEOBJ,
 } from 'views/globals';
 
@@ -197,7 +197,30 @@ return (
 	<DisplayApplicationNameValue name="PJYM Membership" value={(appData.pjymMembership) ? "Yes" : "No"} different={appData.pjymMembership} />
 	<DisplayApplicationNameValue name="Humad Membership" value={(appData.humadMembership) ? "Yes" : "No"} different={appData.humadMembership} />
 	<br />
-	<Accordion expanded={expandedPanel === "GOTRADETAILS"} onChange={handleAccordionChange("GOTRADETAILS")}>
+	{(hasPRWSpermission() && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && myProps.applicationRec.owner === OWNER.prws) &&
+		<div>
+		<Accordion expanded={expandedPanel === "PRWSINFO"} onChange={handleAccordionChange("PRWSINFO")}>
+		<Box align="right" className={(expandedPanel === "PRWSINFO") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
+			<Typography align="left" >{"PRWS Admin Info"}</Typography>
+		</AccordionSummary>
+		</Box>
+		<br />
+		<DisplayApplicationNameValue name="Gotra" value={appData.gotra}  />
+		<DisplayApplicationNameValue name="Caste" value={appData.caste}  />
+		{(appData.caste === CASTEOBJ.humad) &&
+			<DisplayApplicationNameValue name="SubCaste" value={appData.subCaste}  />
+		}
+		<DisplayApplicationNameValue name="Village" value={appData.village}   />
+		<DisplayApplicationNameValue name="City" value={appData.city}   />
+		<DisplayApplicationNameValue name="Country" value={appData.country}   />
+		<br />
+		</Accordion>
+		<br />
+		</div>
+	}	
+
+		<Accordion expanded={expandedPanel === "GOTRADETAILS"} onChange={handleAccordionChange("GOTRADETAILS")}>
 		<Box align="right" className={(expandedPanel === "GOTRADETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
 			<Typography align="left" >{"Gotra and Caste"}</Typography>

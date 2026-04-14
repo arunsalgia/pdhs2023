@@ -82,12 +82,50 @@ async function addApplication(hodmid, editor_mid, appData, appDesc, appOwner, au
 
 	aRec.isMember = (hodmid !== 0);
 	aRec.data = appData;
-	aRec.status = (autoReject === "") ? APPLICATIONSTATUS.pending : APPLICATIONSTATUS.rejected;
+	aRec.status = APPLICATIONSTATUS.pending;	//(autoReject === "") ? APPLICATIONSTATUS.pending : APPLICATIONSTATUS.rejected;
 
-   aRec.approvalDate = new Date(0);
+  aRec.approvalDate = new Date(0);
 	aRec.adminName = '';
-	aRec.comments = autoReject;
-	//console.log(aRec);
+	aRec.comments = '';												//autoReject;
+	
+	/*
+	newHid: Number,
+	newHodMid: Number,
+	approvalStatus: [{sequence: Number, owner: String, status: String, date: Date, approvalName: String, approvalMid: Number}],
+	lockInfo: {isLocked: Boolean, lockedBy: String, applicationId: String, remarks: String}	
+	*/
+	if (hodmid === 0) {
+		// guest membership application
+		aRec.newHid = 0;
+		aRec.newHodMid = 0;
+		aRec.owner = OWNER.prws;				// To begin with
+		aRec.approvalStatus = [];
+		// First Add for PRWS
+		aRec.approvalStatus.push({
+			sequence: 0, 
+			owner: OWNER.prws, 
+			status: APPLICATIONSTATUS.pending, 
+			date: new Date(), 
+			approvalName: "", 
+			approvalMid: 0});
+		// Now add for PJYm. Auto reject if membership not requested
+		aRec.approvalStatus.push({
+			sequence: 0, 
+			owner: OWNER.pjym, 
+			status: (myAppData.prwsMembership) ? APPLICATIONSTATUS.pending : APPLICATIONSTATUS.approved,
+			date: new Date(), 
+			approvalName: (myAppData.prwsMembership) ? "" : "PJYM membership not requested", 
+			approvalMid: 0});
+		// Now add for Humad. Auto reject if membership not requested
+		aRec.approvalStatus.push({
+			sequence: 2, 
+			owner: OWNER.humad, 
+			status: (myAppData.humadMembership) ? APPLICATIONSTATUS.pending : APPLICATIONSTATUS.approved,
+			date: new Date(), 
+			approvalName: (myAppData.humadMembership) ? "" : `Humad membership not requested`, 
+			approvalMid: 0});
+	}
+	console.log(aRec);
    
 	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
 	//console.log(baseid);

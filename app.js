@@ -407,6 +407,9 @@ ApplicationSchema = mongoose.Schema({
 	aminMid: Number,
 	adminName: String,
 	comments: String,
+	newHid: Number,
+	newHodMid: Number,
+	approvalStatus: [{sequence: Number, owner: String, status: String, date: Date, approvalName: String, approvalMid: Number}],
 	lockInfo: {isLocked: Boolean, lockedBy: String, applicationId: String, remarks: String}
 });
 
