@@ -1042,7 +1042,7 @@ export async function handleLogout() {
 	myData = encodeURIComponent(JSON.stringify(myData))
 	try {
     await axios.get(`${process.env.REACT_APP_AXIOS_BASEPATH}/user/logout/${myData}`);
-	
+		console.log("Logout Success");
 		window.sessionStorage.setItem("uid", "")
 		window.sessionStorage.setItem("cid", "");
 		window.sessionStorage.setItem("userName", "");
@@ -1053,6 +1053,7 @@ export async function handleLogout() {
 		cdRefresh();    
 	} 
 	catch(err)  {
+		console.log("Logout failure");
     console.log("---------logout error");
     console.log(err);
   }

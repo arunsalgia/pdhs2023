@@ -141,7 +141,31 @@ router.get('/jaijinendra/:myData', async function (req, res, next) {
   }
   console.log(myCaptha);
   console.log(`***${myEmail}***`);
-  
+  	
+	if (myMobile) {
+		// Send OPT over email
+		var mobMsg = "******" + myMobile.substring(6);
+	}
+	console.log(emailMsg, mobMsg);
+   
+   var tmp = "";
+   if (mobMsg != "") {
+      if (tmp == "") tmp = "OTP sent over ";
+         tmp += mobMsg;
+   }
+   console.log(tmp);
+   if (emailMsg != "") {
+      if (tmp == "") 
+         tmp = "OTP sent over "; 
+      else
+         tmp += " and ";
+      tmp += emailMsg;
+      //var tmp = "OTP sent over " + mobMsg + (((mobMsg !== "") && (emailMsg !== "")) ? " and " : "") + emailMsg;
+	}
+  console.log(tmp);
+   
+  sendok(res, {captcha: myCaptha.captcha, msg: tmp });
+
 	var emailMsg = "";
 	var mobMsg = "";
 	if (myEmail !== "-") {
@@ -169,30 +193,6 @@ router.get('/jaijinendra/:myData', async function (req, res, next) {
 		console.log(tmp[0]);
 		var emailMsg = ((tmp[0].length > 4) ? ("******" + tmp[0].substring(tmp[0].length - 4)) : "****" ) + "@" + tmp[1];
 	}
-	
-	if (myMobile) {
-		// Send OPT over email
-		var mobMsg = "******" + myMobile.substring(6);
-	}
-	console.log(emailMsg, mobMsg);
-   
-   var tmp = "";
-   if (mobMsg != "") {
-      if (tmp == "") tmp = "OTP sent over ";
-         tmp += mobMsg;
-   }
-   console.log(tmp);
-   if (emailMsg != "") {
-      if (tmp == "") 
-         tmp = "OTP sent over "; 
-      else
-         tmp += " and ";
-      tmp += emailMsg;
-      //var tmp = "OTP sent over " + mobMsg + (((mobMsg !== "") && (emailMsg !== "")) ? " and " : "") + emailMsg;
-	}
-  console.log(tmp);
-   
-  sendok(res, {captcha: myCaptha.captcha, msg: tmp });
 	
 
 });
@@ -271,14 +271,9 @@ router.get('/padmavatimata/:myData', async function (req, res, next) {
   var isValid = false;
   
 	var myData = JSON.parse(myData);
-   console.log(myData);
 	var userName = decrypt(myData.userName).toLowerCase();
-	console.log(userName);
 	
-
 	if (!directLogin.includes(userName)) {
-		// verify captcha
-		//console.log(uMobile, uPassword);
 		let myCaptha = await M_Password.findOne({mobile: userName});
 		if (!myCaptha) return senderr(res, 601, "Invalid password");
 		console.log(myCaptha);
@@ -315,15 +310,6 @@ router.get('/padmavatimata/:myData', async function (req, res, next) {
 		}
 	}
 	
-	/*var smsImplemented = false;
-	if (myData.isMobile) {
-		var tmp = await M_Setting.findOne({label: LABELS.smsImplemented});
-		console.log(tmp);
-		smsImplemented = (tmp.value.toLowerCase() === 'yes');
-		console.log(smsImplemented);
-	}*/
-	
-	//console.log(myAdmin);
   sendok(res, {user: myMem, admin: myAdmin, isMember: isMember, userName: userName, smsImplemented: SMSIMPLEMENTED});
 
 	// Make logger entry of use login.
@@ -356,6 +342,8 @@ router.get('/padmavatimata/:myData', async function (req, res, next) {
 router.get('/logout/:myData', async function (req, res, next) {
   setHeader(res);
   var { myData } = req.params;
+	sendok(res, "Done");			// First confirm to client for logout
+
 	console.log('In LOGOUT');
 	console.log(myData);
 	myData = JSON.parse(myData);
@@ -383,7 +371,6 @@ router.get('/logout/:myData', async function (req, res, next) {
 		await myLogRec.save();
 		console.log(myLogRec);
 	}
-	sendok(res, "Done");			// First confirm to client for logout
 });
 
 router.get('/suggestion/:myData', async function (req, res, next) {

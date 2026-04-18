@@ -135,8 +135,8 @@ export default function Application(props) {
 		mid: loginMid,
 		name: prwsLogin,
 		owner: OWNER.prws,  // currently ignore
-		startDate: moment().toDate().toString(),
-		endDate: moment().toDate().toString(),
+		startDate: moment().toString(),
+		endDate: moment().toString(),
 		currentPage: 0,
 		pageSize: NONMOBROWSPERPAGE
 	};

@@ -58,8 +58,8 @@ import {
 	vsDialog, showError, showSuccess, showInfo,
 	getMemberName,
 	dateString, disableFutureDt,
-	hasPRWSpermission, 
-	dateStringMMM,
+	hasPRWSpermission, hasPJYMpermission, hasHumadpermission,
+	dateStringMMM, getAge,
 } from 'views/functions';
 
 import {
@@ -85,7 +85,7 @@ export default function ApplicationGuestMembership() {
     setExpandedPanel(isExpanded ? panel : false);
     setRegisterStatus(0);
   };
-
+	console.log(myProps.applicationRec);
 	console.log(appData);
 	
 function handleReapply() {
@@ -104,32 +104,77 @@ async function handleMemberAddEditSubmit() {
 }
 
 async function handleApplicationReject() {
-	setAction("Reject");
-	setStage("Reject");
+	if (myProps.applicationRec.owner === OWNER.prws) {
+      // if dasha humad
+      var msg = `Are you sure you want to reject Pratapgarh Raj. Welfare Samiti membership?`
+      vsDialog("Reject PRWS membership", msg,
+      {label: "Yes", onClick: () => handleApplicationRejectVerified("Reject") },
+      //{label: "No", onClick: () => handleApplicationApproveVerified("false")  }
+			{label: "No" }
+      );  
+  }
+	else if (myProps.applicationRec.owner === OWNER.pjym) {
+      // if dasha humad
+      var msg = `Are you sure you want to reject Pratapgarh Jain Yuva Manch membership?`
+      vsDialog("Reject PJYM membership", msg,
+      {label: "Yes", onClick: () => handleApplicationRejectVerified("Reject") },
+      //{label: "No", onClick: () => handleApplicationApproveVerified("false")  }
+			{label: "No" }
+      );  
+   }
+	else if (myProps.applicationRec.owner === OWNER.humad) {
+      // if dasha humad
+      var msg = `Are you sure you want to reject Humad Samaj membership?`
+      vsDialog("Reject Humad Samaj membership", msg,
+      {label: "Yes", onClick: () => handleApplicationRejectVerified("Reject") },
+      //{label: "No", onClick: () => handleApplicationApproveVerified("false")  }
+			{label: "No" }
+      );  
+   }
+}
+
+function handleApplicationRejectVerified(newPrwsaction) {
+	setAction(newPrwsaction);
+	setStage("Remarks");	
 }
 
 async function handleApplicationApprove() {
-	showSuccess(`Currently not yet implemented`);
-	return;
-
-	if (false && (appData.caste == CASTEOBJ.humad) && (appData.subCaste == HUMADSUBCASTEOBJ.dasha)) {
+	
+	if (myProps.applicationRec.owner === OWNER.prws) {
       // if dasha humad
-      var msg = `Set membership of Pratapgarh Raj. Welfare samiti?`
-      vsDialog("PRWS membership", msg,
-      {label: "Yes", onClick: () => handleApplicationApproveVerified("true") },
-      {label: "No", onClick: () => handleApplicationApproveVerified("false")  }
+      var msg = `Are you sure you want to approve Pratapgarh Raj. Welfare Samiti membership?`
+      vsDialog("Approve PRWS membership", msg,
+      {label: "Yes", onClick: () => handleApplicationApproveVerified("Approve") },
+      //{label: "No", onClick: () => handleApplicationApproveVerified("false")  }
+			{label: "No" }
       );  
    }
-   else
-      handleApplicationApproveVerified("nochange");  
+	 else if (myProps.applicationRec.owner === OWNER.pjym) {
+      // if dasha humad
+      var msg = `Are you sure you want to approve Pratapgarh Jain Yuva Manch membership?`
+      vsDialog("Approve PJYM membership", msg,
+      {label: "Yes", onClick: () => handleApplicationApproveVerified("Approve") },
+      //{label: "No", onClick: () => handleApplicationApproveVerified("false")  }
+			{label: "No" }
+      );  
+   }
+	 else if (myProps.applicationRec.owner === OWNER.humad) {
+      // if dasha humad
+      var msg = `Are you sure you want to approve Humad Samaj membership?`
+      vsDialog("Approve Humad Samaj membership", msg,
+      {label: "Yes", onClick: () => handleApplicationApproveVerified("Approve") },
+      //{label: "No", onClick: () => handleApplicationApproveVerified("false")  }
+			{label: "No" }
+      );  
+   }
 }
 	
 
-async function handleApplicationApproveVerified(newPrwsSts) {
-   setPrwsMem(newPrwsSts);
-   console.log(newPrwsSts);
-	setAction("Approve");
-	setStage("Approve");
+async function handleApplicationApproveVerified(newPrwsaction) {
+   setPrwsMem(newPrwsaction);
+   console.log(newPrwsaction);
+	 setAction(newPrwsaction);
+	setStage("Remarks");
 }
 
 
@@ -143,18 +188,18 @@ function handleRemarksDone() {
 
 
 async function  handleApplicationApproveConfirm(myRemarks) {
-   var finRem = prwsMem + "ARUNSALGIA" + myRemarks;
+   var finRem = myProps.applicationRec.owner + "ARUNSALGIA" + myRemarks;
 	try {
 		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${finRem}`;
+		console.log(myUrl);
 		let resp = await axios.get(myUrl);
 		var returnStatus = {
 			status: STATUS_INFO.SUCCESS, applicationRec: resp.data, 
 			msg: `Application approved by Admin`
-			};
+		};
+		//showSuccess(`Application approved by Admin`);
 		sessionStorage.setItem("application_returnstatus", JSON.stringify(returnStatus));
-		setTab(process.env.REACT_APP_APPLICATION);
-		//myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application rejected by Admin`});
-		
+		setTab(process.env.REACT_APP_APPLICATION);	
 	} catch (e) {
 		console.log(e);
 		showError(e.response.data);
@@ -193,10 +238,29 @@ return (
 	<ApplicationHeader applicationRec={myProps.applicationRec} header="Application for Guest membership" />
 	<br />
 	<DisplayApplicationNameValue name="Applicant Name" value={`${appData.title} ${appData.lastName} ${appData.firstName} ${appData.middleName}`} />
-	<DisplayApplicationNameValue name="PRWS Membership" value={(appData.prwsMembership) ? "Yes" : "No"} different={appData.prwsMembership} />
-	<DisplayApplicationNameValue name="PJYM Membership" value={(appData.pjymMembership) ? "Yes" : "No"} different={appData.pjymMembership} />
-	<DisplayApplicationNameValue name="Humad Membership" value={(appData.humadMembership) ? "Yes" : "No"} different={appData.humadMembership} />
+	<DisplayApplicationNameValue name="Applied for PRWS" value={(appData.prwsMembership) ? "Yes (default)" : "No"} different={appData.prwsMembership} />
+	<DisplayApplicationNameValue name="Applied for PJYM" value={(appData.pjymMembership) ? "Yes" : "No"} different={appData.pjymMembership} />
+	<DisplayApplicationNameValue name="Applied for Humad" value={(appData.humadMembership) ? "Yes" : "No"} different={appData.humadMembership} />
 	<br />
+	{(myProps.applicationRec.status !== APPLICATIONSTATUS.pending) &&
+		<div>
+		<Accordion expanded={expandedPanel === "STATUS"} onChange={handleAccordionChange("STATUS")}>
+		<Box align="right" className={(expandedPanel === "STATUS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
+			<Typography align="left" >{"Application Status Info"}</Typography>
+		</AccordionSummary>
+		</Box>
+		<br />
+		<DisplayApplicationNameValue name="PRWS Appl." value={`${myProps.applicationRec.approvalStatus[0].status} by ( ${myProps.applicationRec.approvalStatus[0].approvalName} ) `}  />
+		<br />
+		<DisplayApplicationNameValue name="PJYM Appl." value={`${myProps.applicationRec.approvalStatus[1].status} by ( ${myProps.applicationRec.approvalStatus[1].approvalName} ) `}  />
+		<br />
+		<DisplayApplicationNameValue name="Humad Appl." value={`${myProps.applicationRec.approvalStatus[2].status} by ( ${myProps.applicationRec.approvalStatus[2].approvalName} ) `}  />
+		<br />
+		</Accordion>
+		<br />
+		</div>
+	}	
 	{(hasPRWSpermission() && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && myProps.applicationRec.owner === OWNER.prws) &&
 		<div>
 		<Accordion expanded={expandedPanel === "PRWSINFO"} onChange={handleAccordionChange("PRWSINFO")}>
@@ -219,7 +283,61 @@ return (
 		<br />
 		</div>
 	}	
-
+	{(hasPJYMpermission() && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && myProps.applicationRec.owner === OWNER.pjym) &&
+		<div>
+		<Accordion expanded={expandedPanel === "PJYMINFO"} onChange={handleAccordionChange("PJYMINFO")}>
+		<Box align="right" className={(expandedPanel === "PJYMINFO") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
+			<Typography align="left" >{"PJYM Admin Info"}</Typography>
+		</AccordionSummary>
+		</Box>
+		<br />
+		<DisplayApplicationNameValue name="PRWS Status" value={"Approved"}  />
+		<DisplayApplicationNameValue name="Approved By" value={myProps.applicationRec.approvalStatus[0].approvalName}  />
+		<DisplayApplicationNameValue name="Approved On" value={dateStringMMM(myProps.applicationRec.approvalStatus[0].date)}  />
+		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
+		<DisplayApplicationNameValue name="Gotra" value={appData.gotra}  />
+		<DisplayApplicationNameValue name="Caste" value={appData.caste}  />
+		{(appData.caste === CASTEOBJ.humad) &&
+			<DisplayApplicationNameValue name="SubCaste" value={appData.subCaste}  />
+		}
+		<DisplayApplicationNameValue name="Village" value={appData.village}   />
+		<DisplayApplicationNameValue name="City" value={appData.city}   />
+		<DisplayApplicationNameValue name="Country" value={appData.country}   />
+		<DisplayApplicationNameValue name="Applicant age" value={getAge(appData.dob)}  />
+		<br />
+		</Accordion>
+		<br />
+		</div>
+	}	
+	{(hasHumadpermission() && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && myProps.applicationRec.owner === OWNER.humad) &&
+		<div>
+		<Accordion expanded={expandedPanel === "HUMADINFO"} onChange={handleAccordionChange("HUMADINFO")}>
+		<Box align="right" className={(expandedPanel === "HUMADINFO") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
+		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
+			<Typography align="left" >{"Humad Admin Info"}</Typography>
+		</AccordionSummary>
+		</Box>
+		<br />
+		<DisplayApplicationNameValue name="PRWS Status" value={"Approved"}  />
+		<DisplayApplicationNameValue name="Approved By" value={myProps.applicationRec.approvalStatus[0].approvalName}  />
+		<DisplayApplicationNameValue name="Approved On" value={dateStringMMM(myProps.applicationRec.approvalStatus[0].date)}  />
+		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
+		<DisplayApplicationNameValue name="PJYM Status" value={"Approved"}  />
+		<DisplayApplicationNameValue name="Approved By" value={myProps.applicationRec.approvalStatus[1].approvalName}  />
+		<DisplayApplicationNameValue name="Approved On" value={dateStringMMM(myProps.applicationRec.approvalStatus[1].date)}  />
+		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
+		<DisplayApplicationNameValue name="Gotra" value={appData.gotra}  />
+		<DisplayApplicationNameValue name="Caste" value={appData.caste}  />
+		{(appData.caste === CASTEOBJ.humad) &&
+			<DisplayApplicationNameValue name="SubCaste" value={appData.subCaste}  />
+		}
+		<DisplayApplicationNameValue name="Village" value={appData.village}   />
+		<br />
+		</Accordion>
+		<br />
+		</div>
+	}	
 		<Accordion expanded={expandedPanel === "GOTRADETAILS"} onChange={handleAccordionChange("GOTRADETAILS")}>
 		<Box align="right" className={(expandedPanel === "GOTRADETAILS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>

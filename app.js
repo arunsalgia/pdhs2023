@@ -660,7 +660,7 @@ APPROVE_ERRORS = {
 APPLICATIONSTATUS = {
 	approved:  	"Approved",
 	rejected: 	"Rejected",
-	pending: 	"Pending"
+	pending: 	  "Pending"
 };
 
 PRWSACTION = {
