@@ -56,7 +56,8 @@ const LOGINOPTION = {
 };
 
 const pageStyle = {
-    backgroundImage: `url(${process.env.PUBLIC_URL}/image/CREDIT.JPG)`,      // Use template literals
+    //backgroundImage: `url(${process.env.PUBLIC_URL}/image/CREDIT.JPG)`,      // Use template literals
+		backgroundColor: '#CCFFF9',
     height: '100vh',                            // Ensure the element has a height and width
     backgroundSize: 'cover',                    // Common properties for background images
     backgroundRepeat: 'no-repeat',
@@ -84,7 +85,7 @@ export default function SignIn() {
   useEffect(() => {
 		async function getData() {
 			getMemberList();
-			console.log("Got it");			
+			//console.log("Got it");			
 		}
 		
 		if (process.env.REACT_APP_PRWS_DB === "true") {
@@ -262,11 +263,11 @@ function switchHandler() {
   }
   <br />
   <br />
-  <Typography className={gClasses.text1}>{`A thoughtful tool crafted`}</Typography>
+  <Typography className={gClasses.text1}>A thoughtful tool crafted</Typography>
   <br />
-  <h1 className={gClasses.text3Bold}>{`MEMBERS' DIRECTORY`}</h1>
+  <h1 className={gClasses.text3Bold}>MEMBERS' DIRECTORY</h1>
   <br />
-  <Typography className={gClasses.text1}>{`Designed and developed by`}</Typography>
+  <Typography className={gClasses.text1}>Designed and developed by</Typography>
   <Typography className={gClasses.text1Bold}>
       Atul Rajendra Salgia<br />
       Arun Rajendra Salgia

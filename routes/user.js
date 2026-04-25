@@ -137,16 +137,15 @@ router.get('/jaijinendra/:myData', async function (req, res, next) {
     myCaptha.mobile = userName;
     myCaptha.captcha = otpGenerator.generate(OTP_LENGTH, { specialChars: false, lowerCaseAlphabets: false, upperCaseAlphabets: false });
 	  console.log(`New captha ${myCaptha.captcha}`);
-	  myCaptha.save();
   }
-  console.log(myCaptha);
-  console.log(`***${myEmail}***`);
+  console.log(myCaptha.captcha);
+  //console.log(`***${myEmail}***`);
   	
 	if (myMobile) {
 		// Send OPT over email
 		var mobMsg = "******" + myMobile.substring(6);
 	}
-	console.log(emailMsg, mobMsg);
+	//console.log(emailMsg, mobMsg);
    
    var tmp = "";
    if (mobMsg != "") {
@@ -162,9 +161,11 @@ router.get('/jaijinendra/:myData', async function (req, res, next) {
       tmp += emailMsg;
       //var tmp = "OTP sent over " + mobMsg + (((mobMsg !== "") && (emailMsg !== "")) ? " and " : "") + emailMsg;
 	}
-  console.log(tmp);
    
   sendok(res, {captcha: myCaptha.captcha, msg: tmp });
+
+	// first save the captcha
+	myCaptha.save();
 
 	var emailMsg = "";
 	var mobMsg = "";

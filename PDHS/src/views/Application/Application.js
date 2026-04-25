@@ -135,8 +135,8 @@ export default function Application(props) {
 		mid: loginMid,
 		name: prwsLogin,
 		owner: OWNER.prws,  // currently ignore
-		startDate: moment().toString(),
-		endDate: moment().toString(),
+		startDate: new Date(),
+		endDate: new Date(),
 		currentPage: 0,
 		pageSize: NONMOBROWSPERPAGE
 	};
@@ -332,7 +332,7 @@ export default function Application(props) {
 		var tmp = lodashCloneDeep(filterCond);
 		tmp.startDate = newTime.toDate().toString();
 		tmp.currentPage = 0;
-		console.log(tmp);
+		//console.log(tmp);
 		getAllApplication(tmp);
 		
 	}
@@ -345,7 +345,7 @@ export default function Application(props) {
 
 		tmp.endDate = newTime.toDate().toString();
 		tmp.currentPage = 0;
-		console.log(tmp);
+		//console.log(tmp);
 		getAllApplication(tmp);
 	}
 	
@@ -477,7 +477,7 @@ export default function Application(props) {
 		if ( (sts.status == STATUS_INFO.SUCCESS) || (sts.status == STATUS_INFO.ERROR) ) {
 			if ((sts.msg !== "") && (sts.status === STATUS_INFO.ERROR)) showError(sts.msg); 
 			else if ((sts.msg !== "") && (sts.status === STATUS_INFO.SUCCESS)) showSuccess(sts.msg); 
-			console.log(sts.applicationRec);
+			//console.log(sts.applicationRec);
 			//var tmp = [sts.applicationRec].concat(applicationArray.filter(x => x.id !== applicationRec.id));
 			//setApplicationArray(lodashReverse(lodashSortBy(tmp, 'id')));
 		}
@@ -493,8 +493,7 @@ export default function Application(props) {
 	<CssBaseline />
 	<DisplayPageHeader headerName={"Application Status" } groupName="" tournament=""/>
 	<DisplayFunctionHeader />
-		<Grid key={"FIKTER"} className={gClasses.noPadding} container justifyContent="center" alignItems="center" >
-
+		<Grid key={"FILTER"} className={gClasses.noPadding} container justifyContent="center" alignItems="center" >
 			<Grid align="center" item xs={2} sm={2} md={2} lg={2} >
 				<VsCheckBox label="TimeRange" checked={timeRange} onClick={() => enableTimeRange(!timeRange) }  />			
 			</Grid>
@@ -546,34 +545,6 @@ export default function Application(props) {
 		//onRowsPerPageChange={handleChangeRowsPerPage}
 		//showFirstButton={true}
 	/>
-	{/*<Drawer style={{ width: "100%"}} anchor="top" variant="temporary" open={isDrawerOpened != ""} >
-	<Container component="main" maxWidth="xs">	
-	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
-	<VsCancel align="right" onClick={() => { setIsDrawerOpened("")}} />
-	{(isDrawerOpened === APPLICATIONTYPES.editGotra) &&
-		<ApplicationEditGotra applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
-	}
-	{(isDrawerOpened === APPLICATIONTYPES.memberCeased) &&
-		<ApplicationMemberCeased applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
-	}
-	{( (isDrawerOpened === APPLICATIONTYPES.editMember) || (isDrawerOpened === APPLICATIONTYPES.addMember) ) &&
-		<ApplicationAddEditMember applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
-	}	
-	{(isDrawerOpened === APPLICATIONTYPES.newHod) &&
-		<ApplicationNewHod applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
-	}	
-	{(isDrawerOpened === APPLICATIONTYPES.transferMember) &&
-		<ApplicationTransferMember applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
-	}		
-	{(isDrawerOpened === APPLICATIONTYPES.changeDom) &&
-		<ApplicationChangeDom applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
-	}		
-	{(isDrawerOpened === APPLICATIONTYPES.marriage) &&
-		<ApplicationMarriage applicationRec={applicationRec}  onReturn={handleApplictionEditBack}/>
-	}		
-	</Box>
-	</Container>
-	</Drawer>*/}
 	<ToastContainer />
 	</div>
 	);

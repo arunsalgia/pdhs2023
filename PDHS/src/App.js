@@ -198,7 +198,7 @@ function AppRouter() {
 
   var myStatus = sessionStorage.getItem("prwsLogin");
   var showLanding = ((typeof myStatus === 'undefined') || (myStatus == null) || (myStatus === ""));
-  console.log(sessionStorage.getItem("menuValue") );
+  //console.log(sessionStorage.getItem("menuValue") );
   return (
     <Router history={hist}> 
     <UserContext.Provider value={value}>

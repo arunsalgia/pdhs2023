@@ -121,8 +121,8 @@ export default function MemberNewMemberhsip() {
    const [isDashaHumad, setIsDashaHumad] = useState(true);
 
 	const [indian, setIndian] = useState(true);
-   const [newCountry, setNewCountry] = useState(false);
-   const [newCity, setNewCity] = useState(false);
+	const [newCountry, setNewCountry] = useState(false);
+	const [newCity, setNewCity] = useState(false);
 
    const [humadMembership, setHumadMembership] = useState(false);
    const [pjymMembership, setPjymMembership] = useState(false);
@@ -164,7 +164,7 @@ export default function MemberNewMemberhsip() {
 	const [emsStatus, setEmsStatus] = useState("Unmarried");
 	const [bloodGroup, setBloodGroup] = useState("O+");
 	const [dob, setDob] = useState(moment(MIN_DATE));
-   
+  const [dom, setDom] = useState(moment(MIN_DATE)); 
 	const [emurAddr10, setEmurAddr10] = useState("");
 	const [persMobile1, SetPersMobile1] = useState("");
 	const [persMobile2, SetPersMobile2] = useState("");
@@ -298,14 +298,19 @@ async function handleNewMembership() {
 	 var myErr = 0;
    if (!currentGotraRec) myErr = -1001;
 	 else if ((firstName === "") || (middleName === "") || (lastName === "")) myErr = -1002; 
-	 else if ((!pjymMembership) && (!prwsMembership) && (!humadMembership)) myErr = -1003;	
+	 //else if ((!pjymMembership) && (!prwsMembership) && (!humadMembership)) myErr = -1003;	
 	 else if (emurAddr1 === "")  myErr = -1004;
-	 else if ((emurPinCode <= 110000) || (emurPinCode >= 860000)) myErr = -1005;
-		
+	 else if ((emurPinCode <= 110000) || (emurPinCode >= 860000)) myErr = -1005;	
 	setRegisterStatus(myErr);
-	if (myErr !== 0) return;
-	console.log("handleNewMembership selected");
-   
+	if (myErr !== 0)
+		return;
+	
+	var isMmr = false;
+	if (indian) {
+	  var cityRec = cityArray.find(x => x.city === city);
+		isMmr = cityRec.mmr;
+	}
+
    var myData = {
      hid: 0,
      title: title,
@@ -323,6 +328,8 @@ async function handleNewMembership() {
      gender: gender,
      dob: dob,
      bloodGroup: (bloodGroup !== 'NotKnown') ? bloodGroup : '' ,
+		 emsStatus: emsStatus,
+		 dom: dom,
      persMobile1: persMobile1,
      persMobile2: persMobile2,
      persEmail1: encrypt((persEmail1 !== "") ? persEmail1 : "-"),
@@ -337,8 +344,9 @@ async function handleNewMembership() {
      district: district,
      suburb: suburb,
      city: city,
+		 mmr: isMmr,
      state: state,
-     country: country,
+     country: (indian) ? 'India' : country,
      pinCode: emurPinCode,
 		 applier:  sessionStorage.getItem('prwsLogin'),
    };
@@ -732,6 +740,34 @@ return (
          </Grid>
          <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
          <Grid item xs={5} sm={5} md={5} lg={5} >
+            <Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Marital Status</Typography>
+         </Grid>
+         <Grid item xs={7} sm={7} md={7} lg={7} >
+            <VsSelect size="small" align="left" inputProps={{className: gClasses.dateTimeNormal}} style={{paddingLeft: "10px", paddingRight: "10px" }}
+            options={MARITALSTATUS} value={emsStatus} onChange={(event) => { setEmsStatus(event.target.value); }} />
+         </Grid>
+				 {(emsStatus === "Married") &&
+         <Grid item xs={5} sm={5} md={5} lg={5} >
+            <Typography style={{paddingTop: "20px" }} className={gClasses.patientInfo2Blue} >Date of Marriage</Typography>
+         </Grid>
+				 }
+				 {(emsStatus === "Married") &&
+         <Grid item style={{paddingTop: "20px" }}  xs={7} sm={7} md={7} lg={7} >
+					<Datetime 
+						className={gClasses.dateTimeBlock}
+						inputProps={{className: gClasses.dateTimeNormal}}
+						timeFormat={false} 
+						initialValue={dom}
+						value={dom}
+						dateFormat="DD/MMM/yyyy"
+						isValidDate={disableFutureDt}
+						onClose={(selectedDate) => setDom(selectedDate)}
+						closeOnSelect={true}
+					/>
+         </Grid>
+				 }
+         <Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+         <Grid item xs={5} sm={5} md={5} lg={5} >
 					<Typography style={{paddingTop: "10px" }} className={gClasses.patientInfo2Blue} >Mobile 1</Typography>
 				</Grid>
 				<Grid item xs={7} sm={7} md={7} lg={7} >
@@ -780,8 +816,8 @@ return (
 			<Typography align="left" >{"Membership"}</Typography>
 		</AccordionSummary>
 		</Box>
+		<br />
 		<Grid key="MEMBERSHIP" className={gClasses.noPadding} container  alignItems="flex-start" >
-			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
 				{/*
 			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
@@ -790,19 +826,20 @@ return (
 			<Grid item xs={4} sm={4} md={4} lg={4} >
 				<Switch color="primary" disabled={!prwsMembershipAllowed} checked={prwsMembership} onChange={() => setPrwsMembership(!prwsMembership) } />
 			</Grid>
-				*/}
-			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
-				<Typography className={gClasses.patientInfo2Blue} >Humad membership</Typography>
-			</Grid>
-			<Grid item xs={4} sm={4} md={4} lg={4} >
-				<Switch color="primary" disabled={!humadMembershipAllowed} checked={humadMembership} onChange={() => setHumadMembership(!humadMembership) } />
-			</Grid>
 			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+				*/}
 			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
 				<Typography className={gClasses.patientInfo2Blue} >PJYM membership</Typography>
 			</Grid>
 			<Grid item xs={4} sm={4} md={4} lg={4} >
 				<Switch color="primary" disabled={!pjymMembershipAllowed}  checked={pjymMembership} onChange={() => setPjymMembership(!pjymMembership) } />
+			</Grid>
+			<Grid style={{margin: "5px"}} item xs={12} sm={12} md={12} lg={12} />
+			<Grid align="left" item xs={8} sm={8} md={8} lg={8} >
+				<Typography className={gClasses.patientInfo2Blue} >Humad membership</Typography>
+			</Grid>
+			<Grid item xs={4} sm={4} md={4} lg={4} >
+				<Switch color="primary" disabled={!humadMembershipAllowed} checked={humadMembership} onChange={() => setHumadMembership(!humadMembership) } />
 			</Grid>
       </Grid>
       <br />

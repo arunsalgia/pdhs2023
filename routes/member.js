@@ -31,15 +31,13 @@ return { $regex: name, $options: "i" }
 }
 
 async function getCount(myMid, isMember) {
-	console.log('Get Count', myMid, isMember);
-
 	var prwsCount = await memberGetCount();
-  var pjymCount = await memberGetPjymCount();		// M_Pjym.countDocuments({active: true});
-	var humadCount = await memberGetHumadCount();		//M_Humad.countDocuments({active: true});
+  var pjymCount = await memberGetPjymCount();	
+	var humadCount = await memberGetHumadCount();
 
 	var myCond = {status: APPLICATIONSTATUS.pending};
 	var familyCount = 0;
-	if  (isMember) {
+	if  (isMember) {  // for member
 		var familyRecs = await memberGetByHidMany(Math.floor (Number(myMid) / FAMILYMF));
 		//console.log(familyRecs);
 		 familyCount = familyRecs.length;
@@ -63,11 +61,10 @@ async function getCount(myMid, isMember) {
 			myCond["mid"] = myMid;	
    //console.log(myCond);
 	}
-	else {
-		// For guest
+	else {   // For guest
 		myCond["name"] = { $regex: myMid, $options: "i" };
 	}
-	console.log(myCond);
+	//console.log(myCond);
 	var applCount = await M_Application.countDocuments(myCond);
 	var myData = {prws: prwsCount, pjym: pjymCount,  humad: humadCount,  family: familyCount, application:  applCount}; 
 	//console.log(myData);	

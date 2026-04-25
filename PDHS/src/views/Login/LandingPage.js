@@ -50,10 +50,10 @@ export default function LandingPage() {
     async function getInfo() {
        try {
           let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/user/getadvert`;
-          console.log(myUrl);
+          //console.log(myUrl);
           let response = await axios.get(myUrl); 
           setAdvert(response.data);            
-          console.log(response.data);
+          //console.log(response.data);
           
          //console.log(myDim);
          butStyle.height = myDim.height;
@@ -82,7 +82,7 @@ export default function LandingPage() {
 
    function myFunction() {
       setShowButton(true);
-     console.log('Delayed action executed after 3 seconds');
+     //console.log('Delayed action executed after 3 seconds');
    }
 
   function setError(msg, isError) {

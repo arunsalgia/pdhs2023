@@ -79,7 +79,7 @@ import {
 export default function MemberEditGeneral() {
 	const gClasses = globalStyles();
 	const myProps = JSON.parse(sessionStorage.getItem("family_personal_props"));
-	//console.log(myProps.hodRec);
+	console.log(myProps.cityList);
 	
 	const [header, setHeader] = useState("Apply to change general details");
 
@@ -130,10 +130,6 @@ export default function MemberEditGeneral() {
   };
 
 
-	//useEffect(() => {
-		//console.log(myProps.cityList);
-		//console.log(myProps);
-	//}, [])
 
 
 
@@ -185,8 +181,8 @@ export default function MemberEditGeneral() {
       var myNewCountry = newCountry;
       var myCity = city;
       var myCountry = country;
-      
-
+    
+		// basic validation 
 		if (indian) {
 			if (city === "") return setRegisterStatus(3001);
 		}
@@ -194,25 +190,40 @@ export default function MemberEditGeneral() {
 			if (country === "") return setRegisterStatus(3002);
 			if (country === "India") return setRegisterStatus(3003);
 		}
-      if (myNewCity)  {
-        myCity = correctName(myCity.trim());
-        if (myProps.cityList.filter(x => x.city === myCity).length > 0) myNewCity = false;
-      }
-      if (myNewCountry) {  
-         myCountry = correctName(myCountry.trim());
-         if (myProps.countryList.filter(x => x.country === myCountry).length > 0) myNewCountry = false;
+		
+		// if from india check if city in database
+		var newCityMmr = false;
+		if (indian) {
+			// Check for indian city. No need to check for other countries
+			if (myNewCity)  {
+				myCity = correctName(myCity.trim());
+			}
+			var tmpCityRec = myProps.cityList.find(x => x.city === myCity);
+			if (tmpCityRec) {
+				myNewCity = false;
+				newCityMmr = tmpCityRec.mmr;
+			}
+			// India by default there 
+			myNewCountry = false;			// India is there implicitly but not in database.
 		}
-      //console.log(myCity, myCountry);
-      //console.log(myNewCity, myNewCountry)
+		else {
+			if (myNewCountry) {  
+				 myCountry = correctName(myCountry.trim());
+				 if (myProps.countryList.find(x => x.country === myCountry)) myNewCountry = false;
+			}
+		}
+
 
 		//let myData  = encodeURIComponent(JSON.stringify({
 		let myData = {
-         hid: hodRec.hid,
+			hid: hodRec.hid,
 			oldHodRec:  myProps.hodRec,
 			newHodRec: {
+				oldCityMMr: true,
+				newCityMmr: newCityMmr,
+				cityInDb: !myNewCity,
+				countryInDb: !myNewCountry,
 				indianResident: indian,
-            newCity: myNewCity,
-            newCountry: myNewCountry,
 				resAddr1: emurAddr1,
 				resAddr2: emurAddr2,
 				resAddr3: emurAddr3,

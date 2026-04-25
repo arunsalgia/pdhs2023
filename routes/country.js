@@ -26,6 +26,15 @@ router.get('/list', async function(req, res, next) {
 	sendok(res, tmp);
 });
 
+// check if country name in database
+router.get('/check/:newCountry', async function(req, res, next) {
+  setHeader(res);
+	var {newCountry} = req.params;
+  var countryRec = await M_Country.findOne({country: newCountry});
+	sendok(res, countryRec);
+});
+
+
 router.get('/listfromhod', async function(req, res, next) {
   setHeader(res);
 

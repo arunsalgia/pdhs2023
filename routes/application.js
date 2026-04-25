@@ -88,12 +88,7 @@ async function addApplication(hodmid, editor_mid, appData, appDesc, appOwner, au
 	aRec.adminName = '';
 	aRec.comments = '';												//autoReject;
 	
-	/*
-	newHid: Number,
-	newHodMid: Number,
-	approvalStatus: [{sequence: Number, owner: String, status: String, date: Date, approvalName: String, approvalMid: Number}],
-	lockInfo: {isLocked: Boolean, lockedBy: String, applicationId: String, remarks: String}	
-	*/
+
 	if (hodmid === 0) {
 		// guest membership application
 		aRec.newHid = 0;
@@ -107,7 +102,9 @@ async function addApplication(hodmid, editor_mid, appData, appDesc, appOwner, au
 			status: APPLICATIONSTATUS.pending, 
 			date: new Date(), 
 			approvalName: "", 
-			approvalMid: 0});
+			approvalMid: 0,
+			comments: ""
+		});
 		// Now add for PJYm. Auto reject if membership not requested
 		aRec.approvalStatus.push({
 			sequence: 1, 
@@ -115,7 +112,9 @@ async function addApplication(hodmid, editor_mid, appData, appDesc, appOwner, au
 			status: (myAppData.pjymMembership) ? APPLICATIONSTATUS.pending : APPLICATIONSTATUS.approved,
 			date: new Date(), 
 			approvalName: (myAppData.pjymMembership) ? "" : "Auto approval. PJYM membership not requested", 
-			approvalMid: 0});
+			approvalMid: 0,
+			comments: ""
+		});
 		// Now add for Humad. Auto reject if membership not requested
 		aRec.approvalStatus.push({
 			sequence: 2, 
@@ -123,12 +122,13 @@ async function addApplication(hodmid, editor_mid, appData, appDesc, appOwner, au
 			status: (myAppData.humadMembership) ? APPLICATIONSTATUS.pending : APPLICATIONSTATUS.approved,
 			date: new Date(), 
 			approvalName: (myAppData.humadMembership) ? "" : `Auto approval. Humad membership not requested`, 
-			approvalMid: 0});
+			approvalMid: 0,
+			comments: ""
+		});
 	}
-	console.log(aRec);
+	//console.log(aRec);
    
 	let baseid =  (((justNow.getFullYear() * 100) + justNow.getMonth() + 1) * 100 + justNow.getDate()) * 1000;
-	//console.log(baseid);
 	let tmp = await M_Application.find({id: {$gt: baseid}}).limit(1).sort({id: -1});
 	
 	aRec.id = (tmp.length > 0) ? tmp[0].id + 1 : baseid + 1;
@@ -235,26 +235,26 @@ router.get('/list/:mid', async function (req, res) {
 });		
 
 router.get('/filterlist/:filterData', async function (req, res) {
-   setHeader(res);
+	setHeader(res);
 	var { filterData } = req.params;
 	filterData = JSON.parse(filterData);
-   console.log(filterData);
-   var cond = {};
-   if (filterData.adminRec.mid === 0) {	// Not admin
-		 if (filterData.mid !== 0)
-      cond = {mid: filterData.mid};			// For member non-admin
-		 else
-			cond = {name: { $regex: filterData.name, $options: "i" } };			// for guest
-   }
+
+	var cond = {};
+	if (filterData.adminRec.mid === 0) {	// Not admin
+	 if (filterData.mid !== 0)
+		cond = {mid: filterData.mid};			// For member non-admin
 	 else
-      cond = {mid: {$gte: 0}};		// for Admin. All mids to be included
+		cond = {name: { $regex: filterData.name, $options: "i" } };			// for guest
+	}
+	else
+		cond = {mid: {$gte: 0}};		// for Admin. All mids to be included
 		
-   if (filterData.status !== 'All')
-      cond["status"] = filterData.status;
-		
-   cond["owner"] = filterData.owner;
+	if (filterData.status !== 'All')
+		cond["status"] = filterData.status;
+
+	cond["owner"] = filterData.owner;
    
-   	if (filterData.timeRange) {
+	if (filterData.timeRange) {
 
 		var startDate = new Date(filterData.startDate);
 		startDate.setHours(0);
@@ -277,11 +277,10 @@ router.get('/filterlist/:filterData', async function (req, res) {
 
 	}
 
-   console.log(cond);
-   // Get Application in reverse order
+ // Get Application in reverse order
 	let myData = await M_Application.find(cond).sort({id: -1}).skip(filterData.currentPage*filterData.pageSize).limit(filterData.pageSize);
 	let totalCount = await M_Application.countDocuments(cond);
-	//console.log(myData);
+
 	sendok(res, {totalCount: totalCount, data: myData});
 });		
 
@@ -310,10 +309,9 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
 	var adminRec = await memberGetByMidOne(Number(adminMid));	
    var appData = JSON.parse(aRec.data);
    // get hod Name
-   var hodRec = await M_Hod.findOne({hid: appData.hid});
+   var hodRec = null; 
    var hodMemberRec = null;
-	 if (hodRec) 
-		 hodMemberRec = await memberGetByMidOne(hodRec.mid);
+	 
  
 	switch (aRec.desc) {
       case APPLICATIONTYPES.addMember:
@@ -354,15 +352,21 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
          retObject = await approve_changeDom(aRec);
 			break; 
 		case APPLICATIONTYPES.guestMembership:
+		  // For testing 
+			var tmpData = JSON.parse(aRec.data);
+			var tmpDob = new Date(tmpData.dob);
+			console.log(tmpDob);
 			// Find out who  has approved it.
+			var ppp = comments.split("ARUNSALGIA");
 		  var idx = 0;
-			for(idx =0; idx < aRec.approvalStatus.length; ++i) {
+			for(idx =0; idx < aRec.approvalStatus.length; ++idx) {
 				if (aRec.approvalStatus[idx].owner === aRec.owner) break;
 			}
 			aRec.approvalStatus[idx].approvalMid =  adminRec.mid;
 			aRec.approvalStatus[idx].approvalName = getMemberName(adminRec, false);
 			aRec.approvalStatus[idx].status = APPLICATIONSTATUS.approved;
 			aRec.approvalStatus[idx].date = new Date();
+			aRec.approvalStatus[idx].comments = ppp[1];
 			
 			// Now check for next pending application
 			for(++idx; idx < aRec.approvalStatus.length; ++idx) {
@@ -370,7 +374,7 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
 			}
 			console.log(idx);
 			if (idx === aRec.approvalStatus.length) {
-         retObject = await approve_guestMembership(aRec, comments);
+         retObject = await approve_guestMembership(aRec, ppp[1]);
 			}
 			else {
 				aRec.owner = aRec.approvalStatus[idx].owner;
@@ -392,12 +396,14 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
 	
 	// do not set approve for guestMembership
 	if (aRec.desc !== APPLICATIONTYPES.guestMembership) {
-	aRec.status = APPLICATIONSTATUS.approved;
+		aRec.status = APPLICATIONSTATUS.approved;
     aRec.approvalDate =new Date();
-		aRec.comments = comments;
+		aRec.comments = ppp[1];
 		aRec.adminMid = adminRec.mid;
 		aRec.adminName = getMemberName(adminRec, false);
 	}
+	sendok(res, aRec);
+	
 	await aRec.save();	
 	
 	// send the mail to hod member
@@ -431,6 +437,8 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
 	// Now Log the approve action.	
 	let myLogRec = new M_PrwsLog();
 	myLogRec.date = new Date();
+	if (hodRec) hodRec = await M_Hod.findOne({hid: appData.hid});
+	if (hodRec) hodMemberRec = await memberGetByMidOne(hodRec.mid);
 	myLogRec.mid = (hodMemberRec) ? hodMemberRec.mid : 0;
 	myLogRec.name = (hodMemberRec) ? getMemberName(hodMemberRec, false) : aRec.name;
 	if (aRec.desc !== APPLICATIONTYPES.guestMembership) {
@@ -446,7 +454,6 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
 	myLogRec.status = true;
 	await myLogRec.save();
 	
-	sendok(res, aRec);
 });
 
 
@@ -492,12 +499,16 @@ router.get('/delete/:editorMid/:applicationId', async function (req, res) {
 	var aRec = await M_Application.findOne({id: applicationId});
 	console.log(aRec);
 	if (!aRec) return senderr(res, 602, 'Invalid Application Id');
+
+	sendok(res, "Done");
 	
 	await M_Application.deleteOne({id: applicationId});
 	var myData = JSON.parse(aRec.data);
 	
 	// Now remove the family lock
-	if (aRec.hid !== 0) {
+	var myHid = Math.floor(aRec.hodMid / FAMILYMF);
+	if (myHid !== 0) {
+		console.log("clearing hid lock");
 		await clear_hod_applock(myData.hid); 
 		// Required for marriage application
 		if (myData.spouseMemberRec)
@@ -516,7 +527,6 @@ router.get('/delete/:editorMid/:applicationId', async function (req, res) {
 	myLogRec.status = true;
 	await myLogRec.save();
 
-	sendok(res, "Done");
 });
 
 
@@ -524,35 +534,44 @@ router.get('/reject/:id/:adminMid/:comments', async function (req, res) {
   setHeader(res);
 	var {id, adminMid,comments } = req.params;
 	//console.log(id, comments, adminMid);
-	var adminRec = await memberGetByMidOne(Number(adminMid));
-	
 	let aRec = await M_Application.findOne({id: id});
+	var applData = JSON.parse(aRec.data);
+
+	// Admin Mid will be availbale since only admin can reject the application
+	var adminRec = await memberGetByMidOne(Number(adminMid));
+	var adminName = getMemberName(adminRec);
+	var logMsg = '';
+
 	if (aRec.desc !== APPLICATIONTYPES.guestMembership) {
 		aRec.status = APPLICATIONSTATUS.rejected;
 		aRec.approvalDate = new Date();
 		aRec.adminMid = adminRec.mid;
 		aRec.adminName = getMemberName(adminRec, false);
 		aRec.comments = comments;
+		logMsg = "Application " + aRec.id + " rejected by " +  adminName  + " for \"" + aRec.desc + "\"" ;
 	}
 	else {
-		// for guestMembership
+		// special handling for guestMembership
 		if (aRec.owner === OWNER.prws) {
 			// PRWS rejected. If user has requested to PJYM membership. Then reject the application
 			aRec.approvalStatus[0].status = APPLICATIONSTATUS.rejected;
 			aRec.approvalStatus[0].date = new Date();
 			aRec.approvalStatus[0].approvalMid = adminRec.mid;
 			aRec.approvalStatus[0].approvalName = getMemberName(adminRec, false);	
+			aRec.approvalStatus[0].comments = comments;
 			// check if request for PJYM membership (status will be pending)
 			if (aRec.approvalStatus[1].status === APPLICATIONSTATUS.pending) {				
 				aRec.approvalStatus[1].status = APPLICATIONSTATUS.rejected;
 				aRec.approvalStatus[1].date = new Date();
 				aRec.approvalStatus[1].approvalMid = adminRec.mid;
 				aRec.approvalStatus[1].approvalName = getMemberName(adminRec, false);	
+				aRec.approvalStatus[1].comments = comments;
 				aRec.status = APPLICATIONSTATUS.rejected;
 				aRec.approvalDate = new Date();
 				aRec.adminMid = adminRec.mid;
 				aRec.adminName = getMemberName(adminRec, false);
 				aRec.comments = comments;
+				logMsg = `Application ${aRec.id} by ${aRec.name}. PJYM membership rejected by ${adminName}.` ;
 			}
 			else {
 				// If applied for Humad membership
@@ -565,6 +584,7 @@ router.get('/reject/:id/:adminMid/:comments', async function (req, res) {
 					aRec.adminMid = adminRec.mid;
 					aRec.adminName = getMemberName(adminRec, false);
 					aRec.comments = comments;
+					logMsg = `Application ${aRec.id} by ${aRec.name}. Rejected by ${adminName}.` ;
 				}
 			}
 		}
@@ -574,12 +594,16 @@ router.get('/reject/:id/:adminMid/:comments', async function (req, res) {
 				aRec.approvalStatus[1].date = new Date();
 				aRec.approvalStatus[1].approvalMid = adminRec.mid;
 				aRec.approvalStatus[1].approvalName = getMemberName(adminRec, false);	
+				aRec.approvalStatus[1].comments = comments;
+				logMsg = `Application ${aRec.id} by ${aRec.name}. PJYM membership rejected by ${adminName}.` ;
 			}
 			else if (aRec.owner === OWNER.humad) {
 				aRec.approvalStatus[2].status = APPLICATIONSTATUS.rejected;
 				aRec.approvalStatus[2].date = new Date();
 				aRec.approvalStatus[2].approvalMid = adminRec.mid;
 				aRec.approvalStatus[2].approvalName = getMemberName(adminRec, false);	
+				aRec.approvalStatus[2].comments = comments;
+				logMsg = `Application ${aRec.id} by ${aRec.name}. Humad membership rejected by ${adminName}.` ;
 			}
 			aRec.status = APPLICATIONSTATUS.rejected;
 			aRec.approvalDate = new Date();
@@ -589,15 +613,14 @@ router.get('/reject/:id/:adminMid/:comments', async function (req, res) {
 		}
 	}
 	sendok(res, aRec);
-  await aRec.save();
+  await aRec.save();		// Save the changes
 	
    // Now remove the family lock
-	var tmp = JSON.parse(aRec.data);
 	if (aRec.desc !== APPLICATIONTYPES.guestMembership) {
-		 await clear_hod_applock(tmp.hid);  
+		 await clear_hod_applock(applData.hid);  
 		 // Required for marriage application
-		 if (tmp.spouseMemberRec)
-				await clear_hod_applock(tmp.spouseMemberRec.hid);
+		 if (applData.spouseMemberRec)
+				await clear_hod_applock(applData.spouseMemberRec.hid);
 	}
   
 	// send the mail to hod member
@@ -623,9 +646,9 @@ router.get('/reject/:id/:adminMid/:comments', async function (req, res) {
 	// Now Log the approve action.	
 	let myLogRec = new M_PrwsLog();
 	myLogRec.date = new Date();
-	if (tmp.hid) {
+	if (applData.hid) {
 		// for registered member
-		 var hodRec = await M_Hod.findOne({hid: tmp.hid});
+		 var hodRec = await M_Hod.findOne({hid: applData.hid});
 		 var hodMemberRec = await memberGetByMidOne(hodRec.mid);	
 		 
 		myLogRec.mid = hodMemberRec.mid;
@@ -634,9 +657,9 @@ router.get('/reject/:id/:adminMid/:comments', async function (req, res) {
 	else {
 		// for guest
 		myLogRec.mid = 0;
-		myLogRec.name = `Guest-${tmp.applier}`;
+		myLogRec.name = `Guest-${applData.applier}`;
 	}
-	myLogRec.desc = "Application " + aRec.id + " rejected by " +  getMemberName(adminRec, false)  + " for \"" + aRec.desc + "\"" ;
+	myLogRec.desc = logMsg;		// "Application " + aRec.id + " rejected by " +  getMemberName(adminRec, false)  + " for \"" + aRec.desc + "\"" ;
 	myLogRec.isAdmin = true; //isAdmin;
 	myLogRec.action = aRec.desc;
 	myLogRec.data = JSON.stringify(aRec);
@@ -1819,11 +1842,101 @@ async function approve_guestMembership(aRec, comments) {
 	var myData = JSON.parse(aRec.data);
 	console.log(myData);
 	console.log(comments);
-	var ppp = comments.split("ARUNSALGIA");
-  console.log(ppp);
- 	if (ppp[0] === OWNER.prws) {
-		
-	}		
+	// Approved so record for HOD need to be created and MEMBER need to be createDocumentFragment
+	var tmp = await M_Hod.find({}).sort({hid: -1}).limit(1);
+	console.log(tmp[0]);
+	
+	// generate Hod record for guest
+	var guestHodRec = new M_Hod();
+	guestHodRec.hid = tmp[0].hid + 1;
+	guestHodRec.mid = guestHodRec.hid*FAMILYMF + 1;		// Family head
+	guestHodRec.gotra = myData.gotra;
+	guestHodRec.caste = myData.caste;
+	guestHodRec.subCaste = myData.subCaste;
+	guestHodRec.village = myData.village;
+	guestHodRec.resAddr = '';
+	guestHodRec.resAddr1 = myData.addr1;
+	guestHodRec.resAddr2 = myData.addr2;
+	guestHodRec.resAddr3 = myData.addr3;
+	guestHodRec.resAddr4 = myData.addr4;
+	guestHodRec.resAddr5 = myData.addr5;
+	guestHodRec.resAddr6 = myData.addr6;
+	guestHodRec.indianResident = myData.indianResident;
+	guestHodRec.suburb = myData.suburb;
+	guestHodRec.city = myData.city;
+	guestHodRec.pinCode = myData.pinCode;
+	guestHodRec.division = '';
+	guestHodRec.district = myData.district;
+	guestHodRec.state = myData.state;
+	guestHodRec.country = myData.country;
+	guestHodRec.resPhone1 = '';
+	guestHodRec.resPhone2 = '';
+  guestHodRec.applock = false;
+  guestHodRec.applockId = 0
+	guestHodRec.active = true;
+	
+	// Generate Member record for guest
+	var guestMemberRec = new M_Member();
+	guestMemberRec.hid = guestHodRec.hid;
+	guestMemberRec.mid = guestHodRec.mid;
+	guestMemberRec.order = 0;
+
+	guestMemberRec.title = myData.title;
+	guestMemberRec.lastName = myData.lastName;
+	guestMemberRec.firstName = myData.firstName;
+	guestMemberRec.middleName = myData.middleName;
+	guestMemberRec.alias = myData.alias;
+ 
+	guestMemberRec.relation = 'Self';
+	guestMemberRec.gender = myData.gender;
+	guestMemberRec.dob = new Date(myData.dob);
+	guestMemberRec.bloodGroup = myData.bloodGroup;
+
+	guestMemberRec.emsStatus = myData.emsStatus;
+	guestMemberRec.dateOfMarriage = new Date(myData.dom);
+	guestMemberRec.spouseMid = 0;
+
+	guestMemberRec.education = '';
+	guestMemberRec.educationLevel = '';
+	guestMemberRec.educationCategory = '';
+	guestMemberRec.educationField = '';
+	guestMemberRec.occupation = '';
+
+	guestMemberRec.mobile  = myData.persMobile1;
+	guestMemberRec.mobile1 = myData.persMobile2;
+	guestMemberRec.email   = svrToDbText(myData.persEmail1);
+	guestMemberRec.email1  = svrToDbText(myData.persEmail2);
+
+	guestMemberRec.officeName = '';
+	guestMemberRec.officeAddr = '';
+	guestMemberRec.officePhone = '';
+
+	guestMemberRec.ceased     = false
+	guestMemberRec.ceasedDate = new Date(0);
+
+	guestMemberRec.pjymMember  = false,
+	guestMemberRec.humadMember = false,
+	guestMemberRec.prwsMember  = false,
+	guestMemberRec.pmmMember   = false;
+
+	guestMemberRec.lockInfo = {isLocked: false, lockedBy: '', applicationId: '', remarks: ''}	;
+	
+	// check membership
+	if (aRec.approvalStatus[0].status === APPLICATIONSTATUS.approved) {
+		guestMemberRec.prwsMember = true;
+	}
+	if (aRec.approvalStatus[1].status === APPLICATIONSTATUS.approved) {
+		guestMemberRec.pjymMember = true;
+		//************   Create PJYM record
+	}
+	if (aRec.approvalStatus[2].status === APPLICATIONSTATUS.approved) {
+		guestMemberRec.humadMember = true;
+		//************   Create HUMAD record
+	}
+	console.log(guestHodRec);
+	console.log(guestMemberRec);
+
+	
 	return {status: false, error: APPROVE_ERRORS.NONONMEMMARR}; 
 }
 

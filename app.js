@@ -11,15 +11,13 @@ _ = require("lodash");
 cron = require('node-cron');
 nodemailer = require('nodemailer');
 try {
-//crypto = require('node:crypto');
 const {
   scrypt,
   randomFill,
   //createCipheriv,
   //createDecipheriv,
 } = require('node:crypto');
-
-console.log("Found crypto");
+//console.log("Found crypto");
 }
 catch (e) {
 console.log(e);	
@@ -50,8 +48,8 @@ app = express();
 //console.log(process.env.PRODUCTION);
 PRODUCTION=(process.env.PRODUCTION.toUpperCase() === "TRUE");   
 WEB=(process.env.WEB.toUpperCase() === "TRUE");   
-console.log("Prod", PRODUCTION);
-console.log("Web", WEB);
+//console.log("Prod", PRODUCTION);
+//console.log("Web", WEB);
 
 //PASSWORDLINKVALIDTIME=10			// Password link valid time in minutes
 
@@ -64,7 +62,7 @@ if (PRODUCTION) {
 } else {
 	//console.log("Using local base  link");
 }
-console.log(BASELINK);
+//console.log(BASELINK);
 ARCHIVEDIR= (PRODUCTION) ? "public/" : "public/" ;       // binary will be stored here
 
 PORT = process.env.PORT || 4000;
@@ -121,7 +119,7 @@ app.use((req, res, next) => {
     ){
     //req.url = "/";
     //res.redirect('/');
-    console.log("Path is ", req.url);
+    //console.log("Path is ", req.url);
     res.sendFile(path.resolve(__dirname, 'PDHS', 'build', 'index.html'));
   }
   else {
@@ -409,7 +407,7 @@ ApplicationSchema = mongoose.Schema({
 	comments: String,
 	newHid: Number,
 	newHodMid: Number,
-	approvalStatus: [{sequence: Number, owner: String, status: String, date: Date, approvalName: String, approvalMid: Number}],
+	approvalStatus: [{sequence: Number, owner: String, status: String, date: Date, approvalName: String, approvalMid: Number, comments: String}],
 	lockInfo: {isLocked: Boolean, lockedBy: String, applicationId: String, remarks: String}
 });
 
@@ -523,7 +521,7 @@ if (WEB) {
 
 // start app to listen on specified port
 httpServer.listen(PORT, () => {
-  console.log("Server is running on Port: " + PORT);
+  //console.log("Server is running on Port: " + PORT);
 });
 
 
@@ -553,6 +551,7 @@ EMAILERROR="";
 APLEMAILID='cricketpwd@gmail.com';
 
 WEEKSTR = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];SHORTWEEKSTR = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
 MONTHSTR = ["January", "February", "March", "April", "May", "June",
 						"July", "August", "September", "October", "November", "December"];	
 						
@@ -673,9 +672,9 @@ PRWSMAILHEADER = {
 	login:  	'PRWS Login OTP',
 	logout: 	"PRWS Logout",
 	memberInfo: 'Member details of family in PRWS web site',
-    applicationbyAdmin: 'Application by Admin in PRWS members directory',
-    applicationRejected: 'PRWS Application rejected',
-    applicationApproved: 'PRWS Application approved',
+	applicationbyAdmin: 'Application by Admin in PRWS members directory',
+	applicationRejected: 'PRWS Application rejected',
+	applicationApproved: 'PRWS Application approved',
 };
 
 OWNER = {
@@ -723,7 +722,7 @@ SMSIMPLEMENTED = false;
 async function getSmsStatus() {
 	var tmp = await M_Setting.findOne({label: LABELS.smsImplemented});
 	SMSIMPLEMENTED = (tmp.value.toLowerCase() === 'yes');
-	console.log(SMSIMPLEMENTED);
+	//console.log(SMSIMPLEMENTED);
 }
 
 getSmsStatus();

@@ -26,6 +26,14 @@ router.get('/list', async function(req, res, next) {
 	sendok(res, tmp);
 });
 
+// check if city name in database
+router.get('/check/:newCity', async function(req, res, next) {
+  setHeader(res);
+	var {newCity} = req.params;
+  var cityRec = await M_City.findOne({city: newCity});
+	sendok(res, cityRec);
+});
+
 router.get('/listfromhod', async function(req, res, next) {
   setHeader(res);
 

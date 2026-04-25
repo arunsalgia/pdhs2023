@@ -69,24 +69,66 @@ import {
 export default function ApplicationEditGeneral() {
 	const gClasses = globalStyles();
    
-	var myProps = JSON.parse(sessionStorage.getItem("application_appRec"));
-   //console.log(myProps);
-	//console.log(JSON.parse(myProps.applicationRec.data).oldHodRec);
-	//console.log(JSON.parse(myProps.applicationRec.data).newHodRec);
+	const myProps = JSON.parse(sessionStorage.getItem("application_appRec"));
+	const appData = JSON.parse(myProps.applicationRec.data);
+	const oldMmrStr = (appData.newHodRec.oldCityMMr) ? "( MMR )" : "";
+	
 	
 	const [registerStatus, setRegisterStatus] = useState(0);
-	const [appData, setAppdata] = useState(JSON.parse(myProps.applicationRec.data));
 	const [remarks, setRemarks] = useState("");
 	const [action, setAction] = useState("");	
 	const [stage, setStage] = useState("INITIAL");
-   const [prwsMem, setPrwsMem] = useState("nochange");
-
+  const [prwsMem, setPrwsMem] = useState("nochange");
+	const [cityInDb, setCityInDb] = useState(true);
+	const [countryInDb, setCountryInDb] = useState(true);
+	const [newMmrStr, setNewMmrStr] = useState("");
 	// show in accordion
 	const [expandedPanel, setExpandedPanel] = useState("");
 	const handleAccordionChange = (panel) => (event, isExpanded) => {
     setExpandedPanel(isExpanded ? panel : false);
     setRegisterStatus(0);
   };
+
+
+	useEffect(() => {
+		async function confirmCityAdded(cityName) {
+			try {
+				let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/city/check/${cityName}`;
+				let resp = await axios.get(myUrl);
+				if (resp.data) {
+					if (resp.data.mmr) setNewMmrStr("( MMR )");
+				}
+				else {
+					setCityInDb(false);
+				}	
+			} 
+			catch (e) {
+				console.log(e);
+			}	
+		}
+		
+		async function confirmCountryAdded(countryName) {
+			try {
+				let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/country/check/${countryName}`;
+				let resp = await axios.get(myUrl);
+				if (!resp.data){
+					setCountryInDb(false);
+				}
+			} 
+			catch (e) {
+				console.log(e);
+			}	
+		}
+
+		// if new city, confirm that it has been added.
+		if (!appData.newHodRec.cityInDb)
+			confirmCityAdded(appData.newHodRec.city)
+		else if (appData.newHodRec.newCityMmr) 
+			setMmrStr("( MMR )");
+		
+		if (!appData.newHodRec.countryInDb)
+			confirmCountryAdded(appData.newHodRec.country)
+	}, [])
 
 
 function handleReapply() {
@@ -110,12 +152,18 @@ async function handleApplicationReject() {
 }
 
 async function handleApplicationApprove() {
-   //console.log(appData.oldHodRec);
-   //console.log(appData.newHodRec);
+  if (!cityInDb) {
+		showError(`City ${appData.newHodRec.city} not in database.Please get the city added.`);
+		return;
+	}
+  if (!countryInDb) {
+		showError(`Country ${appData.newHodRec.country} not in database.Please get the country added.`);
+		return;
+	}
 
 	if ((appData.oldHodRec.caste == CASTEOBJ.humad) && (appData.oldHodRec.subCaste == HUMADSUBCASTEOBJ.dasha)) {
       // if dasha humad
-      var msg = `Set membership of Pratapgarh Raj. Welfare samiti?`
+      var msg = ((newMmrStr === "") ? `City ${appData.newHodRec.city} not in MMR.` : `City ${appData.newHodRec.city} in MMR.`) + ` Village is ${appData.newHodRec.village}. Set membership of Pratapgarh Raj. Welfare Samiti?`
       vsDialog("PRWS membership", msg,
       {label: "Yes", onClick: () => handleApplicationApproveVerified("true") },
       {label: "No", onClick: () => handleApplicationApproveVerified("false")  }
@@ -229,13 +277,19 @@ function getPhoneString(phone1, phone2) {
 	return myPhone;
 }
 
-//console.log(appData.newHodRec);
+
 return (
 	<div className={gClasses.webPage} >
 	<Container component="main" maxWidth="xs">	
 	<Box className={gClasses.boxStyle} borderColor="black" borderRadius={7} border={1} style={{paddingLeft: "5px", paddingRight: "5px"}} >
 	<VsCancel align="right" onClick={handleCancel} />
 	<ApplicationHeader applicationRec={myProps.applicationRec} header="Application for change of Res. address and phone " />
+	{(!cityInDb) &&
+		<Typography align="center" className={gClasses.patientInfo2Brown}>{`City ${appData.newHodRec.city} not in database`}</Typography>
+	}
+	{(!countryInDb) &&
+		<Typography align="center" className={gClasses.patientInfo2Brown}>{`Country ${appData.newHodRec.country} not in database`}</Typography>
+	}
 	<br />
 	{(stage === "INITIAL") &&
 		<div>
@@ -257,7 +311,7 @@ return (
 				<div>
 				<DisplayApplicationNameValue name="Suburb" value={appData.oldHodRec.suburb} style={{paddingTop: "5px" }}  />
 				<DisplayApplicationNameValue name="District" value={appData.oldHodRec.district}   />
-				<DisplayApplicationNameValue name="City" value={appData.oldHodRec.city}   />
+				<DisplayApplicationNameValue name="City" value={`${appData.oldHodRec.city} ${oldMmrStr}`}   />
 				<DisplayApplicationNameValue name="State" value={appData.oldHodRec.state}  />
 				<DisplayApplicationNameValue name="Pin Code" value={appData.oldHodRec.pinCode}  />		
 				</div>
@@ -282,7 +336,7 @@ return (
 					<div>
 					<DisplayApplicationNameValue name="Suburb" value={appData.newHodRec.suburb} different={appData.oldHodRec.suburb !== appData.newHodRec.suburb} style={{paddingTop: "5px" }}  />
 					<DisplayApplicationNameValue name="District" value={appData.newHodRec.district}  different={appData.oldHodRec.district !== appData.newHodRec.district} />
-					<DisplayApplicationNameValue name="City" value={appData.newHodRec.city + (appData.newHodRec.newCity ? " (new)" : "")} different={appData.oldHodRec.city !== appData.newHodRec.city} />
+					<DisplayApplicationNameValue name="City" value={`${appData.newHodRec.city} ${newMmrStr}`} different={appData.oldHodRec.city !== appData.newHodRec.city} />
 					<DisplayApplicationNameValue name="State" value={appData.newHodRec.state} different={appData.oldHodRec.state !== appData.newHodRec.state}  />
 					<DisplayApplicationNameValue name="PinCode" value={appData.newHodRec.pinCode} different={appData.oldHodRec.pinCode !== appData.newHodRec.pinCode}  />		
 					</div>

@@ -70,10 +70,20 @@ import {
 export default function ApplicationGuestMembership() {
 	const gClasses = globalStyles();
    
-	var myProps = JSON.parse(sessionStorage.getItem("application_appRec"))
+	const myProps = JSON.parse(sessionStorage.getItem("application_appRec"))
+	const appData = JSON.parse(myProps.applicationRec.data);
+	
+	const applicantFullName = `${appData.title} ${appData.lastName} ${appData.firstName} ${appData.middleName}` + ((appData.alias != '') ? ` ( ${appData.alias} )` : '');
+	const prwsStatus  = ((appData.prwsMembership) ? "Yes (default)" : "No") + " - " + myProps.applicationRec.approvalStatus[0].status;
+	const pjymStatus  = ((appData.pjymMembership) ? "Yes" : "No") + " - " + myProps.applicationRec.approvalStatus[1].status;
+	const humadStatus = ((appData.humadMembership) ? "Yes" : "No") + " - " + myProps.applicationRec.approvalStatus[2].status;
+	const caste_subcaste = ((appData.caste === CASTEOBJ.humad) ? `${appData.subCaste}-` : '') + appData.caste;
+	
+	const iHavePrwsPerm = hasPRWSpermission();
+	const iHavePjymPerm = hasPJYMpermission();
+	const iHaveHumadPerm = hasHumadpermission();
 	
 	const [registerStatus, setRegisterStatus] = useState(0);
-	const [appData, setAppdata] = useState(JSON.parse(myProps.applicationRec.data));
 	const [remarks, setRemarks] = useState("");
 	const [action, setAction] = useState("");	
 	const [stage, setStage] = useState("INITIAL");
@@ -85,8 +95,6 @@ export default function ApplicationGuestMembership() {
     setExpandedPanel(isExpanded ? panel : false);
     setRegisterStatus(0);
   };
-	console.log(myProps.applicationRec);
-	console.log(appData);
 	
 function handleReapply() {
    var tmp = JSON.parse(myProps.applicationRec.data);
@@ -172,7 +180,7 @@ async function handleApplicationApprove() {
 
 async function handleApplicationApproveVerified(newPrwsaction) {
    setPrwsMem(newPrwsaction);
-   console.log(newPrwsaction);
+   //console.log(newPrwsaction);
 	 setAction(newPrwsaction);
 	setStage("Remarks");
 }
@@ -191,7 +199,7 @@ async function  handleApplicationApproveConfirm(myRemarks) {
    var finRem = myProps.applicationRec.owner + "ARUNSALGIA" + myRemarks;
 	try {
 		let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/approve/${myProps.applicationRec.id}/${sessionStorage.getItem("mid")}/${finRem}`;
-		console.log(myUrl);
+		//console.log(myUrl);
 		let resp = await axios.get(myUrl);
 		var returnStatus = {
 			status: STATUS_INFO.SUCCESS, applicationRec: resp.data, 
@@ -201,7 +209,7 @@ async function  handleApplicationApproveConfirm(myRemarks) {
 		sessionStorage.setItem("application_returnstatus", JSON.stringify(returnStatus));
 		setTab(process.env.REACT_APP_APPLICATION);	
 	} catch (e) {
-		console.log(e);
+		//console.log(e);
 		showError(e.response.data);
 	}
 }
@@ -219,7 +227,7 @@ async function  handleApplicationRejectConfirm(myRemarks) {
 		//myProps.onReturn.call(this, {status: STATUS_INFO.SUCCESS, applicationRec: resp.data, msg: `Application rejected by Admin`});
 		
 	} catch (e) {
-		console.log(e);
+		//console.log(e);
 		showError(`Error rejecting edit general`);
 	}
 }
@@ -237,31 +245,37 @@ return (
 	<VsCancel align="right" onClick={handleCancel} />
 	<ApplicationHeader applicationRec={myProps.applicationRec} header="Application for Guest membership" />
 	<br />
-	<DisplayApplicationNameValue name="Applicant Name" value={`${appData.title} ${appData.lastName} ${appData.firstName} ${appData.middleName}`} />
-	<DisplayApplicationNameValue name="Applied for PRWS" value={(appData.prwsMembership) ? "Yes (default)" : "No"} different={appData.prwsMembership} />
-	<DisplayApplicationNameValue name="Applied for PJYM" value={(appData.pjymMembership) ? "Yes" : "No"} different={appData.pjymMembership} />
-	<DisplayApplicationNameValue name="Applied for Humad" value={(appData.humadMembership) ? "Yes" : "No"} different={appData.humadMembership} />
+	<DisplayApplicationNameValue name="Applicant Name" value={applicantFullName} />
+	<DisplayApplicationNameValue name="Applied for PRWS" value={prwsStatus} different={false} />
+	<DisplayApplicationNameValue name="Applied for PJYM" value={pjymStatus} different={false} />
+	<DisplayApplicationNameValue name="Applied for Humad" value={humadStatus} different={false} />
 	<br />
-	{(myProps.applicationRec.status !== APPLICATIONSTATUS.pending) &&
-		<div>
-		<Accordion expanded={expandedPanel === "STATUS"} onChange={handleAccordionChange("STATUS")}>
+	<Accordion expanded={expandedPanel === "STATUS"} onChange={handleAccordionChange("STATUS")}>
 		<Box align="right" className={(expandedPanel === "STATUS") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
 		<AccordionSummary aria-controls="panel1a-content" id="panel1a-header" expandIcon={<ExpandMoreIcon />}>
-			<Typography align="left" >{"Application Status Info"}</Typography>
+			<Typography align="left" >{"Application Status Details"}</Typography>
 		</AccordionSummary>
 		</Box>
 		<br />
-		<DisplayApplicationNameValue name="PRWS Appl." value={`${myProps.applicationRec.approvalStatus[0].status} by ( ${myProps.applicationRec.approvalStatus[0].approvalName} ) `}  />
+		<DisplayApplicationNameValue name="PRWS Appl."  value={(myProps.applicationRec.approvalStatus[0].status === APPLICATIONSTATUS.pending) ? APPLICATIONSTATUS.pending : `${myProps.applicationRec.approvalStatus[0].status} by ${myProps.applicationRec.approvalStatus[0].approvalName}`}  />
+		<DisplayApplicationNameValue name="Date" value={dateStringMMM(myProps.applicationRec.approvalStatus[0].date)}  />
+		<DisplayApplicationNameValue name="Comments" value={myProps.applicationRec.approvalStatus[0].comments}  />
 		<br />
-		<DisplayApplicationNameValue name="PJYM Appl." value={`${myProps.applicationRec.approvalStatus[1].status} by ( ${myProps.applicationRec.approvalStatus[1].approvalName} ) `}  />
+		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
 		<br />
-		<DisplayApplicationNameValue name="Humad Appl." value={`${myProps.applicationRec.approvalStatus[2].status} by ( ${myProps.applicationRec.approvalStatus[2].approvalName} ) `}  />
+		<DisplayApplicationNameValue name="PJYM Appl."  value={(myProps.applicationRec.approvalStatus[1].status === APPLICATIONSTATUS.pending) ? APPLICATIONSTATUS.pending : `${myProps.applicationRec.approvalStatus[1].status} by ${myProps.applicationRec.approvalStatus[1].approvalName}`}  />
+		<DisplayApplicationNameValue name="Date" value={dateStringMMM(myProps.applicationRec.approvalStatus[1].date)}  />
+		<DisplayApplicationNameValue name="Comments" value={myProps.applicationRec.approvalStatus[1].comments}  />
 		<br />
-		</Accordion>
+		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
 		<br />
-		</div>
-	}	
-	{(hasPRWSpermission() && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && myProps.applicationRec.owner === OWNER.prws) &&
+		<DisplayApplicationNameValue name="Humad Appl." value={(myProps.applicationRec.approvalStatus[2].status === APPLICATIONSTATUS.pending) ? APPLICATIONSTATUS.pending : `${myProps.applicationRec.approvalStatus[2].status} by ${myProps.applicationRec.approvalStatus[2].approvalName}`}  />
+		<DisplayApplicationNameValue name="Date" value={dateStringMMM(myProps.applicationRec.approvalStatus[2].date)}  />
+		<DisplayApplicationNameValue name="Comments" value={myProps.applicationRec.approvalStatus[2].comments}  />
+		<br />
+	</Accordion>
+	<br />
+	{(iHavePrwsPerm && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && myProps.applicationRec.owner === OWNER.prws) &&
 		<div>
 		<Accordion expanded={expandedPanel === "PRWSINFO"} onChange={handleAccordionChange("PRWSINFO")}>
 		<Box align="right" className={(expandedPanel === "PRWSINFO") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
@@ -271,19 +285,16 @@ return (
 		</Box>
 		<br />
 		<DisplayApplicationNameValue name="Gotra" value={appData.gotra}  />
-		<DisplayApplicationNameValue name="Caste" value={appData.caste}  />
-		{(appData.caste === CASTEOBJ.humad) &&
-			<DisplayApplicationNameValue name="SubCaste" value={appData.subCaste}  />
-		}
+		<DisplayApplicationNameValue name="Caste" value={caste_subcaste}  />
 		<DisplayApplicationNameValue name="Village" value={appData.village}   />
-		<DisplayApplicationNameValue name="City" value={appData.city}   />
+		<DisplayApplicationNameValue name="City" value={`${appData.city} ${(appData.mmr) ? '- (MMR)' : ''} `}   />
 		<DisplayApplicationNameValue name="Country" value={appData.country}   />
 		<br />
 		</Accordion>
 		<br />
 		</div>
 	}	
-	{(hasPJYMpermission() && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && myProps.applicationRec.owner === OWNER.pjym) &&
+	{(iHavePjymPerm && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && myProps.applicationRec.owner === OWNER.pjym) &&
 		<div>
 		<Accordion expanded={expandedPanel === "PJYMINFO"} onChange={handleAccordionChange("PJYMINFO")}>
 		<Box align="right" className={(expandedPanel === "PJYMINFO") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
@@ -295,14 +306,13 @@ return (
 		<DisplayApplicationNameValue name="PRWS Status" value={"Approved"}  />
 		<DisplayApplicationNameValue name="Approved By" value={myProps.applicationRec.approvalStatus[0].approvalName}  />
 		<DisplayApplicationNameValue name="Approved On" value={dateStringMMM(myProps.applicationRec.approvalStatus[0].date)}  />
+		<DisplayApplicationNameValue name="Comments" value={myProps.applicationRec.approvalStatus[0].comments}  />
+		<br />
 		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
 		<DisplayApplicationNameValue name="Gotra" value={appData.gotra}  />
-		<DisplayApplicationNameValue name="Caste" value={appData.caste}  />
-		{(appData.caste === CASTEOBJ.humad) &&
-			<DisplayApplicationNameValue name="SubCaste" value={appData.subCaste}  />
-		}
+		<DisplayApplicationNameValue name="Caste" value={caste_subcaste}  />
 		<DisplayApplicationNameValue name="Village" value={appData.village}   />
-		<DisplayApplicationNameValue name="City" value={appData.city}   />
+		<DisplayApplicationNameValue name="City" value={`${appData.city} ${(appData.mmr) ? '- (MMR)' : ''} `}   />
 		<DisplayApplicationNameValue name="Country" value={appData.country}   />
 		<DisplayApplicationNameValue name="Applicant age" value={getAge(appData.dob)}  />
 		<br />
@@ -310,7 +320,7 @@ return (
 		<br />
 		</div>
 	}	
-	{(hasHumadpermission() && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && myProps.applicationRec.owner === OWNER.humad) &&
+	{(iHaveHumadPerm && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && myProps.applicationRec.owner === OWNER.humad) &&
 		<div>
 		<Accordion expanded={expandedPanel === "HUMADINFO"} onChange={handleAccordionChange("HUMADINFO")}>
 		<Box align="right" className={(expandedPanel === "HUMADINFO") ? gClasses.selectedAccordian : gClasses.normalAccordian} borderColor="black" borderRadius={7} border={1} >
@@ -322,16 +332,19 @@ return (
 		<DisplayApplicationNameValue name="PRWS Status" value={"Approved"}  />
 		<DisplayApplicationNameValue name="Approved By" value={myProps.applicationRec.approvalStatus[0].approvalName}  />
 		<DisplayApplicationNameValue name="Approved On" value={dateStringMMM(myProps.applicationRec.approvalStatus[0].date)}  />
+		<DisplayApplicationNameValue name="Comments" value={myProps.applicationRec.approvalStatus[0].comments}  />
+		<br />
 		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
+		<br />
 		<DisplayApplicationNameValue name="PJYM Status" value={"Approved"}  />
 		<DisplayApplicationNameValue name="Approved By" value={myProps.applicationRec.approvalStatus[1].approvalName}  />
 		<DisplayApplicationNameValue name="Approved On" value={dateStringMMM(myProps.applicationRec.approvalStatus[1].date)}  />
+		<DisplayApplicationNameValue name="Comments" value={myProps.applicationRec.approvalStatus[1].comments}  />
+		<br />
 		<Divider style={{ paddingTop: "2px", backgroundColor: 'black', padding: 'none' }} />
-		<DisplayApplicationNameValue name="Gotra" value={appData.gotra}  />
-		<DisplayApplicationNameValue name="Caste" value={appData.caste}  />
-		{(appData.caste === CASTEOBJ.humad) &&
-			<DisplayApplicationNameValue name="SubCaste" value={appData.subCaste}  />
-		}
+		<br />
+		<DisplayApplicationNameValue name="Gotra" value={appData.gotra}  />		
+		<DisplayApplicationNameValue name="Caste" value={caste_subcaste}  />
 		<DisplayApplicationNameValue name="Village" value={appData.village}   />
 		<br />
 		</Accordion>
@@ -346,10 +359,7 @@ return (
 		</Box>
 		<br />
 		<DisplayApplicationNameValue name="Gotra" value={appData.gotra}  />
-		<DisplayApplicationNameValue name="Caste" value={appData.caste}  />
-		{(appData.caste === CASTEOBJ.humad) &&
-			<DisplayApplicationNameValue name="SubCaste" value={appData.subCaste}  />
-		}
+		<DisplayApplicationNameValue name="Caste" value={caste_subcaste}  />
 		<DisplayApplicationNameValue name="Village" value={appData.village}   />
 		<br />
 	</Accordion>
@@ -362,11 +372,15 @@ return (
 		</Box>
 		<br />
 		<DisplayApplicationNameValue name="Gender" value={appData.gender}  />
-		<DisplayApplicationNameValue name="DOB" value={dateStringMMM(appData.dob)}  />
-		<DisplayApplicationNameValue name="Email 1" value={decrypt(appData.persEmail1)}  />
-		<DisplayApplicationNameValue name="Email 2" value={decrypt(appData.persEmail2)}  />
+		<DisplayApplicationNameValue name="Birth Date" value={dateStringMMM(appData.dob)}  />
+		<DisplayApplicationNameValue name="Marital Status" value={appData.emsStatus}  />
+		{(appData.emsStatus === 'Married') &&
+		<DisplayApplicationNameValue name="Marriage Date" value={dateStringMMM(appData.dom)}  />
+		}
 		<DisplayApplicationNameValue name="Mobile 1" value={appData.persMobile1}  />
 		<DisplayApplicationNameValue name="Mobile 2" value={appData.persMobile2}  />
+		<DisplayApplicationNameValue name="Email 1" value={decrypt(appData.persEmail1)}  />
+		<DisplayApplicationNameValue name="Email 2" value={decrypt(appData.persEmail2)}  />
 		<br />
 	</Accordion>
 	<br />
@@ -393,12 +407,13 @@ return (
 		}
 		<DisplayApplicationNameValue name="Suburb" value={appData.suburb}  />
 		<DisplayApplicationNameValue name="District" value={appData.district} />
+		<DisplayApplicationNameValue name="City" value={`${appData.city} ${(appData.mmr) ? '- (MMR)' : ''} `}  />
 		<DisplayApplicationNameValue name="Pin Code" value={appData.pinCode}  />
 		<DisplayApplicationNameValue name="Country" value={(appData.indianResident) ? "India" : appData.country}  />
 		<br />
 	</Accordion>
 	<br />
-	{(hasPRWSpermission() && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
+	{(iHavePrwsPerm && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL")) &&
 		<YesNoButton title="" yesName="Approve" noName="Reject" yesClick={handleApplicationApprove} noClick={handleApplicationReject} />
 	}
 	{((stage === "Approve") || (stage === "Reject")) && 
