@@ -79,7 +79,6 @@ import {
 export default function MemberEditGeneral() {
 	const gClasses = globalStyles();
 	const myProps = JSON.parse(sessionStorage.getItem("family_personal_props"));
-	console.log(myProps.cityList);
 	
 	const [header, setHeader] = useState("Apply to change general details");
 
@@ -247,7 +246,6 @@ export default function MemberEditGeneral() {
 		var myTmp = encodeURIComponent(JSON.stringify(myData));
 		try {
 			let myUrl = `${process.env.REACT_APP_AXIOS_BASEPATH}/apply/editfamilydetails/${myProps.hodRec.mid}/${sessionStorage.getItem('mid')}/${myTmp}`;
-			console.log(myUrl);
 			let resp = await axios.get(myUrl);
 			myMsg = `Successfully applied for change in general details. Application reference ${resp.data.id}.`;
 			myStatus = STATUS_INFO.SUCCESS;

@@ -124,7 +124,7 @@ export default function ApplicationEditGeneral() {
 		if (!appData.newHodRec.cityInDb)
 			confirmCityAdded(appData.newHodRec.city)
 		else if (appData.newHodRec.newCityMmr) 
-			setMmrStr("( MMR )");
+			setNewMmrStr("( MMR )");
 		
 		if (!appData.newHodRec.countryInDb)
 			confirmCountryAdded(appData.newHodRec.country)
