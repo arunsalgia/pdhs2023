@@ -140,10 +140,15 @@ router.get('/jaijinendra/:myData', async function (req, res, next) {
   }
   console.log(myCaptha.captcha);
   //console.log(`***${myEmail}***`);
-  	
+  
+	var mobMsg = '';
+	var emailMsg = '';	
 	if (myMobile) {
 		// Send OPT over email
-		var mobMsg = "******" + myMobile.substring(6);
+		mobMsg = "******" + myMobile.substring(6);
+	}
+	if (myEmail !== '-') {
+		emailMsg = "******" + myEmail.substring(6);
 	}
 	//console.log(emailMsg, mobMsg);
    

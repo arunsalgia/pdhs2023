@@ -358,6 +358,7 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
 			console.log(tmpDob);
 			// Find out who  has approved it.
 			var ppp = comments.split("ARUNSALGIA");
+			comments = ppp[1];  // actual comments
 		  var idx = 0;
 			for(idx =0; idx < aRec.approvalStatus.length; ++idx) {
 				if (aRec.approvalStatus[idx].owner === aRec.owner) break;
@@ -366,7 +367,7 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
 			aRec.approvalStatus[idx].approvalName = getMemberName(adminRec, false);
 			aRec.approvalStatus[idx].status = APPLICATIONSTATUS.approved;
 			aRec.approvalStatus[idx].date = new Date();
-			aRec.approvalStatus[idx].comments = ppp[1];
+			aRec.approvalStatus[idx].comments = comments;
 			
 			// Now check for next pending application
 			for(++idx; idx < aRec.approvalStatus.length; ++idx) {
@@ -398,7 +399,7 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
 	if (aRec.desc !== APPLICATIONTYPES.guestMembership) {
 		aRec.status = APPLICATIONSTATUS.approved;
     aRec.approvalDate =new Date();
-		aRec.comments = ppp[1];
+		aRec.comments = comments;
 		aRec.adminMid = adminRec.mid;
 		aRec.adminName = getMemberName(adminRec, false);
 	}
