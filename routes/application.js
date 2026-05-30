@@ -11,6 +11,7 @@ const {
    setHumadMemberActiveflag, setPjymMemberActiveflag,
    getNewHodNumber,
 	memberGetByMidOne, memberUpdateOne,
+	memberGetByEmailOne, memberGetByMobileOne,
 	memberGetByHidMany,memberUpdateMany,
     set_hod_applock, clear_hod_applock, check_hod_applock,
 } = require('./dbfunctions'); 
@@ -909,11 +910,37 @@ async function approve_addMember(aRec) {
 
 async function approve_editMember(aRec) {
 	var myData = JSON.parse(aRec.data);
-
+  var tmp = null;
+	
 	var myRec = await memberGetByMidOne(myData.oldMemberRec.mid);
-   if (!myRec) return {status: false};
-   //console.log(myData);
-
+	if (!myRec) return {status: false};
+  console.log(myData);
+	
+	// First check if member email has changed. If yes then check for duplicate
+	if (myData.memberRec.email != myData.oldMemberRec.email) {
+		tmp = await memberGetByEmailOne(decrypt(myData.memberRec.email));
+		if (tmp) return {status: false, error: APPROVE_ERRORS.DUPEMAIL};
+	}
+	console.log(`email ${decrypt(myData.memberRec.email)} validated. Not duplicate `);
+	
+	// Now check for duplicate mobile. Also check if both the mobile numbers are not same 
+	if ((myData.memberRec.mobile == myData.memberRec.mobile1) && (myData.memberRec.mobile != '')) {
+		return {status: false, error: APPROVE_ERRORS.DUPMOBILE};
+	}
+	if ((myData.memberRec.mobile != myData.oldMemberRec.mobile) && (myData.memberRec.mobile != '')) {
+		tmp = await memberGetByMobileOne(myData.memberRec.mobile);
+		if (tmp) return {status: false, error: APPROVE_ERRORS.DUPMOBILE};
+	}
+	if ((myData.memberRec.mobile1 != myData.oldMemberRec.mobile1) && (myData.memberRec.mobile1 != '')) {
+		tmp = await memberGetByMobileOne(myData.memberRec.mobile1);
+		if (tmp) return {status: false, error: APPROVE_ERRORS.DUPMOBILE};
+	}
+		
+	
+	
+	
+	return {status: false};
+	
 	// Update Name details
 	myRec.title = myData.memberRec.title;
 	myRec.firstName = myData.memberRec.firstName;

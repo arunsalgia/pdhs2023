@@ -631,7 +631,7 @@ APPLICATIONTYPES = {
 	changeDom: 				"Change DOM",
 	marriage:			   "Marriage",
 	unMarriage:				"Change Mar. Sts.",
-	humadUpgrade:			"Humad Upgrade",
+	humadUpgrade:			"Humad Upgrade", 
 	pjymUpgrade:			"PJYM Upgrade",
   guestMembership:      "Guest Membership"
 };
@@ -646,6 +646,9 @@ APPROVE_ERRORS = {
    DUPENTRY:      {code: 606,    desc: "Duplicate entry"},
    NOTADMIN:      {code: 607,    desc: "Not admin"},
    
+	 DUPEMAIL:      {code: 621,    desc: "Duplicate email"},
+   DUPMOBILE:     {code: 622,    desc: "Duplicate mobile"},
+   
    INTEST:        {code: 650,    desc: "Rejected for testing"},
    NOSUPPORT:     {code: 651,    desc: "This feature currently not supported"},
    NOMERGE:       {code: 801,    desc: "Currently merge to existing family not supported"},
@@ -654,6 +657,7 @@ APPROVE_ERRORS = {
    NEWGOTRA:      {code: 804,    desc: "Application with new gotra currently not supported"},
    NEWCOUNTRY:    {code: 805,    desc: "Please verify and if required, add new country before approval"},
    NONHUMAD:      {code: 806,    desc: "Non Humad membership currently not supported"},
+	 
 }
 
 APPLICATIONSTATUS = {

@@ -198,6 +198,11 @@ const useStyles = makeStyles((theme) => ({
     fontSize: theme.typography.pxToRem(15),
     fontWeight: theme.typography.fontWeightRegular,
   },
+	blue20: {
+		fontSize: theme.typography.pxToRem(20),
+		fontWeight: theme.typography.fontWeightBold,
+		color: 'blue'
+	},  
   ngCard: {
     backgroundColor: '#B3E5FC',
   },
@@ -273,6 +278,18 @@ export class ValidComp extends React.Component {
 
 }
 
+export function ShowProgress(props) {
+	const classes = useStyles();
+	return (
+	<div>
+	<form>
+		<BlankArea />
+		<Typography className={classes.blue20} align="center" >{props.msg}</Typography>
+		<BlankArea />
+	</form>  
+	</div>
+	)
+}
 
 export function OrgDisplayPageHeader (props) {
     let msg = "";

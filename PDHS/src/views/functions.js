@@ -312,7 +312,7 @@ export function cricDate(d) {
   return tmp;
 }
 
-const notToConvert = ['XI', 'ARUN']
+const notToConvert = ['XI']
 /**
  * @param {string} t The date
  */

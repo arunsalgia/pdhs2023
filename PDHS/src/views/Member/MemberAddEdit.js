@@ -44,7 +44,10 @@ import { isMobile, getWindowDimensions, displayType, decrypt, encrypt,
 	showError, showSuccess, showInfo,
 } from 'views/functions';
 
+
+import Modal from 'react-modal';
 import globalStyles from "assets/globalStyles";
+import modalStyles from "assets/modalStyles";
 
 import VsButton from "CustomComponents/VsButton"; 
 import VsSelect from "CustomComponents/VsSelect";
@@ -65,8 +68,14 @@ import {
 import {
 	getMemberName,
 	dateString, dateStringMMM, disableFutureDt,
-	
+	correctName,
 } from 'views/functions';
+
+import {
+	ShowProgress,
+} from "CustomComponents/CustomComponents.js"
+
+
 
 import {
 	setTab,
@@ -93,7 +102,7 @@ export default function MemberAddEdit() {
 	const gClasses = globalStyles();
 	const myProps = JSON.parse(sessionStorage.getItem("family_personal_props"));
 	//console.log(myProps);
-	
+
 	const [header, setHeader] = useState("");
 	const [registerStatus, setRegisterStatus] = useState(0);
 	
@@ -107,24 +116,23 @@ export default function MemberAddEdit() {
 	const [emurDate2, setEmurDate2] = useState("");
 
 
-	const [emurAddr1, setEmurAddr1] = useState("Shri");
-	const [emurAddr2, setEmurAddr2] = useState("");
-	const [emurAddr3, setEmurAddr3] = useState("");
-	const [emurAddr4, setEmurAddr4] = useState("");
-	const [emurAddr5, setEmurAddr5] = useState("");
-	const [emurAddr6, setEmurAddr6] = useState("Son");
-	const [emurAddr7, setEmurAddr7] = useState("Male");
-	const [emurAddr8, setEmurAddr8] = useState("Unmarried");
-	const [emurAddr9, setEmurAddr9] = useState("O+");
-	const [emurAddr10, setEmurAddr10] = useState("");
-	const [emurAddr11, setEmurAddr11] = useState("");
-	const [emurAddr12, setEmurAddr12] = useState("");
+	const [emurAddr1, setEmurAddr1] = useState( ((myProps.mode != "ADD") || myProps.applicationRec) ? myProps.memberRec.title : "Shri" );
+	const [emurAddr2, setEmurAddr2] = useState( ((myProps.mode != "ADD") || myProps.applicationRec) ? myProps.memberRec.lastName : "" );
+	const [emurAddr3, setEmurAddr3] = useState( ((myProps.mode != "ADD") || myProps.applicationRec) ? myProps.memberRec.firstName : "" );
+	const [emurAddr4, setEmurAddr4] = useState( ((myProps.mode != "ADD") || myProps.applicationRec) ? myProps.memberRec.middleName : "" );
+	const [emurAddr5, setEmurAddr5] = useState( ((myProps.mode != "ADD") || myProps.applicationRec) ? myProps.memberRec.alias : "" );
+	const [emurAddr6, setEmurAddr6] = useState( ((myProps.mode != "ADD") || myProps.applicationRec) ? myProps.memberRec.relation : "Son");
+	const [emurAddr7, setEmurAddr7] = useState( ((myProps.mode != "ADD") || myProps.applicationRec) ? myProps.memberRec.gender : "Male");
+	const [emurAddr8, setEmurAddr8] = useState( ((myProps.mode != "ADD") || myProps.applicationRec) ? myProps.memberRec.emsStatus : "Unmarried");
+	const [emurAddr9, setEmurAddr9] = useState( ((myProps.mode != "ADD") || myProps.applicationRec) ? (myProps.memberRec.bloodGroup == '' ? 'NotKnown' : myProps.memberRec.bloodGroup) : "O+" );
+	const [emurAddr10, setEmurAddr10] = useState(((myProps.mode != "ADD") || myProps.applicationRec) ? myProps.memberRec.occupation : "");
+	const [emurAddr11, setEmurAddr11] = useState(((myProps.mode != "ADD") || myProps.applicationRec) ? myProps.memberRec.mobile : "");
+	const [emurAddr12, setEmurAddr12] = useState(((myProps.mode != "ADD") || myProps.applicationRec) ? myProps.memberRec.emsStatus : "");
 	const [emurAddr13, setEmurAddr13] = useState("");
 	// Office data
-	const [education, setEducation] = useState("");
-	const [company, setCompany] = useState("");
-	const [officePhone, setOfficePhone] = useState("");
-
+	const [education, setEducation] = useState(((myProps.mode != "ADD") || myProps.applicationRec) ? myProps.memberRec.education : "");
+	const [company, setCompany] = useState(((myProps.mode != "ADD") || myProps.applicationRec) ? myProps.memberRec.officeName : "");
+	const [officePhone, setOfficePhone] = useState(((myProps.mode != "ADD") || myProps.applicationRec) ? myProps.memberRec.officePhone : "");
 	
 	const [memberArray, setMemberArray] = useState([]);
 	const	[emurSpouseRec, setEmurSpouseRec] = useState(0);
@@ -135,13 +143,16 @@ export default function MemberAddEdit() {
 	
 	const [isMemberHod, setIsMemberHod] = useState(false);
 	
-	
+	const [modalIsOpen,setModalIsOpen] = React.useState(false);
+
 	// show in accordion
 	const [expandedPanel, setExpandedPanel] = useState("");
 	const handleAccordionChange = (panel) => (event, isExpanded) => {
     setExpandedPanel(isExpanded ? panel : false);
     setRegisterStatus(0);
   };
+	
+	const [ready, setReady] = useState(false);
 	
 	
 	useEffect(() => {
@@ -173,21 +184,21 @@ export default function MemberAddEdit() {
          var tmpData = JSON.parse(myProps.applicationRec.data);
          console.log(tmpData);
          tmpMemberRec = tmpData.memberRec; 
-		} 
+			} 
       myHeader = (myProps.mode == "ADD") ? "Add new family member" : `Edit details of ${getMemberName(tmpMemberRec)}`;
-      setEmurAddr2(tmpMemberRec.lastName);
+      //setEmurAddr2(tmpMemberRec.lastName);
       if ((myProps.mode != "ADD") || myProps.applicationRec)  {
-			setEmurAddr1(tmpMemberRec.title);
-			setEmurAddr2(tmpMemberRec.lastName);
-			setEmurAddr3(tmpMemberRec.firstName);
-			setEmurAddr4(tmpMemberRec.middleName);
-			setEmurAddr5(tmpMemberRec.alias)
-			setEmurAddr6(tmpMemberRec.relation);
-			setEmurAddr7(tmpMemberRec.gender)
-			setEmurAddr8(tmpMemberRec.emsStatus);
-         setEmurAddr9(tmpMemberRec.bloodGroup == '' ? 'NotKnown' : tmpMemberRec.bloodGroup);
-			setEmurAddr11(tmpMemberRec.mobile);
-			setEmurAddr12(tmpMemberRec.mobile1);
+			//setEmurAddr1(tmpMemberRec.title);
+			//setEmurAddr2(tmpMemberRec.lastName);
+			//setEmurAddr3(tmpMemberRec.firstName);
+			//setEmurAddr4(tmpMemberRec.middleName);
+			//setEmurAddr5(tmpMemberRec.alias)
+			//setEmurAddr6(tmpMemberRec.relation);
+			//setEmurAddr7(tmpMemberRec.gender)
+			//setEmurAddr8(tmpMemberRec.emsStatus);
+         //setEmurAddr9(tmpMemberRec.bloodGroup == '' ? 'NotKnown' : tmpMemberRec.bloodGroup);
+			//setEmurAddr11(tmpMemberRec.mobile);
+			//setEmurAddr12(tmpMemberRec.mobile1);
 			var xxx = decrypt(tmpMemberRec.email);
 			if (xxx === "-") xxx = "";
 			setEmurAddr13(xxx);
@@ -195,17 +206,17 @@ export default function MemberAddEdit() {
 			setEmurDate2(moment(tmpMemberRec.dateOfMarriage));
 			setIsMemberHod(tmpMemberRec.mid === myProps.hodMid);
 			// Office details
-			setEmurAddr10(tmpMemberRec.occupation);
-			setEducation(tmpMemberRec.education);
-			setCompany(tmpMemberRec.officeName);
-			setOfficePhone(tmpMemberRec.officePhone);
-			
-			
-			getAllMembers(tmpMemberRec.hid, tmpMemberRec.spouseMid);
-			//console.log(myProps.memberRec.dob);
-			
+			//setEmurAddr10(tmpMemberRec.occupation);
+			//setEducation(tmpMemberRec.education);
+			//setCompany(tmpMemberRec.officeName);
+			//setOfficePhone(tmpMemberRec.officePhone);
+
+			//getAllMembers(tmpMemberRec.hid, tmpMemberRec.spouseMid);
 		}
 		setHeader(myHeader);
+		document.addEventListener('DOMContentLoaded', (event) => {
+			setReady(true);
+		});
 	}, [])
 
 function handleSpouseSelect() {
@@ -237,9 +248,11 @@ function updateNewSpouse() {
 	//console.log(newSpouseMid);
 }
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function handleMemberAddEditSubmit() {
-
+	setModalIsOpen(true);
+	
 	/*var tmpRec = {
 		title: emurAddr1,
 		lastName: emurAddr2,
@@ -265,10 +278,10 @@ async function handleMemberAddEditSubmit() {
 	console.log(myProps.memberRec);
 	// first update if change of name
 	tmpRec["title"] = emurAddr1;
-	tmpRec["lastName"] = emurAddr2;
-	tmpRec["firstName"] = emurAddr3;
-	tmpRec["middleName"] = emurAddr4;
-	tmpRec["alias"] = emurAddr5;
+	tmpRec["lastName"] = correctName(emurAddr2);
+	tmpRec["firstName"] = correctName(emurAddr3);
+	tmpRec["middleName"] = correctName(emurAddr4);
+	tmpRec["alias"] = correctName(emurAddr5);
 	// update personal details
 	tmpRec["relation"] = emurAddr6;
 	tmpRec["gender"] = emurAddr7;
@@ -277,7 +290,7 @@ async function handleMemberAddEditSubmit() {
 	tmpRec["mobile"] = emurAddr11;
 	tmpRec["mobile1"] = emurAddr12;
 	// encrypt email
-	tmpRec["email"] = encrypt((emurAddr13 !== "") ? emurAddr13 : "-");
+	tmpRec["email"] = encrypt((emurAddr13 !== "") ? emurAddr13.toLowerCase() : "-");
 	// Now dates 
 	tmpRec["dob"] = emurDate1.toDate();
 	// Office 
@@ -285,9 +298,8 @@ async function handleMemberAddEditSubmit() {
 	tmpRec["education"] = education;
 	tmpRec["officePhone"] = officePhone;
 	tmpRec["officeName"] = company;
-	
-	console.log(tmpRec);
-	
+	//console.log(tmpRec);
+
 	// Now send the details to server
 	var myData = {
 		hid: myProps.memberRec.hid,
@@ -310,6 +322,7 @@ async function handleMemberAddEditSubmit() {
 		myMsg = `Error applying for add/edit member personal details`;
 		myStatus = STATUS_INFO.ERROR;
 	}
+	//setModalIsOpen(false);
 	var returnStatus = {status: myStatus,  msg: myMsg};
 	sessionStorage.setItem(myProps.applicationRec ? "application_returnstatus" : "family_personal_returnstatus", JSON.stringify(returnStatus));
 	//notreq sessionStorage.setItem("family_currentSelection", myProps.calledFrom);
@@ -321,6 +334,26 @@ function handleCancel() {
 	setTab(myProps.calledFrom);
 }
 
+//const [modalIsOpen,setIsOpen] = React.useState(false);
+
+/*
+function openModal() {
+setIsOpen(true);
+}
+
+function afterOpenModal() {
+// references are now sync'd and can be accessed.
+//subtitle.style.color = '#f00';
+}
+
+function closeModal(){
+setIsOpen(false);
+}
+
+*/
+
+	
+	
 return (
 	<div className={gClasses.webPage} >
 	<Container component="main" maxWidth="xs">	
@@ -609,9 +642,20 @@ return (
 			<br />
 		</Accordion>
 		<br />
+		{(ready) &&
 		<VsButton align="center" name={(myProps.mode === "ADD") ? "Add" : "Update"} type="submit" />		
+		}
 	</ValidatorForm>
 	<ToastContainer />
+	<Modal
+		isOpen={modalIsOpen}
+		style={modalStyles}
+		contentLabel="Example Modal"
+		aria-labelledby="modalTitle"
+		aria-describedby="modalDescription"
+	>
+		<ShowProgress msg="Updating application ..." />
+	</Modal>
 	</Box>
 	</Container>
 	</div>

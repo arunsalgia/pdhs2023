@@ -68,19 +68,10 @@ import {
 
 export default function ApplicationAddEditMember() {
 	const gClasses = globalStyles();
-	//console.log(sessionStorage.getItem("application_appRec"));
 	const myProps = JSON.parse(sessionStorage.getItem("application_appRec"));
-	//console.log(myProps.data);
 	var readOnly = sessionStorage.getItem("application_readonly");
-	//console.log(readOnly);
-	if (readOnly !== null) {
-		readOnly = true;
-	}
-	else
-		readOnly = false;
-	
-	
-	//const [registerStatus, setRegisterStatus] = useState(0);
+	readOnly = (readOnly !== null);
+
 	const [appData, setAppdata] = useState(JSON.parse(myProps.applicationRec.data));
 	const [hasFamilyLock, SetHasFamilyLock] = useState(true);
    
@@ -88,18 +79,13 @@ export default function ApplicationAddEditMember() {
 	const [expandedPanel, setExpandedPanel] = useState("");
 	const handleAccordionChange = (panel) => (event, isExpanded) => {
 		setExpandedPanel(isExpanded ? panel : false);
-		//setRegisterStatus(0);
 	};
-	
 	
 	const [remarks, setRemarks] = useState("");
 	const [action, setAction] = useState("");
 	const [stage, setStage] = useState("INITIAL");
 
-   
-	//console.log(appData.oldMemberRec.email)
-	//console.log(appData.memberRec.email)
-   
+	
    async function checkLock() {
      var tmpData = JSON.parse(myProps.applicationRec.data);
       console.log(tmpData);
@@ -108,11 +94,10 @@ export default function ApplicationAddEditMember() {
    }
    
 	useEffect(() => {
-      checkLock();
-      
+      checkLock();  
 	}, [])
 
-
+/*
 async function handleReapply() {    
 
    var tmp = JSON.parse(myProps.applicationRec.data);
@@ -136,6 +121,8 @@ async function handleReapply() {
    sessionStorage.setItem("family_personal_props", myData);
    setTab(process.env.REACT_APP_FAMILY_PERSONAL_ADD);
 }
+*/
+
 
 async function handleMemberAddEditSubmit() {
 	myProps.onReturn.call(this, {status: STATUS_INFO.ERROR, msg: `Error Add/Edit gotra`});
@@ -148,11 +135,6 @@ async function handleApplicationReject() {
 }
 
 async function handleApplicationApprove() {
-	//if (appData.mode === "ADD") {
-	//	showError("Approve on add not yet implemented");
-	//	return;
-	//}
-		
 	setAction("Approve");
 	setStage("Approve");
 }
@@ -248,7 +230,6 @@ function handleCancel() {
 }
 
 
-	//console.log(appData);
 	if (!appData.hid) return false;
 	//console.log(appData.memberRec);
 	var newTitlePrefix = "New";   //(appData.mode === "EDIT")  ? "" : "New ";
@@ -348,10 +329,7 @@ return (
 	{(hasPRWSpermission() && (myProps.applicationRec.status === APPLICATIONSTATUS.pending) && (stage === "INITIAL") && (!readOnly)) &&
 		<YesNoButton title="" yesName="Approve" noName="Reject" yesClick={handleApplicationApprove} noClick={handleApplicationReject} />
 	}
-	{(false && (myProps.applicationRec.status === APPLICATIONSTATUS.rejected) && (sessionStorage.getItem("mid") == myProps.applicationRec.mid) && (!hasFamilyLock)) &&
-		<VsButton align="center" name="Re-Apply" onClick={handleReapply} />
-	}	
-   {((stage === "Approve") || (stage === "Reject")) && 
+	{((stage === "Approve") || (stage === "Reject")) && 
 		<YesNoButton title={`${stage} Application?`} yesName="Yes" noName="No" yesClick={() => setStage("Remarks") } noClick={() => setStage("INITIAL") } />
 	}
 	{((stage === "Remarks") && (myProps.applicationRec.status === "Pending")) &&

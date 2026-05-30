@@ -103,7 +103,7 @@ const validNumbers = [
 	{name: '9867100677', uid: 3, type: 'Admin'},
 	{name: '9867061850', uid: 4, type: 'Guest'}
 	];
-	
+	 
 	
 router.get('/jaijinendra/:myData', async function (req, res, next) {
   setHeader(res);

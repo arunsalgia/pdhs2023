@@ -72,6 +72,7 @@ import {
 	getMemberName,
 	dateString, dateStringMMM, disableFutureDt,
 	getAge,
+	correctName,
 	
 } from 'views/functions';
 
@@ -314,14 +315,14 @@ async function handleNewMembership() {
    var myData = {
      hid: 0,
      title: title,
-     lastName: lastName,
-     firstName: firstName,
-     middleName: middleName,
-     alias: alias,
+     lastName: correctName(lastName),
+     firstName: correctName(firstName),
+     middleName: correctName(middleName),
+     alias: correctName(alias),
      gotra: currentGotraRec.gotra,
      caste: caste,
      subCaste: subCaste,
-     village: village,
+     village: correctName(village),
      humadMembership: humadMembership,
 		 prwsMembership: true,		//		prwsMembership,
      pjymMembership: pjymMembership,
@@ -332,8 +333,8 @@ async function handleNewMembership() {
 		 dom: dom,
      persMobile1: persMobile1,
      persMobile2: persMobile2,
-     persEmail1: encrypt((persEmail1 !== "") ? persEmail1 : "-"),
-		 persEmail2: encrypt((persEmail2 !== "") ? persEmail2 : "-"),
+     persEmail1: encrypt((persEmail1 !== "") ? persEmail1.toLowerCase() : "-"),
+		 persEmail2: encrypt((persEmail2 !== "") ? persEmail2.toLowerCase() : "-"),
      // update ADDRESS
      indianResident: indian,
      addr1: emurAddr1,
@@ -343,10 +344,10 @@ async function handleNewMembership() {
      addr5: emurAddr5,
      district: district,
      suburb: suburb,
-     city: city,
+     city: correctName(city),
 		 mmr: isMmr,
      state: state,
-     country: (indian) ? 'India' : country,
+     country: (indian) ? 'India' : correctName(country),
      pinCode: emurPinCode,
 		 applier:  sessionStorage.getItem('prwsLogin'),
    };
@@ -446,6 +447,8 @@ function handleDob(newDate) {
 	setDob(newDate);
 	checkMembershipEligibility(caste, subCaste, village, city, newDate.toDate());
 }
+
+
 
 return (
 	<div className={gClasses.webPage} >
