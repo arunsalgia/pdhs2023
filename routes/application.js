@@ -222,7 +222,7 @@ return { $regex: name, $options: "i" }
 router.get('/list', async function (req, res) {
   setHeader(res);
 
-	let myData = await M_Application.find({}).sort({id: 1});
+	let myData = await M_Application.find({status: {$ne: APPLICATIONSTATUS.deleted}}).sort({id: 1});
 	//console.log(myData);
 	sendok(res, myData);
 });		
@@ -231,7 +231,7 @@ router.get('/list/:mid', async function (req, res) {
   setHeader(res);
 	var {mid } = req.params;
 
-	let myData = await M_Application.find({mid: mid}).sort({id: 1});
+	let myData = await M_Application.find({mid: mid, status: {$ne: APPLICATIONSTATUS.deleted} }).sort({id: 1});
 	sendok(res, myData);
 });		
 
@@ -240,7 +240,7 @@ router.get('/filterlist/:filterData', async function (req, res) {
 	var { filterData } = req.params;
 	filterData = JSON.parse(filterData);
 
-	var cond = {};
+	var cond = {status: {$ne: APPLICATIONSTATUS.deleted} };
 	if (filterData.adminRec.mid === 0) {	// Not admin
 	 if (filterData.mid !== 0)
 		cond = {mid: filterData.mid};			// For member non-admin
@@ -301,7 +301,7 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
   setHeader(res);
 	var {appId, adminMid,comments } = req.params;
 	//console.log(appId, comments, adminMid);
-	let aRec = await M_Application.findOne({id: appId});
+	let aRec = await M_Application.findOne({id: appId, status: {$ne: APPLICATIONSTATUS.deleted} });
 	if (!aRec) return senderr(res, 601, 'Application not found');
 	//console.log(aRec);
   //console.log(aRec.desc);
@@ -498,13 +498,17 @@ router.get('/delete/:editorMid/:applicationId', async function (req, res) {
 	console.log(editorMid, applicationId);
 	var editorRec = await memberGetByMidOne(Number(editorMid));
 	
-	var aRec = await M_Application.findOne({id: applicationId});
+	var aRec = await M_Application.findOne({id: applicationId, status: {$ne: APPLICATIONSTATUS.deleted} });
 	console.log(aRec);
 	if (!aRec) return senderr(res, 602, 'Invalid Application Id');
 
 	sendok(res, "Done");
 	
-	await M_Application.deleteOne({id: applicationId});
+	// Do not delete the application. Mark it as deleted
+	//await M_Application.deleteOne({id: applicationId});
+	aRec.status = APPLICATIONSTATUS.deleted;
+	await aRec.save();
+	
 	var myData = JSON.parse(aRec.data);
 	
 	// Now remove the family lock
@@ -536,7 +540,7 @@ router.get('/reject/:id/:adminMid/:comments', async function (req, res) {
   setHeader(res);
 	var {id, adminMid,comments } = req.params;
 	//console.log(id, comments, adminMid);
-	let aRec = await M_Application.findOne({id: id});
+	let aRec = await M_Application.findOne({id: id, status: {$ne: APPLICATIONSTATUS.deleted}});
 	var applData = JSON.parse(aRec.data);
 
 	// Admin Mid will be availbale since only admin can reject the application
@@ -1973,7 +1977,7 @@ router.get('/test', async function (req, res) {
   setHeader(res);
 	var {id, adminName,comments } = req.params;
 	
-	let allRec = await M_Application.find({});
+	let allRec = await M_Application.find( {status: {$ne: APPLICATIONSTATUS.deleted} });
 	for(var i=0; i<allRec.length; ++i) {
 		var memRec = await memberGetByMidOne(allRec[i].mid);
 		//console.log(memRec);

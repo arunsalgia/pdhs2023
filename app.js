@@ -659,11 +659,12 @@ APPROVE_ERRORS = {
    NONHUMAD:      {code: 806,    desc: "Non Humad membership currently not supported"},
 	 
 }
-
+ 
 APPLICATIONSTATUS = {
 	approved:  	"Approved",
 	rejected: 	"Rejected",
-	pending: 	  "Pending"
+	pending: 	  "Pending",
+	deleted:    "Deleted"
 };
 
 PRWSACTION = {
