@@ -241,7 +241,8 @@ async function sendCricHtmlMail (dest, mailSubject, mailText) {
   gmailOptions.to = dest;
   gmailOptions.subject = mailSubject;
   gmailOptions.html = mailText;
-
+	console.log(dest);
+	
   try {
     const res = await send(gmailOptions);
     return {status: true, error: 'Email Successfully sent'};

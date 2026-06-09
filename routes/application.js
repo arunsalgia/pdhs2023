@@ -4,7 +4,7 @@ const {
       sendCricMail, sendCricHtmlMail,
 	numberDate,  getDate,
 	getMemberName,
-} = require('./functions'); 
+} = require('./functions');  
 
 const { 
    clearMemberListInMemory,
@@ -194,12 +194,12 @@ async function addApplication(hodmid, editor_mid, appData, appDesc, appOwner, au
 		</div>`
    
     var myEmail = dbdecrypt(editorRec.email)
-    myEmail = 'arunsalgia@gmail.com'
+    //myEmail = 'arunsalgia@gmail.com'
     let resp = await sendCricHtmlMail(myEmail, PRWSMAILHEADER.applicationbyAdmin, htmlText);
 
     console.log(myMsg);
    }
-   
+		
    console.log("Job done. Clearing flag");
    SEM_ENTERED = 0;     // done
    return aRec;
@@ -328,7 +328,7 @@ router.get('/approve/:appId/:adminMid/:comments', async function (req, res) {
 			retObject = await approve_newHod(aRec);
 			break;
 		case APPLICATIONTYPES.editGotra:
-         // now get the prwsmem update info from remarks
+         // now get the prws mem update info from remarks
          var ppp = comments.split("ARUNSALGIA");
          console.log(ppp);
          comments = ppp[1];  // actual comments
